@@ -1,5 +1,11 @@
 {% extends "admin/base.html" %}
 {% load url from future %}
+{% load assets %}
+
+{% block extrahead %}
+    {% stylesheet "css/cms.pages.css" %}
+    {{block.super}}
+{% endblock %}
 
 
 {% block title %}{{title}} - {{settings.SITE_NAME}} administration{% endblock %}
@@ -7,4 +13,16 @@
 
 {% block branding %}
     <h1 id="site-name">{{settings.SITE_NAME}} administration</h1>
+{% endblock %}
+
+
+{% block footer_links %}
+  <a href="https://onespacemedia.zendesk.com/anonymous_requests/new" target="_blank" class="icon"><i class="icon-question-sign"></i>Support</a>
+{% endblock %}
+
+{% block copyright %}
+  Copyright &copy; 2013 {{settings.SITE_NAME}}<br>Developed by <a href="http://onespacemedia.com" target="_blank">Onespacemedia</a>
+{% endblock %}
+
+{% block footer_branding %}
 {% endblock %}

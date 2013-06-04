@@ -20,6 +20,10 @@ SITE_DOMAIN = "example.com"
 
 PREPEND_WWW = True
 
+ALLOWED_HOSTS = [
+    'www.{{ project_name }}.webfactional.com',
+    '{{ project_name }}.webfactional.com',
+]
 
 # Database settings.
 
@@ -37,7 +41,7 @@ DATABASES = {
 
 # Absolute path to the directory where all uploaded media files are stored.
 
-MEDIA_ROOT = "/var/media/{{ project_name }}"
+MEDIA_ROOT = "/home/{{ project_name }}/webapps/{{ project_name }}_media"
 
 MEDIA_URL = "/media/"
 
@@ -46,22 +50,22 @@ FILE_UPLOAD_PERMISSIONS = 0644
 
 # Absolute path to the directory where static files will be collected.
 
-STATIC_ROOT = "/var/static/{{ project_name }}"
+STATIC_ROOT = "/home/{{ project_name }}/webapps/{{ project_name }}_static"
 
 STATIC_URL = "/static/"
 
 
 # Email settings.
 
-EMAIL_HOST = ""
+EMAIL_HOST = "smtp.webfaction.com"
 
-EMAIL_HOST_USER = ""
+EMAIL_HOST_USER = "{{ project_name }}"
 
 EMAIL_HOST_PASSWORD = ""
 
-EMAIL_PORT = 25
+EMAIL_PORT = 587
 
-EMAIL_USE_TLS = False
+EMAIL_USE_TLS = True
 
 SERVER_EMAIL = u"{name} <notifications@{domain}>".format(
     name = SITE_NAME,
@@ -75,7 +79,9 @@ EMAIL_SUBJECT_PREFIX = "[%s] " % SITE_NAME
 
 # Error reporting settings.  Use these to set up automatic error notifications.
 
-ADMINS = ()
+ADMINS = (
+    ("Onespacemedia Errors", "errors@onespacemedia.com"),
+)
 
 MANAGERS = ()
 
@@ -108,6 +114,7 @@ INSTALLED_APPS = (
     "django.contrib.contenttypes",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "suit",
     "django.contrib.admin",
     "django.contrib.sitemaps",
     "optimizations",
