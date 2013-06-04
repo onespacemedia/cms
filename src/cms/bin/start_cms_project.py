@@ -4,6 +4,7 @@
 Starts a new CMS project with the given name.
 """
 
+import os
 import sys
 
 from django.core import management
@@ -15,7 +16,7 @@ def start_cms_project():
         raise management.CommandError("start_cms_project accepts one argument - the name of the project to create.")
     management.call_command("startproject",
         argv[1],
-        template = "../project_template/",
+        template = "{}/../project_template/".format(os.path.dirname( __file__ )),
         n = "py,css,html,gitignore",
     )
 
