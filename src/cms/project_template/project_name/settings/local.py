@@ -80,3 +80,8 @@ DEBUG_TOOLBAR_PANELS = (
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False
 }
+
+# Webfaction integration
+INSTALLED_APPS = INSTALLED_APPS + (
+    'webfaction_integration',
+)
