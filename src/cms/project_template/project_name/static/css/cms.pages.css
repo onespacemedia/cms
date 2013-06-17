@@ -117,3 +117,7 @@ body.page-content-types span.content-type-name {
 .defaultSkin table.mceLayout {
     width: calc(100% - 2px) !important;
 }
+
+.popup.media-file .form-horizontal fieldset.collapsed {
+    margin-top: 35px;
+}
