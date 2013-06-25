@@ -25,6 +25,10 @@ ALLOWED_HOSTS = [
     '{{ project_name }}.webfactional.com',
 ]
 
+SUIT_CONFIG = {
+    'ADMIN_NAME': SITE_NAME
+}
+
 # Database settings.
 
 DATABASES = {
