@@ -17,7 +17,7 @@ def start_cms_project():
     management.call_command("startproject",
         argv[1],
         template = "{}/../project_template/".format(os.path.dirname( __file__ )),
-        n = "py,css,html,gitignore",
+        n = "js,scss,rb,py,css,html,gitignore",
     )
 
 
