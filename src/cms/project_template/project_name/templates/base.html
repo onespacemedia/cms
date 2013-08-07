@@ -8,6 +8,7 @@
         <meta name="keywords" content="{% block meta_keywords %}{% meta_keywords %}{% endblock %}">
         <meta name="description" content="{% block meta_description %}{% meta_description %}{% endblock %}">
         <meta name="robots" content="{% block meta_robots %}{% meta_robots %}{% endblock %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <link rel="canonical" href="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}{{ request.path }}" />
 
         <title>{% block title %}{% title %}{% endblock %}</title>
