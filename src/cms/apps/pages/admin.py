@@ -61,7 +61,10 @@ class PageAdmin(PageBaseAdmin):
         if externals.reversion:
             self._autoregister(model, follow=["page"])
             adapter = self.revision_manager.get_adapter(Page)
-            adapter.follow = tuple(adapter.follow) + (model._meta.get_field("page").related.get_accessor_name(),)
+            try:
+                adapter.follow = tuple(adapter.follow) + (model._meta.get_field("page").related.get_accessor_name(),)
+            except:
+                pass
 
     def __init__(self, *args, **kwargs):
         """Initialzies the PageAdmin."""
@@ -89,8 +92,7 @@ class PageAdmin(PageBaseAdmin):
         obj = getattr(request, "_admin_change_obj", None)  # HACK: Retrieve the page from the change view.
         content_cls = self.get_page_content_cls(request, obj)
         for cls, inline in self.content_inlines:
-            if cls == content_cls:
-                inline_instances.append(inline(self.model, self.admin_site))
+            inline_instances.append(inline(self.model, self.admin_site))
         # All done!
         return inline_instances
 
@@ -103,7 +105,11 @@ class PageAdmin(PageBaseAdmin):
         instances.append(object.content)
         # Add all the content inlines.
         for _, inline in self.content_inlines:
-            instances.extend(inline.model._default_manager.filter(page=object))
+            # pass
+            try:
+                instances.extend(inline.model._default_manager.filter(page=object))
+            except:
+                pass
         return instances
 
     def get_revision_form_data(self, request, obj, version):
