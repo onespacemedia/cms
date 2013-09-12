@@ -92,7 +92,8 @@ class PageAdmin(PageBaseAdmin):
         obj = getattr(request, "_admin_change_obj", None)  # HACK: Retrieve the page from the change view.
         content_cls = self.get_page_content_cls(request, obj)
         for cls, inline in self.content_inlines:
-            inline_instances.append(inline(self.model, self.admin_site))
+            if cls == content_cls:
+                inline_instances.append(inline(self.model, self.admin_site))
         # All done!
         return inline_instances
 
