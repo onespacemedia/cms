@@ -7,6 +7,6 @@ setup(
     author='Daniel Samuels',
     author_email='daniel@onespacemedia.com',
     url='https://github.com/onespacemedia/cms/',
-    package_dir={'cms': 'src'},
+    package_dir={'cms': 'src/cms'},
     packages=['cms'],
 )
