@@ -42,15 +42,13 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
 
 # Create the setup config.
 setup(
-    name = "etianen-cms",
+    name = "etianen-cms-onespacemedia",
     version = ".".join(str(n) for n in VERSION),
     description = "A collection of Django extensions that add content-management facilities to Django projects.",
     long_description = open("README.md").read(),
     author = "Dave Hall",
     author_email = "dave@etianen.com",
-    url = "http://github.com/etianen/cms",
-    download_url = "http://github.com/downloads/etianen/cms/etianen-cms-{version_str}.tar.gz".format(version_str=VERSION_STR),
-    zip_safe = False,
+    url = "http://github.com/onespacemedia/cms",
     package_dir = {
         "": "src",
     },
