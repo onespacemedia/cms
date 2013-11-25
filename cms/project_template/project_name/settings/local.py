@@ -7,6 +7,7 @@ using the django-admin.py utility.
 This file should be excluded from version control to keep the settings local.
 """
 
+import os
 import os.path
 
 from production import DATABASES, MIDDLEWARE_CLASSES, INSTALLED_APPS, CACHES
@@ -45,9 +46,9 @@ TEMPLATE_LOADERS = (
 
 #DATABASES["default"]["NAME"] = ""
 
-#DATABASES["default"]["USER"] = ""
+DATABASES["default"]["USER"] = os.getlogin()
 
-#DATABASES["default"]["PASSWORD"] = ""
+DATABASES["default"]["PASSWORD"] = ""
 
 
 # Optional console-based email backend.
