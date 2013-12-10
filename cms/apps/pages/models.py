@@ -21,9 +21,9 @@ def get_default_page_parent():
 
 
 class PageManager(OnlineBaseManager):
-    
+
     """Manager for Page objects."""
-    
+
     def select_published(self, queryset, page_alias=None):
         """Selects only published pages."""
         queryset = super(PageManager, self).select_published(queryset)
@@ -65,7 +65,7 @@ class PageManager(OnlineBaseManager):
             params = (now, now),
         )
         return queryset
-    
+
     def get_homepage(self):
         """Returns the site homepage."""
         return self.prefetch_related("child_set__child_set").get(parent=None)
@@ -74,9 +74,9 @@ class PageManager(OnlineBaseManager):
 class Page(PageBase):
 
     """A page within the site."""
-    
+
     objects = PageManager()
-    
+
     # Hierarchy fields.
 
     parent = models.ForeignKey(
@@ -91,12 +91,12 @@ class Page(PageBase):
         editable = False,
         db_index = True,
     )
-    
+
     right = models.IntegerField(
         editable = False,
         db_index = True,
     )
-    
+
     @cached_property
     def children(self):
         """The child pages for this page."""
@@ -106,14 +106,14 @@ class Page(PageBase):
                 child.parent = self
                 children.append(child)
         return children
-    
+
     @property
     def navigation(self):
         """The sub-navigation of this page."""
         return [child for child in self.children if child.in_navigation]
-    
+
     # Publication fields.
-    
+
     publication_date = models.DateTimeField(
         blank = True,
         null = True,
@@ -137,13 +137,13 @@ class Page(PageBase):
     )
 
     # Content fields.
-    
+
     content_type = models.ForeignKey(
         ContentType,
         editable = False,
         help_text="The type of page content.",
     )
-    
+
     @cached_property
     def content(self):
         """The associated content model for this page."""
@@ -162,19 +162,19 @@ class Page(PageBase):
         return self.get_absolute_url() + urlresolvers.reverse(view_func, args=args, kwargs=kwargs, urlconf=urlconf, prefix="")
 
     # Standard model methods.
-    
+
     def get_absolute_url(self):
         """Generates the absolute url of the page."""
         if self.parent:
             return self.parent.get_absolute_url() + self.url_title + "/"
         return urlresolvers.get_script_prefix()
-    
+
     # Tree management.
-    
+
     @property
     def _branch_width(self):
         return self.right - self.left + 1
-    
+
     def _excise_branch(self):
         """Excises this whole branch from the tree."""
         branch_width = self._branch_width
@@ -184,7 +184,7 @@ class Page(PageBase):
         Page.objects.filter(right__gte=self.left).update(
             right = F("right") - branch_width,
         )
-        
+
     def _insert_branch(self):
         """Inserts this whole branch into the tree."""
         branch_width = self._branch_width
@@ -194,7 +194,7 @@ class Page(PageBase):
         Page.objects.filter(right__gte=self.left).update(
             right = F("right") + branch_width,
         )
-        
+
     def save(self, *args, **kwargs):
         """Saves the page."""
         # Lock entire table.
@@ -265,11 +265,11 @@ externals.historylinks("register", Page)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
-    
+
     """Sitemap for page models."""
-    
+
     model = Page
-    
+
     def items(self):
         """Only lists items that are marked as indexable."""
         return filter_indexable_pages(super(PageSitemap, self).items())
@@ -279,12 +279,34 @@ sitemaps.register(Page, sitemap_cls=PageSitemap)
 
 
 class PageSearchAdapter(PageBaseSearchAdapter):
-    
+
     """Search adapter for Page models."""
-    
+
     def get_content(self, obj):
         """Returns the search text for the page."""
         content_obj = obj.content
+
+        content = ''
+
+        # Does this object have a section_set?
+        section_set = getattr(content_obj.page, 'section_set', None)
+
+        if section_set:
+            sections = section_set.all()
+
+            for section in sections:
+                field_names = (
+                    field.name for field
+                    in section._meta.fields
+                    if isinstance(field, (models.CharField, models.TextField))
+                )
+
+                content = content + self.prepare_content(" ".join(
+                    force_text(self._resolve_field(section, field_name))
+                    for field_name in field_names
+                ))
+
+
         return u" ".join((
             super(PageSearchAdapter, self).get_content(obj),
             self.prepare_content(u" ".join(
@@ -295,8 +317,8 @@ class PageSearchAdapter(PageBaseSearchAdapter):
                     if isinstance(field, (models.CharField, models.TextField))
                 )
             ))
-        ))
-        
+        )) + content
+
     def get_live_queryset(self):
         """Selects the live page queryset."""
         # HACK: Prevents a table name collision in the Django queryset manager.
@@ -308,8 +330,8 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         qs = filter_indexable_pages(qs)
         # All done!
         return qs
-        
-        
+
+
 externals.watson("register", Page, adapter_cls=PageSearchAdapter)
 
 
@@ -321,8 +343,8 @@ def get_registered_content():
         model for model in models.get_models()
         if issubclass(model, ContentBase) and not model._meta.abstract
     ]
-    
-    
+
+
 def filter_indexable_pages(queryset):
     """
     Filters the given queryset of pages to only contain ones that should be
@@ -337,12 +359,12 @@ def filter_indexable_pages(queryset):
             if content_model.robots_index
         ]
     )
-    
+
 
 class ContentBase(models.Model):
-    
+
     """Base class for page content."""
-    
+
     # This must be a 64 x 64 pixel image.
     icon = "pages/img/content.png"
 
@@ -351,23 +373,23 @@ class ContentBase(models.Model):
 
     # The urlconf used to power this content's views.
     urlconf = "cms.apps.pages.urls"
-    
+
     # A fieldset definition. If blank, one will be generated.
     fieldsets = None
-    
+
     # Whether pages of this type should be included in search indexes. (Can still be disabled on a per-page basis).
     robots_index = True
-    
+
     page = models.OneToOneField(
         Page,
         primary_key = True,
         editable = False,
         related_name = "+",
     )
-    
+
     def __unicode__(self):
         """Returns a unicode representation."""
         return unicode(self.page)
-    
+
     class Meta:
         abstract = True
