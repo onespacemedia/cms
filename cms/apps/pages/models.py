@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.db import models, connection
 from django.db.models import Q, F
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from django.utils import timezone
 
