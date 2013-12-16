@@ -219,7 +219,11 @@ class Page(PageBase):
                 self.right = 2
         else:
             # This is an update.
-            old_parent_id = existing_pages[self.id]["parent_id"]
+            if self.id not in existing_pages:
+                old_parent_id = -1
+            else:
+                old_parent_id = existing_pages[self.id]["parent_id"]
+
             if old_parent_id != self.parent_id:
                 # The page has moved.
                 branch_width = self.right - self.left + 1
