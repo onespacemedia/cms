@@ -27,6 +27,26 @@ a modular approach, allowing you to pick the parts you need, and extend it where
 *   Simple blog managment (via bundled [News app](https://github.com/etianen/cms/wiki/news-app)).
 
 
+Please note
+-----------
+
+This fork of etianen-cms contains many modifications which are specific to the needs of [Onespacemedia](http://onespacemedia.com). You may prefer to use the original repository instead of this one. With that in mind, here are all of the dependancies required for this to work:
+
+* psycopg2
+* django-suit
+* django-optimizations
+* Pillow (or PIL, but Pillow is preferred)
+* django-reversion (You may not want to use the latest version of this, check the [compatible versions](http://django-reversion.readthedocs.org/en/latest/django-versions.html) list
+* django-usertools
+* django-historylinks
+* django-watson
+* South
+
+..or just run
+
+    pip install psycopg2 django-suit django-optimizations Pillow django-reversion django-usertools django-historylinks django-watson South 
+
+
 Documentation
 -------------
 
