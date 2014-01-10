@@ -55,6 +55,7 @@ DATABASES["default"]["PASSWORD"] = ""
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+"""
 # Debug toolbar
 MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -86,3 +87,4 @@ DEBUG_TOOLBAR_CONFIG = {
 INSTALLED_APPS = INSTALLED_APPS + (
     'webfaction_integration',
 )
+"""
