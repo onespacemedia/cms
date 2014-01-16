@@ -186,7 +186,10 @@ def article_date_list(context, page):
     # Resolve the current year.
     current_year = context.get("year", None)
     if current_year is not None:
-        current_year = int(current_year)
+        try:
+            current_year = int(current_year)
+        except:
+            current_year = int(current_year.year)
     else:
         current_month = context.get("month", None)
         if current_month is not None:
