@@ -1,5 +1,6 @@
 from distutils.core import setup
 import sys, os
+sys.path.append("cms")
 
 def fullsplit(path, result=None):
     """
