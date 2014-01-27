@@ -40,6 +40,9 @@ setup(
     author='Daniel Samuels',
     author_email='daniel@onespacemedia.com',
     url='https://github.com/onespacemedia/cms/',
+    package_dir = {
+        "": "cms",
+    },
     packages = packages,
     data_files = data_files,
     scripts = ['cms/bin/start_cms_project.py'],
