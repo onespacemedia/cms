@@ -32,8 +32,6 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
         packages.append('.'.join(fullsplit(dirpath)))
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
-        
-print packages
 
 setup(
     name='onespacemedia-cms',
