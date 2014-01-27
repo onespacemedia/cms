@@ -29,12 +29,12 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): del dirnames[i]
     if '__init__.py' in filenames:
+        print dirpath
         packages.append('.'.join(fullsplit(dirpath)[1:]))
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
         
 print packages
-print data_files
 
 setup(
     name='onespacemedia-cms',
