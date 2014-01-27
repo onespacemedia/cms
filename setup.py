@@ -1,6 +1,20 @@
 from distutils.core import setup
 import sys, os
 
+def fullsplit(path, result=None):
+    """
+    Split a pathname into components (the opposite of os.path.join) in a
+    platform-neutral way.
+    """
+    if result is None:
+        result = []
+    head, tail = os.path.split(path)
+    if head == '':
+        return [tail] + result
+    if head == path:
+        return result
+    return fullsplit(head, [tail] + result)
+
 # Compile the list of packages available, because distutils doesn't have
 # an easy way to do this.
 packages, data_files = [], []
