@@ -36,8 +36,6 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
     if '__init__.py' in filenames:
         if len(fullsplit(dirpath)[1:]) > 0:
             packages.append('cms.' + '.'.join(fullsplit(dirpath)[1:]))
-        else:
-            packages.append('.'.join(fullsplit(dirpath)[1:]))
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
@@ -49,7 +47,7 @@ setup(
 	name = "cms",
 	author = "Daniel Samuels",
 	author_email = "daniel@onespacemedia.com",
-	version = "1.0.2",
+	version = "1.0.3",
 	license = "BSD",
 	url = "https://github.com/onespacemedia/cms",
 	download_url = "https://github.com/onespacemedia/cms",
