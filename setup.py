@@ -1,19 +1,62 @@
 #!/usr/bin/env python
 #coding: utf-8
+import os
 
 from distutils.core import setup
+
+
+
+def fullsplit(path, result=None):
+    """
+    Split a pathname into components (the opposite of os.path.join) in a
+    platform-neutral way.
+    """
+    if result is None:
+        result = []
+    head, tail = os.path.split(path)
+    if head == '':
+        return [tail] + result
+    if head == path:
+        return result
+    return fullsplit(head, [tail] + result)
+
+
+# Compile the list of packages available, because distutils doesn't have
+# an easy way to do this.
+packages, data_files = [], []
+root_dir = os.path.dirname(__file__)
+if root_dir != '':
+    os.chdir(root_dir)
+cms_dir = 'cms'
+
+for dirpath, dirnames, filenames in os.walk(cms_dir):
+    # Ignore dirnames that start with '.'
+    for i, dirname in enumerate(dirnames):
+        if dirname.startswith('.'): del dirnames[i]
+    if '__init__.py' in filenames:
+        if len(fullsplit(dirpath)[1:]) > 0:
+            packages.append('cms.' + '.'.join(fullsplit(dirpath)[1:]))
+        else:
+            packages.append('.'.join(fullsplit(dirpath)[1:]))
+    elif filenames:
+        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+
+
+
+
 
 setup(
 	name = "cms",
 	author = "Daniel Samuels",
 	author_email = "daniel@onespacemedia.com",
-	version = "1.0.1",
+	version = "1.0.2",
 	license = "BSD",
 	url = "https://github.com/onespacemedia/cms",
 	download_url = "https://github.com/onespacemedia/cms",
 	description = "Onespacemedia's CMS for Django, forked from Etianen's CMS",
 	py_modules = ['cms'],
-	packages = ['cms.', 'cms.apps', 'cms.apps.links', 'cms.apps.links.migrations', 'cms.apps.links.static', 'cms.apps.links.static.links', 'cms.apps.links.static.links.img', 'cms.apps.media', 'cms.apps.media.migrations', 'cms.apps.media.static', 'cms.apps.media.static.media', 'cms.apps.media.static.media.img', 'cms.apps.media.static.media.js', 'cms.apps.media.templates', 'cms.apps.media.templates.admin', 'cms.apps.media.templates.admin.media', 'cms.apps.media.templates.admin.media.file', 'cms.apps.news', 'cms.apps.news.migrations', 'cms.apps.news.static', 'cms.apps.news.static.news', 'cms.apps.news.static.news.img', 'cms.apps.news.templates', 'cms.apps.news.templates.news', 'cms.apps.news.templates.news.includes', 'cms.apps.news.templatetags', 'cms.apps.pages', 'cms.apps.pages.migrations', 'cms.apps.pages.static', 'cms.apps.pages.static.pages', 'cms.apps.pages.static.pages.css', 'cms.apps.pages.static.pages.img', 'cms.apps.pages.static.pages.js', 'cms.apps.pages.templates', 'cms.apps.pages.templates.admin', 'cms.apps.pages.templates.admin.pages', 'cms.apps.pages.templates.admin.pages.page', 'cms.apps.pages.templates.pages', 'cms.apps.pages.templatetags', 'cms.bin', 'cms.models', 'cms.project_template', 'cms.project_template.project_name', 'cms.project_template.project_name.apps', 'cms.project_template.project_name.apps.site', 'cms.project_template.project_name.apps.site.migrations', 'cms.project_template.project_name.settings', 'cms.project_template.project_name.static', 'cms.project_template.project_name.static.css', 'cms.project_template.project_name.static.js', 'cms.project_template.project_name.static.js.foundation', 'cms.project_template.project_name.static.js.vendor', 'cms.project_template.project_name.static.sass', 'cms.project_template.project_name.templates', 'cms.project_template.project_name.templates.admin', 'cms.project_template.project_name.templates.admin.auth', 'cms.project_template.project_name.templates.admin.auth.user', 'cms.project_template.project_name.templates.admin.cms', 'cms.project_template.project_name.templates.admin.cms.publishedmodel', 'cms.project_template.project_name.templates.admin.pages', 'cms.static', 'cms.static.cms', 'cms.static.cms.js', 'cms.static.cms.js.tiny_mce', 'cms.static.cms.js.tiny_mce.langs', 'cms.static.cms.js.tiny_mce.plugins', 'cms.static.cms.js.tiny_mce.plugins.advhr', 'cms.static.cms.js.tiny_mce.plugins.advhr.css', 'cms.static.cms.js.tiny_mce.plugins.advhr.js', 'cms.static.cms.js.tiny_mce.plugins.advhr.langs', 'cms.static.cms.js.tiny_mce.plugins.advimage', 'cms.static.cms.js.tiny_mce.plugins.advimage.css', 'cms.static.cms.js.tiny_mce.plugins.advimage.img', 'cms.static.cms.js.tiny_mce.plugins.advimage.js', 'cms.static.cms.js.tiny_mce.plugins.advimage.langs', 'cms.static.cms.js.tiny_mce.plugins.advlink', 'cms.static.cms.js.tiny_mce.plugins.advlink.css', 'cms.static.cms.js.tiny_mce.plugins.advlink.js', 'cms.static.cms.js.tiny_mce.plugins.advlink.langs', 'cms.static.cms.js.tiny_mce.plugins.advlist', 'cms.static.cms.js.tiny_mce.plugins.autolink', 'cms.static.cms.js.tiny_mce.plugins.autoresize', 'cms.static.cms.js.tiny_mce.plugins.autosave', 'cms.static.cms.js.tiny_mce.plugins.autosave.langs', 'cms.static.cms.js.tiny_mce.plugins.bbcode', 'cms.static.cms.js.tiny_mce.plugins.contextmenu', 'cms.static.cms.js.tiny_mce.plugins.directionality', 'cms.static.cms.js.tiny_mce.plugins.emotions', 'cms.static.cms.js.tiny_mce.plugins.emotions.img', 'cms.static.cms.js.tiny_mce.plugins.emotions.js', 'cms.static.cms.js.tiny_mce.plugins.emotions.langs', 'cms.static.cms.js.tiny_mce.plugins.example', 'cms.static.cms.js.tiny_mce.plugins.example.img', 'cms.static.cms.js.tiny_mce.plugins.example.js', 'cms.static.cms.js.tiny_mce.plugins.example.langs', 'cms.static.cms.js.tiny_mce.plugins.example_dependency', 'cms.static.cms.js.tiny_mce.plugins.fullpage', 'cms.static.cms.js.tiny_mce.plugins.fullpage.css', 'cms.static.cms.js.tiny_mce.plugins.fullpage.js', 'cms.static.cms.js.tiny_mce.plugins.fullpage.langs', 'cms.static.cms.js.tiny_mce.plugins.fullscreen', 'cms.static.cms.js.tiny_mce.plugins.iespell', 'cms.static.cms.js.tiny_mce.plugins.inlinepopups', 'cms.static.cms.js.tiny_mce.plugins.inlinepopups.skins', 'cms.static.cms.js.tiny_mce.plugins.inlinepopups.skins.clearlooks2', 'cms.static.cms.js.tiny_mce.plugins.inlinepopups.skins.clearlooks2.img', 'cms.static.cms.js.tiny_mce.plugins.insertdatetime', 'cms.static.cms.js.tiny_mce.plugins.layer', 'cms.static.cms.js.tiny_mce.plugins.legacyoutput', 'cms.static.cms.js.tiny_mce.plugins.lists', 'cms.static.cms.js.tiny_mce.plugins.media', 'cms.static.cms.js.tiny_mce.plugins.media.css', 'cms.static.cms.js.tiny_mce.plugins.media.js', 'cms.static.cms.js.tiny_mce.plugins.media.langs', 'cms.static.cms.js.tiny_mce.plugins.nonbreaking', 'cms.static.cms.js.tiny_mce.plugins.noneditable', 'cms.static.cms.js.tiny_mce.plugins.pagebreak', 'cms.static.cms.js.tiny_mce.plugins.paste', 'cms.static.cms.js.tiny_mce.plugins.paste.js', 'cms.static.cms.js.tiny_mce.plugins.paste.langs', 'cms.static.cms.js.tiny_mce.plugins.preview', 'cms.static.cms.js.tiny_mce.plugins.preview.jscripts', 'cms.static.cms.js.tiny_mce.plugins.print', 'cms.static.cms.js.tiny_mce.plugins.save', 'cms.static.cms.js.tiny_mce.plugins.searchreplace', 'cms.static.cms.js.tiny_mce.plugins.searchreplace.css', 'cms.static.cms.js.tiny_mce.plugins.searchreplace.js', 'cms.static.cms.js.tiny_mce.plugins.searchreplace.langs', 'cms.static.cms.js.tiny_mce.plugins.spellchecker', 'cms.static.cms.js.tiny_mce.plugins.spellchecker.css', 'cms.static.cms.js.tiny_mce.plugins.spellchecker.img', 'cms.static.cms.js.tiny_mce.plugins.style', 'cms.static.cms.js.tiny_mce.plugins.style.css', 'cms.static.cms.js.tiny_mce.plugins.style.js', 'cms.static.cms.js.tiny_mce.plugins.style.langs', 'cms.static.cms.js.tiny_mce.plugins.tabfocus', 'cms.static.cms.js.tiny_mce.plugins.table', 'cms.static.cms.js.tiny_mce.plugins.table.css', 'cms.static.cms.js.tiny_mce.plugins.table.js', 'cms.static.cms.js.tiny_mce.plugins.table.langs', 'cms.static.cms.js.tiny_mce.plugins.template', 'cms.static.cms.js.tiny_mce.plugins.template.css', 'cms.static.cms.js.tiny_mce.plugins.template.js', 'cms.static.cms.js.tiny_mce.plugins.template.langs', 'cms.static.cms.js.tiny_mce.plugins.visualchars', 'cms.static.cms.js.tiny_mce.plugins.wordcount', 'cms.static.cms.js.tiny_mce.plugins.xhtmlxtras', 'cms.static.cms.js.tiny_mce.plugins.xhtmlxtras.css', 'cms.static.cms.js.tiny_mce.plugins.xhtmlxtras.js', 'cms.static.cms.js.tiny_mce.plugins.xhtmlxtras.langs', 'cms.static.cms.js.tiny_mce.themes', 'cms.static.cms.js.tiny_mce.themes.advanced', 'cms.static.cms.js.tiny_mce.themes.advanced.img', 'cms.static.cms.js.tiny_mce.themes.advanced.js', 'cms.static.cms.js.tiny_mce.themes.advanced.langs', 'cms.static.cms.js.tiny_mce.themes.advanced.skins', 'cms.static.cms.js.tiny_mce.themes.advanced.skins.default', 'cms.static.cms.js.tiny_mce.themes.advanced.skins.default.img', 'cms.static.cms.js.tiny_mce.themes.advanced.skins.highcontrast', 'cms.static.cms.js.tiny_mce.themes.advanced.skins.o2k7', 'cms.static.cms.js.tiny_mce.themes.advanced.skins.o2k7.img', 'cms.static.cms.js.tiny_mce.themes.simple', 'cms.static.cms.js.tiny_mce.themes.simple.img', 'cms.static.cms.js.tiny_mce.themes.simple.langs', 'cms.static.cms.js.tiny_mce.themes.simple.skins', 'cms.static.cms.js.tiny_mce.themes.simple.skins.default', 'cms.static.cms.js.tiny_mce.themes.simple.skins.o2k7', 'cms.static.cms.js.tiny_mce.themes.simple.skins.o2k7.img', 'cms.static.cms.js.tiny_mce.utils', 'cms.templates', 'cms.templates.admin', 'cms.templates.admin.cms', 'cms.templates.admin.cms.publishedmodel', 'cms.templates.pagination', 'cms.templatetags'],
+	packages = packages,
+    data_files = data_files,
 	install_requires = ['psycopg2', 'django-suit', 'django-optimizations', 'Pillow', 'django-reversion', 'django-usertools', 'django-historylinks', 'django-watson', 'South'],
 	scripts = ['cms/bin/start_cms_project.py']
 )
