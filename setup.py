@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #coding: utf-8
-import os
+import os, sys
 
 from distutils.core import setup
 
@@ -40,14 +40,14 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 
-
+print sys.prefix
 
 
 setup(
 	name = "cms",
 	author = "Daniel Samuels",
 	author_email = "daniel@onespacemedia.com",
-	version = "1.0.3",
+	version = "1.0.4",
 	license = "BSD",
 	url = "https://github.com/onespacemedia/cms",
 	download_url = "https://github.com/onespacemedia/cms",
