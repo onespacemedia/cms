@@ -35,7 +35,7 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
 
 setup(
     name='onespacemedia-cms',
-    version='1.1.1',
+    version='1.1.2',
     description='A collection of Django extensions that add content-management facilities to Django projects.',
     author='Daniel Samuels',
     author_email='daniel@onespacemedia.com',
