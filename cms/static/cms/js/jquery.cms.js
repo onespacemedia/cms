@@ -4,7 +4,7 @@
 
 
 (function($) {
-    
+
     /**
      * The main cms plugin. Use by passing in the name of the required method.
      */
@@ -15,10 +15,10 @@
             $.error("Method " +  method + " does not exist on jQuery.cms");
         }
     }
-    
+
     // Namespace for static cms plugins.
     $.cms = {};
-    
+
     /**
      * Gets the value of a named cookie.
      */
@@ -37,7 +37,7 @@
         }
         return cookieValue;
     }
-    
+
     /**
      * Disables text selection on the given element.
      */
@@ -56,7 +56,7 @@
         	}
         });
     }
-    
+
     /**
      * Activates a rich text area.
      */
@@ -66,7 +66,7 @@
             mode: "exact",
             setup: function(editor) {
                 editor.onPostProcess.add(function(editor, o) {
-                    o.content = o.content.replace(/&nbsp;/g, " ").replace(/ +/g, " ");
+                    //o.content = o.content.replace(/&nbsp;/g, " ").replace(/ +/g, " ");
                 });
             }
         }, cms.htmlWidget.extensions, config)
@@ -99,8 +99,8 @@
             }
         });
     }
-    
+
     // Extensions for the html widget.
     cms.htmlWidget.extensions = {};
-    
+
 }(django.jQuery));
