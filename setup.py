@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+#coding: utf-8
+import os, sys
+
 from distutils.core import setup
-import sys, os
-sys.path.append("cms")
+
+
 
 def fullsplit(path, result=None):
     """
@@ -16,6 +20,7 @@ def fullsplit(path, result=None):
         return result
     return fullsplit(head, [tail] + result)
 
+
 # Compile the list of packages available, because distutils doesn't have
 # an easy way to do this.
 packages, data_files = [], []
@@ -29,21 +34,27 @@ for dirpath, dirnames, filenames in os.walk(cms_dir):
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): del dirnames[i]
     if '__init__.py' in filenames:
-        packages.append('.'.join(fullsplit(dirpath)))
+        if len(fullsplit(dirpath)[1:]) > 0:
+            packages.append('cms.' + '.'.join(fullsplit(dirpath)[1:]))
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
+
+print sys.prefix
+
+
 setup(
-    name='onespacemedia-cms',
-    version='1.1.1',
-    description='A collection of Django extensions that add content-management facilities to Django projects.',
-    author='Daniel Samuels',
-    author_email='daniel@onespacemedia.com',
-    url='https://github.com/onespacemedia/cms/',
-    package_dir = {
-        "cms": "cms",
-    },
-    packages = packages,
+	name = "cms",
+	author = "Daniel Samuels",
+	author_email = "daniel@onespacemedia.com",
+	version = "1.0.4",
+	license = "BSD",
+	url = "https://github.com/onespacemedia/cms",
+	download_url = "https://github.com/onespacemedia/cms",
+	description = "Onespacemedia's CMS for Django, forked from Etianen's CMS",
+	py_modules = ['cms'],
+	packages = packages,
     data_files = data_files,
-    scripts = ['cms/bin/start_cms_project.py'],
+	install_requires = ['psycopg2', 'django-suit', 'django-optimizations', 'Pillow', 'django-reversion', 'django-usertools', 'django-historylinks', 'django-watson', 'South'],
+	scripts = ['cms/bin/start_cms_project.py']
 )

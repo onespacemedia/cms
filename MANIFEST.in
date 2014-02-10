@@ -1,3 +1,0 @@
-recursive-include src/cms *.html *.htm *.txt *.png *.jpg *.gif *.css *.js
-include LICENSE
-include README.md
