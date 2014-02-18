@@ -145,6 +145,12 @@ class Page(PageBase):
         help_text="The type of page content.",
     )
 
+    cached_url = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
+
     @cached_property
     def content(self):
         """The associated content model for this page."""
@@ -164,11 +170,21 @@ class Page(PageBase):
 
     # Standard model methods.
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, cached=True):
         """Generates the absolute url of the page."""
+        if self.cached_url and cached:
+            return self.cached_url
+
         if self.parent:
-            return self.parent.get_absolute_url() + self.url_title + "/"
-        return urlresolvers.get_script_prefix()
+            url = self.parent.get_absolute_url() + self.url_title + "/"
+        else:
+            url = urlresolvers.get_script_prefix()
+
+        if url != self.cached_url:
+            self.cached_url = url
+            self.save()
+
+        return url
 
     # Tree management.
 
@@ -253,6 +269,8 @@ class Page(PageBase):
                     )
         # Now actually save it!
         super(Page, self).save(*args, **kwargs)
+
+        self.get_absolute_url(False)
 
     def delete(self, *args, **kwargs):
         """Deletes the page."""

@@ -2,7 +2,7 @@
     <ul>
         {% for entry in navigation %}
             <li>
-                <a{% if entry.here %} class="here"{% endif %}{% if entry.content.new_window %} target="_blank"{% endif %} href="{{entry.url}}">{{entry.title}}</a>
+                <a{% if entry.here %} class="here"{% endif %} href="{{entry.url}}">{{entry.title}}</a>
             </li>
         {% endfor %}
     </ul>
