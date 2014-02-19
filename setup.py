@@ -2,7 +2,7 @@
 #coding: utf-8
 import os, sys
 
-from distutils.core import setup, find_packages
+from setuptools import setup, find_packages
 
 
 EXCLUDE_FROM_PACKAGES = ['cms.project_template',
