@@ -5,8 +5,7 @@ import os, sys
 from setuptools import setup, find_packages
 
 
-EXCLUDE_FROM_PACKAGES = ['cms.project_template',
-                         'cms.bin']
+EXCLUDE_FROM_PACKAGES = ['cms.bin']
 
 setup(
     name = "cms",
