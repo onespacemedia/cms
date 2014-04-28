@@ -43,17 +43,9 @@
      */
     cms.disableTextSelect = function() {
         return this.each(function() {
-        	if ($.browser.mozilla) {
-        		$(this).css('MozUserSelect', 'none');
-        	 } else if ($.browser.msie) {
-        		$(this).bind('selectstart', function () {
-        		    return false;
-        		});
-        	} else {
-        		$(this).mousedown(function() {
-        		    return false;
-        		});
-        	}
+    		$(this).mousedown(function() {
+    		    return false;
+    		});
         });
     }
 
@@ -66,7 +58,7 @@
             mode: "exact",
             setup: function(editor) {
                 editor.onPostProcess.add(function(editor, o) {
-                    //o.content = o.content.replace(/&nbsp;/g, " ").replace(/ +/g, " ");
+                    o.content = o.content.replace(/&nbsp;/g, " ").replace(/ +/g, " ");
                 });
             }
         }, cms.htmlWidget.extensions, config)
