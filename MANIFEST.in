@@ -1,2 +1,4 @@
 recursive-include cms/templates *
+recursive-include cms/static *
 recursive-include cms/apps/*/templates *
+recursive-include cms/apps/*/static *
