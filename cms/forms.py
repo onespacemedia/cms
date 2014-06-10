@@ -2,13 +2,17 @@
 
 from django import forms
 from django.conf import settings
-from django.utils import simplejson as json
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.safestring import mark_safe
 
 from optimizations import default_stylesheet_cache, default_javascript_cache
 
 from cms import debug
+
+try:
+    import json
+except:
+    from django.utils import simplejson as json
 
 
 class HtmlWidget(forms.Textarea):
