@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 EXCLUDE_FROM_PACKAGES = ['cms.bin']
 
 setup(
-    name = "cms",
+    name = "onespacemedia-cms",
     version = "1.0.4",
     url = "https://github.com/onespacemedia/cms",
     author = "Daniel Samuels",
