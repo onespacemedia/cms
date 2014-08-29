@@ -35,6 +35,7 @@ setup(
         'django-historylinks',
         'django-watson',
         'South',
-        'django-extensions'
+        'django-extensions',
+        'Werkzeug'
     ],
 )
