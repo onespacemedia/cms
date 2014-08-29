@@ -8,7 +8,7 @@ EXCLUDE_FROM_PACKAGES = ['cms.bin']
 
 setup(
     name="onespacemedia-cms",
-    version="1.0.4",
+    version="1.0.5",
     url="https://github.com/onespacemedia/cms",
     author="Daniel Samuels",
     author_email="daniel@onespacemedia.com",
