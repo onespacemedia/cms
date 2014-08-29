@@ -131,6 +131,8 @@ INSTALLED_APPS = (
     "cms.apps.pages",
     "cms.apps.media",
     "{{ project_name }}.apps.site",
+
+    'django_extensions',
 )
 
 
