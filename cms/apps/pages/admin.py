@@ -19,12 +19,12 @@ from django.db.models import F
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django import forms
-from django.utils import simplejson as json
 
 from cms import debug, externals
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter
 
+import json
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"
