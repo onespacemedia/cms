@@ -15,14 +15,14 @@ from cms.apps.pages.models import Page
 
 
 class RequestPageManager(object):
-    
+
     """Handles loading page objects."""
-    
+
     def __init__(self, path, path_info):
         """Initializes the RequestPageManager."""
         self._path = path
         self._path_info = path_info
-        
+
     @cached_property
     def homepage(self):
         """Returns the site homepage."""
@@ -30,18 +30,19 @@ class RequestPageManager(object):
             return Page.objects.get_homepage()
         except Page.DoesNotExist:
             return None
-        
+
     @property
     def is_homepage(self):
         """Whether the current request is for the site homepage."""
         return self._path == self.homepage.get_absolute_url()
-    
+
     @cached_property
     def breadcrumbs(self):
         """The breadcrumbs for the current request."""
         breadcrumbs = []
         slugs = self._path_info.strip("/").split("/")
         slugs.reverse()
+
         def do_breadcrumbs(page):
             breadcrumbs.append(page)
             if slugs:
@@ -53,7 +54,7 @@ class RequestPageManager(object):
         if self.homepage:
             do_breadcrumbs(self.homepage)
         return breadcrumbs
-    
+
     @property
     def section(self):
         """The current primary level section, or None."""
@@ -61,7 +62,7 @@ class RequestPageManager(object):
             return self.breadcrumbs[1]
         except IndexError:
             return None
-        
+
     @property
     def subsection(self):
         """The current secondary level section, or None."""
@@ -69,7 +70,7 @@ class RequestPageManager(object):
             return self.breadcrumbs[2]
         except IndexError:
             return None
-    
+
     @property
     def current(self):
         """The current best-matched page."""
@@ -77,7 +78,7 @@ class RequestPageManager(object):
             return self.breadcrumbs[-1]
         except IndexError:
             return None
-        
+
     @property
     def is_exact(self):
         """Whether the current page exactly matches the request URL."""
@@ -85,13 +86,13 @@ class RequestPageManager(object):
 
 
 class PageMiddleware(object):
-    
+
     """Serves up pages when no other view is matched."""
-    
+
     def process_request(self, request):
         """Annotates the request with a page manager."""
         request.pages = RequestPageManager(request.path, request.path_info)
-            
+
     def process_response(self, request, response):
         """If the response was a 404, attempt to serve up a page."""
         if response.status_code != 404:
@@ -120,7 +121,9 @@ class PageMiddleware(object):
             response = callback(request, *callback_args, **callback_kwargs)
             # Validate the response.
             if not response:
-                raise ValueError, "The view {0!r} didn't return an HttpResponse object.".format(callback.__name__)
+                raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(
+                    callback.__name__
+                ))
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()
             return response

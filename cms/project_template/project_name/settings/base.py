@@ -49,7 +49,7 @@ MEDIA_ROOT = "/var/www/{{ project_name }}_media"
 
 MEDIA_URL = "/media/"
 
-FILE_UPLOAD_PERMISSIONS = 0644
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 
 # Absolute path to the directory where static files will be collected.

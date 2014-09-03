@@ -120,8 +120,8 @@ class PageAdmin(PageBaseAdmin):
         """
         data = super(PageAdmin, self).get_revision_form_data(request, obj, version)
         content_version = version.revision.version_set.all().get(
-            content_type = obj.content_type_id,
-            object_id_int = obj.pk,
+            content_type=obj.content_type_id,
+            object_id_int=obj.pk,
         )
         data.update(content_version.field_dict)
         return data
@@ -134,7 +134,7 @@ class PageAdmin(PageBaseAdmin):
             return ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()
         if obj and obj.content_type:
             return obj.content_type.model_class()
-        raise Http404, "You must specify a page content type."
+        raise Http404("You must specify a page content type.")
 
     def get_fieldsets(self, request, obj=None):
         """Generates the custom content fieldsets."""
@@ -153,6 +153,7 @@ class PageAdmin(PageBaseAdmin):
     def get_all_children(self, page):
         """Returns all the children for a page."""
         children = []
+
         def do_get_all_children(page):
             for child in page.children:
                 children.append(child)

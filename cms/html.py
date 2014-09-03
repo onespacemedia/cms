@@ -12,22 +12,24 @@ import optimizations
 from cms import permalinks
 
 
-RE_TAG = re.compile(ur"<(img|a)(\s+.*?)(/?)>", re.IGNORECASE)
+RE_TAG = re.compile(r"<(img|a)(\s+.*?)(/?)>", re.IGNORECASE)
 
-RE_ATTR = re.compile(ur"\s([\w-]+)=(\".*?\"|'.*?')", re.IGNORECASE)
+RE_ATTR = re.compile(r"\s([\w-]+)=(\".*?\"|'.*?')", re.IGNORECASE)
 
 
 def process(text):
     """
     Expands permalinks in <a/> and <img/> tags.
-    
+
     Images will also be automatically thumbnailed to fit their specified width
     and height.
     """
     resolved_permalinks = {}
+
     def sub_tag(match):
         tagname = match.group(1)
         attrs = dict(RE_ATTR.findall(match.group(2)))
+
         def get_obj(attr_name):
             if attr_name in attrs:
                 value = attrs[attr_name][1:-1]
@@ -48,7 +50,7 @@ def process(text):
             # Process hyperlinks.
             get_obj("href")
         elif tagname == "img":
-            # Process images.            
+            # Process images.
             obj = get_obj("src")
             if obj:
                 try:
@@ -78,4 +80,3 @@ def process(text):
         attrs = u" ".join(u"%s=%s" % (key, value) for key, value in sorted(attrs.iteritems()))
         return u"<%s %s%s>" % (tagname, attrs, match.group(3))
     return RE_TAG.sub(sub_tag, text)
-

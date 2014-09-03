@@ -16,7 +16,7 @@ __all__ = ("PermalinkError", "create", "resolve", "expand",)
 
 
 class PermalinkError(Exception):
-    
+
     """Exception thrown when an error occurs with a permalink."""
 
 
@@ -28,12 +28,12 @@ def create(obj):
     kwargs = {"content_type_id": content_type_id,
               "object_id": object_id}
     return urlresolvers.reverse("permalink_redirect", kwargs=kwargs)
-    
-    
+
+
 def resolve(permalink):
     """
     Resolves the given permalink into an object.
-    
+
     Raises a PermalinkError if the URL is not a valid permalink. Raises an
     ObjectDoesNotExist if the referenced object does not exist.
     """
@@ -41,17 +41,17 @@ def resolve(permalink):
     try:
         callback, _, callback_kwargs = urlresolvers.resolve(permalink)  # @UnusedVariable
     except (urlresolvers.Resolver404, TypeError):
-        raise PermalinkError, "'%s' is not a valid permalink." % permalink
+        raise PermalinkError("'{}' is not a valid permalink.".format(permalink))
     # Check if the URL refers to a permalink.
     if callback != shortcut:
-        raise PermalinkError, "'%s' is not a valid permalink." % permalink
+        raise PermalinkError("'{}' is not a valid permalink.".format(permalink))
     # Get the permalink attributes.
     try:
         content_type_id = callback_kwargs["content_type_id"]
         object_id = callback_kwargs["object_id"]
     except KeyError:
-        raise ImproperlyConfigured, "The permalink_redirect view should be configured using keyword arguments."
-    # Resolve the object. 
+        raise ImproperlyConfigured("The permalink_redirect view should be configured using keyword arguments.")
+    # Resolve the object.
     content_type = ContentType.objects.get_for_id(content_type_id)
     obj = content_type.get_object_for_this_type(id=object_id)
     return obj
@@ -60,11 +60,11 @@ def resolve(permalink):
 def expand(permalink):
     """
     Expands the given permalink into a full URL.
-    
+
     Raises a permalink error if the URL is not a valid permalink. Raises an
     ObjectDoesNotExist if the referenced object does not exist.
     """
     obj = resolve(permalink)
     return obj.get_absolute_url()
-    
-    
+
+

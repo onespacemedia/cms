@@ -57,4 +57,4 @@ def main():
     # Make management scripts executable.
     make_executable(os.path.join(dest_dir, "manage.py"))
     # Give some help to the user.
-    print "CMS project created."
+    print('CMS project created.')
