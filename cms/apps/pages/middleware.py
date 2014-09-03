@@ -127,7 +127,7 @@ class PageMiddleware(object):
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()
             return response
-        except Http404, ex:
+        except Http404 as ex:
             if settings.DEBUG:
                 return technical_404_response(request, ex)
             # Let the normal 404 mechanisms render an error page.

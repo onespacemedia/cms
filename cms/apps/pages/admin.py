@@ -359,7 +359,7 @@ class PageAdmin(PageBaseAdmin):
             return render(request, "admin/pages/page/select_page_type.html", context)
         else:
             if not self.has_add_content_permission(request, ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()):
-                raise PermissionDenied, "You are not allowed to add pages of that content type."
+                raise PermissionDenied("You are not allowed to add pages of that content type.")
         return super(PageAdmin, self).add_view(request, *args, **kwargs)
 
     def response_add(self, request, *args, **kwargs):

@@ -9,9 +9,9 @@ from cms.models import publication_manager, PublicationManagementError
 
 
 class PublicationMiddleware(object):
-    
+
     """Middleware that enables preview mode for admin users."""
-    
+
     def __init__(self):
         """Initializes the PublicationMiddleware."""
         self.exclude_urls = [
@@ -19,7 +19,7 @@ class PublicationMiddleware(object):
             for url in
             getattr(settings, "PUBLICATION_MIDDLEWARE_EXCLUDE_URLS", ())
         ]
-    
+
     def process_request(self, request):
         """Starts preview mode, if available."""
         if not any(pattern.match(request.path_info[1:]) for pattern in self.exclude_urls):
@@ -31,7 +31,7 @@ class PublicationMiddleware(object):
             # Only allow preview mode if the user is a logged in administrator.
             preview_mode = preview_mode and request.user.is_authenticated() and request.user.is_staff and request.user.is_active
             publication_manager.begin(not preview_mode)
-        
+
     def process_response(self, request, response):
         """Cleans up after preview mode."""
         # Render the response if we're in a block of publication management.
