@@ -8,28 +8,28 @@ from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchM
 
 
 class PublishedBase(models.Model):
-    
+
     """A model with publication controls."""
-    
+
     objects = PublishedBaseManager()
-    
+
     class Meta:
         abstract = True
-        
-        
+
+
 class PublishedBaseSearchAdapter(externals.watson.SearchAdapter):
-    
+
     """Base search adapter for PublishedBase derivatives."""
-    
+
     def get_live_queryset(self):
         """Selects only live models."""
         return self.model.objects.all()
 
 
 class OnlineBase(PublishedBase):
-    
+
     objects = OnlineBaseManager()
-    
+
     is_online = models.BooleanField(
         "online",
         default = True,
@@ -38,24 +38,24 @@ class OnlineBase(PublishedBase):
             "Logged-in admin users will still be able to view this page by clicking the 'view on site' button."
         ),
     )
-    
+
     class Meta:
         abstract = True
-        
-        
+
+
 class OnlineBaseSearchAdapter(PublishedBaseSearchAdapter):
-    
+
     """Base search adapter for OnlineBase derivatives."""
 
 
 class SearchMetaBase(OnlineBase):
-    
+
     """Base model for models used to generate a standalone HTML page."""
-    
+
     objects = SearchMetaBaseManager()
-    
+
     # SEO fields.
-    
+
     browser_title = models.CharField(
         max_length = 1000,
         blank = True,
@@ -65,7 +65,7 @@ class SearchMetaBase(OnlineBase):
             "Search engines pay particular attention to this attribute."
         )
     )
-    
+
     meta_keywords = models.CharField(
         "keywords",
          max_length = 1000,
@@ -81,7 +81,7 @@ class SearchMetaBase(OnlineBase):
         blank = True,
         help_text = "A brief description of the contents of this page.",
     )
-    
+
     sitemap_priority = models.FloatField(
         "priority",
         choices = (
@@ -119,7 +119,7 @@ class SearchMetaBase(OnlineBase):
             "Search engines use this as a hint when scanning your site for updates."
         ),
     )
-    
+
     robots_index = models.BooleanField(
         "allow indexing",
         default = True,
@@ -148,7 +148,7 @@ class SearchMetaBase(OnlineBase):
             "Disable this only if the page is likely to change on a very regular basis. "
         ),
     )
-    
+
     def get_context_data(self):
         """Returns the SEO context data for this page."""
         title = unicode(self)
@@ -162,13 +162,13 @@ class SearchMetaBase(OnlineBase):
             "title": self.browser_title or title,
             "header": title,
         }
-        
+
     def render(self, request, template, context=None, **kwargs):
         """Renders a template as a HttpResponse using the context of this page."""
         page_context = self.get_context_data()
         page_context.update(context or {})
         return render(request, template, page_context, **kwargs)
-        
+
     class Meta:
         abstract = True
 
@@ -176,39 +176,39 @@ class SearchMetaBase(OnlineBase):
 class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
 
     """Search adapter for SearchMetaBase derivatives."""
-    
+
     def get_description(self, obj):
         """Returns the meta description."""
         return obj.meta_description
-    
+
     def get_live_queryset(self):
         """Selects only live models."""
         return super(OnlineBaseSearchAdapter, self).get_live_queryset().filter(
             robots_index = True,
         )
-    
+
 
 class PageBase(SearchMetaBase):
-    
+
     """
     An enhanced SearchMetaBase with a sensible set of common features suitable for
     most pages.
     """
-    
+
     objects = PageBaseManager()
-    
+
     # Base fields.
-    
+
     url_title = models.SlugField(
         "URL title",
     )
-    
+
     title = models.CharField(
         max_length = 1000,
     )
-    
+
     # Navigation fields.
-    
+
     short_title = models.CharField(
         max_length = 200,
         blank = True,
@@ -217,9 +217,9 @@ class PageBase(SearchMetaBase):
             "Leave blank to use the full-length title."
         ),
     )
-    
+
     # SEO fields.
-    
+
     def get_context_data(self):
         """Returns the SEO context data for this page."""
         context_data = super(PageBase, self).get_context_data()
@@ -228,24 +228,24 @@ class PageBase(SearchMetaBase):
             "header": self.title,
         })
         return context_data
-    
+
     # Base model methods.
-    
+
     def __unicode__(self):
         """
         Returns the short title of this page, falling back to the standard
         title.
         """
         return self.short_title or self.title
-    
+
     class Meta:
         abstract = True
-        
-        
+
+
 class PageBaseSearchAdapter(SearchMetaBaseSearchAdapter):
-    
+
     """Search adapter for PageBase derivatives."""
-    
+
     def get_title(self, obj):
         """Returns the title of the page."""
         return obj.title

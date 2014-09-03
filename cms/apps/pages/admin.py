@@ -380,7 +380,8 @@ class PageAdmin(PageBaseAdmin):
     def get_urls(self):
         """Adds in some custom admin URLs."""
         admin_view = self.admin_site.admin_view
-        return patterns("",
+        return patterns(
+            "",
             url("^sitemap.json$", admin_view(self.sitemap_json_view), name="pages_page_sitemap_json"),
             url("^move-page/$", admin_view(self.move_page_view), name="pages_page_move_page"),
         ) + super(PageAdmin, self).get_urls()
@@ -421,7 +422,7 @@ class PageAdmin(PageBaseAdmin):
         json.dump(data, response)
         return response
 
-    @transaction.commit_on_success
+    @transaction.atomic
     @debug.print_exc
     def move_page_view(self, request):
         """Moves a page up or down."""

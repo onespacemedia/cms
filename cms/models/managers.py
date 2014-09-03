@@ -81,9 +81,9 @@ class PublishedBaseManager(models.Manager):
         """
         return queryset
 
-    def get_query_set(self):
+    def get_queryset(self):
         """"Returns the queryset, filtered if appropriate."""
-        queryset = super(PublishedBaseManager, self).get_query_set()
+        queryset = super(PublishedBaseManager, self).get_queryset()
         if publication_manager.select_published_active():
             queryset = self.select_published(queryset)
         return queryset

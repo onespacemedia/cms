@@ -1,6 +1,10 @@
 """Fields used by the page management application."""
 
-import urlparse
+try:
+    from urllib import parse as urlparse
+except:
+    # Python 2.7
+    import urlparse
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -9,9 +13,9 @@ from cms.forms import HtmlWidget
 
 
 class HtmlField(models.TextField):
-    
+
     """A field that contains HTML data."""
-    
+
     def formfield(self, **kwargs):
         """Returns a HtmlWidget."""
         kwargs["widget"] = HtmlWidget
@@ -19,7 +23,7 @@ class HtmlField(models.TextField):
 
 
 class LinkResolutionError(Exception):
-    
+
     """A link could not be resolved."""
 
 
@@ -58,18 +62,18 @@ def link_validator(value):
         resolve_link(value)
     except LinkResolutionError:
         raise ValidationError("Enter a valid URL.")
-    
-    
+
+
 class LinkField(models.CharField):
-    
+
     """A field that contains an internal or external link."""
-    
+
     def __init__(self, *args, **kwargs):
         """Initializes the LinkField."""
         kwargs.setdefault("max_length", 1000)
         super(LinkField, self).__init__(*args, **kwargs)
         self.validators.append(link_validator)
-        
+
     def contribute_to_class(self, cls, name):
         """Adds in an accessor for the resolved link."""
         super(LinkField, self).contribute_to_class(cls, name)
@@ -82,7 +86,7 @@ class LinkField(models.CharField):
                     pass
             return link
         setattr(cls, "get_{}_resolved".format(name), get_XXX_resolved)
-        
+
 # Register custom fields with South.
 
 try:
