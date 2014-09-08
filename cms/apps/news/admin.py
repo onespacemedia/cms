@@ -2,14 +2,15 @@
 
 from django.contrib import admin
 
+from cms import externals
 from cms.admin import PageBaseAdmin
 from cms.apps.news.models import Category, Article
 
 
 class CategoryAdmin(PageBaseAdmin):
-    
+
     """Admin settings for the Category model."""
-    
+
     fieldsets = (
         PageBaseAdmin.TITLE_FIELDS,
         ("Content", {
@@ -25,17 +26,17 @@ admin.site.register(Category, CategoryAdmin)
 
 
 class ArticleAdmin(PageBaseAdmin):
-    
+
     """Admin settings for the Article model."""
-    
+
     date_hierarchy = "date"
-    
+
     search_fields = PageBaseAdmin.search_fields + ("content", "summary",)
-    
-    list_display = ("title", "date", "is_online", "get_date_modified",)
-    
+
+    list_display = ("title", "date", "is_online",)
+
     list_filter = ("is_online", "categories",)
-    
+
     fieldsets = (
         (None, {
             "fields": ("title", "url_title", "news_feed", "date",),
@@ -50,17 +51,22 @@ class ArticleAdmin(PageBaseAdmin):
         PageBaseAdmin.NAVIGATION_FIELDS,
         PageBaseAdmin.SEO_FIELDS,
     )
-    
+
     raw_id_fields = ("image",)
-    
+
     filter_horizontal = ("categories", "authors",)
-    
+
     def save_related(self, request, form, formsets, change):
         """Saves the author of the article."""
         super(ArticleAdmin, self).save_related(request, form, formsets, change)
         # For new articles, add in the current author.
         if not change and not form.cleaned_data["authors"]:
             form.instance.authors.add(request.user)
-    
-    
+
+
+if externals.reversion:
+    class ArticleAdmin(ArticleAdmin, externals.reversion["admin.VersionMetaAdmin"]):
+        list_display = ArticleAdmin.list_display + ("get_date_modified",)
+
+
 admin.site.register(Article, ArticleAdmin)
