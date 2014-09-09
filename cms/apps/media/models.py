@@ -82,14 +82,3 @@ class ImageRefField(FileRefField):
     def __init__(self, **kwargs):
         kwargs["limit_choices_to"] = IMAGE_FILTER
         super(ImageRefField, self).__init__(**kwargs)
-
-
-# Register custom fields with South.
-
-try:
-    from south.modelsinspector import add_introspection_rules
-except ImportError:
-    pass
-else:
-    add_introspection_rules((), ("^cms\.apps\.media\.models\.FileRefField",))
-    add_introspection_rules((), ("^cms\.apps\.media\.models\.ImageRefField",))

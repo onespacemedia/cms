@@ -121,20 +121,19 @@ INSTALLED_APPS = (
     "suit",
     "django.contrib.admin",
     "django.contrib.sitemaps",
-    
+
     "optimizations",
     "reversion",
     "usertools",
     "historylinks",
     "watson",
-    "south",
-    
+
     "cms",
     "cms.apps.links",
     "cms.apps.media",
     "cms.apps.news",
     "cms.apps.pages",
-    
+
     "{{ project_name }}.apps.site",
 
     'django_extensions',

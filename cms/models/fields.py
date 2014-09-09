@@ -86,16 +86,3 @@ class LinkField(models.CharField):
                     pass
             return link
         setattr(cls, "get_{}_resolved".format(name), get_XXX_resolved)
-
-# Register custom fields with South.
-
-try:
-    from south.modelsinspector import add_introspection_rules
-except ImportError:
-    pass
-else:
-    # Simple rules for HtmlField.
-    add_introspection_rules((), (
-        "^cms\.models\.fields\.HtmlField",
-        "^cms\.models\.fields\.LinkField",
-    ))

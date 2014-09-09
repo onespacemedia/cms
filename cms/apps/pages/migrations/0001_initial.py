@@ -1,79 +1,49 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import cms.apps.pages.models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Page'
-        db.create_table('pages_page', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('is_online', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('browser_title', self.gf('django.db.models.fields.CharField')(max_length=1000, blank=True)),
-            ('meta_keywords', self.gf('django.db.models.fields.CharField')(max_length=1000, blank=True)),
-            ('meta_description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('sitemap_priority', self.gf('django.db.models.fields.FloatField')(default=None, null=True, blank=True)),
-            ('sitemap_changefreq', self.gf('django.db.models.fields.IntegerField')(default=None, null=True, blank=True)),
-            ('robots_index', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('robots_follow', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('robots_archive', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('url_title', self.gf('django.db.models.fields.SlugField')(max_length=50)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=1000)),
-            ('short_title', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('parent', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='child_set', null=True, to=orm['pages.Page'])),
-            ('left', self.gf('django.db.models.fields.IntegerField')(db_index=True)),
-            ('right', self.gf('django.db.models.fields.IntegerField')(db_index=True)),
-            ('publication_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True, null=True, blank=True)),
-            ('expiry_date', self.gf('django.db.models.fields.DateTimeField')(db_index=True, null=True, blank=True)),
-            ('in_navigation', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-        ))
-        db.send_create_signal('pages', ['Page'])
+    dependencies = [
+        ('contenttypes', '0001_initial'),
+    ]
 
-        # Adding unique constraint on 'Page', fields ['parent', 'url_title']
-        db.create_unique('pages_page', ['parent_id', 'url_title'])
-
-    def backwards(self, orm):
-        # Removing unique constraint on 'Page', fields ['parent', 'url_title']
-        db.delete_unique('pages_page', ['parent_id', 'url_title'])
-
-        # Deleting model 'Page'
-        db.delete_table('pages_page')
-
-    models = {
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'pages.page': {
-            'Meta': {'ordering': "('left',)", 'unique_together': "(('parent', 'url_title'),)", 'object_name': 'Page'},
-            'browser_title': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'blank': 'True'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'expiry_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'in_navigation': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_online': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'left': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
-            'meta_description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'meta_keywords': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'blank': 'True'}),
-            'parent': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'child_set'", 'null': 'True', 'to': "orm['pages.Page']"}),
-            'publication_date': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
-            'right': ('django.db.models.fields.IntegerField', [], {'db_index': 'True'}),
-            'robots_archive': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'robots_follow': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'robots_index': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'short_title': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
-            'sitemap_changefreq': ('django.db.models.fields.IntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
-            'sitemap_priority': ('django.db.models.fields.FloatField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
-            'url_title': ('django.db.models.fields.SlugField', [], {'max_length': '50'})
-        }
-    }
-
-    complete_apps = ['pages']
+    operations = [
+        migrations.CreateModel(
+            name='Page',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_online', models.BooleanField(default=True, help_text=b"Uncheck this box to remove the page from the public website. Logged-in admin users will still be able to view this page by clicking the 'view on site' button.", verbose_name=b'online')),
+                ('browser_title', models.CharField(help_text=b"The heading to use in the user's web browser. Leave blank to use the page title. Search engines pay particular attention to this attribute.", max_length=1000, blank=True)),
+                ('meta_keywords', models.CharField(help_text=b'A comma-separated list of keywords for this page. Use this to specify common mis-spellings or alternative versions of important words in this page.', max_length=1000, verbose_name=b'keywords', blank=True)),
+                ('meta_description', models.TextField(help_text=b'A brief description of the contents of this page.', verbose_name=b'description', blank=True)),
+                ('sitemap_priority', models.FloatField(default=None, choices=[(1.0, b'Very high'), (0.8, b'High'), (0.5, b'Medium'), (0.3, b'Low'), (0.0, b'Very low')], blank=True, help_text=b'The relative importance of this content in your site.  Search engines use this as a hint when ranking the pages within your site.', null=True, verbose_name=b'priority')),
+                ('sitemap_changefreq', models.IntegerField(default=None, choices=[(1, b'Always'), (2, b'Hourly'), (3, b'Daily'), (4, b'Weekly'), (5, b'Monthly'), (6, b'Yearly'), (7, b'Never')], blank=True, help_text=b'How frequently you expect this content to be updated.Search engines use this as a hint when scanning your site for updates.', null=True, verbose_name=b'change frequency')),
+                ('robots_index', models.BooleanField(default=True, help_text=b'Use this to prevent search engines from indexing this page. Disable this only if the page contains information which you do not wish to show up in search results.', verbose_name=b'allow indexing')),
+                ('robots_follow', models.BooleanField(default=True, help_text=b'Use this to prevent search engines from following any links they find in this page. Disable this only if the page contains links to other sites that you do not wish to publicise.', verbose_name=b'follow links')),
+                ('robots_archive', models.BooleanField(default=True, help_text=b'Use this to prevent search engines from archiving this page. Disable this only if the page is likely to change on a very regular basis. ', verbose_name=b'allow archiving')),
+                ('url_title', models.SlugField(verbose_name=b'URL title')),
+                ('title', models.CharField(max_length=1000)),
+                ('short_title', models.CharField(help_text=b'A shorter version of the title that will be used in site navigation. Leave blank to use the full-length title.', max_length=200, blank=True)),
+                ('left', models.IntegerField(editable=False, db_index=True)),
+                ('right', models.IntegerField(editable=False, db_index=True)),
+                ('publication_date', models.DateTimeField(help_text=b'The date that this page will appear on the website.  Leave this blank to immediately publish this page.', null=True, db_index=True, blank=True)),
+                ('expiry_date', models.DateTimeField(help_text=b'The date that this page will be removed from the website.  Leave this blank to never expire this page.', null=True, db_index=True, blank=True)),
+                ('in_navigation', models.BooleanField(default=True, help_text=b'Uncheck this box to remove this content from the site navigation.', verbose_name=b'add to navigation')),
+                ('cached_url', models.CharField(max_length=1000, null=True, blank=True)),
+                ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', help_text=b'The type of page content.')),
+                ('parent', models.ForeignKey(related_name=b'child_set', default=cms.apps.pages.models.get_default_page_parent, blank=True, to='pages.Page', null=True)),
+            ],
+            options={
+                'ordering': ('left',),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='page',
+            unique_together=set([('parent', 'url_title')]),
+        ),
+    ]
