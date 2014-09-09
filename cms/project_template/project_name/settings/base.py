@@ -129,10 +129,10 @@ INSTALLED_APPS = (
     "watson",
 
     "cms",
+    "cms.apps.pages",
     "cms.apps.links",
     "cms.apps.media",
     "cms.apps.news",
-    "cms.apps.pages",
 
     "{{ project_name }}.apps.site",
 
