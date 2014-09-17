@@ -35,6 +35,7 @@ setup(
         'django-historylinks',
         'django-watson',
         'django-extensions',
-        'Werkzeug'
+        'Werkzeug',
+        'raven'
     ],
 )
