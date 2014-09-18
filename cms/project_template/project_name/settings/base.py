@@ -150,17 +150,21 @@ STATIC_ASSETS = {
     "default": {
         "js": {
             "include": (
+                "js/vendor/jquery.js",
+                "js/foundation/foundation.js",
                 "js/*.js",
+            ),
+            "exclude": (
+                "js/jquery.cms.pages.js",
             ),
         },
         "css": {
             "include": (
-                "css/*.css",
+                "css/screen.css",
             ),
         },
     },
 }
-
 
 # Dispatch settings.
 
