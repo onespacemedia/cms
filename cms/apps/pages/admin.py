@@ -63,6 +63,7 @@ class PageAdmin(PageBaseAdmin):
             adapter = self.revision_manager.get_adapter(Page)
             try:
                 adapter.follow = tuple(adapter.follow) + (model._meta.get_field("page").related.get_accessor_name(),)
+                adapter.follow = tuple(name for name in adapter.follow if name != '+')
             except:
                 pass
 
