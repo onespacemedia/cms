@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('page', models.OneToOneField(related_name=b'+', primary_key=True, serialize=False, editable=False, to='pages.Page')),
                 ('link_url', cms.models.fields.LinkField(help_text=b'The URL where the user will be redirected.', max_length=1000, verbose_name=b'link URL')),
-                ('new_window', models.BooleanField(help_text=b'Open the page in a new window.')),
+                ('new_window', models.BooleanField(help_text=b'Open the page in a new window.', default=False,)),
             ],
             options={
                 'abstract': False,

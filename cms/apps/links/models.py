@@ -25,4 +25,5 @@ class Link(ContentBase):
 
     new_window = models.BooleanField(
         help_text = "Open the page in a new window.",
+        default=False,
     )
