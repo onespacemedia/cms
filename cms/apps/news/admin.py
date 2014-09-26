@@ -25,7 +25,7 @@ class CategoryAdmin(PageBaseAdmin):
 admin.site.register(Category, CategoryAdmin)
 
 
-class ArticleAdmin(PageBaseAdmin):
+class ArticleAdminBase(PageBaseAdmin):
 
     """Admin settings for the Article model."""
 
@@ -58,15 +58,18 @@ class ArticleAdmin(PageBaseAdmin):
 
     def save_related(self, request, form, formsets, change):
         """Saves the author of the article."""
-        super(ArticleAdmin, self).save_related(request, form, formsets, change)
+        super(ArticleAdminBase, self).save_related(request, form, formsets, change)
         # For new articles, add in the current author.
         if not change and not form.cleaned_data["authors"]:
             form.instance.authors.add(request.user)
 
 
 if externals.reversion:
-    class ArticleAdmin(ArticleAdmin, externals.reversion["admin.VersionMetaAdmin"]):
-        list_display = ArticleAdmin.list_display + ("get_date_modified",)
+    class ArticleAdmin(ArticleAdminBase, externals.reversion["admin.VersionMetaAdmin"]):
+        list_display = ArticleAdminBase.list_display + ("get_date_modified",)
+else:
+    class ArticleAdmin(ArticleAdminBase):
+        pass
 
 
 admin.site.register(Article, ArticleAdmin)
