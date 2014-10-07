@@ -4,10 +4,10 @@
 
 
 (function($) {
-    
+
     // Define the filebrowser plugin.
     $.cms.media = {}
-    
+
     // Closes the filebrowser and sends the information back to the TinyMCE editor.
     $.cms.media.complete = function(permalink, title) {
         // Get the important values from TinyMCE.
@@ -29,7 +29,7 @@
         // Close the dialogue.
         tinyMCEPopup.close();
     }
-    
+
     // Initializes the popup file browser.
     $.cms.media.initBrowser = function() {
         if (tinyMCEPopup.getWindowArg("tinymce_active")) {
@@ -42,10 +42,10 @@
                 return false;
             });
             // Made the add link flagged for TinyMCE.
-            $("a.addlink").attr("href", $("a.addlink").attr("href") + "&_tinymce=1");
-        } 
+            $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_tinymce=1");
+        }
     }
-    
+
     // Add in the filebrowser plugin to the rich text editor.
     $.fn.cms.htmlWidget.extensions.file_browser_callback = function(field_name, url, type, win) {
         var browserURL = "/admin/media/file/?_popup=1";
