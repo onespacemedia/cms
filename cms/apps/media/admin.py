@@ -12,7 +12,7 @@ from django.utils.text import Truncator
 import optimizations
 
 from cms import permalinks, externals
-from cms.apps.media.models import Label, File
+from cms.apps.media.models import Label, File, Video
 
 
 class LabelAdmin(admin.ModelAdmin):
@@ -25,8 +25,14 @@ class LabelAdmin(admin.ModelAdmin):
     
     
 admin.site.register(Label, LabelAdmin)
-    
-       
+
+
+class VideoAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Video, VideoAdmin)
+
+
 # Different types of file.
 AUDIO_FILE_ICON = "media/img/audio-x-generic.png"
 DOCUMENT_FILE_ICON = "media/img/x-office-document.png"
