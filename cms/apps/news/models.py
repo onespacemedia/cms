@@ -1,5 +1,4 @@
 """Models used by the CMS news app."""
-
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
@@ -8,11 +7,11 @@ from django.db import models
 from cms import sitemaps, externals
 from cms.apps.media.models import ImageRefField
 from cms.apps.pages.models import ContentBase, Page
-from cms.models import PageBase, OnlineBaseManager, HtmlField, PageBaseSearchAdapter
+from cms.models import PageBase, OnlineBaseManager, HtmlField, \
+    PageBaseSearchAdapter
 
 
 class NewsFeed(ContentBase):
-
     """A stream of news articles."""
 
     icon = "news/img/news-feed.png"
@@ -25,14 +24,14 @@ class NewsFeed(ContentBase):
 
     content_primary = HtmlField(
         "primary content",
-        blank = True
+        blank=True
     )
 
     per_page = models.IntegerField(
         "articles per page",
-        default = 5,
-        blank = True,
-        null = True,
+        default=5,
+        blank=True,
+        null=True,
     )
 
 
@@ -40,7 +39,7 @@ def get_default_news_page():
     """Returns the default news page."""
     try:
         return Page.objects.filter(
-            content_type = ContentType.objects.get_for_model(NewsFeed),
+            content_type=ContentType.objects.get_for_model(NewsFeed),
         ).order_by("left")[0]
     except IndexError:
         return None
@@ -55,12 +54,11 @@ def get_default_news_feed():
 
 
 class Category(PageBase):
-
     """A category for news articles."""
 
     content_primary = HtmlField(
         "primary content",
-        blank = True
+        blank=True
     )
 
     def _get_permalink_for_page(self, page):
@@ -72,12 +70,13 @@ class Category(PageBase):
     def _get_permalinks(self):
         """Returns a dictionary of all permalinks for the given category."""
         pages = Page.objects.filter(
-            id__in = Article.objects.filter(
-                categories = self
+            id__in=Article.objects.filter(
+                categories=self
             ).values_list("news_feed_id", flat=True)
         )
         return dict(
-            (u"page_{id}".format(id=page.id), self._get_permalink_for_page(page))
+            (
+            u"page_{id}".format(id=page.id), self._get_permalink_for_page(page))
             for page in pages
         )
 
@@ -88,7 +87,6 @@ class Category(PageBase):
 
 
 class CategoryHistoryLinkAdapter(externals.historylinks.HistoryLinkAdapter):
-
     """History link adapter for category models."""
 
     def get_permalinks(self, obj):
@@ -100,54 +98,68 @@ externals.historylinks("register", Category, CategoryHistoryLinkAdapter)
 
 
 class ArticleManager(OnlineBaseManager):
-
     """Manager for Article models."""
 
     def select_published(self, queryset):
         queryset = super(ArticleManager, self).select_published(queryset)
         queryset = queryset.filter(
-            date__lte = timezone.now(),
+            date__lte=timezone.now(),
         )
+        if settings.NEWS_APPROVAL_SYSTEM:
+            queryset = queryset.filter(
+                status='approved'
+            )
         return queryset
+
+STATUS_CHOICES = [
+    ('draft', 'Draft'),
+    ('submitted', 'Submitted for approval'),
+    ('approved', 'Approved')
+]
 
 
 class Article(PageBase):
-
     """A news article."""
 
     objects = ArticleManager()
 
     news_feed = models.ForeignKey(
         NewsFeed,
-        default = get_default_news_feed,
+        default=get_default_news_feed,
     )
 
     date = models.DateField(
-        db_index = True,
-        default = timezone.now,
+        db_index=True,
+        default=timezone.now,
     )
 
     image = ImageRefField(
-        blank = True,
-        null = True,
+        blank=True,
+        null=True,
     )
 
     content = HtmlField(
-        blank = True,
+        blank=True,
     )
 
     summary = HtmlField(
-        blank = True,
+        blank=True,
     )
 
     categories = models.ManyToManyField(
         Category,
-        blank = True,
+        blank=True,
     )
 
     authors = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        blank = True,
+        blank=True,
+    )
+
+    status = models.CharField(
+        max_length=100,
+        choices=STATUS_CHOICES,
+        default='draft'
     )
 
     def _get_permalink_for_page(self, page):
@@ -166,12 +178,13 @@ class Article(PageBase):
     class Meta:
         unique_together = (("news_feed", "date", "url_title",),)
         ordering = ("-date",)
+        permissions = (
+            ("can_approve_articles", "Can approve articles"),
+        )
 
 
 externals.historylinks("register", Article)
 
-
 sitemaps.register(Article)
-
 
 externals.watson("register", Article, adapter_cls=PageBaseSearchAdapter)
