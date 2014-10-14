@@ -4,7 +4,7 @@
 
 
 (function($) {
-    
+
     /**
      * Activates the main CMS dashboard sitemap.
      */
@@ -25,9 +25,9 @@
                         var dataContainer = $("<div>").css("opacity", 0);
                         // Process data.
                         if (data.entries.length > 0) {
-                            var homepageList = $('<ul/>');
+                            var homepageList = $('<ul class="actionlist" />');
                             function addEntry(depth, list, index, page, siblings) {
-                                var li = $('<li/>');
+                                var li = $('<li class="changelink" />');
                                 // Add the collapse control.
                                 if (depth > 0 && page.children.length > 0) {
                                     var collapseControl = $('<div class="sitemap-collapse-control"></div>');
@@ -51,18 +51,18 @@
                                 }
                                 if (page.canChange) {
                                     pageContainer.addClass("can-change");
-                                    pageContainer.append('<a href="' + changeUrl + '" class="title" title="Edit this page">' + page.title + '</a>');
+                                    pageContainer.append(page.title);
                                 } else {
                                     pageContainer.append('<span class="title">' + page.title + '</span>');
                                 }
                                 if (data.canAdd) {
-                                    pageContainer.append('<a href="' + addUrl + '" class="addlink" title="Add a new page underneath this page">Add</a>');
+                                    pageContainer.append('<a href="' + addUrl + '" class="addlink" title="Add a new page underneath this page"><i class="icon-plus icon-alpha5"></i></a>');
                                 }
                                 if (page.canChange) {
-                                    pageContainer.append('<a href="' + changeUrl + '" class="changelink" title="Edit this page">Change</a>');
+                                    pageContainer.append('<a href="' + changeUrl + '" class="changelink" title="Edit this page"><i class="icon-pencil icon-alpha5"></i></a>');
                                 }
                                 if (page.canDelete) {
-                                    pageContainer.append('<a href="' + deleteUrl + '" class="deletelink" title="Delete this page">Delete</a>');
+                                    pageContainer.append('<a href="' + deleteUrl + '" class="deletelink" title="Delete this page"><i class="icon-trash icon-alpha5"></i></a>');
                                 }
                                 // Add the move functionality.
                                 if (page.canChange && data.moveUrl) {
@@ -102,7 +102,7 @@
                                                             other_li.before(li);
                                                         } else if (direction == "down") {
                                                             other_li.after(li);
-                                                        }                                                        
+                                                        }
                                                         li.fadeIn();
                                                         // Re-render the list items.
                                                         li.trigger("render.cms");
@@ -177,5 +177,5 @@
             });
         });
     }
-    
+
 }(django.jQuery));

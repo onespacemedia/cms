@@ -82,3 +82,70 @@ class ImageRefField(FileRefField):
     def __init__(self, **kwargs):
         kwargs["limit_choices_to"] = IMAGE_FILTER
         super(ImageRefField, self).__init__(**kwargs)
+
+
+VIDEO_FILTER = {
+    "file__iregex": r"\.(webm|mp4|m4v)$"
+}
+
+
+class VideoFileRefField(FileRefField):
+    """A foreign key to a File, constrained to only select video files."""
+
+    def __init__(self, **kwargs):
+        kwargs["limit_choices_to"] = VIDEO_FILTER
+        super(VideoFileRefField, self).__init__(**kwargs)
+
+
+class Video(models.Model):
+
+    title = models.CharField(
+        max_length=200,
+    )
+
+    image = ImageRefField(
+        blank=True,
+        null=True,
+    )
+
+    high_resolution_mp4 = VideoFileRefField(
+        verbose_name="high resolution MP4",
+        blank=True,
+        null=True,
+    )
+
+    low_resolution_mp4 = VideoFileRefField(
+        verbose_name="low resolution MP4",
+        blank=True,
+        null=True
+    )
+
+    webm = VideoFileRefField(
+        verbose_name="WebM",
+        blank=True,
+        null=True,
+    )
+
+    def __unicode__(self):
+        """Returns the title of the media."""
+        return self.title
+
+    class Meta:
+        ordering = ("title",)
+
+
+class VideoRefField(models.ForeignKey):
+
+    """A foreign key to a File, constrained to only select image files."""
+
+    def __init__(self, **kwargs):
+        kwargs["to"] = Video
+        kwargs.setdefault("related_name", "+")
+        kwargs.setdefault("on_delete", models.PROTECT)
+        super(VideoRefField, self).__init__(**kwargs)
+
+    def formfield(self, **kwargs):
+        defaults = {
+            "widget": ForeignKeyRawIdWidget(self.rel, admin.site),
+        }
+        return super(VideoRefField, self).formfield(**defaults)
