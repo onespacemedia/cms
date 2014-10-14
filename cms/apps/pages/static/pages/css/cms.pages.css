@@ -4,117 +4,18 @@
 
 
 /* Dashboard index page. */
-
-html body.dashboard #content {
-    width: 960px;
-}
-
-html body.dashboard #content-main {
-    width: 400px;
-}
-
-html body.dashboard div#content-related {
-    width: 550px;
-    margin-right: 0px;
-}
-
-body.dashboard div#content-related h2 {
-    margin-bottom: 10px;
-}
-
-body.dashboard #sitemap-module ul {
-    margin: 0px 10px 10px 10px;
-    padding: 0px 0px 0px 0px;
-}
-
-body.dashboard #sitemap-module li {
-    position: relative;
-    list-style: none;
-    padding: 0px 0px 0px 0px;
-}
-
-body.dashboard #sitemap-module li.closed ul {
-    display: none;
-}
-
-body.dashboard #sitemap-module li li {
-    margin: 0px 0px 0px 27px;
-}
-
 body.dashboard div.sitemap-entry {
-    border: 1px #eeeeee solid;
     position: relative;
-    padding: 5px 7px 6px 7px;
-    margin: 0px 0px 5px 0px;
-    height: 14px;
-}
-
-body.dashboard div.sitemap-entry a.title,
-body.dashboard div.sitemap-entry span.title {
-    font-weight: bold;
-    margin-right: 200px;
-    display: block;
-}
-
-body.dashboard div.sitemap-entry a.addlink {
-    position: absolute;
-    top: 5px;
-    right: 130px;
-}
-
-body.dashboard div.sitemap-entry a.changelink {
-    position: absolute;
-    top: 5px;
-    right: 65px;
-}
-
-body.dashboard div.sitemap-entry a.deletelink {
-    position: absolute;
-    top: 5px;
-    right: 7px;
-}
-
-body.dashboard #sitemap-module ul ul {
-    margin: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
-}
-
-body.dashboard div.offline a.title,
-body.dashboard div.offline span.title {
-    text-decoration: line-through;
-}
-
-body.dashboard div.sitemap-collapse-control {
-    position: absolute;
-    top: 5px;
-    left: -20px;
-    width: 13px;
-    height: 13px;
-    cursor: pointer;
-    background-image: url(../img/arrows.png);
-    background-position: -13px 0px;
-}
-
-body.dashboard .sitemap-collapse-control:hover {
-    background-position: 0px 0px;
-}
-
-body.dashboard li.closed .sitemap-collapse-control {
-    background-position: -13px -13px;
-}
-
-body.dashboard li.closed .sitemap-collapse-control:hover {
-    background-position: 0px -13px;
 }
 
 body.dashboard div.sitemap-entry .move-up,
 body.dashboard div.sitemap-entry .move-down {
     width: 11px;
     height: 5px;
-    background-image: url(../img/arrows.png);
+    background-image: url(/static/pages/img/arrows.png);
     background-repeat: no-repeat;
     position: absolute;
-    right: 172px;
+    right: 0;
     cursor: pointer;
     border: none;
     padding: 0px 0px 0px 0px;
@@ -129,7 +30,7 @@ body.dashboard div.sitemap-entry .move-down {
 
 body.dashboard div.sitemap-entry .move-up {
     background-position: -15px -29px;
-    top: 5px;
+    top: 2px;
 }
 
 body.dashboard div.sitemap-entry .move-up:hover {
@@ -138,7 +39,7 @@ body.dashboard div.sitemap-entry .move-up:hover {
 
 body.dashboard div.sitemap-entry .move-down {
     background-position: -15px -34px;
-    top: 14px;
+    top: 11px;
 }
 
 body.dashboard div.sitemap-entry .move-down:hover {
@@ -148,7 +49,7 @@ body.dashboard div.sitemap-entry .move-down:hover {
 body.dashboard #sitemap-module .loading {
     margin: 0 0 0 10px;
     padding: 0 0 10px 40px;
-    background: url(../img/ajax-loader.gif) 0 0 no-repeat;
+    background: url(/static/pages/img/ajax-loader.gif) 0 0 no-repeat;
     height: 30px;
     line-height: 30px;
     color: #5B80B8;
@@ -171,7 +72,7 @@ body.page-content-types ul.content-types li {
     float: left;
     list-style: none;
     margin: 0px 10px 10px 0px;
-    
+
 }
 
 body.page-content-types ul.content-types a {
@@ -199,4 +100,24 @@ body.page-content-types span.content-type-name {
     left: 0px;
     width: 100px;
     text-align: center;
+}
+
+#recent-actions-module ul li > ul {
+    margin-left: 15px;
+}
+
+.actionlist {
+    min-width: 230px;
+}
+
+.controls textarea {
+    width: calc(100% - 15px);
+}
+
+.defaultSkin table.mceLayout {
+    width: calc(100% - 2px) !important;
+}
+
+.popup.media-file .form-horizontal fieldset.collapsed {
+    margin-top: 35px;
 }

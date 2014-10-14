@@ -78,12 +78,12 @@ FILE_ICONS = {
     'webm': MOVIE_FILE_ICON,
     'm4v': MOVIE_FILE_ICON,
 }
-    
-    
+
+
 class FileAdminBase(admin.ModelAdmin):
-    
+
     """Admin settings for File models."""
-    
+
     fieldsets = (
         (None, {
             "fields": ("title", "file",),
@@ -93,37 +93,37 @@ class FileAdminBase(admin.ModelAdmin):
             "classes": ("collapse",),
         },),
     )
-    
+
     list_filter = ("labels",)
-    
+
     search_fields = ("title",)
-    
+
     list_display = ("get_preview", "get_title", "get_size",)
 
     change_list_template = "admin/media/file/change_list.html"
-    
+
     filter_horizontal = ("labels",)
-    
+
     # Customizations.
-    
+
     def lookup_allowed(self, lookup, *args, **kwargs):
         """Allows the file iregex lookup needed by TinyMCE integration."""
         if lookup == "file__iregex":
             return True
         return super(FileAdminBase, self).lookup_allowed(lookup, *args, **kwargs)
-    
+
     # Custom actions.
-    
+
     def add_label_action(self, request, queryset, label):
         """Adds the label on the given queryset."""
         for file in queryset:
             file.labels.add(label)
-            
+
     def remove_label_action(self, request, queryset, label):
         """Removes the label on the given queryset."""
         for file in queryset:
             file.labels.remove(label)
-    
+
     def get_actions(self, request):
         """Generates the actions for assigning categories."""
         if IS_POPUP_VAR in request.GET:
@@ -144,13 +144,13 @@ class FileAdminBase(admin.ModelAdmin):
             action_name = action_description.lower().replace(" ", "_")
             actions[action_name] = (action_function, action_name, action_description)
         return actions
-    
+
     def remove_label(self, request, queryset):
         """Removes the label from selected files."""
         queryset.update(label=None)
-    
+
     # Custom display routines.
-    
+
     def get_label(self, obj):
         """Returns a pretty version of the label."""
         if obj.label:
@@ -158,7 +158,7 @@ class FileAdminBase(admin.ModelAdmin):
         return ""
     get_label.short_description = "label"
     get_label.admin_order_field = "label"
-    
+
     def get_size(self, obj):
         """Returns the size of the media in a human-readable format."""
         try:
@@ -166,7 +166,7 @@ class FileAdminBase(admin.ModelAdmin):
         except OSError:
             return "0 bytes"
     get_size.short_description = "size"
-    
+
     def get_preview(self, obj):
         """Generates a thumbnail of the image."""
         _, extension = os.path.splitext(obj.file.name)
@@ -185,14 +185,14 @@ class FileAdminBase(admin.ModelAdmin):
         return '<img cms:permalink="%s" src="%s" width="66" height="66" alt="" title="%s"/>' % (permalink, icon, obj.title)
     get_preview.short_description = "preview"
     get_preview.allow_tags = True
-    
+
     def get_title(self, obj):
         """Returns a truncated title of the object."""
         return Truncator(obj.title).words(8)
     get_title.short_description = "title"
-    
+
     # Custom view logic.
-    
+
     def response_add(self, request, obj, *args, **kwargs):
         """Returns the response for a successful add action."""
         if "_tinymce" in request.GET:
@@ -200,7 +200,7 @@ class FileAdminBase(admin.ModelAdmin):
                        "title": obj.title}
             return render(request, "admin/media/file/filebrowser_add_success.html", context)
         return super(FileAdminBase, self).response_add(request, obj, *args, **kwargs)
-    
+
     def changelist_view(self, request, extra_context=None):
         """Renders the change list."""
         context = {
@@ -218,11 +218,11 @@ FileAdmin = FileAdminBase
 if externals.reversion:
     class FileAdmin(FileAdmin, externals.reversion["admin.VersionMetaAdmin"]):
         list_display = FileAdmin.list_display + ("get_date_modified",)
-    
-    
+
+
 if externals.watson:
     class FileAdmin(FileAdmin, externals.watson["admin.SearchAdmin"]):
         pass
-        
-    
+
+
 admin.site.register(File, FileAdmin)
