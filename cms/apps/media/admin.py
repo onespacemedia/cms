@@ -16,19 +16,33 @@ from cms.apps.media.models import Label, File, Video
 
 
 class LabelAdmin(admin.ModelAdmin):
-    
+
     """Admin settings for Label models."""
-    
+
     list_display = ("name",)
-    
+
     search_fields = ("name",)
-    
-    
+
+
 admin.site.register(Label, LabelAdmin)
 
 
 class VideoAdmin(admin.ModelAdmin):
-    pass
+
+    def to_field_allowed(self, request, to_field):
+        """
+        This is a workaround for issue #552 which will raise a security
+        exception in the media select popup with django 1.6.6.
+        According to the release notes, this should be fixed by the
+        yet (2014-09-22) unreleased 1.6.8, 1.5.11, 1.7.1.
+
+        Details: https://code.djangoproject.com/ticket/23329#comment:11
+        """
+
+        if to_field == 'id':
+            return True
+
+        return super(VideoAdmin, self).to_field_allowed(request, to_field)
 
 admin.site.register(Video, VideoAdmin)
 
@@ -61,6 +75,8 @@ FILE_ICONS = {
     "mp4": MOVIE_FILE_ICON,
     "mov": MOVIE_FILE_ICON,
     "wmv": MOVIE_FILE_ICON,
+    'webm': MOVIE_FILE_ICON,
+    'm4v': MOVIE_FILE_ICON,
 }
     
     
