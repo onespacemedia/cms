@@ -105,7 +105,7 @@ class ArticleManager(OnlineBaseManager):
         queryset = queryset.filter(
             date__lte=timezone.now(),
         )
-        if settings.get('NEWS_APPROVAL_SYSTEM', False):
+        if getattr(settings, "NEWS_APPROVAL_SYSTEM", False):
             queryset = queryset.filter(
                 status='approved'
             )

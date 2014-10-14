@@ -67,7 +67,7 @@ class ArticleAdminBase(PageBaseAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(ArticleAdminBase, self).get_fieldsets(request, obj)
 
-        if not settings.get('NEWS_APPROVAL_SYSTEM', False):
+        if not getattr(settings, "NEWS_APPROVAL_SYSTEM", False):
             for fieldset in fieldsets:
                 fieldset[1]['fields'] = tuple(x for x in fieldset[1]['fields'] if x != 'status')
 
@@ -79,7 +79,7 @@ class ArticleAdminBase(PageBaseAdmin):
         option to change the status of an Article to approved
         """
         choices_list = STATUS_CHOICES
-        if settings.get('NEWS_APPROVAL_SYSTEM', False) and not request.user.has_perm('news.can_approve_articles'):
+        if getattr(settings, "NEWS_APPROVAL_SYSTEM", False) and not request.user.has_perm('news.can_approve_articles'):
             choices_list = [x for x in STATUS_CHOICES if not x[0] == 'approved']
 
         if db_field.name == "status":
