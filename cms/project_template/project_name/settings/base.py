@@ -270,3 +270,6 @@ RICHTEXT_SETTINGS = {
         "accessibility_warnings": False,
     }
 }
+
+
+NEWS_APPROVAL_SYSTEM = False
