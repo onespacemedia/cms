@@ -135,6 +135,9 @@ INSTALLED_APPS = (
     "cms.apps.news",
 
     "{{ project_name }}.apps.site",
+    "{{ project_name }}.apps.faqs",
+    "{{ project_name }}.apps.jobs",
+    "{{ project_name }}.apps.people",
 
     'django_extensions',
 )
