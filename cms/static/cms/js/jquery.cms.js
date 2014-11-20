@@ -82,7 +82,7 @@
                 		setTimeout(function() {
                 			var parentContainer = container.parents(".inline-group");
                     		parentContainer.find(".add-row a").click(function() {
-                    			parentContainer.find("textarea").cms("htmlWidget", config);
+                    			parentContainer.find("textarea.tiny-mce").cms("htmlWidget", config);
                     		});
                 		});
                 		state.initializedDeferred = true;

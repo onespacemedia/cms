@@ -16,9 +16,9 @@ except:
 
 
 class HtmlWidget(forms.Textarea):
-    
+
     """A textarea that is converted into a TinyMCE editor."""
-    
+
     def __init__(self, *args, **kwargs):
         """Initializes the HtmlWidget."""
         self.richtext_settings = getattr(settings, "RICHTEXT_SETTINGS", {}).get(kwargs.pop("richtext_settings", "default"), {})
@@ -30,18 +30,22 @@ class HtmlWidget(forms.Textarea):
         assets = [staticfiles_storage.url("cms/js/tiny_mce/tiny_mce.js")]
         assets.extend(default_javascript_cache.get_urls(("cms/js/jquery.cms.js", "pages/js/jquery.cms.pages.js", "media/js/jquery.cms.media.js",)))
         return forms.Media(js=assets)
-    
+
     media = property(
         get_media,
         doc = "The media used by the widget.",
     )
-    
+
     def render(self, name, value, attrs=None):
         """Renders the widget."""
-        # Get the standard widget.
-        html = super(HtmlWidget, self).render(name, value, attrs)
+
         # Add on the JS initializer.
         attrs = attrs or {}
+        attrs['class'] = "tiny-mce"
+
+        # Get the standard widget.
+        html = super(HtmlWidget, self).render(name, value, attrs)
+
         try:
             element_id = attrs["id"]
         except KeyError:
