@@ -183,7 +183,7 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
     
     def get_live_queryset(self):
         """Selects only live models."""
-        return super(OnlineBaseSearchAdapter, self).get_live_queryset().filter(
+        return super(SearchMetaBaseSearchAdapter, self).get_live_queryset().filter(
             robots_index = True,
         )
     
