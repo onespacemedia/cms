@@ -113,6 +113,7 @@ SITE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # A list of additional installed applications.
 
 INSTALLED_APPS = (
+
     "django.contrib.sessions",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -122,13 +123,14 @@ INSTALLED_APPS = (
     "django.contrib.admin",
     "django.contrib.sitemaps",
 
+    "cms",
+
     "optimizations",
     "reversion",
     "usertools",
     "historylinks",
     "watson",
 
-    "cms",
     "cms.apps.pages",
     "cms.apps.links",
     "cms.apps.media",
