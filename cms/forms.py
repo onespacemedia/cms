@@ -1,4 +1,6 @@
 """Form widgets used by the CMS."""
+import re
+import string
 
 from django import forms
 from django.conf import settings
@@ -68,22 +70,37 @@ class HtmlWidget(forms.Textarea):
         return mark_safe(html)
 
 
+# Checks a string against some rules
+def password_validation(password):
+    if len(password) < 8:
+        return 'Your password needs to be at least 8 characters long.'
+
+    if password.lower() == password:
+        return 'Your password needs include at least 1 uppercase character.'
+
+    if password.upper() == password:
+        return 'Your password needs include at least 1 lowercase character.'
+
+    if not re.findall(r"[\d]", password):
+        return 'Your password needs include at least 1 number.'
+
+    if not re.findall(r"[{}]".format(re.escape(string.punctuation)), password):
+        return 'Your password needs include at least 1 special character.'
+
+    return ''
+
+
 class CMSPasswordChangeForm(PasswordChangeForm):
-    """
-    Inherited form that lets a user change set his/her password without
-    entering the old password while validating min password length
-    """
     def clean_new_password1(self):
-        password1 = self.cleaned_data.get('new_password1')
-        if len(password1) < 8:
-            raise ValidationError("Password must be at least 8 chars.")
-        return password1
+        password = self.cleaned_data.get('new_password1')
+        if password_validation(password) != '':
+            raise ValidationError(password_validation(password))
+        return password
 
 
 class CMSAdminPasswordChangeForm(AdminPasswordChangeForm):
-
     def clean_password1(self):
-        password1 = self.cleaned_data.get('password1')
-        if len(password1) < 8:
-            raise ValidationError("Password must be at least 8 chars.")
-        return password1
+        password = self.cleaned_data.get('password1')
+        if password_validation(password) != '':
+            raise ValidationError(password_validation(password))
+        return password
