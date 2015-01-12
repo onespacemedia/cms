@@ -72,35 +72,42 @@ class HtmlWidget(forms.Textarea):
 
 # Checks a string against some rules
 def password_validation(password):
+
+    errors = []
+
     if len(password) < 8:
-        return 'Your password needs to be at least 8 characters long.'
+        errors.append('Your password needs to be at least 8 characters long.')
 
     if password.lower() == password:
-        return 'Your password needs include at least 1 uppercase character.'
+        errors.append('Your password needs include at least 1 uppercase character.')
 
     if password.upper() == password:
-        return 'Your password needs include at least 1 lowercase character.'
+        errors.append('Your password needs include at least 1 lowercase character.')
 
     if not re.findall(r"[\d]", password):
-        return 'Your password needs include at least 1 number.'
+        errors.append('Your password needs include at least 1 number.')
 
     if not re.findall(r"[{}]".format(re.escape(string.punctuation)), password):
-        return 'Your password needs include at least 1 special character.'
+        errors.append('Your password needs include at least 1 special character.')
 
-    return ''
+    return errors
 
 
 class CMSPasswordChangeForm(PasswordChangeForm):
     def clean_new_password1(self):
         password = self.cleaned_data.get('new_password1')
-        if password_validation(password) != '':
-            raise ValidationError(password_validation(password))
+        if password_validation(password):
+            raise ValidationError([
+                ValidationError(error) for error in password_validation(password)
+            ])
         return password
 
 
 class CMSAdminPasswordChangeForm(AdminPasswordChangeForm):
     def clean_password1(self):
         password = self.cleaned_data.get('password1')
-        if password_validation(password) != '':
-            raise ValidationError(password_validation(password))
+        if password_validation(password):
+            raise ValidationError([
+                ValidationError(error) for error in password_validation(password)
+            ])
         return password
