@@ -2,7 +2,9 @@
 
 from django import forms
 from django.conf import settings
+from django.contrib.auth.forms import PasswordChangeForm, AdminPasswordChangeForm
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 
 from optimizations import default_stylesheet_cache, default_javascript_cache
@@ -64,3 +66,24 @@ class HtmlWidget(forms.Textarea):
             )
         # All done!
         return mark_safe(html)
+
+
+class CMSPasswordChangeForm(PasswordChangeForm):
+    """
+    Inherited form that lets a user change set his/her password without
+    entering the old password while validating min password length
+    """
+    def clean_new_password1(self):
+        password1 = self.cleaned_data.get('new_password1')
+        if len(password1) < 8:
+            raise ValidationError("Password must be at least 8 chars.")
+        return password1
+
+
+class CMSAdminPasswordChangeForm(AdminPasswordChangeForm):
+
+    def clean_password1(self):
+        password1 = self.cleaned_data.get('password1')
+        if len(password1) < 8:
+            raise ValidationError("Password must be at least 8 chars.")
+        return password1

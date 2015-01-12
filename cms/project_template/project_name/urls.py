@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 
 from cms.sitemaps import registered_sitemaps
 from cms.views import TextTemplateView
+from cms.forms import CMSPasswordChangeForm
 
 
 admin.autodiscover()
@@ -17,6 +18,9 @@ urlpatterns = patterns(
     "",
 
     # Admin URLs.
+    url(r'^admin/password_change/$', 'django.contrib.auth.views.password_change',
+        {'password_change_form': CMSPasswordChangeForm}, name='password_change'),
+    url(r'^admin/password_change/done/$', 'django.contrib.auth.views.password_change_done', name='password_change_done'),
     url(r"^admin/", include(admin.site.urls)),
 
     # Permalink redirection service.

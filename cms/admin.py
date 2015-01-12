@@ -1,9 +1,12 @@
 """Base classes for the CMS admin interface."""
 
 from django.contrib import admin
+from django.contrib.auth.models import User
+from usertools.admin import UserAdmin
 
 from cms import externals
 from cms.models.base import SearchMetaBaseSearchAdapter, PageBaseSearchAdapter
+from cms.forms import CMSAdminPasswordChangeForm
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):
@@ -90,3 +93,11 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         NAVIGATION_FIELDS,
         SearchMetaBaseAdmin.SEO_FIELDS,
     )
+
+
+class CMSUserAdmin(UserAdmin):
+    change_password_form = CMSAdminPasswordChangeForm
+    invite_confirm_form = CMSAdminPasswordChangeForm
+
+admin.site.unregister(User)
+admin.site.register(User, CMSUserAdmin)
