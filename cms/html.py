@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.html import escape
 
-import optimizations
+from sorl.thumbnail import get_thumbnail
 
 from cms import permalinks
 
@@ -67,7 +67,7 @@ def process(text):
                     # Generate the thumbnail.
                     if fieldname:
                         try:
-                            thumbnail = optimizations.get_thumbnail(getattr(obj, fieldname), width, height, "resize")
+                            thumbnail = get_thumbnail(getattr(obj, fieldname), '{}x{}'.format(width, height), crop='center', quality=99)
                         except IOError:
                             pass
                         else:

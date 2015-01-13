@@ -123,9 +123,11 @@ INSTALLED_APPS = (
     "django.contrib.admin",
     "django.contrib.sitemaps",
 
+    "sorl.thumbnail",
+    "compressor",
+
     "cms",
 
-    "optimizations",
     "reversion",
     "usertools",
     "historylinks",
@@ -151,25 +153,11 @@ STATICFILES_DIRS = (
     os.path.join(SITE_ROOT, "static"),
 )
 
-STATIC_ASSETS = {
-    "default": {
-        "js": {
-            "include": (
-                "js/vendor/jquery.js",
-                "js/foundation/foundation.js",
-                "js/*.js",
-            ),
-            "exclude": (
-                "js/jquery.cms.pages.js",
-            ),
-        },
-        "css": {
-            "include": (
-                "css/screen.css",
-            ),
-        },
-    },
-}
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
 
 # Dispatch settings.
 
@@ -212,7 +200,6 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
 
 SITE_ID = 1
 
-
 # Absolute path to the directory where templates are stored.
 
 TEMPLATE_DIRS = (
@@ -246,13 +233,7 @@ CACHE_MIDDLEWARE_KEY_PREFIX = "{{ project_name }}"
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    },
-    # Used for efficient caching of static assets.
-    "optimizations": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "TIMEOUT": 60 * 60 * 24,
-        "LOCATION": "optimizations",
-    },
+    }
 }
 
 

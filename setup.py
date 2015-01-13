@@ -28,7 +28,6 @@ setup(
         'django',
         'psycopg2',
         'django-suit',
-        'django-optimizations',
         'Pillow',
         'django-reversion',
         'django-usertools',
@@ -38,5 +37,7 @@ setup(
         'Werkzeug',
         'raven',
         'bcrypt'
+        'django-compressor',
+        'sorl-thumbnail'
     ],
 )

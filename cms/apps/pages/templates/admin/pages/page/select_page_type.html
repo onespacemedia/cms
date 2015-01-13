@@ -1,11 +1,11 @@
 {% extends "admin/base_site.html" %}
 {% load url from future %}
-{% load assets %}
+{% load thumbnail %}
 
 
 {% block extrahead %}
     {{block.super}}
-    {% stylesheet "pages/css/cms.pages.css" %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}pages/css/cms.pages.css"/>
 {% endblock %}
 
 
@@ -25,33 +25,34 @@
 {% block content %}
 
     {% if content_types %}
-    
+
         <p>Select a type of page from the choices below.</p>
-        
+
         {% regroup content_types by classifier as classifiers %}
-        
+
         {% for classifier in classifiers %}
-        
+
             <h3 class="classifier">{{classifier.grouper|capfirst}}</h3>
-         
+
             <ul class="content-types">
                 {% for content_type in classifier.list %}
                     <li>
-                        <a href="{{content_type.url}}">
-                            {% img content_type.icon width=64 height=64 method="crop" class="content-type-icon" %}
-                            <span class="content-type-name">{{content_type.name|capfirst}}</span>
+
+                        <a href="{{ content_type.url }}">
+                            <img src="{{ content_type.icon }}" alt="" class="content-type-icon"/>
+                            <span class="content-type-name">{{ content_type.name|capfirst }}</span>
                         </a>
                     </li>
                 {% endfor %}
             </ul>
-            
+
         {% endfor %}
-        
+
     {% else %}
-    
+
         <p>You do not have permission to create any type of page.</p>
-        
+
     {% endif %}
-    
+
 {% endblock %}
 

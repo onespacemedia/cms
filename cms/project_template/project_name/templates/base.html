@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-    {% load pages assets html %}
+    {% load pages html compress %}
     <head>
 
         <meta charset="utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        {# <meta name="keywords" content="{% block meta_keywords %}{% meta_keywords %}{% endblock %}"> #}
-        <meta name="description" content="{% block meta_description %}{% meta_description %}{% endblock %}">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">{% comment %}
+        <meta name="keywords" content="{% block meta_keywords %}{% meta_keywords %}{% endblock %}">
+        {% endcomment %}<meta name="description" content="{% block meta_description %}{% meta_description %}{% endblock %}">
         <meta name="robots" content="{% block meta_robots %}{% meta_robots %}{% endblock %}">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <link rel="canonical" href="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}{{ request.path }}" />
@@ -15,13 +15,9 @@
 
         {% block feeds %}{% endblock %}
 
-        {% stylesheet %}
-
-        <!--[if lt IE 9]>
-            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
-
-        {% script %}
+        {% compress css %}
+            <link rel="stylesheet" href="/static/css/screen.css"/>
+        {% endcompress %}
 
     </head>
 
@@ -55,6 +51,9 @@
         <footer>
             <p>© {% now "Y" %} Site owner.</p>
         </footer>
+
+        {% compress js %}
+        {% endcompress %}
 
     </body>
 

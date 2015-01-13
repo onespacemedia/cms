@@ -5,12 +5,12 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.admin.views.main import IS_POPUP_VAR
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.utils.text import Truncator
 
-import optimizations
-
+from sorl.thumbnail import get_thumbnail
 from cms import permalinks, externals
 from cms.apps.media.models import Label, File, Video
 
@@ -190,13 +190,14 @@ class FileAdminBase(admin.ModelAdmin):
         permalink = permalinks.create(obj)
         if icon == IMAGE_FILE_ICON:
             try:
-                thumbnail = optimizations.get_thumbnail(obj.file, 100, 66)
+                thumbnail = get_thumbnail(obj.file, '100x66', crop='center', quality=99)
             except IOError:
                 pass
             else:
                 return '<img cms:permalink="%s" src="%s" width="%s" height="%s" alt="" title="%s"/>' % (permalink, thumbnail.url, thumbnail.width, thumbnail.height, obj.title)
         else:
-            icon = optimizations.get_url(icon)
+            print icon
+            icon = staticfiles_storage.url(icon)
         return '<img cms:permalink="%s" src="%s" width="66" height="66" alt="" title="%s"/>' % (permalink, icon, obj.title)
     get_preview.short_description = "preview"
     get_preview.allow_tags = True

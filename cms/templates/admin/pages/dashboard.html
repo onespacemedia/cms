@@ -1,14 +1,11 @@
 {% extends "admin/index.html" %}
 {% load url from future %}
-{% load assets %}
 
 
 {% block extrahead %}
-    {{block.super}}
+    {{ block.super }}
     {% include "admin/cms/scripts.html" %}
 {% endblock %}
-
-
 
 {% block sidebar %}
     <div id="content-related">

@@ -9,6 +9,7 @@ standard implementation.
 from __future__ import with_statement
 
 from django.contrib import admin
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, url
@@ -344,7 +345,7 @@ class PageAdmin(PageBaseAdmin):
                     url = request.path + "?" + query_string
                     content_type_context = {
                         "name": content_type._meta.verbose_name,
-                        "icon": content_type.icon,
+                        "icon": staticfiles_storage.url(content_type.icon),
                         "url": url,
                         "classifier": content_type.classifier
                     }
@@ -357,6 +358,7 @@ class PageAdmin(PageBaseAdmin):
                 "title": "Select page type",
                 "content_types": content_types
             }
+
             return render(request, "admin/pages/page/select_page_type.html", context)
         else:
             if not self.has_add_content_permission(request, ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()):

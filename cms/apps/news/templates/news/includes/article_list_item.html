@@ -1,9 +1,11 @@
-{% load html assets news %}
+{% load thumbnail html news %}
 <article{% if article.image %} class="news-article-list-item-with-image"{% endif %}>
     {% if article.image %}
         <aside>
             <a href="{% article_url article %}">
-                {% img article.image.file width=140 alt=article.image %}
+                {% thumbnail item.image "x140" crop="center" as im %}
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {% endthumbnail %}
             </a>
         </aside>
     {% endif %}
