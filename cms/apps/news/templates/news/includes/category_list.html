@@ -8,7 +8,7 @@
             </li>
             {% for category in category_list %}
                 <li>
-                    <a{% if current_category == category %} class="here"{% endif %} href="{% category_url category %}">{{category}}</a>
+                    <a{% if current_category == category %} class="here"{% endif %} href="{% category_url category %}">{{ category }}</a>
                 </li>
             {% endfor %}
         </ul>

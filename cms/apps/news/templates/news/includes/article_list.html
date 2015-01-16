@@ -1,6 +1,5 @@
 {% load pagination news %}
 {% if article_list %}
-    
     <ul class="news-article-list">
         {% for article in article_list %}
             <li>
@@ -8,11 +7,10 @@
             </li>
         {% endfor %}
     </ul>
-    
+
     {% if page_obj %}
         {% pagination page_obj %}
     {% endif %}
-    
 {% else %}
     <p><em>There are no articles to display.</em>
 {% endif %}

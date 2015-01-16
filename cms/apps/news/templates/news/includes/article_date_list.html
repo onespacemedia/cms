@@ -9,7 +9,7 @@
             </li>
             {% for year_group in year_group_list %}
                 <li>
-                    <a{% if year_group.grouper == current_year %} class="here"{% endif %} href="{% article_year_archive_url year_group.grouper %}">{{year_group.grouper}}</a>
+                    <a{% if year_group.grouper == current_year %} class="here"{% endif %} href="{% article_year_archive_url year_group.grouper %}">{{ year_group.grouper }}</a>
                 </li>
             {% endfor %}
         </ul>

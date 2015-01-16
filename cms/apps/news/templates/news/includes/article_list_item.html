@@ -7,15 +7,15 @@
             </a>
         </aside>
     {% endif %}
+
     <hgroup>
-        <h1><a href="{% article_url article %}">{{article}}</a></h1>
-        <h2>
-            {% article_meta article %}
-        </h2>
+        <h1><a href="{% article_url article %}">{{ article }}</a></h1>
+        <h2>{% article_meta article %}</h2>
     </hgroup>
+
     {% if article.summary %}
-        {{article.summary|html}}
+        {{ article.summary|html }}
     {% else %}
-        <p>{{article.content|truncate_paragraphs:1|striptags}}</p>
+        <p>{{ article.content|truncate_paragraphs:1|striptags }}</p>
     {% endif %}
 </article>

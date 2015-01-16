@@ -1,14 +1,5 @@
-{% extends "news/base.html" %}
+{% extends "news/article_archive.html" %}
 {% load news %}
 
 
-{% block header %}{{block.super}} for {{day}}{% endblock %}
-
-
-{% block content_primary %}
-
-    {{block.super}}
-    
-    {% article_list article_list %}
-
-{% endblock %}
+{% block header %}{{ block.super }} for {{ day }}{% endblock %}
