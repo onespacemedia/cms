@@ -36,7 +36,7 @@ setup(
         'django-extensions',
         'Werkzeug',
         'raven',
-        'bcrypt'
+        'bcrypt',
         'django-compressor',
         'sorl-thumbnail',
         'bcrypt'

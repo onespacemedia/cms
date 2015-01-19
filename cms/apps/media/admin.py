@@ -196,8 +196,8 @@ class FileAdminBase(admin.ModelAdmin):
             else:
                 return '<img cms:permalink="%s" src="%s" width="%s" height="%s" alt="" title="%s"/>' % (permalink, thumbnail.url, thumbnail.width, thumbnail.height, obj.title)
         else:
-            print icon
             icon = staticfiles_storage.url(icon)
+
         return '<img cms:permalink="%s" src="%s" width="66" height="66" alt="" title="%s"/>' % (permalink, icon, obj.title)
     get_preview.short_description = "preview"
     get_preview.allow_tags = True
