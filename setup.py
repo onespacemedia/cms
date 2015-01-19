@@ -36,6 +36,7 @@ setup(
         'django-watson',
         'django-extensions',
         'Werkzeug',
-        'raven'
+        'raven',
+        'bcrypt'
     ],
 )
