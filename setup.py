@@ -38,6 +38,7 @@ setup(
         'raven',
         'bcrypt'
         'django-compressor',
-        'sorl-thumbnail'
+        'sorl-thumbnail',
+        'bcrypt'
     ],
 )
