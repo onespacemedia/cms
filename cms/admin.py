@@ -2,7 +2,12 @@
 
 from django.contrib import admin
 from django.contrib.auth.models import User
-from usertools.admin import UserAdmin
+from django.contrib.admin.sites import NotRegistered
+
+try:
+    from usertools.admin import UserAdmin
+except ImportError:
+    from django.contrib.auth.admin import UserAdmin
 
 from cms import externals
 from cms.models.base import SearchMetaBaseSearchAdapter, PageBaseSearchAdapter
@@ -99,5 +104,9 @@ class CMSUserAdmin(UserAdmin):
     change_password_form = CMSAdminPasswordChangeForm
     invite_confirm_form = CMSAdminPasswordChangeForm
 
-admin.site.unregister(User)
+try:
+    admin.site.unregister(User)
+except NotRegistered:
+    pass
+
 admin.site.register(User, CMSUserAdmin)
