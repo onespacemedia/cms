@@ -30,7 +30,6 @@ setup(
         'django-suit',
         'Pillow',
         'django-reversion',
-        'django-usertools',
         'django-historylinks',
         'django-watson',
         'django-extensions',
@@ -41,4 +40,7 @@ setup(
         'sorl-thumbnail',
         'bcrypt'
     ],
+    extras_require={
+        'usertools':  ["django-usertools", "Usertools"],
+    }
 )
