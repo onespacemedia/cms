@@ -80,55 +80,53 @@ def query_yes_no(question, default="yes"):
 def configure_apps(path, apps, project):
 
     # Check to make sure all app choices aren't False
-    if any(apps.values()):
-        print 'Creating temporary folder...'
-        temp_folder = os.path.join(path, 'apps', 'temp')
+    print 'Creating temporary folder...'
+    temp_path = os.path.join(path, 'apps', 'temp')
+    temp_folder = os.makedirs(temp_path)
 
-        for app in apps:
-            if apps[app]:
-                try:
-                    app_folder = os.path.join(temp_folder, app)
+    for app in apps:
+        if apps[app]:
+            try:
+                app_folder = os.path.join(temp_path, app)
 
-                    git(
-                        "clone",
-                        "git@github.com:onespacemedia/cms-{}.git".format(app),
-                        app_folder
-                    )
+                git(
+                    "clone",
+                    "git@github.com:onespacemedia/cms-{}.git".format(app),
+                    app_folder
+                )
 
-                    for src_dir, dirs, files in os.walk(app_folder):
-                        for d in dirs:
-                            if d == 'apps':
-                                shutil.move(
-                                    os.path.join(app_folder, d, app),
-                                    os.path.join(path, 'apps')
-                                )
-                            elif d == 'templates':
-                                shutil.move(
-                                    os.path.join(app_folder, d, app),
-                                    os.path.join(path, 'templates')
-                                )
+                for src_dir, dirs, files in os.walk(app_folder):
+                    for d in dirs:
+                        if d == 'apps':
+                            shutil.move(
+                                os.path.join(app_folder, d, app),
+                                os.path.join(path, 'apps')
+                            )
+                        elif d == 'templates':
+                            shutil.move(
+                                os.path.join(app_folder, d, app),
+                                os.path.join(path, 'templates')
+                            )
 
-                except Exception as e:
-                    print "Error: {}".format(e)
+            except Exception as e:
+                print "Error: {}".format(e)
 
-            else:
-                f = open(os.path.join(path, 'settings', 'base.py'))
-                lines = f.readlines()
-                f.close()
+        else:
+            f = open(os.path.join(path, 'settings', 'base.py'))
+            lines = f.readlines()
+            f.close()
 
-                f = open(os.path.join(path, 'settings', 'base.py'), "w")
-                for line in lines:
-                    if line.strip() != '"{}.apps.{}",'.format(project, app):
-                        f.write(line)
+            f = open(os.path.join(path, 'settings', 'base.py'), "w")
+            for line in lines:
+                if line.strip() != '"{}.apps.{}",'.format(project, app):
+                    f.write(line)
 
-                f.close()
+            f.close()
 
-        print 'Removing temporary folder...'
-        shutil.rmtree(temp_folder)
+    print 'Removing temporary folder...'
+    shutil.rmtree(temp_path)
 
-        print 'Remember to update each apps models.py with the correct urlconf'
-    else:
-        pass
+    print 'Remember to update each apps models.py with the correct urlconf'
 
 
 def main():
