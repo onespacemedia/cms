@@ -10,6 +10,31 @@ import subprocess
 import sys
 
 
+class Output:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    def info(self, string):
+        print '[{}INFO{}] {}'.format(
+            self.OKGREEN,
+            self.ENDC,
+            string,
+        )
+
+    def warn(self, string):
+        print '[{}WARN{}] {}'.format(
+            self.WARNING,
+            self.ENDC,
+            string,
+        )
+
+
 parser = argparse.ArgumentParser(
     description="Start a new CMS project.",
 )
@@ -25,14 +50,6 @@ parser.add_argument(
     nargs="?",
     help="The destination dir for the created project.",
 )
-
-# parser.add_argument(
-#     "--noinput",
-#     action="store_false",
-#     default=True,
-#     dest="interactive",
-#     help="Tells Django to NOT prompt the user for input of any kind.",
-# )
 
 
 def git(*args):
@@ -80,9 +97,8 @@ def query_yes_no(question, default="yes"):
 def configure_apps(path, apps, project):
 
     # Check to make sure all app choices aren't False
-    print 'Creating temporary folder...'
     temp_path = os.path.join(path, 'apps', 'temp')
-    temp_folder = os.makedirs(temp_path)
+    os.makedirs(temp_path)
 
     for app in apps:
         if apps[app]:
@@ -92,7 +108,8 @@ def configure_apps(path, apps, project):
                 git(
                     "clone",
                     "git@github.com:onespacemedia/cms-{}.git".format(app),
-                    app_folder
+                    app_folder,
+                    "-q"
                 )
 
                 for src_dir, dirs, files in os.walk(app_folder):
@@ -102,31 +119,38 @@ def configure_apps(path, apps, project):
                                 os.path.join(app_folder, d, app),
                                 os.path.join(path, 'apps')
                             )
+
+                            # Replace the {{ project_name }} placeholder.
+                            with open(os.path.join(path, 'apps', app, 'models.py'), 'r') as f:
+                                lines = f.readlines()
+
+                            with open(os.path.join(path, 'apps', app, 'models.py'), 'w') as f:
+                                for line in lines:
+                                    line = line.replace('{{ project_name }}', project)
+                                    f.write(line)
+
                         elif d == 'templates':
                             shutil.move(
                                 os.path.join(app_folder, d, app),
                                 os.path.join(path, 'templates')
                             )
 
+                Output().info('Installed {} app'.format(app))
+
             except Exception as e:
                 print "Error: {}".format(e)
 
         else:
-            f = open(os.path.join(path, 'settings', 'base.py'))
-            lines = f.readlines()
-            f.close()
+            with open(os.path.join(path, 'settings', 'base.py')) as f:
+                lines = f.readlines()
 
-            f = open(os.path.join(path, 'settings', 'base.py'), "w")
-            for line in lines:
-                if line.strip() != '"{}.apps.{}",'.format(project, app):
-                    f.write(line)
+            with open(os.path.join(path, 'settings', 'base.py'), "w") as f:
+                for line in lines:
+                    # Don't write out lines for disabled applications.
+                    if line.strip() != '"{}.apps.{}",'.format(project, app):
+                        f.write(line)
 
-            f.close()
-
-    print 'Removing temporary folder...'
     shutil.rmtree(temp_path)
-
-    print 'Remember to update each apps models.py with the correct urlconf'
 
 
 def main():
@@ -153,9 +177,37 @@ def main():
     }
     # Make management scripts executable.
     make_executable(os.path.join(dest_dir, "manage.py"))
-    configure_apps(os.path.abspath(os.path.join(dest_dir, args.project_name)), apps, args.project_name)
+    path = os.path.abspath(os.path.join(dest_dir, args.project_name))
+    configure_apps(path, apps, args.project_name)
+
+    # If we don't have usertools, then we need to do a couple of things.
+    try:
+        from usertools.admin import UserAdmin
+        assert UserAdmin
+    except ImportError:
+        # We don't have usertools, so remove the line from INSTALLED_APPS, and
+        # add a template override for the admin.
+        Output().warn('Usertools is not installed')
+
+        with open(os.path.join(path, 'settings', 'base.py')) as f:
+            lines = f.readlines()
+
+        with open(os.path.join(path, 'settings', 'base.py'), "w") as f:
+            for line in lines:
+                # Don't write out lines for disabled applications.
+                if line.strip() == '"usertools",':
+                    f.write(line.replace('"usertools",', '# "usertools",'))
+                else:
+                    f.write(line)
+
+        template_path = os.path.join(path, 'templates', 'admin', 'auth', 'user')
+        os.makedirs(template_path)
+        with open(os.path.join(template_path, 'change_list.html'), 'w+') as f:
+            f.write('{% extends "admin/change_list.html" %}')
+            f.write('\n')
+
     # Give some help to the user.
-    print('CMS project created.')
+    Output().info('CMS project created')
 
 if __name__ == "__main__":
     main()
