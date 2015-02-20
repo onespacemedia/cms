@@ -41,6 +41,6 @@ setup(
         'bcrypt'
     ],
     extras_require={
-        'usertools':  ["django-usertools", "Usertools"],
+        'usertools':  ["django-usertools"],
     }
 )

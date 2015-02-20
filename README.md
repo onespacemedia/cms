@@ -38,7 +38,7 @@ This fork of etianen-cms contains many modifications which are specific to the n
 Starting a new project
 -------------
 
-* Install the CMS with `pip install onespacemedia-cms`
+* Install the CMS with `pip install onespacemedia-cms`. If you want the ability to invite users, then run `pip install 'onespacemedia-cms[usertools]'`
 * Run `start_cms_project.py testing .`, replacing `testing` with your project name.
 * Answer a few questions regarding optional applications.
 * Run `./manage.py migrate` then `./manage.py createsuperuser`.
