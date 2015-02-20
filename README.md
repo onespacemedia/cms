@@ -1,7 +1,7 @@
-etianen-cms
-===========
+onespacemedia-cms
+=================
 
-A collection of Django extensions that add content-management facilities to Django projects.
+A collection of Django extensions that add content-management facilities to Django projects, forked from [etianen/cms](https://github.com/etianen/cms).
 
 
 Overview
@@ -25,55 +25,20 @@ a modular approach, allowing you to pick the parts you need, and extend it where
 *   Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
 *   Internal / external links in menus (via bundled [Links app](https://github.com/etianen/cms/wiki/links-app)).
 *   Simple blog managment (via bundled [News app](https://github.com/etianen/cms/wiki/news-app)).
+*   FAQs module
+*   Jobs module
+*   People module
 
 
 Please note
 -----------
 
-This fork of etianen-cms contains many modifications which are specific to the needs of [Onespacemedia](http://onespacemedia.com). You may prefer to use the original repository instead of this one. With that in mind, here are all of the dependancies required for this to work:
+This fork of etianen-cms contains many modifications which are specific to the needs of [Onespacemedia](http://onespacemedia.com). You may prefer to use the [original repository](https://github.com/etianen/cms) instead of this one.
 
-* psycopg2
-* django-suit
-* django-optimizations
-* Pillow (or PIL, but Pillow is preferred)
-* django-reversion (You may not want to use the latest version of this, check the [compatible versions](http://django-reversion.readthedocs.org/en/latest/django-versions.html) list
-* django-usertools
-* django-historylinks
-* django-watson
-* South
-
-..or just run
-
-    pip install psycopg2 django-suit django-optimizations Pillow django-reversion django-usertools django-historylinks django-watson South 
-
-
-Documentation
+Starting a new project
 -------------
 
-Please read the [Getting Started][] guide for more information.
-
-[Getting Started]: https://github.com/etianen/cms/wiki
-    "Getting started with etianen-cms"
-    
-Download instructions, bug reporting and links to full documentation can be
-found at the [main project website][].
-
-[main project website]: http://github.com/etianen/cms
-    "etianen-cms on GitHub"
-
-You can keep up to date with the latest announcements by joining the
-[etianen-cms discussion group][].
-
-[etianen-cms discussion group]: http://groups.google.com/group/etianen-cms
-    "etianen-cms Google Group"
-
-
-More information
-----------------
-
-Dave Hall is a freelance web developer, based in Cambridge, UK. You can usually
-find him on the Internet in a number of different places:
-
-*   [Website](http://www.etianen.com/ "Dave Hall's homepage")
-*   [Twitter](http://twitter.com/etianen "Dave Hall on Twitter")
-*   [Google Profile](http://www.google.com/profiles/david.etianen "Dave Hall's Google profile")
+* Install the CMS with `pip install onespacemedia-cms`
+* Run `start_cms_project.py testing .`, replacing `testing` with your project name.
+* Answer a few questions regarding optional applications.
+* Run `./manage.py migrate` then `./manage.py createsuperuser`.
