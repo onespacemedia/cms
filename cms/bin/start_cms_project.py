@@ -21,18 +21,18 @@ class Output:
     UNDERLINE = '\033[4m'
 
     def info(self, string):
-        print '[{}INFO{}] {}'.format(
+        print('[{}INFO{}] {}'.format(
             self.OKGREEN,
             self.ENDC,
             string,
-        )
+        ))
 
     def warn(self, string):
-        print '[{}WARN{}] {}'.format(
+        print('[{}WARN{}] {}'.format(
             self.WARNING,
             self.ENDC,
             string,
-        )
+        ))
 
 
 parser = argparse.ArgumentParser(
@@ -71,6 +71,13 @@ def query_yes_no(question, default="yes"):
 
     The "answer" return value is one of "yes" or "no".
     """
+    # Fix Python 2.x.
+    global input
+    try:
+        input = raw_input
+    except NameError:
+        pass
+
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
     if default is None:
@@ -84,7 +91,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
         elif choice in valid:
@@ -138,7 +145,7 @@ def configure_apps(path, apps, project):
                 Output().info('Installed {} app'.format(app))
 
             except Exception as e:
-                print "Error: {}".format(e)
+                print("Error: {}".format(e))
 
         else:
             with open(os.path.join(path, 'settings', 'base.py')) as f:
