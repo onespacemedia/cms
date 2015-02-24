@@ -273,3 +273,8 @@ RICHTEXT_SETTINGS = {
 NEWS_APPROVAL_SYSTEM = False
 
 GOOGLE_ANALYTICS = ''
+
+# You can get your Client ID & Secret here: https://creativesdk.adobe.com/myapps.html
+ADOBE_CREATIVE_SDK_ENABLED = False
+ADOBE_CREATIVE_SDK_CLIENT_SECRET = ''
+ADOBE_CREATIVE_SDK_CLIENT_ID = ''

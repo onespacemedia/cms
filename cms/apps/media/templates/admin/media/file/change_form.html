@@ -1,13 +1,61 @@
 {% extends "admin/change_form.html" %}
-{% load permalinks %}
 
+{% block object-tools-items %}
+    {{ block.super }}
 
-{% block form_top %}
-    {% if original %}
-        <p>
-            <strong>Permalink:</strong>
-            <a href="{{original|permalink}}">{% permalink_absolute original %}</a>
-        </p>
+    {% if settings.ADOBE_CREATIVE_SDK_ENABLED %}
+    <li>
+        <a href="#" id="edit-button" onclick="return launchEditor();" style="display: none;"><i class="icon-edit icon-alpha75"></i>Edit file</a>
+    </li>
     {% endif %}
-    {{block.super}}
+{% endblock %}
+
+{% block sidebar %}
+    {% if settings.ADOBE_CREATIVE_SDK_ENABLED %}
+    <div id="navcontainer" class="box">
+        <div id="image_container">
+            <img id="image" src="{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}" />
+
+            <div id="paper">&nbsp;</div>
+        </div>
+
+        {# We use parent folder paths to get around not being able to pass a arg to `build_absolute_url` #}
+        <a href="{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}" target="_blank" id="preview_url">Full size preview</a>
+    </div>
+    {% endif %}
+
+{{ block.super }}
+{% endblock %}
+
+{% block extrajs %}
+    {% if settings.ADOBE_CREATIVE_SDK_ENABLED %}
+    <!-- Load widget code -->
+    <script type="text/javascript" src="http://feather.aviary.com/imaging/v1/editor.js"></script>
+
+    <!-- Instantiate the widget -->
+    <script type="text/javascript">
+
+        var featherEditor = new Aviary.Feather({
+            apiKey: '{{ settings.ADOBE_CREATIVE_SDK_CLIENT_ID }}',
+            theme: 'light',
+            displayImageSize: true,
+            onLoad: function() {
+                document.getElementById('edit-button').style.display = 'block';
+            },
+            onSave: function(imageID, newURL) {
+                document.getElementById(imageID).src = newURL;
+                document.getElementById('preview_url').href = newURL;
+                featherEditor.close();
+            }
+        });
+
+        function launchEditor(id) {
+            featherEditor.launch({
+                image: 'image',
+                url: 'http://www.onespacemedia.com/media/uploads/files/img_20150218_144907.jpg'
+            });
+            return false;
+        }
+    </script>
+    {% endif %}
 {% endblock %}
