@@ -174,7 +174,7 @@ def main():
         args.project_name,
         dest_dir,
         template=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "project_template")),
-        extensions=("py", "txt", "conf", "gitignore", "md", "css", "js"),
+        extensions=["py", "txt", "conf", "gitignore", "md", "css", "js", 'json'],
         user=getpass.getuser(),
         project_slug=args.project_name.replace("_", "-"),
     )
@@ -235,6 +235,18 @@ def main():
 
     with open(os.path.join(path, 'server.json'), 'w+') as f:
         f.write(json.dumps(server_json, indent=4))
+
+    # Run `npm` commands.
+    with open(os.devnull, 'w') as f:
+        Output().info("Installing bower and gulp")
+        subprocess.call(['npm', 'install', '-g', 'bower', 'gulp'], stdout=f, stderr=subprocess.STDOUT)
+
+        Output().info("Installing npm dependancies")
+        subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
+
+        Output().info("Running gulp")
+        subprocess.call(['gulp', 'initialise'], stdout=f, stderr=subprocess.STDOUT)
+        subprocess.call(['gulp', 'styles'], stdout=f, stderr=subprocess.STDOUT)
 
     # Give some help to the user.
     Output().info('CMS project created')
