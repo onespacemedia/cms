@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 
+import os
+
 
 class Label(models.Model):
 
@@ -51,6 +53,14 @@ class File(models.Model):
 
     class Meta:
         ordering = ("title",)
+
+    def is_image(self):
+        from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON
+
+        _, extension = os.path.splitext(self.file.name)
+        extension = extension.lower()[1:]
+        icon = FILE_ICONS.get(extension, UNKNOWN_FILE_ICON)
+        return icon == IMAGE_FILE_ICON
 
 
 class FileRefField(models.ForeignKey):

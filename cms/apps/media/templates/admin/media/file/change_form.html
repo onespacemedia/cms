@@ -3,7 +3,7 @@
 {% block object-tools-items %}
     {{ block.super }}
 
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED %}
+    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
     <li>
         <a href="#" id="edit-button" onclick="return launchEditor();" style="display: none;"><i class="icon-edit icon-alpha75"></i>Edit file</a>
     </li>
@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED %}
+    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
     <div id="navcontainer" class="box">
         <div id="image_container">
             <img id="image" src="{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}" />
@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block extrajs %}
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED %}
+    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
     <!-- Load widget code -->
     <script type="text/javascript" src="http://feather.aviary.com/imaging/v1/editor.js"></script>
 
