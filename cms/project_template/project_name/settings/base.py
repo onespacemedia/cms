@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     "{{ project_name }}.apps.jobs",
     "{{ project_name }}.apps.people",
 
+    'server_management',
     'django_extensions',
 )
 

@@ -38,7 +38,8 @@ setup(
         'bcrypt',
         'django-compressor',
         'sorl-thumbnail',
-        'bcrypt'
+        'bcrypt',
+        'onespacemedia-server-management',
     ],
     extras_require={
         'usertools':  ["django-usertools"],

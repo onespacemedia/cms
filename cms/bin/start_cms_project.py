@@ -2,6 +2,7 @@ from django.core import management
 
 import argparse
 import getpass
+import json
 import os
 import os.path
 import stat
@@ -212,6 +213,28 @@ def main():
         with open(os.path.join(template_path, 'change_list.html'), 'w+') as f:
             f.write('{% extends "admin/change_list.html" %}')
             f.write('\n')
+
+    # Create the server.json for the `server_management` tools.
+    server_json = {
+        "local": {
+            "database": {
+                "name": args.project_name
+            }
+        },
+        "remote": {
+            "server": {
+                "ip": ""
+            },
+            "database": {
+                "name": args.project_name,
+                "user": args.project_name,
+                "password": ""
+            }
+        }
+    }
+
+    with open(os.path.join(path, 'server.json'), 'w+') as f:
+        f.write(json.dumps(server_json, indent=4))
 
     # Give some help to the user.
     Output().info('CMS project created')
