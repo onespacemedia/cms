@@ -96,7 +96,6 @@ class FileAdminBase(admin.ModelAdmin):
         },),
         ("Media management", {
             "fields": ("labels",),
-            "classes": ("collapse",),
         },),
     )
 

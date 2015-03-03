@@ -40,6 +40,7 @@ setup(
         'sorl-thumbnail',
         'bcrypt',
         'onespacemedia-server-management',
+        'requests',
     ],
     extras_require={
         'usertools':  ["django-usertools"],
