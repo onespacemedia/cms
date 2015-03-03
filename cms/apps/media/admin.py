@@ -3,16 +3,22 @@
 import os
 from functools import partial
 
-from django.contrib import admin
+from django.core.files import File as DjangoFile
+from django.core.files.temp import NamedTemporaryFile
+from django.conf.urls import patterns, url
+from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, Http404
+from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import filesizeformat
 from django.utils.text import Truncator
 
 from sorl.thumbnail import get_thumbnail
 from cms import permalinks, externals
 from cms.apps.media.models import Label, File, Video
+
+import requests
 
 
 class LabelAdmin(admin.ModelAdmin):
@@ -225,6 +231,42 @@ class FileAdminBase(admin.ModelAdmin):
         if extra_context:
             context.update(extra_context)
         return super(FileAdminBase, self).changelist_view(request, context)
+
+    # Create a URL route and a view for saving the Adobe SDK callback URL.
+    def get_urls(self):
+        urls = super(FileAdminBase, self).get_urls()
+
+        new_urls = patterns(
+            '',
+            url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name="media_file_remote")
+        )
+
+        return new_urls + urls
+
+    def remote_view(self, request, object_id):
+        if not self.has_change_permission(request):
+            return HttpResponseForbidden("You do not have permission to modify this file.")
+
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+
+        url = request.POST.get('url', None)
+
+        if not url:
+            raise Http404("No URL supplied.")
+
+        # Pull down the remote image and save it as a temporary file.
+        img_temp = NamedTemporaryFile()
+        img_temp.write(requests.get(url).content)
+        img_temp.flush()
+
+        obj = get_object_or_404(File, pk=object_id)
+        obj.file.save(url.split('/')[-1], DjangoFile(img_temp))
+
+        messages.success(request, u'The file "{}" was changed successfully. You may edit it again below.'.format(
+            obj.__unicode__()
+        ))
+        return HttpResponse('{"status": "ok"}', content_type='application/json')
 
 
 # Renaming needed to allow inheritance to take place in this class without infinite recursion.

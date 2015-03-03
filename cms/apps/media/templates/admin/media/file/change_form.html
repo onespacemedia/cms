@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
+    {% if original.is_image %}
     <div id="navcontainer" class="box">
         <div id="image_container">
             <img id="image" src="{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}" />
@@ -31,6 +31,7 @@
     {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
     <!-- Load widget code -->
     <script type="text/javascript" src="http://feather.aviary.com/imaging/v1/editor.js"></script>
+    <script type="text/javascript" src="/static/media/js/jquery.cookie.js"></script>
 
     <!-- Instantiate the widget -->
     <script type="text/javascript">
@@ -45,14 +46,32 @@
             onSave: function(imageID, newURL) {
                 document.getElementById(imageID).src = newURL;
                 document.getElementById('preview_url').href = newURL;
-                featherEditor.close();
+
+                // POST to a URL which will GET the new URL and overwrite the saved file.
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "admin:media_file_remote" object_id=original.pk %}',
+                    data: {
+                        url: newURL,
+                    },
+                    beforeSend: function(jqXHR, settings) {
+                        jqXHR.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.log(textStatus, errorThrown);
+                    },
+                    success: function(data, textStatus, jqXHR) {
+                        // featherEditor.close();
+                        window.location.reload();
+                    }
+                });
             }
         });
 
         function launchEditor(id) {
             featherEditor.launch({
                 image: 'image',
-                url: 'http://www.onespacemedia.com/media/uploads/files/img_20150218_144907.jpg'
+                url: '{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}'
             });
             return false;
         }
