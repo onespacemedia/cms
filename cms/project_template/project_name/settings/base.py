@@ -286,13 +286,28 @@ ADOBE_CREATIVE_SDK_CLIENT_SECRET = ''
 ADOBE_CREATIVE_SDK_CLIENT_ID = ''
 
 # Google Apps authentication.
+
+# SETUP:
+# 1. https://console.developers.google.com/project
+# 2. "Create project"
+# 3. APIs & auth -> Consent screen
+# 4. Select email address
+# 5. APIs & auth -> APIs
+# 6. Enable "Google+ API"
+# 7. APIs & auth -> Credentials
+# 8. Create new Client ID -> Web application
+# 9. Copy Client ID to KEY below.
+# 10. Copy Client Secret to SECRET below.
+# 11. Edit settings
+# 12. Set authorized domain
+
 AUTHENTICATION_BACKENDS = (
     'social.backends.google.GooglePlusAuth',
     'django.contrib.auth.backends.ModelBackend'
 )
 
-SOCIAL_AUTH_GOOGLE_PLUS_KEY = '607248109866-kglfuv4oh0g09e4qd0je35efmk4im762.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_PLUS_SECRET = 'otU-ouuhBDop5SPetPX931Nt'
+SOCIAL_AUTH_GOOGLE_PLUS_KEY = ''
+SOCIAL_AUTH_GOOGLE_PLUS_SECRET = ''
 WHITELISTED_DOMAINS = ['onespacemedia.com']
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
