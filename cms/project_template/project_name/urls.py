@@ -36,6 +36,8 @@ urlpatterns = patterns(
     # There's no favicon here!
     url(r"^favicon.ico$", generic.RedirectView.as_view()),
 
+    url('', include('social.apps.django_app.urls', namespace='social'))
+
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

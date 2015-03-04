@@ -9,6 +9,8 @@ While many of these settings assume sensible defaults, you must provide values
 for the site, database, media and email sections below.
 """
 
+from social.pipeline import DEFAULT_AUTH_PIPELINE
+
 import os
 
 
@@ -145,6 +147,8 @@ INSTALLED_APPS = (
 
     'server_management',
     'django_extensions',
+
+    'social.apps.django_app.default',
 )
 
 
@@ -224,6 +228,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "cms.context_processors.settings",
     "cms.apps.pages.context_processors.pages",
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
 )
 
 
@@ -278,3 +284,18 @@ GOOGLE_ANALYTICS = ''
 ADOBE_CREATIVE_SDK_ENABLED = False
 ADOBE_CREATIVE_SDK_CLIENT_SECRET = ''
 ADOBE_CREATIVE_SDK_CLIENT_ID = ''
+
+# Google Apps authentication.
+AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GooglePlusAuth',
+    'django.contrib.auth.backends.ModelBackend'
+)
+
+SOCIAL_AUTH_GOOGLE_PLUS_KEY = '607248109866-kglfuv4oh0g09e4qd0je35efmk4im762.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_PLUS_SECRET = 'otU-ouuhBDop5SPetPX931Nt'
+WHITELISTED_DOMAINS = ['onespacemedia.com']
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
+SOCIAL_AUTH_PIPELINE = DEFAULT_AUTH_PIPELINE + (
+    'cms.pipeline.make_staff',
+)

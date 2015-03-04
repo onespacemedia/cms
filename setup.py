@@ -41,6 +41,7 @@ setup(
         'bcrypt',
         'onespacemedia-server-management',
         'requests',
+        'python-social-auth',
     ],
     extras_require={
         'usertools':  ["django-usertools"],
