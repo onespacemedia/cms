@@ -5,10 +5,9 @@
 {% block extrahead %}
     {{block.super}}
     {% if is_popup %}
-        <script src="{% static 'cms/js/tiny_mce/tiny_mce_popup.js' %}"></script>
         {% include "admin/cms/scripts.html" %}
         <script>
-            tinyMCEPopup.onInit.add(function() {
+            $(function(){
                 django.jQuery.cms.media.initBrowser();
             });
         </script>
