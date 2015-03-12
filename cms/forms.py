@@ -18,7 +18,7 @@ except:
 
 
 class HtmlWidget(forms.Textarea):
-    """A textarea that is converted into a TinyMCE editor."""
+    """A textarea that is converted into a Redactor editor."""
 
     def __init__(self, *args, **kwargs):
         """Initializes the HtmlWidget."""
@@ -34,7 +34,7 @@ class HtmlWidget(forms.Textarea):
                  staticfiles_storage.url("cms/js/redactor/redactor.js"),
              ] + [
                  staticfiles_storage.url('cms/js/redactor/plugins/{plugin}/{plugin}.js'.format(plugin=plugin))
-                 for plugin in settings.REDACTOR_OPTIONS['plugins']
+                 for plugin in getattr(settings, 'REDACTOR_OPTIONS', {}).get('plugins', [])
              ]
 
         css = {
@@ -54,7 +54,7 @@ class HtmlWidget(forms.Textarea):
 
         # Add on the JS initializer.
         attrs = attrs or {}
-        attrs['class'] = "tiny-mce"
+        attrs['class'] = "redactor"
 
         # Get the standard widget.
         html = super(HtmlWidget, self).render(name, value, attrs)
@@ -67,7 +67,7 @@ class HtmlWidget(forms.Textarea):
             # Add in the initializer.
             html += u'<script>django.jQuery("#{element_id}").redactor({settings_js});</script>'.format(
                 element_id=element_id,
-                settings_js=json.dumps(settings.REDACTOR_OPTIONS),
+                settings_js=json.dumps(getattr(settings, 'REDACTOR_OPTIONS', {})),
             )
         # All done!
         return mark_safe(html)

@@ -129,7 +129,7 @@ class FileAdminBase(admin.ModelAdmin):
     # Customizations.
 
     def lookup_allowed(self, lookup, *args, **kwargs):
-        """Allows the file iregex lookup needed by TinyMCE integration."""
+        """Allows the file iregex lookup needed by Redactor integration."""
         if lookup == "file__iregex":
             return True
         return super(FileAdminBase, self).lookup_allowed(lookup, *args, **kwargs)
