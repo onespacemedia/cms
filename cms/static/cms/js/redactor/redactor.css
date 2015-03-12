@@ -938,3 +938,16 @@ body .redactor-box-fullscreen {
 #redactor-image-manager-pagination a.active {
     color: red;
 }
+
+/* CMS File Manager */
+#redactor-file-manager-files{
+    height: 260px;
+    margin-bottom: 10px;
+}
+
+#redactor-file-manager-pagination a {
+    padding: 3px;
+}
+#redactor-file-manager-pagination a.active {
+    color: red;
+}

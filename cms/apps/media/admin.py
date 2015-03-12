@@ -332,9 +332,15 @@ class FileAdminBase(admin.ModelAdmin):
             )
             new_file.save()
 
-            return HttpResponse(json.dumps({
-                'filelink': permalinks.create(new_file)
-            }))
+            if file_type == 'image':
+                return HttpResponse(json.dumps({
+                    'filelink': permalinks.create(new_file)
+                }))
+            else:
+                return HttpResponse(json.dumps({
+                    'filelink': permalinks.create(new_file),
+                    'filename': request.FILES.getlist('file')[0].name,
+                }))
 
         except:
             return HttpResponse('')

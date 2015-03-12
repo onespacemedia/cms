@@ -1,64 +1,91 @@
 if (!RedactorPlugins) var RedactorPlugins = {};
 
-(function($)
-{
-	RedactorPlugins.filemanager = function()
-	{
-		return {
-			init: function()
-			{
-				if (!this.opts.fileManagerJson) return;
+(function($) {
+    RedactorPlugins.filemanager = function() {
+        return {
+            init: function() {
+                this.modal.addCallback('file', this.filemanager.load);
+            },
+            load: function() {
+                var $modal = this.modal.getModal();
 
-				this.modal.addCallback('file', this.filemanager.load);
-			},
-			load: function()
-			{
-				var $modal = this.modal.getModal();
+                this.modal.createTabber($modal);
+                this.modal.addTab(1, 'Upload', 'active');
+                this.modal.addTab(2, 'Choose');
 
-				this.modal.createTabber($modal);
-				this.modal.addTab(1, 'Upload', 'active');
-				this.modal.addTab(2, 'Choose');
+                $('#redactor-modal-file-upload-box').addClass('redactor-tab redactor-tab1');
 
-				$('#redactor-modal-file-upload-box').addClass('redactor-tab redactor-tab1');
+                var $box = $('<div id="redactor-file-manager-box" style="overflow: auto; height: 300px;" class="redactor-tab redactor-tab2">').hide();
+                var $file_container = $('<div id="redactor-file-manager-files"></div>')
+                var $pagination_container = $('<div id="redactor-file-manager-pagination"></div>')
 
-				var $box = $('<div id="redactor-file-manager-box" style="overflow: auto; height: 300px;" class="redactor-tab redactor-tab2">').hide();
-				$modal.append($box);
+                $box.append($file_container);
+                $box.append($pagination_container);
+                $modal.append($box);
 
+                $.proxy(this.filemanager.load_files(), this)
 
-				$.ajax({
-				  dataType: "json",
-				  cache: false,
-				  url: this.opts.fileManagerJson,
-				  success: $.proxy(function(data)
-					{
-						var ul = $('<ul id="redactor-modal-list">');
-						$.each(data, $.proxy(function(key, val)
-						{
-							var a = $('<a href="#" title="' + val.title + '" rel="' + val.link + '" class="redactor-file-manager-link">' + val.title + ' <span style="font-size: 11px; color: #888;">' + val.name + '</span> <span style="position: absolute; right: 10px; font-size: 11px; color: #888;">(' + val.size + ')</span></a>');
-							var li = $('<li />');
+            },
+            load_files: function(page) {
 
-							a.on('click', $.proxy(this.filemanager.insert, this));
+                $.ajax({
+                    dataType: "json",
+                    cache: false,
+                    url: '/admin/media/file/redactor/files/' + (page == undefined ? '1' : page) + '/',
+                    success: $.proxy(function(data) {
 
-							li.append(a);
-							ul.append(li);
+                        // Empty file manager
+                        $('#redactor-file-manager-files').html('');
 
-						}, this));
+                        var ul = $('<ul id="redactor-modal-list">');
+                        $.each(data.objects, $.proxy(function(key, val) {
+                            var a = $('<a href="#" title="' + val.title + '" rel="' + val.url + '" class="redactor-file-manager-link">' + val.title + ' </a>');
+                            var li = $('<li />');
 
-						$('#redactor-file-manager-box').append(ul);
+                            a.on('click', $.proxy(this.filemanager.insert, this));
 
+                            li.append(a);
+                            ul.append(li);
 
-					}, this)
-				});
+                        }, this));
 
-			},
-			insert: function(e)
-			{
-				e.preventDefault();
+                        $('#redactor-file-manager-files').append(ul);
 
-				var $target = $(e.target).closest('.redactor-file-manager-link');
+                        // We can set up pagination
+                        $.proxy(this.filemanager.load_pagination(data.page, data.pages), this)
 
-				this.file.insert('<a href="' + $target.attr('rel') + '">' + $target.attr('title') + '</a>');
-			}
-		};
-	};
+                    }, this)
+                });
+            },
+            load_pagination: function(page, pages) {
+                // Empty image pagination
+                $('#redactor-file-manager-pagination').html('');
+
+                // Loop pages
+                if (pages.length > 1) {
+                    pages.forEach($.proxy(function(value, key) {
+
+                        // Create page link
+                        var page_link = $('<a href="#" class="' + (value == page ? 'active' : '') + '">' + value + '</a>');
+
+                        // Add page link to pagination container
+                        $('#redactor-file-manager-pagination').append(page_link);
+
+                        // On page click, load new page with new pagination
+                        page_link.click($.proxy(function() {
+                            $.proxy(this.filemanager.load_files(value), this)
+                        }, this))
+
+                    }, this))
+                }
+            },
+            insert: function(e) {
+                e.preventDefault();
+
+                var $target = $(e.target).closest('.redactor-file-manager-link');
+
+                this.file.insert('<a href="' + $target.attr('rel') + '">' + $target.attr('title') + '</a>');
+            }
+        };
+    };
 })(django.jQuery);

@@ -31,7 +31,6 @@ class HtmlWidget(forms.Textarea):
                  staticfiles_storage.url("cms/js/jquery.cms.js"),
                  staticfiles_storage.url("cms/js/jquery.cookie.js"),
                  staticfiles_storage.url("pages/js/jquery.cms.pages.js"),
-                 staticfiles_storage.url("media/js/jquery.cms.media.js"),
                  staticfiles_storage.url("cms/js/redactor/redactor.js"),
              ] + [
                  staticfiles_storage.url('cms/js/redactor/plugins/{plugin}/{plugin}.js'.format(plugin=plugin))
