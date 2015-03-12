@@ -10,29 +10,18 @@
 
     // Closes the filebrowser and sends the information back to the TinyMCE editor.
     $.cms.media.complete = function(permalink, title) {
-        // Get the important values from TinyMCE.
-        var win = tinyMCEPopup.getWindowArg("window");
-        // Get the input from the opening window.
-        var input = $("#" + tinyMCEPopup.getWindowArg("input"), win.document);
-        input.attr("value", permalink);
-        // Set the link dialogue values.
-        $("#linktitle", win.document).attr("value", title);
-        // Set the image dialogue values.
-        if (typeof(win.ImageDialog) != "undefined") {
-            if (win.ImageDialog.getImageData) {
-                win.ImageDialog.getImageData();
-            }
-            if (win.ImageDialog.showPreviewImage) {
-                win.ImageDialog.showPreviewImage(permalink);
-            }
-        }
-        // Close the dialogue.
-        tinyMCEPopup.close();
+
+        // Insert an image
+        window.parent.window.active_ckeditor.insertHtml('<img src="' + permalink + '" title="' + title + '" />');
+
+        // Close the dialog
+        window.parent.CKEDITOR.dialog.getCurrent().hide()
+
     }
 
     // Initializes the popup file browser.
     $.cms.media.initBrowser = function() {
-        if (tinyMCEPopup.getWindowArg("tinymce_active")) {
+        if (parent.window.active_ckeditor) {
             // Make the changelist links clickable and remove the original inline click listener.
             $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function() {
                 var img = $("img", this);
@@ -41,8 +30,8 @@
                 $.cms.media.complete(permalink, title)
                 return false;
             });
-            // Made the add link flagged for TinyMCE.
-            $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_tinymce=1");
+            // Made the add link flagged for CKEditor.
+            $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_ckeditor=1");
         }
     }
 

@@ -18,28 +18,36 @@ except:
 
 
 class HtmlWidget(forms.Textarea):
-
     """A textarea that is converted into a TinyMCE editor."""
 
     def __init__(self, *args, **kwargs):
         """Initializes the HtmlWidget."""
-        self.richtext_settings = getattr(settings, "RICHTEXT_SETTINGS", {}).get(kwargs.pop("richtext_settings", "default"), {})
         super(HtmlWidget, self).__init__(*args, **kwargs)
 
     @debug.print_exc
     def get_media(self):
         """Returns the media used by the widget."""
-        assets = [
-            staticfiles_storage.url("cms/js/tiny_mce/tiny_mce.js"),
-            staticfiles_storage.url("cms/js/jquery.cms.js"),
-            staticfiles_storage.url("pages/js/jquery.cms.pages.js"),
-            staticfiles_storage.url("media/js/jquery.cms.media.js"),
-        ]
-        return forms.Media(js=assets)
+        js = [
+                 staticfiles_storage.url("cms/js/jquery.cms.js"),
+                 staticfiles_storage.url("cms/js/jquery.cookie.js"),
+                 staticfiles_storage.url("pages/js/jquery.cms.pages.js"),
+                 staticfiles_storage.url("media/js/jquery.cms.media.js"),
+                 staticfiles_storage.url("cms/js/redactor/redactor.js"),
+             ] + [
+                 staticfiles_storage.url('cms/js/redactor/plugins/{plugin}/{plugin}.js'.format(plugin=plugin))
+                 for plugin in settings.REDACTOR_OPTIONS['plugins']
+             ]
+
+        css = {
+            "all": [
+                "cms/js/redactor/redactor.css"
+            ]
+        }
+        return forms.Media(js=js, css=css)
 
     media = property(
         get_media,
-        doc = "The media used by the widget.",
+        doc="The media used by the widget.",
     )
 
     def render(self, name, value, attrs=None):
@@ -57,16 +65,10 @@ class HtmlWidget(forms.Textarea):
         except KeyError:
             pass
         else:
-            # Customize the config.
-            richtext_settings = self.richtext_settings.copy()
-            # Cache the asset URL.
-            if "content_css" in richtext_settings:
-                richtext_settings["content_css"] = staticfiles_storage.url(richtext_settings["content_css"])
             # Add in the initializer.
-            settings_js = json.dumps(richtext_settings)
-            html += u'<script>django.jQuery("#{element_id}").cms("htmlWidget",{settings_js})</script>'.format(
-                element_id = element_id,
-                settings_js = settings_js,
+            html += u'<script>django.jQuery("#{element_id}").redactor({settings_js});</script>'.format(
+                element_id=element_id,
+                settings_js=json.dumps(settings.REDACTOR_OPTIONS),
             )
         # All done!
         return mark_safe(html)
@@ -74,7 +76,6 @@ class HtmlWidget(forms.Textarea):
 
 # Checks a string against some rules
 def password_validation(password):
-
     errors = []
 
     if len(password) < 8:
