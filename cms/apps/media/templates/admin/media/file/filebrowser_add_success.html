@@ -7,17 +7,28 @@
         <title>File added</title>
         {% include "admin/cms/scripts.html" %}
         <script>
-            $(function(){
-                if(window.parent && window.parent.CKEDITOR && window.parent.window.active_ckeditor){
+            django.jQuery(function() {
 
-                    // Insert an image
-                    window.parent.window.active_ckeditor.insertHtml('<img src="{{ permalink|escapejs }} " title="{{ title|escapejs }}" />');
+                // Get redactor from parent
+                var redactor = parent.active_redactor;
 
-                    // Close the dialog
-                    window.parent.CKEDITOR.dialog.getCurrent().hide();
+                // Make sure we have redactor
+                if (redactor) {
+                    redactor.imagemanager.insert("{{ permalink }}", "{{ title }}")
                 }
+
             });
         </script>
+
+        <style>
+            body {
+                background-color: #FFF;
+            }
+            .popup #suit-center {
+                width: 100%;
+                padding: 0;
+            }
+        </style>
     </head>
     <body>
     </body>

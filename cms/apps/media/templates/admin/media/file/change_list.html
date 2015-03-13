@@ -1,15 +1,50 @@
-{% extends changelist_template_parent %}
-{% load static %}
+{% extends changelist_template_parent %}{% load static %}
 
 
 {% block extrahead %}
     {{block.super}}
+
     {% if is_popup %}
         {% include "admin/cms/scripts.html" %}
+
         <script>
-            $(function(){
-                django.jQuery.cms.media.initBrowser();
+            django.jQuery(function() {
+
+                // Get redactor from parent
+                var redactor = parent.active_redactor;
+
+                // Make sure we have redactor
+                if (redactor) {
+                    // Make the changelist links clickable and remove the original inline click listener.
+                    $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+
+                        // Get information
+                        var img = $("img", this);
+                        var title = img.attr("title");
+                        var permalink = img.attr("cms:permalink");
+
+                        redactor.imagemanager.insert(permalink, title)
+
+                        // Prevent default
+                        event.preventDefault()
+
+                    });
+                    // Made the add link flagged for CKEditor.
+                    $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_redactor=1");
+                }
+
             });
         </script>
+
+        <style>
+            body {
+                background-color: #FFF;
+            }
+            .popup #suit-center {
+                width: 100%;
+                padding: 0;
+            }
+        </style>
+
     {% endif %}
 {% endblock %}

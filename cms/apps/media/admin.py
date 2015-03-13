@@ -218,7 +218,7 @@ class FileAdminBase(admin.ModelAdmin):
 
     def response_add(self, request, obj, *args, **kwargs):
         """Returns the response for a successful add action."""
-        if "_tinymce" in request.GET:
+        if "_redactor" in request.GET:
             context = {"permalink": permalinks.create(obj),
                        "title": obj.title}
             return render(request, "admin/media/file/filebrowser_add_success.html", context)

@@ -3154,7 +3154,7 @@
 			return {
 				show: function()
 				{
-					this.modal.load('image', this.lang.get('image'), 700);
+					this.modal.load('image', this.lang.get('image'), 900);
 					this.upload.init('#redactor-modal-image-droparea', this.opts.imageUpload, this.image.insert);
 
 					this.selection.save();
@@ -5677,6 +5677,15 @@
 
 						self.modal.$tabber.find('a').removeClass('active');
 						$(this).addClass('active');
+
+                        if (self.utils.isMobile())
+                        {
+                            self.modal.showOnMobile();
+                        }
+                        else
+                        {
+                            self.modal.showOnDesktop();
+                        }
 
 					});
 

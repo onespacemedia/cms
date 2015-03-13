@@ -77,4 +77,19 @@
         }
     </script>
     {% endif %}
+
+    {% if is_popup %}
+
+        <style>
+            body {
+                background-color: #FFF;
+            }
+            .popup #suit-center {
+                width: 100%;
+                padding: 0;
+            }
+        </style>
+
+    {% endif %}
+
 {% endblock %}
