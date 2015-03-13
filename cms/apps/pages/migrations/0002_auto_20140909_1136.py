@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='page',
             name='parent',
-            field=models.ForeignKey(related_name=b'child_set', default=cms.apps.pages.models.get_default_page_parent, blank=True, to='pages.Page', null=True),
+            field=models.ForeignKey(related_name=b'child_set', default=lambda: cms.apps.pages.models.get_default_page_parent().pk, blank=True, to='pages.Page', null=True),
         ),
     ]

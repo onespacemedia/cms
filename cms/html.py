@@ -67,7 +67,7 @@ def process(text):
                     # Generate the thumbnail.
                     if fieldname:
                         try:
-                            thumbnail = get_thumbnail(getattr(obj, fieldname), '{}x{}'.format(width, height), crop='center', quality=99)
+                            thumbnail = get_thumbnail(getattr(obj, fieldname), '{}x{}'.format(width, height), quality=99, format="PNG")
                         except IOError:
                             pass
                         else:

@@ -1,4 +1,5 @@
 """Models used by the static media management application."""
+from PIL import Image
 
 from django.db import models
 from django.contrib import admin
@@ -61,6 +62,22 @@ class File(models.Model):
         extension = extension.lower()[1:]
         icon = FILE_ICONS.get(extension, UNKNOWN_FILE_ICON)
         return icon == IMAGE_FILE_ICON
+
+    def width(self):
+        if self.is_image():
+            with open(self.file.path, "rb") as f:
+                image = Image.open(f)
+            image.verify()
+            return image.size[0]
+        return 0;
+
+    def height(self):
+        if self.is_image():
+            with open(self.file.path, "rb") as f:
+                image = Image.open(f)
+            image.verify()
+            return image.size[1]
+        return 0;
 
 
 class FileRefField(models.ForeignKey):

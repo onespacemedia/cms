@@ -197,7 +197,7 @@ class FileAdminBase(admin.ModelAdmin):
         permalink = permalinks.create(obj)
         if icon == IMAGE_FILE_ICON:
             try:
-                thumbnail = get_thumbnail(obj.file, '100x66', crop='center', quality=99)
+                thumbnail = get_thumbnail(obj.file, '100x66', quality=99)
             except IOError:
                 pass
             else:
@@ -297,11 +297,18 @@ class FileAdminBase(admin.ModelAdmin):
         json_data = {
             'page': page,
             'pages': paginator.page_range,
-            'objects': [
-                {'title': file_object.title, 'url': permalinks.create(file_object), 'thumbnail': get_thumbnail(file_object.file, '100x75', crop='center', quality=99).url}
+        }
+
+        if file_type == 'files':
+            json_data['objects'] = [
+                {'title': file_object.title, 'url': permalinks.create(file_object)}
                 for file_object in paginator.page(page)
             ]
-        }
+        elif file_type == 'images':
+            json_data['objects'] = [
+                {'title': file_object.title, 'url': permalinks.create(file_object), 'thumbnail': get_thumbnail(file_object.file, '100x75', crop="center", quality=99).url}
+                for file_object in paginator.page(page)
+            ]
 
         # Return files as ajax
         return HttpResponse(json.dumps(json_data), content_type='application/json')
