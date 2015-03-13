@@ -20,7 +20,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
                 $iframe.appendTo($box);
                 $modal.append($box);
 
-                window.active_redactor = this
+                window.active_redactor = this.imagemanager
 
             },
             insert: function(src, title) {

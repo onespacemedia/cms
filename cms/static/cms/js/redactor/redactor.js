@@ -3009,7 +3009,7 @@
 			return {
 				show: function()
 				{
-					this.modal.load('file', this.lang.get('file'), 700);
+					this.modal.load('file', this.lang.get('file'), 900);
 					this.upload.init('#redactor-modal-file-upload', this.opts.fileUpload, this.file.insert);
 
 					this.selection.save();
