@@ -152,12 +152,6 @@ gulp.task('initialise', function(callback) {
 
 gulp.task('default', function(callback) {
     return runSequence(
-        // Install the project dependancies from `bower.json`
-        'bower',
-
-        // Move the bower files to their final destination.
-        'bowerFiles',
-
         // Perform the initial compilation of the SCSS files.
         'styles',
 
