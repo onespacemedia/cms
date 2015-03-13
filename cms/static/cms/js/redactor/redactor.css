@@ -951,3 +951,9 @@ body .redactor-box-fullscreen {
 #redactor-file-manager-pagination a.active {
     color: red;
 }
+
+
+/* Fix styles */
+.redactor-editor h2 {
+
+}
