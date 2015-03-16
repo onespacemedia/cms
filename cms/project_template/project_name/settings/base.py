@@ -63,9 +63,9 @@ STATIC_URL = "/static/"
 
 # Email settings.
 
-EMAIL_HOST = ""
+EMAIL_HOST = "smtp.mandrillapp.com"
 
-EMAIL_HOST_USER = "{{ project_name }}"
+EMAIL_HOST_USER = "developers@onespacemedia.com"
 
 EMAIL_HOST_PASSWORD = ""
 
