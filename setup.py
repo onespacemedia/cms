@@ -42,6 +42,8 @@ setup(
         'onespacemedia-server-management',
         'requests',
         'python-social-auth',
+        'django-cachalot',
+        'python-memcached',
     ],
     extras_require={
         'usertools':  ["django-usertools"],

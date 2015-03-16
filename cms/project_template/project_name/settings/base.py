@@ -147,6 +147,7 @@ INSTALLED_APPS = (
 
     'server_management',
     'django_extensions',
+    'cachalot',
 
     'social.apps.django_app.default',
 )
@@ -244,7 +245,8 @@ CACHE_MIDDLEWARE_KEY_PREFIX = "{{ project_name }}"
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        'LOCATION': '127.0.0.1:11211',
     }
 }
 
