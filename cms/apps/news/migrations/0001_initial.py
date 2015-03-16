@@ -2,6 +2,10 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import cms.apps.news.models
+import django.db.models.deletion
+import cms.apps.media.models
+from django.conf import settings
 import django.utils.timezone
 import cms.models.fields
 
@@ -9,6 +13,9 @@ import cms.models.fields
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('pages', '0001_initial'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('media', '0001_initial'),
     ]
 
     operations = [
@@ -31,9 +38,12 @@ class Migration(migrations.Migration):
                 ('date', models.DateField(default=django.utils.timezone.now, db_index=True)),
                 ('content', cms.models.fields.HtmlField(blank=True)),
                 ('summary', cms.models.fields.HtmlField(blank=True)),
+                ('status', models.CharField(default=b'draft', max_length=100, choices=[(b'draft', b'Draft'), (b'submitted', b'Submitted for approval'), (b'approved', b'Approved')])),
+                ('authors', models.ManyToManyField(to=settings.AUTH_USER_MODEL, blank=True)),
             ],
             options={
                 'ordering': ('-date',),
+                'permissions': (('can_approve_articles', 'Can approve articles'),),
             },
             bases=(models.Model,),
         ),
@@ -60,5 +70,43 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'categories',
             },
             bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='NewsFeed',
+            fields=[
+                ('page', models.OneToOneField(related_name='+', primary_key=True, serialize=False, editable=False, to='pages.Page')),
+                ('content_primary', cms.models.fields.HtmlField(verbose_name=b'primary content', blank=True)),
+                ('per_page', models.IntegerField(default=5, null=True, verbose_name=b'articles per page', blank=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='category',
+            unique_together=set([('url_title',)]),
+        ),
+        migrations.AddField(
+            model_name='article',
+            name='categories',
+            field=models.ManyToManyField(to='news.Category', blank=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='article',
+            name='image',
+            field=cms.apps.media.models.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='article',
+            name='news_feed',
+            field=models.ForeignKey(default=cms.apps.news.models.get_default_news_feed, to='news.NewsFeed'),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='article',
+            unique_together=set([('news_feed', 'date', 'url_title')]),
         ),
     ]
