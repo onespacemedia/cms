@@ -13,14 +13,6 @@ from cms.models import PageBase, OnlineBaseManager, PageBaseSearchAdapter
 from cms.models.managers import publication_manager
 
 
-def get_default_page_parent():
-    """Returns the default page parent."""
-    try:
-        return Page.objects.all()[0]
-    except IndexError:
-        return None
-
-
 class PageManager(OnlineBaseManager):
 
     """Manager for Page objects."""
@@ -84,7 +76,6 @@ class Page(PageBase):
         "self",
         blank = True,
         null = True,
-        default = get_default_page_parent,
         related_name = "child_set",
     )
 

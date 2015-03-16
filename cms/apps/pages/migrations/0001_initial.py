@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import cms.apps.pages.models
 
 
 class Migration(migrations.Migration):
@@ -35,7 +34,7 @@ class Migration(migrations.Migration):
                 ('in_navigation', models.BooleanField(default=True, help_text=b'Uncheck this box to remove this content from the site navigation.', verbose_name=b'add to navigation')),
                 ('cached_url', models.CharField(max_length=1000, null=True, blank=True)),
                 ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', help_text=b'The type of page content.')),
-                ('parent', models.ForeignKey(related_name='child_set', default=cms.apps.pages.models.get_default_page_parent, blank=True, to='pages.Page', null=True)),
+                ('parent', models.ForeignKey(related_name='child_set', blank=True, to='pages.Page', null=True)),
             ],
             options={
                 'ordering': ('left',),
