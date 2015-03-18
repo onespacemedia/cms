@@ -23,6 +23,7 @@ A lot of the CMS has settings specific to how [Onespacemedia](http://www.onespac
 *   Full ORM caching (via [django-cachalot](https://github.com/BertrandBordage/django-cachalot)).
 *   CSS and JS compression (via [django-compressor](https://github.com/django-compressor/django-compressor)).
 *   Image thumbnailing (via [sorl.thumbnail](https://github.com/mariocesar/sorl-thumbnail)).
+*   Deployment and server management (via [server-management](https://github.com/onespacemedia/server-management)).
 
 ## Optional Features
 
