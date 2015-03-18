@@ -12,3 +12,5 @@ Thumbs.db
 *.egg-info
 .idea/
 .venv
+docs/_build
+docs/_static
