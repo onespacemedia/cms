@@ -47,15 +47,21 @@ The CMS integrates directly with a lot of third-party services, and it's usually
 
 To install `onespacemedia-cms` simply run:
 
-```$ pip install onespacemedia-cms```
+```
+$ pip install onespacemedia-cms
+```
 
 If you want the ability to invite users via the admin, then run:
 
-```$ pip install onespacemedia-cms[usertools]```
+```
+$ pip install onespacemedia-cms[usertools]
+```
 
 Once the project has been installed, you can create a project with the following command:
 
-```$ start_cms_project.py project_name .```
+```
+$ start_cms_project.py project_name .
+```
 
 Where `project_name` is the name of your project and `.` is the current directory (this will cause the `manage.py` to be created in your working directory, rather than in a subfolder.
 
