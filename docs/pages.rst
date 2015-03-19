@@ -69,7 +69,7 @@ With this structure in place, we would then get a choice of content types when a
 Context processor
 -----------------
 
-The pages automatically adds a variable named ``pages`` to your template context, this gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this::
+The pages module automatically adds a variable named ``pages`` to your template context, this gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this::
 
     from django.db import models
 
@@ -98,6 +98,156 @@ You can access the page data like this::
     {{ pages.current.content.introduction }}
 
 The ``content`` attribute on the ``Page`` model is a method which performs a ContentType lookup against the content ID allowing access to the fields of the Content model.
+
+Template tags
+-------------
+
+A collection of template tags are included with the pages module, mostly for the purposes of simplifying SEO.  You can load them into the template like this::
+
+    {% load pages %}
+
+.. py:method:: navigation(context, pages, section=None)
+
+Renders the site navigation using the template specified at ``pages/navigation.html``. By default this is just an unordered list with each navigation item as a list item.  The simplest usage is like this::
+
+    {% navigation pages.homepage.navigation %}
+
+Which would produce an output like this::
+
+    <ul>
+        <li>
+            <a href="/page-1/">Page One</a>
+        </li>
+
+        <li>
+            <a href="/page-2/">Page Two</a>
+        </li>
+    </ul>
+
+If you would like the "base page" (the page that the navigation is being based off) to be included in the navigation simply add the ``section`` kwarg::
+
+    {% navigation pages.homepage.navigation section=pages.homepage %}
+
+The output of this would be::
+
+    <ul>
+        <li>
+            <a class="here" href="/">Homepage</a>
+        </li>
+
+        <li>
+            <a href="/page-1/">Page One</a>
+        </li>
+
+        <li>
+            <a href="/page-2/">Page Two</a>
+        </li>
+    </ul>
+
+.. py:method:: get_navigation(context, pages, section=None)
+
+This is a wrapper around ``navigation``, but returns the navigation list instead of rendering it out to the page.
+
+.. py:method:: page_url(page, view_func=None, *args, **kwargs)
+
+Gets the URL of a Page's view function.
+
+TODO: Expand on this.
+
+.. py:method:: meta_description(context, description=None)
+
+Renders the content of the meta description tag for the current page::
+
+    {% meta_description %}
+
+You can override the meta description by setting a context variable called ``meta_description``::
+
+    {% with "foo" as meta_description %}
+        {% meta_description %}
+    {% endwith %}
+
+You can also provide the meta description as an argument to this tag::
+
+    {% meta_description "foo" %}
+
+.. py:method:: meta_keywords(context, keywords=None)
+
+Renders the content of the meta keywords tag for the current page::
+
+    {% meta_keywords %}
+
+You can override the meta keywords by setting a context variable called ``meta_keywords``::
+
+    {% with "foo" as meta_keywords %}
+        {% meta_keywords %}
+    {% endwith %}
+
+You can also provide the meta keywords as an argument to this tag::
+
+    {% meta_keywords "foo" %}
+
+
+.. py:method:: meta_robots(context, index=None, follow=None, archive=None)
+
+Renders the content of the meta robots tag for the current page::
+
+    {% meta_robots %}
+
+You can override the meta robots by setting boolean context variables called
+``robots_index``, ``robots_archive`` and ``robots_follow``::
+
+    {% with 1 as robots_follow %}
+        {% meta_robots %}
+    {% endwith %}
+
+You can also provide the meta robots as three boolean arguments to this
+tag in the order 'index', 'follow' and 'archive'::
+
+    {% meta_robots 1 1 1 %}
+
+.. py:method:: title(context, browser_title=None)
+
+Renders the title of the current page::
+
+    {% title %}
+
+You can override the title by setting a context variable called ``title``::
+
+    {% with "foo" as title %}
+        {% title %}
+    {% endwith %}
+
+You can also provide the title as an argument to this tag::
+
+    {% title "foo" %}
+
+.. py:method:: breadcrumbs(context, page=None, extended=False)
+
+Renders the breadcrumbs trail for the current page::
+
+    {% breadcrumbs %}
+
+To override and extend the breadcrumb trail within page applications, add the ``extended`` flag to the tag and add your own breadcrumbs underneath::
+
+    {% breadcrumbs extended=1 %}
+
+.. py:method:: header(context, page_header=None)
+
+Renders the header for the current page::
+
+    {% header %}
+
+You can override the page header by providing a ``header`` or ``title`` context variable. If both are present, then ``header`` overrides ``title``::
+
+    {% with "foo" as header %}
+        {% header %}
+    {% endwith %}
+
+You can also provide the header as an argument to this tag::
+
+    {% header "foo" %}
+
+
 
 FAQs
 ----
