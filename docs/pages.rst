@@ -66,6 +66,39 @@ With this structure in place, we would then get a choice of content types when a
 
 .. image :: img/content_types.png
 
+Context processor
+-----------------
+
+The pages automatically adds a variable named ``pages`` to your template context, this gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this::
+
+    from django.db import models
+
+    from cms.apps.pages.models import ContentBase
+
+
+    class Content(ContentBase):
+
+        introduction = models.TextField(
+            blank=True,
+        )
+
+You can access the page data like this::
+
+    <!-- The Page object -->
+    {{ pages.current }}
+
+    <!-- The Content model (which extends ContentBase) -->
+    {{ pages.current.content }}
+
+    <!-- Fields on the Page model -->
+    {{ pages.current.title }}
+    {{ pages.current.url_title }}
+
+    <!-- Fields on the Content model -->
+    {{ pages.current.content.introduction }}
+
+The ``content`` attribute on the ``Page`` model is a method which performs a ContentType lookup against the content ID allowing access to the fields of the Content model.
+
 FAQs
 ----
 
