@@ -46,7 +46,7 @@ First create a News Feed by adding a new page and selecting the "News feed" opti
 
 If you have enabled the approval system an additional field appears on the edit form named ``status``.  By default the status is set to 'draft', users without the ``news.can_approve_articles`` permission can only set the status to either 'draft' or 'submitted'.  An article in either of these states will not appear on the front-end website, but is visible within the administration system.  Users with the appropriate permission are able to set articles to 'approved' and thus make the articles appear on the website.
 
-Overriding Templates
+Overriding templates
 --------------------
 
 The news app has a very granular set of templates, allowing you to change any aspect of the default output with very little effort.
