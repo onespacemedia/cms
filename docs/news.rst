@@ -52,7 +52,7 @@ Overriding Templates
 The news app has a very granular set of templates, allowing you to change any aspect of the default output with very little effort.
 
 
-Template heirarchy
+Template hierarchy
 ^^^^^^^^^^^^^^^^^^
 
 news/base.html
