@@ -125,6 +125,64 @@ news/article_detail.html
     * news/includes/article_date.html
     * news/includes/article_category_list.html
 
+Template tags
+-------------
+
+.. py:method:: article_list(context, article_list)
+
+Renders a list of news articles.
+
+.. py:method:: article_url(context, article, page)
+
+Renders the URL for an article.
+
+.. py:method:: article_list_item(context, article, page)
+
+Renders an item in an article list.
+
+.. py:method:: article_archive_url(context, page)
+
+Renders the URL for the current article archive.
+
+.. py:method:: category_url(context, category, page)
+
+Renders the URL for the given category.
+
+.. py:method:: category_list(context, category_list)
+
+Renders a list of categories.
+
+.. py:method:: article_year_archive_url(context, year, page)
+
+Renders the year archive URL for the given year.
+
+.. py:method:: article_day_archive_url(context, date, page)
+
+Renders the month archive URL for the given date.
+
+.. py:method:: article_date(context, article)
+
+Renders a rich date for the given article.
+
+.. py:method:: article_category_list(context, article)
+
+Renders the list of article categories.
+
+.. py:method:: article_meta(context, article)
+
+Renders the metadata of an article.
+
+.. py:method:: article_date_list(context, page)
+
+Renders a list of dates.
+
+.. py:method:: article_latest_list(context, page, limit=5)
+
+Renders a widget-style list of latest articles.
+
+.. py:method:: get_article_latest_list(context, page, limit=5)
+
+A wrapper around ``article_latest_list`` which returns the dictionary rather than render it.
 
 Known issues
 ------------
