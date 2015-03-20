@@ -50,3 +50,4 @@ Currently supported are:
 
    getting_started
    pages
+   links
