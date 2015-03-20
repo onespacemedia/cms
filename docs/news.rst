@@ -46,6 +46,86 @@ First create a News Feed by adding a new page and selecting the "News feed" opti
 
 If you have enabled the approval system an additional field appears on the edit form named ``status``.  By default the status is set to 'draft', users without the ``news.can_approve_articles`` permission can only set the status to either 'draft' or 'submitted'.  An article in either of these states will not appear on the front-end website, but is visible within the administration system.  Users with the appropriate permission are able to set articles to 'approved' and thus make the articles appear on the website.
 
+Overriding Templates
+--------------------
+
+The news app has a very granular set of templates, allowing you to change any aspect of the default output with very little effort.
+
+
+Template heirarchy
+^^^^^^^^^^^^^^^^^^
+
+news/base.html
+""""""""""""""
+
+**Extends:** ``base.html``
+
+**Includes:**
+
+* news/includes/article_category_list.html
+* news/includes/article_date_list.html
+
+
+news/article_archive.html
+"""""""""""""""""""""""""
+
+**Extends:** ``news/base.html``
+
+**Includes:**
+
+* news/includes/archive_list.html
+* news/includes/archive_list_item.html
+* news/includes/article_meta.html
+
+    * news/includes/article_date.html
+    * news/includes/article_category_list.html
+
+
+news/article_archive_day.html
+"""""""""""""""""""""""""""""
+
+**Extends:** ``news/article_archive.html``
+
+
+news/article_archive_month.html
+"""""""""""""""""""""""""""""""
+
+**Extends:** ``news/article_archive.html``
+
+
+news/article_archive_year.html
+""""""""""""""""""""""""""""""
+
+**Extends:** ``news/article_archive.html``
+
+news/article_category_archive.html
+""""""""""""""""""""""""""""""""""
+
+**Extends:** ``news/base.html``
+
+**Includes:**
+
+* news/includes/article_list.html
+* news/includes/article_list_item.html
+* news/includes/article_meta.html
+
+    * news/includes/article_date.html
+    * news/includes/article_category_list.html
+
+
+news/article_detail.html
+""""""""""""""""""""""""
+
+**Extends:** ``news/base.html``
+
+**Includes:**
+
+* news/includes/article_meta.html
+
+    * news/includes/article_date.html
+    * news/includes/article_category_list.html
+
+
 Known issues
 ------------
 
