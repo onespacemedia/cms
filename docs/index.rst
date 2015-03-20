@@ -49,5 +49,6 @@ Currently supported are:
    :maxdepth: 1
 
    getting_started
-   pages
    links
+   news
+   pages
