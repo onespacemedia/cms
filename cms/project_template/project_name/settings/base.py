@@ -12,6 +12,7 @@ for the site, database, media and email sections below.
 from social.pipeline import DEFAULT_AUTH_PIPELINE
 
 import os
+import sys
 
 
 # The name of this site.  Used for branding in the online admin area.
@@ -314,3 +315,16 @@ SILENCED_SYSTEM_CHECKS = [
     '1_6.W001',
     # '1_6.W002'
 ]
+
+if 'test' in sys.argv:
+    # The CMS tests use test-only models, which won't be loaded if we only load
+    # our real migration files, so point to a nonexistent one, which will make
+    # the test runner fall back to 'syncdb' behavior.
+
+    # Note: This will not catch a situation where a developer commits model
+    # changes without the migration files.
+
+    MIGRATION_MODULES = {
+        app.split('.')[-1]: app.split('.')[-1] + '.no_migrations'
+        for app in INSTALLED_APPS
+    }
