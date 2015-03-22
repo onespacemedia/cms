@@ -50,5 +50,6 @@ Currently supported are:
 
    getting_started
    links
+   media
    news
    pages
