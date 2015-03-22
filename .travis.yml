@@ -6,7 +6,7 @@ python:
  # - "3.4"
 install:
     - pip install -e .
-    - start_cms_project.py testing .
+    - start_cms_project.py testing testing/
 script: python manage.py test
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
