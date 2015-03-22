@@ -4,7 +4,10 @@ python:
  - "2.7"
  # - "3.3"
  # - "3.4"
-install: "pip install -e ."
+install:
+    - pip install -e .
+    - start_cms_project.py testing .
 script: python manage.py test
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
+  email: false
