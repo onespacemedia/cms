@@ -7,7 +7,7 @@ python:
 install:
     - pip install -e .
     - start_cms_project.py testing testing/ --with-people --with-faqs --with-jobs --skip-frontend
-script: python manage.py test
+script: python testing/manage.py test
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false
