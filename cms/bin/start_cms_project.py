@@ -69,6 +69,11 @@ for app in EXTERNAL_APPS:
         action='store_true'
     )
 
+parser.add_argument(
+    '--skip-frontend',
+    action='store_true'
+)
+
 
 def git(*args):
     return subprocess.check_call(['git'] + list(args))
@@ -269,16 +274,17 @@ def main():
         f.write(json.dumps(server_json, indent=4))
 
     # Run `npm` commands.
-    with open(os.devnull, 'w') as f:
-        Output().info("Installing bower and gulp")
-        subprocess.call(['npm', 'install', '-g', 'bower', 'gulp'], stdout=f, stderr=subprocess.STDOUT)
+    if not getattr(args, 'skip_frontend'):
+        with open(os.devnull, 'w') as f:
+            Output().info("Installing bower and gulp")
+            subprocess.call(['npm', 'install', '-g', 'bower', 'gulp'], stdout=f, stderr=subprocess.STDOUT)
 
-        Output().info("Installing npm dependancies")
-        subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
+            Output().info("Installing npm dependancies")
+            subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
 
-        Output().info("Running gulp")
-        subprocess.call(['gulp', 'initialise'], stdout=f, stderr=subprocess.STDOUT)
-        subprocess.call(['gulp', 'styles'], stdout=f, stderr=subprocess.STDOUT)
+            Output().info("Running gulp")
+            subprocess.call(['gulp', 'initialise'], stdout=f, stderr=subprocess.STDOUT)
+            subprocess.call(['gulp', 'styles'], stdout=f, stderr=subprocess.STDOUT)
 
     # Give some help to the user.
     Output().info('CMS project created')
