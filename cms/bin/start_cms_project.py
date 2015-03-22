@@ -10,6 +10,12 @@ import shutil
 import subprocess
 import sys
 
+EXTERNAL_APPS = {
+    'faqs': 'FAQs',
+    'jobs': 'jobs',
+    'people': 'people',
+}
+
 
 class Output:
     HEADER = '\033[95m'
@@ -51,6 +57,17 @@ parser.add_argument(
     nargs="?",
     help="The destination dir for the created project.",
 )
+
+for app in EXTERNAL_APPS:
+    parser.add_argument(
+        '--with-' + app,
+        action='store_true'
+    )
+
+    parser.add_argument(
+        '--without-' + app,
+        action='store_true'
+    )
 
 
 def git(*args):
@@ -178,11 +195,26 @@ def main():
         user=getpass.getuser(),
         project_slug=args.project_name.replace("_", "-"),
     )
-    apps = {
-        'faqs': query_yes_no("Would you like the FAQs app?"),
-        'jobs': query_yes_no("Would you like the Jobs app?"),
-        'people': query_yes_no("Would you like the People app?")
-    }
+
+    apps = {}
+
+    for app in EXTERNAL_APPS:
+        # Has the user specified if they want or don't want this app?
+        if not getattr(args, 'with_' + app) and not getattr(args, 'without_' + app):
+            apps[app] = query_yes_no("Would you like the {} module?".format(EXTERNAL_APPS[app]))
+        else:
+            if getattr(args, 'with_' + app) and getattr(args, 'without_' + app):
+                print 'You cannot use --with-{app} and --without-{app} together.'.format(
+                    app=app,
+                )
+                exit()
+
+            elif getattr(args, 'with_' + app):
+                apps[app] = True
+
+            # Without was set.
+            apps[app] = False
+
     # Make management scripts executable.
     make_executable(os.path.join(dest_dir, "manage.py"))
     path = os.path.abspath(os.path.join(dest_dir, args.project_name))
