@@ -309,3 +309,8 @@ SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/admin/'
 SOCIAL_AUTH_PIPELINE = DEFAULT_AUTH_PIPELINE + (
     'cms.pipeline.make_staff',
 )
+
+SILENCED_SYSTEM_CHECKS = [
+    '1_6.W001',
+    # '1_6.W002'
+]
