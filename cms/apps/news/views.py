@@ -144,7 +144,8 @@ class ArticleCategoryArchiveView(PageDetailMixin, ArticleArchiveView):
 
     def dispatch(self, request, *args, **kwargs):
         """Parses the category from the request."""
-        self.object = get_object_or_404(Category,
-                                        url_title=kwargs["url_title"],
-                                        )
+        self.object = get_object_or_404(
+            Category,
+            url_title=kwargs["url_title"],
+        )
         return super(ArticleCategoryArchiveView, self).dispatch(request, *args, **kwargs)
