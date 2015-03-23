@@ -15,7 +15,7 @@ register = template.Library()
 def html(text):
     """
     Processes HTML text.
-    
+
     The text is checked for permalinks embedded in <a> tags, expanding the
     permalinks to their referenced URL. Images containing a permalink source
     are checked for size and thumbnailed as appropriate.

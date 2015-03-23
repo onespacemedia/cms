@@ -353,7 +353,6 @@ class FileAdminBase(admin.ModelAdmin):
             return HttpResponse('')
 
 
-
 # Renaming needed to allow inheritance to take place in this class without infinite recursion.
 FileAdmin = FileAdminBase
 

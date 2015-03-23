@@ -45,7 +45,7 @@ def get_page_from_context(context, kwargs):
         page = get_default_news_page()
     # All done.
     return page
-    
+
 
 def takes_current_page(func):
     """Decorator for template tags that require the current page."""
@@ -82,15 +82,15 @@ def article_list(context, article_list):
         "article_list": article_list,
         "page_obj": page_obj,
     }
-    
-    
+
+
 @register.simple_tag(takes_context=True)
 @takes_article_page
 def article_url(context, article, page):
     """Renders the URL for an article."""
     return escape(article._get_permalink_for_page(page))
-    
-    
+
+
 @register.inclusion_tag("news/includes/article_list_item.html", takes_context=True)
 @page_context
 @takes_article_page
@@ -114,8 +114,8 @@ def article_archive_url(context, page):
 def category_url(context, category, page):
     """Renders the URL for the given category."""
     return escape(category._get_permalink_for_page(page))
-    
-    
+
+
 @register.inclusion_tag("news/includes/category_list.html", takes_context=True)
 @page_context
 def category_list(context, category_list):
@@ -126,8 +126,8 @@ def category_list(context, category_list):
         "category": category,
         "current_category": category,
     }
-    
-    
+
+
 @register.simple_tag(takes_context=True)
 @takes_current_page
 def article_year_archive_url(context, year, page):
@@ -135,8 +135,8 @@ def article_year_archive_url(context, year, page):
     return escape(page.reverse("article_year_archive", kwargs={
         "year": year,
     }))
-    
-    
+
+
 @register.simple_tag(takes_context=True)
 @takes_current_page
 def article_day_archive_url(context, date, page):
@@ -146,8 +146,8 @@ def article_day_archive_url(context, date, page):
         "month": date.strftime("%b").lower(),
         "day": date.day,
     }))
-    
-    
+
+
 @register.inclusion_tag("news/includes/article_date.html", takes_context=True)
 @page_context
 def article_date(context, article):
@@ -155,8 +155,8 @@ def article_date(context, article):
     return {
         "article": article,
     }
-    
-    
+
+
 @register.inclusion_tag("news/includes/article_category_list.html", takes_context=True)
 @page_context
 def article_category_list(context, article):
@@ -165,23 +165,23 @@ def article_category_list(context, article):
         "article": article,
         "categories": article.categories.all(),
     }
-    
-    
+
+
 @register.inclusion_tag("news/includes/article_meta.html", takes_context=True)
 @page_context
 def article_meta(context, article):
     return {
         "article": article,
     }
-    
-    
+
+
 @register.inclusion_tag("news/includes/article_date_list.html", takes_context=True)
 @page_context
 @takes_current_page
 def article_date_list(context, page):
     """Renders a list of dates."""
     date_list = Article.objects.filter(
-        news_feed_id = page.id,
+        news_feed_id=page.id,
     ).dates("date", "month").order_by("-date")
     # Resolve the current year.
     current_year = context.get("year", None)
@@ -207,8 +207,8 @@ def article_date_list(context, page):
         "date_list": date_list,
         "current_year": current_year,
     }
-    
-    
+
+
 @register.inclusion_tag("news/includes/article_latest_list.html", takes_context=True)
 @page_context
 @takes_current_page
@@ -216,7 +216,7 @@ def article_latest_list(context, page, limit=5):
     """Renders a widget-style list of latest articles."""
     # Load the articles.
     article_list = Article.objects.filter(
-        news_feed__page__id = page.id,
+        news_feed__page__id=page.id,
     ).select_related("image").prefetch_related(
         "categories",
         "authors",
@@ -228,9 +228,9 @@ def article_latest_list(context, page, limit=5):
         "article_list": article_list,
         "page": page,
     }
-    
+
 
 @register.assignment_tag(takes_context=True)
-@takes_current_page    
+@takes_current_page
 def get_article_latest_list(context, page, limit=5):
     return article_latest_list(context, page=page, limit=limit)["article_list"]

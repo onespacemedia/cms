@@ -66,5 +66,3 @@ def expand(permalink):
     """
     obj = resolve(permalink)
     return obj.get_absolute_url()
-
-

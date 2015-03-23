@@ -20,10 +20,10 @@ class Link(ContentBase):
 
     link_url = LinkField(
         "link URL",
-        help_text = "The URL where the user will be redirected.",
+        help_text="The URL where the user will be redirected.",
     )
 
     new_window = models.BooleanField(
-        help_text = "Open the page in a new window.",
+        help_text="Open the page in a new window.",
         default=False,
     )

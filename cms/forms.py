@@ -18,6 +18,7 @@ except:
 
 
 class HtmlWidget(forms.Textarea):
+
     """A textarea that is converted into a Redactor editor."""
 
     def __init__(self, *args, **kwargs):
@@ -28,14 +29,14 @@ class HtmlWidget(forms.Textarea):
     def get_media(self):
         """Returns the media used by the widget."""
         js = [
-                 staticfiles_storage.url("cms/js/jquery.cms.js"),
-                 staticfiles_storage.url("cms/js/jquery.cookie.js"),
-                 staticfiles_storage.url("pages/js/jquery.cms.pages.js"),
-                 staticfiles_storage.url("cms/js/redactor/redactor.js"),
-             ] + [
-                 staticfiles_storage.url('cms/js/redactor/plugins/{plugin}/{plugin}.js'.format(plugin=plugin))
-                 for plugin in getattr(settings, 'REDACTOR_OPTIONS', {}).get('plugins', [])
-             ]
+            staticfiles_storage.url("cms/js/jquery.cms.js"),
+            staticfiles_storage.url("cms/js/jquery.cookie.js"),
+            staticfiles_storage.url("pages/js/jquery.cms.pages.js"),
+            staticfiles_storage.url("cms/js/redactor/redactor.js"),
+        ] + [
+            staticfiles_storage.url('cms/js/redactor/plugins/{plugin}/{plugin}.js'.format(plugin=plugin))
+            for plugin in getattr(settings, 'REDACTOR_OPTIONS', {}).get('plugins', [])
+        ]
 
         css = {
             "all": [
@@ -96,6 +97,7 @@ def password_validation(password):
 
 
 class CMSPasswordChangeForm(PasswordChangeForm):
+
     def clean_new_password1(self):
         password = self.cleaned_data.get('new_password1')
         if password_validation(password):
@@ -106,6 +108,7 @@ class CMSPasswordChangeForm(PasswordChangeForm):
 
 
 class CMSAdminPasswordChangeForm(AdminPasswordChangeForm):
+
     def clean_password1(self):
         password = self.cleaned_data.get('password1')
         if password_validation(password):

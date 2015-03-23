@@ -464,19 +464,19 @@ class PageAdmin(PageBaseAdmin):
         first_page, second_page = sorted((page, other_page), key=lambda p: p["left"])
         # Excise the first page.
         Page.objects.filter(left__gte=first_page["left"], right__lte=first_page["right"]).update(
-            left = F("left") * -1,
-            right = F("right") * -1,
+            left=F("left") * -1,
+            right=F("right") * -1,
         )
         # Move the other page.
         branch_width = first_page["right"] - first_page["left"] + 1
         Page.objects.filter(left__gte=second_page["left"], right__lte=second_page["right"]).update(
-            left = F("left") - branch_width,
-            right = F("right") - branch_width,
+            left=F("left") - branch_width,
+            right=F("right") - branch_width,
         )
         # Put the page back in.
         second_branch_width = second_page["right"] - second_page["left"] + 1
         Page.objects.filter(left__lte=-first_page["left"], right__gte=-first_page["right"]).update(
-            left = (F("left") - second_branch_width) * -1,
+            left=(F("left") - second_branch_width) * -1,
             right = (F("right") - second_branch_width) * -1,
         )
         # Report back.

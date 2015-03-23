@@ -32,8 +32,8 @@ class OnlineBase(PublishedBase):
 
     is_online = models.BooleanField(
         "online",
-        default = True,
-        help_text = (
+        default=True,
+        help_text=(
             "Uncheck this box to remove the page from the public website. "
             "Logged-in admin users will still be able to view this page by clicking the 'view on site' button."
         ),
@@ -57,9 +57,9 @@ class SearchMetaBase(OnlineBase):
     # SEO fields.
 
     browser_title = models.CharField(
-        max_length = 1000,
-        blank = True,
-        help_text = (
+        max_length=1000,
+        blank=True,
+        help_text=(
             "The heading to use in the user's web browser. "
             "Leave blank to use the page title. "
             "Search engines pay particular attention to this attribute."
@@ -68,9 +68,9 @@ class SearchMetaBase(OnlineBase):
 
     meta_keywords = models.CharField(
         "keywords",
-         max_length = 1000,
-         blank = True,
-         help_text = (
+        max_length=1000,
+        blank=True,
+        help_text=(
             "A comma-separated list of keywords for this page. Use this to specify common mis-spellings "
             "or alternative versions of important words in this page."
         ),
@@ -78,13 +78,13 @@ class SearchMetaBase(OnlineBase):
 
     meta_description = models.TextField(
         "description",
-        blank = True,
-        help_text = "A brief description of the contents of this page.",
+        blank=True,
+        help_text="A brief description of the contents of this page.",
     )
 
     sitemap_priority = models.FloatField(
         "priority",
-        choices = (
+        choices=(
             (1.0, "Very high"),
             (0.8, "High"),
             (0.5, "Medium"),
@@ -102,7 +102,7 @@ class SearchMetaBase(OnlineBase):
 
     sitemap_changefreq = models.IntegerField(
         "change frequency",
-        choices = (
+        choices=(
             (1, "Always"),
             (2, "Hourly"),
             (3, "Daily"),
@@ -122,8 +122,8 @@ class SearchMetaBase(OnlineBase):
 
     robots_index = models.BooleanField(
         "allow indexing",
-        default = True,
-        help_text = (
+        default=True,
+        help_text=(
             "Use this to prevent search engines from indexing this page. "
             "Disable this only if the page contains information which you do not wish "
             "to show up in search results."
@@ -132,8 +132,8 @@ class SearchMetaBase(OnlineBase):
 
     robots_follow = models.BooleanField(
         "follow links",
-         default = True,
-         help_text = (
+        default=True,
+        help_text=(
             "Use this to prevent search engines from following any links they find in this page. "
             "Disable this only if the page contains links to other sites that you do not wish to "
             "publicise."
@@ -142,8 +142,8 @@ class SearchMetaBase(OnlineBase):
 
     robots_archive = models.BooleanField(
         "allow archiving",
-        default = True,
-        help_text = (
+        default=True,
+        help_text=(
             "Use this to prevent search engines from archiving this page. "
             "Disable this only if the page is likely to change on a very regular basis. "
         ),
@@ -184,7 +184,7 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
     def get_live_queryset(self):
         """Selects only live models."""
         return super(SearchMetaBaseSearchAdapter, self).get_live_queryset().filter(
-            robots_index = True,
+            robots_index=True,
         )
 
 
@@ -204,15 +204,15 @@ class PageBase(SearchMetaBase):
     )
 
     title = models.CharField(
-        max_length = 1000,
+        max_length=1000,
     )
 
     # Navigation fields.
 
     short_title = models.CharField(
-        max_length = 200,
-        blank = True,
-        help_text = (
+        max_length=200,
+        blank=True,
+        help_text=(
             "A shorter version of the title that will be used in site navigation. "
             "Leave blank to use the full-length title."
         ),

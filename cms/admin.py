@@ -77,7 +77,7 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
 
     """Base admin class for PageBase models."""
 
-    prepopulated_fields = {"url_title": ("title",),}
+    prepopulated_fields = {"url_title": ("title",), }
 
     search_fields = ("title", "short_title", "meta_keywords", "meta_description",)
 

@@ -4,7 +4,7 @@ from cms.models.fields import resolve_link, LinkResolutionError
 
 
 class TestLinkField(TestCase):
-    
+
     def testResolveLink(self):
         self.assertEqual(resolve_link("http://www.example.com/foo/"), "http://www.example.com/foo/")
         self.assertEqual(resolve_link("www.example.com/foo/"), "http://www.example.com/foo/")

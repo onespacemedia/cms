@@ -69,7 +69,7 @@ class File(models.Model):
                 image = Image.open(f)
             image.verify()
             return image.size[0]
-        return 0;
+        return 0
 
     def height(self):
         if self.is_image():
@@ -77,7 +77,7 @@ class File(models.Model):
                 image = Image.open(f)
             image.verify()
             return image.size[1]
-        return 0;
+        return 0
 
 
 class FileRefField(models.ForeignKey):
@@ -117,6 +117,7 @@ VIDEO_FILTER = {
 
 
 class VideoFileRefField(FileRefField):
+
     """A foreign key to a File, constrained to only select video files."""
 
     def __init__(self, **kwargs):

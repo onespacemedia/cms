@@ -16,14 +16,15 @@ register = template.Library()
 def navigation(context, pages, section=None):
     """
     Renders a navigation list for the given pages.
-    
+
     The pages should all be a subclass of PageBase, and possess a get_absolute_url() method.
-    
+
     You can also specify an alias for the navigation, at which point it will be set in the
     context rather than rendered.
     """
     request = context["request"]
     # Compile the entries.
+
     def page_entry(page):
         url = page.get_absolute_url()
         return {
@@ -41,10 +42,10 @@ def navigation(context, pages, section=None):
     # Render the template.
     return {
         "request": request,
-        "navigation": entries, 
+        "navigation": entries,
     }
-    
-    
+
+
 @register.assignment_tag(takes_context=True)
 def get_navigation(context, pages, section=None):
     """Returns a navigation list for the given pages."""
@@ -80,20 +81,20 @@ def page_url(page, view_func=None, *args, **kwargs):
 def meta_description(context, description=None):
     """
     Renders the content of the meta description tag for the current page::
-    
+
         {% meta_description %}
-    
+
     You can override the meta description by setting a context variable called
     'meta_description'::
-    
+
         {% with "foo" as meta_description %}
             {% meta_description %}
         {% endwith %}
-    
+
     You can also provide the meta description as an argument to this tag::
-    
+
         {% meta_description "foo" %}
-        
+
     """
     if description is None:
         description = context.get("meta_description")
@@ -109,20 +110,20 @@ def meta_description(context, description=None):
 def meta_keywords(context, keywords=None):
     """
     Renders the content of the meta keywords tag for the current page::
-    
+
         {% meta_keywords %}
-    
+
     You can override the meta keywords by setting a context variable called
     'meta_keywords'::
-    
+
         {% with "foo" as meta_keywords %}
             {% meta_keywords %}
         {% endwith %}
-    
+
     You can also provide the meta keywords as an argument to this tag::
-    
+
         {% meta_keywords "foo" %}
-        
+
     """
     if keywords is None:
         keywords = context.get("meta_keywords")
@@ -138,21 +139,21 @@ def meta_keywords(context, keywords=None):
 def meta_robots(context, index=None, follow=None, archive=None):
     """
     Renders the content of the meta robots tag for the current page::
-    
+
         {% meta_robots %}
-    
+
     You can override the meta robots by setting boolean context variables called
     'robots_index', 'robots_archive' and 'robots_follow'::
-    
+
         {% with 1 as robots_follow %}
             {% meta_robots %}
         {% endwith %}
-    
+
     You can also provide the meta robots as three boolean arguments to this
     tag in the order 'index', 'follow' and 'archive'::
-    
+
         {% meta_robots 1 1 1 %}
-        
+
     """
     # Override with context variables.
     if index is None:
@@ -181,19 +182,19 @@ def meta_robots(context, index=None, follow=None, archive=None):
 def title(context, browser_title=None):
     """
     Renders the title of the current page::
-        
+
         {% title %}
-    
+
     You can override the title by setting a context variable called 'title'::
-    
+
         {% with "foo" as title %}
             {% title %}
         {% endwith %}
-        
+
     You can also provide the title as an argument to this tag::
-        
+
         {% title "foo" %}
-    
+
     """
     request = context["request"]
     page = request.pages.current
@@ -209,14 +210,14 @@ def title(context, browser_title=None):
 def breadcrumbs(context, page=None, extended=False):
     """
     Renders the breadcrumbs trail for the current page::
-    
+
         {% breadcrumbs %}
-        
+
     To override and extend the breadcrumb trail within page applications, add
     the 'extended' flag to the tag and add your own breadcrumbs underneath::
-    
+
         {% breadcrumbs extended=1 %}
-        
+
     """
     request = context["request"]
     # Render the tag.
@@ -243,20 +244,20 @@ def breadcrumbs(context, page=None, extended=False):
 def header(context, page_header=None):
     """
     Renders the header for the current page::
-    
+
         {% header %}
-        
+
     You can override the page header by providing a 'header' or 'title' context
     variable. If both are present, then 'header' overrides 'title'::
-    
+
         {% with "foo" as header %}
             {% header %}
         {% endwith %}
-        
+
     You can also provide the header as an argument to this tag::
-    
+
         {% header "foo" %}
-        
+
     """
     request = context["request"]
     page_header = page_header or context.get("header") or context.get("title") or request.pages.current.title

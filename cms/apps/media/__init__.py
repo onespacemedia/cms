@@ -1,2 +1,1 @@
 """Static media management application."""
-

@@ -26,9 +26,9 @@ class PageManager(OnlineBaseManager):
         queryset = queryset.filter(Q(expiry_date=None) | Q(expiry_date__gt=now))
         # Perform parent ordering.
         quote_name = connection.ops.quote_name
-        page_alias = page_alias  or quote_name("pages_page")
+        page_alias = page_alias or quote_name("pages_page")
         queryset = queryset.extra(
-            where = ("""
+            where=("""
                 NOT EXISTS (
                     SELECT *
                     FROM {pages_page} AS {ancestors}
@@ -41,7 +41,7 @@ class PageManager(OnlineBaseManager):
                         )
                 )
             """.format(
-                page_alias = page_alias,
+                page_alias=page_alias,
                 **dict(
                     (name, quote_name(name))
                     for name in (
@@ -55,7 +55,7 @@ class PageManager(OnlineBaseManager):
                     )
                 )
             ),),
-            params = (now, now),
+            params=(now, now),
         )
         return queryset
 
@@ -74,19 +74,19 @@ class Page(PageBase):
 
     parent = models.ForeignKey(
         "self",
-        blank = True,
-        null = True,
-        related_name = "child_set",
+        blank=True,
+        null=True,
+        related_name="child_set",
     )
 
     left = models.IntegerField(
-        editable = False,
-        db_index = True,
+        editable=False,
+        db_index=True,
     )
 
     right = models.IntegerField(
-        editable = False,
-        db_index = True,
+        editable=False,
+        db_index=True,
     )
 
     @cached_property
@@ -107,32 +107,32 @@ class Page(PageBase):
     # Publication fields.
 
     publication_date = models.DateTimeField(
-        blank = True,
-        null = True,
-        db_index = True,
-        help_text = "The date that this page will appear on the website.  Leave this blank to immediately publish this page.",
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text="The date that this page will appear on the website.  Leave this blank to immediately publish this page.",
     )
 
     expiry_date = models.DateTimeField(
-        blank = True,
-        null = True,
-        db_index = True,
-        help_text = "The date that this page will be removed from the website.  Leave this blank to never expire this page.",
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text="The date that this page will be removed from the website.  Leave this blank to never expire this page.",
     )
 
     # Navigation fields.
 
     in_navigation = models.BooleanField(
         "add to navigation",
-        default = True,
-        help_text = "Uncheck this box to remove this content from the site navigation.",
+        default=True,
+        help_text="Uncheck this box to remove this content from the site navigation.",
     )
 
     # Content fields.
 
     content_type = models.ForeignKey(
         ContentType,
-        editable = False,
+        editable=False,
         help_text="The type of page content.",
     )
 
@@ -187,20 +187,20 @@ class Page(PageBase):
         """Excises this whole branch from the tree."""
         branch_width = self._branch_width
         Page.objects.filter(left__gte=self.left).update(
-            left = F("left") - branch_width,
+            left=F("left") - branch_width,
         )
         Page.objects.filter(right__gte=self.left).update(
-            right = F("right") - branch_width,
+            right=F("right") - branch_width,
         )
 
     def _insert_branch(self):
         """Inserts this whole branch into the tree."""
         branch_width = self._branch_width
         Page.objects.filter(left__gte=self.left).update(
-            left = F("left") + branch_width,
+            left=F("left") + branch_width,
         )
         Page.objects.filter(right__gte=self.left).update(
-            right = F("right") + branch_width,
+            right=F("right") + branch_width,
         )
 
     @transaction.atomic
@@ -238,8 +238,8 @@ class Page(PageBase):
                 # Disconnect child branch.
                 if branch_width > 2:
                     Page.objects.filter(left__gt=self.left, right__lt=self.right).update(
-                        left = F("left") * -1,
-                        right = F("right") * -1,
+                        left=F("left") * -1,
+                        right=F("right") * -1,
                     )
                 self._excise_branch()
                 # Store old left and right values.
@@ -256,8 +256,8 @@ class Page(PageBase):
                 if branch_width > 2:
                     child_offset = self.left - old_left
                     Page.objects.filter(left__lt=-old_left, right__gt=-old_right).update(
-                        left = (F("left") - child_offset) * -1,
-                        right = (F("right") - child_offset) * -1,
+                        left=(F("left") - child_offset) * -1,
+                        right=(F("right") - child_offset) * -1,
                     )
         # Now actually save it!
         super(Page, self).save(*args, **kwargs)
@@ -365,8 +365,8 @@ def filter_indexable_pages(queryset):
     indexed by search engines.
     """
     return queryset.filter(
-        robots_index = True,
-        content_type__in = [
+        robots_index=True,
+        content_type__in=[
             ContentType.objects.get_for_model(content_model)
             for content_model
             in get_registered_content()
@@ -396,9 +396,9 @@ class ContentBase(models.Model):
 
     page = models.OneToOneField(
         Page,
-        primary_key = True,
-        editable = False,
-        related_name = "+",
+        primary_key=True,
+        editable=False,
+        related_name="+",
     )
 
     def __unicode__(self):

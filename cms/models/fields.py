@@ -77,6 +77,7 @@ class LinkField(models.CharField):
     def contribute_to_class(self, cls, name):
         """Adds in an accessor for the resolved link."""
         super(LinkField, self).contribute_to_class(cls, name)
+
         def get_XXX_resolved(self):
             link = getattr(self, name, "")
             if link:

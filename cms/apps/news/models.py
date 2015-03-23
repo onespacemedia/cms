@@ -12,6 +12,7 @@ from cms.models import PageBase, OnlineBaseManager, HtmlField, \
 
 
 class NewsFeed(ContentBase):
+
     """A stream of news articles."""
 
     icon = "news/img/news-feed.png"
@@ -54,6 +55,7 @@ def get_default_news_feed():
 
 
 class Category(PageBase):
+
     """A category for news articles."""
 
     content_primary = HtmlField(
@@ -76,7 +78,7 @@ class Category(PageBase):
         )
         return dict(
             (
-            u"page_{id}".format(id=page.id), self._get_permalink_for_page(page))
+                u"page_{id}".format(id=page.id), self._get_permalink_for_page(page))
             for page in pages
         )
 
@@ -87,6 +89,7 @@ class Category(PageBase):
 
 
 class CategoryHistoryLinkAdapter(externals.historylinks.HistoryLinkAdapter):
+
     """History link adapter for category models."""
 
     def get_permalinks(self, obj):
@@ -98,6 +101,7 @@ externals.historylinks("register", Category, CategoryHistoryLinkAdapter)
 
 
 class ArticleManager(OnlineBaseManager):
+
     """Manager for Article models."""
 
     def select_published(self, queryset):
@@ -119,6 +123,7 @@ STATUS_CHOICES = [
 
 
 class Article(PageBase):
+
     """A news article."""
 
     objects = ArticleManager()
