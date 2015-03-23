@@ -3,8 +3,8 @@
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
-from cms import externals
-from cms.apps.pages.models import Page, ContentBase
+from .models import Page, ContentBase
+from ... import externals
 
 
 class TestPageContent(ContentBase):

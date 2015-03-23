@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
-from cms import externals
-from cms.apps.pages.models import Page
-from cms.apps.links.models import Link
+from .models import Link
+from ..pages.models import Page
+from ... import externals
 
 
 class TestLinks(TestCase):
