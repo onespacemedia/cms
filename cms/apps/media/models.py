@@ -66,7 +66,10 @@ class File(models.Model):
     def width(self):
         if self.is_image():
             with open(self.file.path, "rb") as f:
-                image = Image.open(f)
+                try:
+                    image = Image.open(f)
+                except IOError:
+                    return 0
             image.verify()
             return image.size[0]
         return 0
@@ -74,7 +77,10 @@ class File(models.Model):
     def height(self):
         if self.is_image():
             with open(self.file.path, "rb") as f:
-                image = Image.open(f)
+                try:
+                    image = Image.open(f)
+                except IOError:
+                    return 0
             image.verify()
             return image.size[1]
         return 0
