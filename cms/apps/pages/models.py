@@ -264,6 +264,7 @@ class Page(PageBase):
 
         self.get_absolute_url(False)
 
+    @transaction.atomic
     def delete(self, *args, **kwargs):
         """Deletes the page."""
         list(Page.objects.all().select_for_update().values_list("left", "right"))  # Lock entire table.
