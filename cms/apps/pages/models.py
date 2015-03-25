@@ -340,7 +340,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         with publication_manager.select_published(False):
             qs = Page._base_manager.all()
         if publication_manager.select_published_active():
-            qs = Page.objects.select_published(qs, page_alias="U0")
+            qs = Page.objects.select_published(qs)
         # Filter out unindexable pages.
         qs = filter_indexable_pages(qs)
         # All done!
