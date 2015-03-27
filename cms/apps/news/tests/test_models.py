@@ -2,10 +2,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import now
 
-from .models import get_default_news_feed, get_default_news_page, Article, Category, NewsFeed
-from ..pages.models import Page
-from ... import externals
-from ...models import publication_manager
+from ..models import get_default_news_feed, get_default_news_page, Article, Category, NewsFeed
+from ...pages.models import Page
+from .... import externals
+from ....models import publication_manager
 
 from datetime import timedelta
 
