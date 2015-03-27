@@ -129,7 +129,9 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(self.page_admin.content_inlines, [(PageContent, InlineModelInline), ])
 
     def test_pageadmin_get_inline_instances(self):
-        request = self._build_request(page_type=13)
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContent).pk
+        )
 
         self.assertListEqual(self.page_admin.get_inline_instances(request), [])
         self.assertListEqual(self.page_admin.get_inline_instances(request, obj=self.homepage), [])
@@ -143,7 +145,10 @@ class TestPageAdmin(TestCase):
         self.assertEqual(len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1)
 
     def test_pageadmin_get_revision_instances(self):
-        request = self._build_request(page_type=13)
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContent).pk
+        )
+
         instances = self.page_admin.get_revision_instances(request, self.homepage)
         self.assertListEqual(instances, [self.homepage, self.homepage.content])
 
@@ -155,7 +160,9 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(instances, [self.homepage, self.homepage.content])
 
     def test_pageadmin_get_revision_form_data(self):
-        request = self._build_request(page_type=13)
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContent).pk
+        )
 
         # Create an initial revision.
         with externals.reversion.create_revision():
@@ -167,7 +174,10 @@ class TestPageAdmin(TestCase):
         self.assertDictEqual(data, {'page': self.homepage.pk})
 
     def test_pageadmin_get_page_content_cls(self):
-        request = self._build_request(page_type=13)
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContent).pk
+        )
+
         request2 = self._build_request()
 
         self.assertEqual(self.page_admin.get_page_content_cls(request), PageContent)
@@ -181,8 +191,12 @@ class TestPageAdmin(TestCase):
             self.page_admin.get_page_content_cls(request2, self.homepage.content)
 
     def test_pageadmin_get_fieldsets(self):
-        request = self._build_request(page_type=13)
-        request2 = self._build_request(page_type=14)
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContent).pk
+        )
+        request2 = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
+        )
 
         with externals.watson.context_manager("update_index")():
             content_type = ContentType.objects.get_for_model(PageContentWithFields)
@@ -267,7 +281,9 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(self.page_admin.get_breadcrumbs(self.homepage), [self.homepage])
 
     def test_pageadmin_get_form(self):
-        request = self._build_request(page_type=13)
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContent).pk
+        )
 
         form = self.page_admin.get_form(request)
 
@@ -321,8 +337,10 @@ class TestPageAdmin(TestCase):
     def test_pageadmin_save_model(self):
         # NOTE: This page type is different to the one used by the homepage.
         # This is intentional to test certain conditional routes in the method.
+        request = self._build_request(
+            page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
+        )
 
-        request = self._build_request(page_type=14)
         form = self.page_admin.get_form(request)(data={
             'title': 'Homepage',
             'url_title': 'homepage',
@@ -330,7 +348,7 @@ class TestPageAdmin(TestCase):
         })
         form.is_valid()
 
-        self.assertEqual(self.homepage.content_type_id, 13)
+        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContent).pk)
 
         with self.assertRaises(AttributeError):
             self.homepage.content.description
@@ -338,11 +356,11 @@ class TestPageAdmin(TestCase):
         # Save the model
         self.page_admin.save_model(request, self.homepage, form, True)
 
-        self.assertEqual(self.homepage.content_type_id, 14)
+        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContentWithFields).pk)
         self.assertEqual(self.homepage.content.description, 'Foo')
 
         self.page_admin.save_model(request, self.homepage, form, False)
-        self.assertEqual(self.homepage.content_type_id, 14)
+        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContentWithFields).pk)
         self.assertEqual(self.homepage.content.description, 'Foo')
 
     def test_pageadmin_has_add_content_permissions(self):
