@@ -4,14 +4,14 @@ from django.db import models
 from django.test import TestCase
 from django.contrib.contenttypes.models import ContentType
 
-from .models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
-from ... import externals
-from ...models.managers import publication_manager
+from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
+from .... import externals
+from ....models.managers import publication_manager
 
 
 class TestPageContent(ContentBase):
 
-    urlconf = 'cms.apps.pages.test_urls'
+    urlconf = 'cms.apps.pages.tests.test_urls'
 
 
 class TestPageContentWithSections(ContentBase):
