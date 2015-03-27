@@ -11,7 +11,7 @@ from ....models.managers import publication_manager
 
 class TestPageContent(ContentBase):
 
-    urlconf = 'cms.apps.pages.tests.test_urls'
+    urlconf = 'cms.apps.pages.tests.urls'
 
 
 class TestPageContentWithSections(ContentBase):

@@ -1,11 +1,9 @@
-from django.conf.urls import patterns, url
+from django.test import TestCase
+
+from ..urls import urlpatterns
 
 
-def view():
-    pass
+class TestURLs(TestCase):
 
-urlpatterns = patterns(
-    "",
-    url("^$", view, name="index"),
-    url("^(?P<url_title>[^/]+)/$", view, name="detail"),
-)
+    def test_urlpatterns(self):
+        self.assertEqual(len(urlpatterns), 1)
