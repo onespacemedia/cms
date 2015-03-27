@@ -5,15 +5,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.db import models
-from django.http import Http404, HttpResponseRedirect, HttpRequest
+from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.test import TestCase, RequestFactory
 
-from ..admin import PageAdmin, PageBaseAdmin, PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER
+from ..admin import PageAdmin, PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER
 from ..models import get_registered_content, ContentBase, Page
 from .... import externals
 
-from collections import defaultdict
 import os
 import sys
 import warnings
@@ -548,7 +547,7 @@ class TestPageAdmin(TestCase):
             sys.stderr = f
 
         try:
-            with self.assertRaises(ValueError) as c:
+            with self.assertRaises(ValueError):
                 self.page_admin.move_page_view(request)
         except ValueError:
             pass
@@ -580,7 +579,6 @@ class TestPageAdmin(TestCase):
             PageContent.objects.create(
                 page=content_page_2,
             )
-
 
         request.POST['page'] = content_page_1.pk
         request.POST['direction'] = 'down'
