@@ -58,7 +58,6 @@ class MockRequest(object):
 
 
 class MockSuperUser(object):
-
     pk = 1
 
     def has_perm(self, perm):
