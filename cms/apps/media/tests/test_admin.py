@@ -3,7 +3,7 @@ from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404
 from django.test import TestCase, LiveServerTestCase, RequestFactory
 from django.utils.timezone import now
 
