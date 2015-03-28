@@ -33,7 +33,7 @@ def process(text):
         def get_obj(attr_name):
             if attr_name in attrs:
                 value = attrs[attr_name][1:-1]
-                if not value in resolved_permalinks:
+                if value not in resolved_permalinks:
                     try:
                         resolved_permalinks[value] = permalinks.resolve(value)
                     except (permalinks.PermalinkError, ObjectDoesNotExist):
