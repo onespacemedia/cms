@@ -160,15 +160,6 @@ class FileAdminBase(admin.ModelAdmin):
         return actions
 
     # Custom display routines.
-
-    def get_label(self, obj):
-        """Returns a pretty version of the label."""
-        if obj.label:
-            return obj.label.name
-        return ""
-    get_label.short_description = "label"
-    get_label.admin_order_field = "label"
-
     def get_size(self, obj):
         """Returns the size of the media in a human-readable format."""
         try:
