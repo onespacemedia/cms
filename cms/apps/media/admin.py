@@ -159,10 +159,6 @@ class FileAdminBase(admin.ModelAdmin):
             actions[action_name] = (action_function, action_name, action_description)
         return actions
 
-    def remove_label(self, request, queryset):
-        """Removes the label from selected files."""
-        queryset.update(label=None)
-
     # Custom display routines.
 
     def get_label(self, obj):
