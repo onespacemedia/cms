@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.timezone import now
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 
-from .models import File, FileRefField, Label, Video, VideoFileRefField, VideoRefField
+from ..models import File, FileRefField, Label, Video, VideoFileRefField, VideoRefField
 
 import base64
 import random
