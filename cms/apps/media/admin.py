@@ -180,11 +180,24 @@ class FileAdminBase(admin.ModelAdmin):
             except IOError:
                 pass
             else:
-                return '<img cms:permalink="%s" src="%s" width="%s" height="%s" alt="" title="%s"/>' % (permalink, thumbnail.url, thumbnail.width, thumbnail.height, obj.title)
+                try:
+                    return '<img cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>'.format(
+                        permalink,
+                        thumbnail.url,
+                        thumbnail.width,
+                        thumbnail.height,
+                        obj.title
+                    )
+                except TypeError:
+                    pass
         else:
             icon = staticfiles_storage.url(icon)
 
-        return '<img cms:permalink="%s" src="%s" width="66" height="66" alt="" title="%s"/>' % (permalink, icon, obj.title)
+        return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
+            permalink,
+            icon,
+            obj.title
+        )
     get_preview.short_description = "preview"
     get_preview.allow_tags = True
 
