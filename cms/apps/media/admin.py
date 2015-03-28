@@ -126,14 +126,6 @@ class FileAdminBase(admin.ModelAdmin):
 
         return super(FileAdminBase, self).to_field_allowed(request, to_field)
 
-    # Customizations.
-
-    def lookup_allowed(self, lookup, *args, **kwargs):
-        """Allows the file iregex lookup needed by Redactor integration."""
-        if lookup == "file__iregex":
-            return True
-        return super(FileAdminBase, self).lookup_allowed(lookup, *args, **kwargs)
-
     # Custom actions.
 
     def add_label_action(self, request, queryset, label):
