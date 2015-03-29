@@ -9,7 +9,9 @@ from ..html import process
 from .. import externals
 
 import base64
+import mock
 import random
+import re
 import sys
 
 
@@ -86,9 +88,19 @@ class TestHTML(TestCase):
         self.assertIn('width="10"', output)
         self.assertIn('title="Foo"', output)
 
+        with mock.patch('cms.html.get_thumbnail', side_effect=IOError):
+            output = process(string)
+
+        self.assertEqual(output, '<img height="10" src="/media/uploads/files/' + self.name + '" title="Foo" width="10"/>')
+
         content_type = ContentType.objects.get_for_model(TestImageModel).pk
         string = '<img src="/r/{}-{}/"/>'.format(
             content_type,
             self.obj.pk
         )
         self.assertEqual(process(string), '<img src="/foo/" title="Foo"/>')
+
+        re_tag = re.compile(r"<(img|ab)(\s+.*?)(/?)>", re.IGNORECASE)
+        with mock.patch('cms.html.RE_TAG', new=re_tag), \
+                self.assertRaises(AssertionError):
+            process('<ab />')
