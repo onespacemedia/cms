@@ -1,7 +1,3 @@
-"""Form widgets used by the CMS."""
-import re
-import string
-
 from django import forms
 from django.conf import settings
 from django.contrib.auth.forms import PasswordChangeForm, AdminPasswordChangeForm
@@ -11,10 +7,9 @@ from django.utils.safestring import mark_safe
 
 from cms import debug
 
-try:
-    import json
-except:
-    from django.utils import simplejson as json
+import json
+import re
+import string
 
 
 class HtmlWidget(forms.Textarea):
