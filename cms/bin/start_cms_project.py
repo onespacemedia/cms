@@ -137,7 +137,7 @@ def configure_apps(path, apps, project):
 
                 git(
                     "clone",
-                    "git@github.com:onespacemedia/cms-{}.git".format(app),
+                    "git://github.com/onespacemedia/cms-{}.git".format(app),
                     app_folder,
                     "-q"
                 )
