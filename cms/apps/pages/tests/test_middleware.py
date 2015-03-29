@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.test import TestCase, RequestFactory
 
 from ..middleware import RequestPageManager, PageMiddleware
@@ -9,6 +9,10 @@ from .... import externals
 
 class TestMiddlewarePage(ContentBase):
     pass
+
+
+class TestMiddlewarePageURLs(ContentBase):
+    urlconf = 'cms.apps.pages.tests.urls'
 
 
 def _generate_pages(self):
@@ -147,3 +151,47 @@ class TestPageMiddleware(TestCase):
         request.pages = RequestPageManager('/foobar/', '/foobar/')
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response.status_code, 404)
+
+        with externals.watson.context_manager("update_index")():
+            content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
+
+            self.content_url = Page.objects.create(
+                title="Foo",
+                url_title='urls',
+                parent=self.homepage,
+                content_type=content_type,
+            )
+
+            TestMiddlewarePageURLs.objects.create(
+                page=self.content_url,
+            )
+
+        request = factory.get('/urls/')
+        request.pages = RequestPageManager('/urls/', '/urls/')
+        processed_response = middleware.process_response(request, HttpResponseNotFound())
+        self.assertEqual(processed_response.status_code, 500)
+
+        with externals.watson.context_manager("update_index")():
+            content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
+
+            self.content_url = Page.objects.create(
+                title="Foo",
+                url_title='raise404',
+                parent=self.homepage,
+                content_type=content_type,
+            )
+
+            TestMiddlewarePageURLs.objects.create(
+                page=self.content_url,
+            )
+
+        request = factory.get('/raise404/')
+        request.pages = RequestPageManager('/raise404/', '/raise404/')
+        processed_response = middleware.process_response(request, HttpResponseNotFound())
+        self.assertEqual(processed_response.status_code, 404)
+
+        with self.settings(DEBUG=True):
+            request = factory.get('/raise404/')
+            request.pages = RequestPageManager('/raise404/', '/raise404/')
+            processed_response = middleware.process_response(request, HttpResponseNotFound())
+            self.assertEqual(processed_response.status_code, 404)
