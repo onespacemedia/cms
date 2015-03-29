@@ -143,7 +143,7 @@ class TestStartCMSProject(TestCase):
             call([
                 'git',
                 'clone',
-                'git@github.com:onespacemedia/cms-people.git',
+                'git://github.com/onespacemedia/cms-people.git',
                 '/tmp/apps/temp/people/',
                 '-q'
             ])
