@@ -214,11 +214,11 @@ def main():
                 )
                 exit()
 
-            elif getattr(args, 'with_' + app):
+            if getattr(args, 'with_' + app):
                 apps[app] = True
 
-            # Without was set.
-            apps[app] = False
+            if getattr(args, 'without_' + app):
+                apps[app] = False
 
     # Make management scripts executable.
     make_executable(os.path.join(dest_dir, "manage.py"))
