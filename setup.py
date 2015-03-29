@@ -47,6 +47,6 @@ setup(
     ],
     extras_require={
         'usertools':  ["django-usertools"],
-        'testing':  ["mock"],
+        'testing':  ["mock", "coverage", "coveralls"],
     }
 )
