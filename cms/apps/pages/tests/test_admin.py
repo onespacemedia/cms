@@ -567,17 +567,13 @@ class TestPageAdmin(TestCase):
 
         request.POST['direction'] = 'foo'
 
-        stderr = sys.stderr
-        with open(os.devnull, 'w') as f:
-            sys.stderr = f
+        self.orig_stderr = sys.stderr
+        sys.stderr = open(os.devnull, 'w')
 
-        try:
-            with self.assertRaises(ValueError):
-                self.page_admin.move_page_view(request)
-        except ValueError:
-            pass
+        with self.assertRaises(ValueError):
+            self.page_admin.move_page_view(request)
 
-        sys.stderr = stderr
+        sys.stderr = self.orig_stderr
 
         # Add some child pages.
         with externals.watson.context_manager("update_index")():
