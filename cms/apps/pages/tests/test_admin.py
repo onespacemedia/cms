@@ -68,13 +68,7 @@ def get_inline_instances_1_4_x(self, request):
     inline_instances = []
     for inline_class in self.inlines:
         inline = inline_class(self.model, self.admin_site)
-        if request:
-            if not (inline.has_add_permission(request) or
-                    inline.has_change_permission(request) or
-                    inline.has_delete_permission(request)):
-                continue
-            if not inline.has_add_permission(request):
-                inline.max_num = 0
+        inline.max_num = 0
         inline_instances.append(inline)
 
     return inline_instances
@@ -126,6 +120,20 @@ class TestPageAdmin(TestCase):
         self.page_admin.register_content_inline(PageContent, InlineModelInline)
 
         self.assertListEqual(self.page_admin.content_inlines, [(PageContent, InlineModelInline), ])
+
+    def test_get_inline_instances_1_4_x(self):
+        class Inlines(object):
+            model = PageContent
+            admin_site = self.page_admin
+
+            def __init__(self, *args, **kwargs):
+                self.inlines = kwargs.get('inlines', [])
+
+        factory = RequestFactory()
+        request = factory.get('/')
+
+        self.assertListEqual(get_inline_instances_1_4_x(Inlines(), request), [])
+        self.assertEqual(len(get_inline_instances_1_4_x(Inlines(inlines=[InlineModel]), request)), 1)
 
     def test_pageadmin_get_inline_instances(self):
         request = self._build_request(
