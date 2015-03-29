@@ -104,6 +104,9 @@ class TestForms(TestCase):
 
     def test_cmsadminpasswordchangeform_clean_new_password1(self):
         user = MockSuperUser()
+
+        self.assertTrue(user.has_perm(''))
+
         form = CMSAdminPasswordChangeForm(user, data={
             'password1': '123456',
             'password2': '123456'
