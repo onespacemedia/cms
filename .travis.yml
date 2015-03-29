@@ -5,7 +5,7 @@ python:
  # - "3.3"
  # - "3.4"
 install:
-    - pip install -e .
+    - pip install -e .[testing]
     - pip install coverage coveralls
     - start_cms_project.py testing testing/ --with-people --with-faqs --with-jobs --skip-frontend
 script: coverage run --source=cms --omit='*migrations*' testing/manage.py test
