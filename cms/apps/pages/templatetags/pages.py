@@ -63,6 +63,7 @@ def page_url(page, view_func=None, *args, **kwargs):
             page = Page.objects.get(pk=page)
         except Page.DoesNotExist:
             url = "#"
+            page = None
     if page is None:
         url = "#"
     else:
