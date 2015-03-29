@@ -167,6 +167,32 @@ class TestStartCMSProject(TestCase):
 
         self.assertEqual(self.stdout.getvalue().strip(), '[\x1b[92mINFO\x1b[0m] Installed people app')
 
+        # Try to break things.
+        self.stdout = StringIO()
+        sys.stdout = self.stdout
+
+        os_paths = [
+            '/tmp/apps/temp/',
+            '/tmp/settings/base.py',
+            '/tmp/settings/base.py',
+            '/tmp/settings/base.py',
+            '/tmp/settings/base.py',
+        ]
+
+        files = [
+            SimpleUploadedFile('base.py', '{{ project_name }}'),
+            SimpleUploadedFile('base.py', '{{ project_name }}'),
+            SimpleUploadedFile('base.py', '{{ project_name }}'),
+            SimpleUploadedFile('base.py', '{{ project_name }}'),
+        ]
+
+        with mock.patch('cms.bin.start_cms_project.os'), \
+                mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
+                mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
+                mock.patch('__builtin__.open', side_effect=files) as mock_open:
+            configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foobar')
+            self.assertEqual(self.stdout.getvalue().strip(), 'Error:')
+
     def _test_main_func(self, with_or_without):
         self.stdout = StringIO()
         sys.stdout = self.stdout
@@ -273,7 +299,7 @@ class TestStartCMSProject(TestCase):
             '--without-people'
         ]
 
-        with mock.patch('os.makedirs') as mock_os_makedirs, \
+        with mock.patch('os.makedirs', side_effect=OSError) as mock_os_makedirs, \
                 mock.patch('cms.bin.start_cms_project.management.call_command') as mock_call_command, \
                 self.assertRaises(SystemExit):
             main()
