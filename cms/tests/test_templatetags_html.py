@@ -6,6 +6,7 @@ from ..templatetags.html import html, truncate_paragraphs
 
 
 class TestHTMLModel(models.Model):
+
     def __unicode__(self):
         return 'Foo'
 

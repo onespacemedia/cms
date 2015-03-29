@@ -8,6 +8,7 @@ from ..permalinks import expand, resolve, PermalinkError
 
 
 class TestPermalinkModel(models.Model):
+
     def __unicode__(self):
         return 'Foo'
 
