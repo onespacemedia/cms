@@ -39,6 +39,8 @@ class PermalinksTest(TestCase):
     def test_expand(self):
         obj = TestPermalinkModel.objects.create()
 
+        self.assertEqual(obj.__unicode__(), 'Foo')
+
         url = expand('/r/{}-{}/'.format(
             ContentType.objects.get_for_model(TestPermalinkModel).pk,
             obj.pk
