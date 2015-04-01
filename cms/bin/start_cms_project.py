@@ -209,9 +209,9 @@ def main():
             apps[app] = query_yes_no("Would you like the {} module?".format(EXTERNAL_APPS[app]))
         else:
             if getattr(args, 'with_' + app) and getattr(args, 'without_' + app):
-                print 'You cannot use --with-{app} and --without-{app} together.'.format(
+                print('You cannot use --with-{app} and --without-{app} together.'.format(
                     app=app,
-                )
+                ))
                 exit()
 
             if getattr(args, 'with_' + app):
