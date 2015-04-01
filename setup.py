@@ -48,5 +48,14 @@ setup(
     extras_require={
         'usertools':  ["django-usertools"],
         'testing':  ["mock", "coverage", "coveralls"],
-    }
+    },
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Framework :: Django :: 1.7',
+        'Framework :: Django :: 1.8',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 2.7'
+    ],
 )
