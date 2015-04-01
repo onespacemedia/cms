@@ -53,3 +53,4 @@ Currently supported are:
    media
    news
    pages
+   testing
