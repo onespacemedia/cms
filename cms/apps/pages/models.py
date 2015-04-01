@@ -1,4 +1,5 @@
 """Core models used by the CMS."""
+from django.apps import apps
 
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
@@ -355,7 +356,7 @@ externals.watson("register", Page, adapter_cls=PageSearchAdapter)
 def get_registered_content():
     """Returns a list of all registered content objects."""
     return [
-        model for model in models.get_models()
+        model for model in apps.get_models()
         if issubclass(model, ContentBase) and not model._meta.abstract
     ]
 
