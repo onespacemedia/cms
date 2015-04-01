@@ -59,6 +59,8 @@ class MockRequest(object):
 
 class MockSuperUser(object):
     pk = 1
+    is_active = True
+    is_staff = True
 
     def has_perm(self, perm):
         return True

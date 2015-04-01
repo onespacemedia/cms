@@ -9,6 +9,7 @@ standard implementation.
 from __future__ import with_statement
 
 from django.contrib import admin
+from django.contrib.auth import get_permission_codename
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -211,7 +212,7 @@ class PageAdmin(PageBaseAdmin):
         if homepage:
             parent_choices = []
             for page in [homepage] + self.get_all_children(homepage):
-                if not page.id in invalid_parents:
+                if page.id not in invalid_parents:
                     parent_choices.append((page.id, u" \u203a ".join(unicode(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
         else:
             parent_choices = []
@@ -259,7 +260,7 @@ class PageAdmin(PageBaseAdmin):
     def has_add_content_permission(self, request, model):
         """Checks whether the given user can edit the given content model."""
         opts = model._meta
-        return request.user.has_perm("{0}.{1}".format(opts.app_label, opts.get_add_permission()))
+        return request.user.has_perm("{0}.{1}".format(opts.app_label, get_permission_codename('add', opts)))
 
     def has_add_permission(self, request):
         """Checks whether the user can edits pages and at least one content model."""
@@ -279,7 +280,7 @@ class PageAdmin(PageBaseAdmin):
             content_opts = content_model._meta
             return request.user.has_perm("{0}.{1}".format(
                 content_opts.app_label,
-                content_opts.get_change_permission(),
+                get_permission_codename('change', content_opts)
             ))
         return True
 
@@ -292,7 +293,7 @@ class PageAdmin(PageBaseAdmin):
             content_opts = content_model._meta
             return request.user.has_perm("{0}.{1}".format(
                 content_opts.app_label,
-                content_opts.get_delete_permission(),
+                get_permission_codename('delete', content_opts)
             ))
         return True
 

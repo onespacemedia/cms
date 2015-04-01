@@ -39,6 +39,8 @@ class BrokenFile(object):
 
 class MockSuperUser(object):
     pk = 1
+    is_active = True
+    is_staff = True
 
     def has_perm(self, perm):
         return True
@@ -216,13 +218,13 @@ class TestFileAdminBase(TestCase):
         view = self.file_admin.changelist_view(self.request)
 
         self.assertEqual(view.status_code, 200)
-        self.assertTemplateUsed(view, 'admin/media/file/change_list.html')
+        self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
         self.assertNotIn('foo', view.context_data)
 
         view = self.file_admin.changelist_view(self.request, extra_context={'foo': 'bar'})
 
         self.assertEqual(view.status_code, 200)
-        self.assertTemplateUsed(view, 'admin/media/file/change_list.html')
+        self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
         self.assertIn('foo', view.context_data)
 
     def test_fileadminbase_redactor_data(self):

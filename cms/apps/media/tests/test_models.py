@@ -17,6 +17,7 @@ class TestModel(models.Model):
     file = FileRefField(
         blank=True,
         null=True,
+        on_delete=models.CASCADE,
     )
 
     video_file = VideoFileRefField(
