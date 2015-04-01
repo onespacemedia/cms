@@ -15,8 +15,6 @@ from .... import externals
 
 import os
 import sys
-import warnings
-warnings.simplefilter('ignore', DeprecationWarning)
 
 
 # Test models

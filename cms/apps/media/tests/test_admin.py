@@ -13,8 +13,6 @@ from ..models import File, Label, Video
 import base64
 import random
 import sys
-import warnings
-warnings.simplefilter('ignore', DeprecationWarning)
 
 
 class BrokenFile(object):
