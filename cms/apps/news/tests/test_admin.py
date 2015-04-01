@@ -58,15 +58,13 @@ class TestArticleAdminBase(TestCase):
             )
 
     def test_articleadminbase_save_related(self):
-        self.feed.id = self.feed.pk
-
         form = self.article_admin.get_form(self.request, obj=self.article)({
             'date': self.date,
-            'news_feed': self.feed,
+            'news_feed': self.feed.pk,
             'url_title': 'bar',
             'title': 'Bar'
         })
-        form.is_valid()
+        self.assertTrue(form.is_valid())
 
         save_instance(form, self.article, commit=False)
         formsets = self.article_admin.get_formsets(self.request)

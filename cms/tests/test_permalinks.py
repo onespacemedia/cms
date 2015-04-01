@@ -32,9 +32,12 @@ class PermalinksTest(TestCase):
             # A valid URL, but not a permalink.
             resolve('/admin/')
 
+        original_urlconf = urlresolvers.get_urlconf()
         with self.assertRaises(ImproperlyConfigured):
             urlresolvers.set_urlconf('cms.tests.urls')
             resolve('/r/')
+
+        urlresolvers.set_urlconf(original_urlconf)
 
     def test_expand(self):
         obj = TestPermalinkModel.objects.create()
