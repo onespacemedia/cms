@@ -4,7 +4,11 @@ python:
  - "2.7"
  # - "3.3"
  # - "3.4"
+env:
+ - DJANGO=1.7.7
+ - DJANGO=1.8c1
 install:
+    - pip install -q Django==$DJANGO
     - pip install -e .[testing]
     - start_cms_project.py testing testing/ --with-people --with-faqs --with-jobs --skip-frontend
 script: coverage run --source=cms --omit='*migrations*' testing/manage.py test
