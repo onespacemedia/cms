@@ -324,6 +324,6 @@ if 'test' in sys.argv:
     # changes without the migration files.
 
     MIGRATION_MODULES = {
-        app.split('.')[-1]: app.split('.')[-1] + '.no_migrations'
+        app + '.no_migrations'
         for app in INSTALLED_APPS
     }
