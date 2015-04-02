@@ -198,7 +198,7 @@ class PageAdmin(PageBaseAdmin):
                 )
             # Store the field.
             form_attrs[field.name] = form_field
-        ContentForm = type(six.string_types("%sForm" % self.__class__.__name__), (forms.ModelForm,), form_attrs)
+        ContentForm = type(six.text_type("{}Form").format(self.__class__.__name__), (forms.ModelForm,), form_attrs)
         defaults = {"form": ContentForm}
         defaults.update(kwargs)
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)
