@@ -8,6 +8,7 @@ from django.db import models
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.test import TestCase, RequestFactory
+from django.utils import six
 
 from ..admin import PageAdmin, PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER
 from ..models import get_registered_content, ContentBase, Page
@@ -604,7 +605,7 @@ class TestPageAdmin(TestCase):
         request.POST['page'] = content_page_1.pk
         request.POST['direction'] = 'down'
         response = self.page_admin.move_page_view(request)
-        self.assertEqual(response.content, "Page #" + str(content_page_1.pk) + " was moved down.")
+        self.assertEqual(response.content, "Page #{} was moved down.".format(content_page_1.pk))
         self.assertEqual(response.status_code, 200)
 
         request.user.has_perm = lambda x: False

@@ -20,6 +20,7 @@ from django.db import transaction, models
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import six
 from django import forms
 
 from cms import debug, externals
@@ -197,7 +198,7 @@ class PageAdmin(PageBaseAdmin):
                 )
             # Store the field.
             form_attrs[field.name] = form_field
-        ContentForm = type("%sForm" % self.__class__.__name__, (forms.ModelForm,), form_attrs)
+        ContentForm = type(six.string_types("%sForm" % self.__class__.__name__), (forms.ModelForm,), form_attrs)
         defaults = {"form": ContentForm}
         defaults.update(kwargs)
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)

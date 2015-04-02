@@ -1,4 +1,5 @@
 from django.core import management
+from django.utils import six
 
 import argparse
 import getpass
@@ -248,8 +249,8 @@ def main():
         template_path = os.path.join(path, 'templates', 'admin', 'auth', 'user')
         os.makedirs(template_path)
         with open(os.path.join(template_path, 'change_list.html'), 'w+') as f:
-            f.write('{% extends "admin/change_list.html" %}')
-            f.write('\n')
+            f.write(b'{% extends "admin/change_list.html" %}')
+            f.write(b'\n')
 
     # Create the server.json for the `server_management` tools.
     server_json = {
@@ -270,8 +271,9 @@ def main():
         }
     }
 
-    with open(os.path.join(path, 'server.json'), 'w+') as f:
-        f.write(json.dumps(server_json, indent=4))
+    with open(os.path.join(path, 'server.json'), 'w') as f:
+        # json.dump(server_json, f, ensure_ascii=False)
+        f.write(six.binary_type(json.dumps(server_json, indent=4), 'utf-8'))
 
     # Run `npm` commands.
     if not getattr(args, 'skip_frontend'):

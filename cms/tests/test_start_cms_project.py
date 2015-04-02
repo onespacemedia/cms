@@ -1,5 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.utils import six
 
 from ..bin.start_cms_project import (Output, git, make_executable, query_yes_no,
                                      configure_apps, main)
@@ -7,7 +8,12 @@ from ..bin.start_cms_project import (Output, git, make_executable, query_yes_no,
 import mock
 from mock import call
 import os
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import sys
 
 
@@ -43,7 +49,7 @@ class TestStartCMSProject(TestCase):
         mock_os.chmod.assert_called()
 
     @mock.patch('cms.bin.start_cms_project.sys')
-    @mock.patch('__builtin__.raw_input', return_value='y')
+    @mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), return_value='y')
     def test_query_yes_no(self, mock_raw_input, mock_sys):
         query_yes_no('Foo')
         mock_raw_input.assert_called_with()
@@ -65,7 +71,7 @@ class TestStartCMSProject(TestCase):
             query_yes_no('Foo', 'foo')
 
         with mock.patch('cms.bin.start_cms_project.sys') as mock_sys:
-            with mock.patch('__builtin__.raw_input', side_effect=['foo', 'y']) as mock_raw_input:
+            with mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), side_effect=['foo', 'y']) as mock_raw_input:
                 query_yes_no('Foo')
                 mock_raw_input.assert_called_with()
 
@@ -75,7 +81,7 @@ class TestStartCMSProject(TestCase):
                     call('Foo [Y/n] ')
                 ])
 
-        with mock.patch('__builtin__.raw_input', return_value='') as mock_raw_input:
+        with mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), return_value='') as mock_raw_input:
             query_yes_no('Foo', 'no')
             mock_raw_input.assert_called_with()
             mock_sys.stdout.write.assert_called_with('Foo [Y/n] ')
@@ -107,10 +113,10 @@ class TestStartCMSProject(TestCase):
         ]
 
         files = [
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('models.py', '{{ project_name }}'),
-            SimpleUploadedFile('models.py', '')
+            SimpleUploadedFile('base.py', b'{{ project_name }}'),
+            SimpleUploadedFile('base.py', b'{{ project_name }}'),
+            SimpleUploadedFile('models.py', b'{{ project_name }}'),
+            SimpleUploadedFile('models.py', b'')
         ]
 
         with mock.patch('cms.bin.start_cms_project.os'), \
@@ -119,7 +125,7 @@ class TestStartCMSProject(TestCase):
                 mock.patch('cms.bin.start_cms_project.subprocess.check_call') as mock_check_call, \
                 mock.patch('cms.bin.start_cms_project.shutil.move') as mock_shutil_move, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
-                mock.patch('__builtin__.open', side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), side_effect=files) as mock_open:
             configure_apps('/tmp', {'people': True, 'jobs': False}, 'foo')
 
         self.assertListEqual(mock_os_walk.call_args_list, [
@@ -180,16 +186,16 @@ class TestStartCMSProject(TestCase):
         ]
 
         files = [
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
+            SimpleUploadedFile('base.py', b'{{ project_name }}'),
+            SimpleUploadedFile('base.py', b'{{ project_name }}'),
+            SimpleUploadedFile('base.py', b'{{ project_name }}'),
+            SimpleUploadedFile('base.py', b'{{ project_name }}'),
         ]
 
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
-                mock.patch('__builtin__.open', side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), side_effect=files) as mock_open:
             configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foobar')
             self.assertEqual(self.stdout.getvalue().strip(), 'Error:')
 
@@ -201,24 +207,26 @@ class TestStartCMSProject(TestCase):
             '',
             'foo',
             '/tmp',
-            '--{}-people'.format(with_or_without)
+            '--{}-people'.format(with_or_without),
+            # '--with-jobs',
+            # '--with-faqs',
         ]
 
         files = [
-            SimpleUploadedFile('base.py', '"usertools",\n""'),
-            SimpleUploadedFile('base.py', ''),
-            SimpleUploadedFile('change_list.html', ''),
-            SimpleUploadedFile('server.json', ''),
+            SimpleUploadedFile('base.py', b'"usertools",\n""'),
+            SimpleUploadedFile('base.py', b''),
+            SimpleUploadedFile('change_list.html', b''),
+            SimpleUploadedFile('server.json', b''),
             open(os.devnull, 'w'),
         ]
 
         with mock.patch('os.makedirs') as mock_os_makedirs, \
                 mock.patch('cms.bin.start_cms_project.management') as mock_django_core_management, \
-                mock.patch('cms.bin.start_cms_project.query_yes_no', return_value=True) as mock_query_yes_no, \
+                mock.patch('cms.bin.start_cms_project.query_yes_no', side_effect=[True, True]) as mock_query_yes_no, \
                 mock.patch('cms.bin.start_cms_project.make_executable') as mock_make_executable, \
                 mock.patch('cms.bin.start_cms_project.configure_apps') as mock_configure_apps, \
                 mock.patch('cms.bin.start_cms_project.subprocess.call') as mock_call, \
-                mock.patch('__builtin__.open', side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), side_effect=files) as mock_open:
             main()
 
             self.assertListEqual(mock_os_makedirs.call_args_list, [
@@ -253,7 +261,7 @@ class TestStartCMSProject(TestCase):
                 call('/tmp/foo/settings/base.py'),
                 call('/tmp/foo/settings/base.py', 'w'),
                 call('/tmp/foo/templates/admin/auth/user/change_list.html', 'w+'),
-                call('/tmp/foo/server.json', 'w+'),
+                call('/tmp/foo/server.json', 'w'),
                 call('/dev/null', 'w')
             ])
 
@@ -300,6 +308,7 @@ class TestStartCMSProject(TestCase):
         ]
 
         with mock.patch('os.makedirs', side_effect=OSError) as mock_os_makedirs, \
+                mock.patch('cms.bin.start_cms_project.query_yes_no', side_effect=[True, True]), \
                 mock.patch('cms.bin.start_cms_project.management.call_command') as mock_call_command, \
                 self.assertRaises(SystemExit):
             main()

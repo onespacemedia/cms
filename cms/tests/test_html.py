@@ -48,7 +48,7 @@ class TestHTML(TestCase):
 
         self.invalid_jpeg = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.invalid_jpeg_name, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.invalid_jpeg_name, b"data", content_type="image/jpeg")
         )
 
         with externals.watson.context_manager("update_index")():

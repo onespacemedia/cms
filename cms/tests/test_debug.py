@@ -3,7 +3,12 @@ from django.test import TestCase
 from ..debug import print_exc, print_current_exc
 
 import os
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import sys
 
 
