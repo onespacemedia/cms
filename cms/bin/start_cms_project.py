@@ -272,8 +272,10 @@ def main():
     }
 
     with open(os.path.join(path, 'server.json'), 'w') as f:
-        # json.dump(server_json, f, ensure_ascii=False)
-        f.write(six.binary_type(json.dumps(server_json, indent=4), 'utf-8'))
+        if six.PY2:
+            f.write(json.dumps(server_json, indent=4))
+        else:
+            f.write(bytes(json.dumps(server_json, indent=4), 'utf-8'))
 
     # Run `npm` commands.
     if not getattr(args, 'skip_frontend'):
