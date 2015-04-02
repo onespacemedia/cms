@@ -133,7 +133,7 @@ INSTALLED_APPS = (
 
     "reversion",
     "usertools",
-    "historylinks",
+    # "historylinks",
     "watson",
 
     "cms.apps.pages",
