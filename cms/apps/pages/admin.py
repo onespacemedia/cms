@@ -6,7 +6,7 @@ user-friendly appearance and providing additional functionality over the
 standard implementation.
 """
 
-from __future__ import with_statement
+from __future__ import unicode_literals, with_statement
 
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
@@ -213,7 +213,7 @@ class PageAdmin(PageBaseAdmin):
             parent_choices = []
             for page in [homepage] + self.get_all_children(homepage):
                 if page.id not in invalid_parents:
-                    parent_choices.append((page.id, u" \u203a ".join(unicode(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
+                    parent_choices.append((page.id, u" \u203a ".join(str(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
         else:
             parent_choices = []
         if not parent_choices:
@@ -413,7 +413,7 @@ class PageAdmin(PageBaseAdmin):
                 return {
                     "isOnline": page.is_online,
                     "id": page.id,
-                    "title": unicode(page),
+                    "title": str(page),
                     "children": children,
                     "canChange": self.has_change_permission(request, page),
                     "canDelete": self.has_delete_permission(request, page),

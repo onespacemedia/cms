@@ -557,13 +557,13 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.move_page_view(request)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.content, "Page could not be moved, as nothing to swap with.")
+        self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
 
         request.POST['direction'] = 'down'
         response = self.page_admin.move_page_view(request)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.content, "Page could not be moved, as nothing to swap with.")
+        self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
 
         request.POST['direction'] = 'foo'
 

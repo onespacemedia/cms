@@ -1,15 +1,15 @@
 from django.contrib import admin
+from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import six
 from django.utils.timezone import now
-from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 
 from ..models import File, FileRefField, Label, Video, VideoFileRefField, VideoRefField
 
 import base64
 import random
-import sys
 
 
 class TestModel(models.Model):
@@ -49,29 +49,29 @@ class TestFile(TestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
         # Plain text file
         self.name_2 = '{}-{}.txt'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_2 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_2, "data", content_type="text/plain")
+            file=SimpleUploadedFile(self.name_2, b"data", content_type="text/plain")
         )
 
         # A valid GIF.
         self.name_3 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -133,12 +133,12 @@ class TestVideo(TestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
     def test_videofilereffield_init(self):

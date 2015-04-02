@@ -5,6 +5,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
 from django.test import TestCase, LiveServerTestCase, RequestFactory
+from django.utils import six
 from django.utils.timezone import now
 
 from ..admin import FileAdminBase, VideoAdmin
@@ -12,7 +13,6 @@ from ..models import File, Label, Video
 
 import base64
 import random
-import sys
 
 
 class BrokenFile(object):
@@ -70,18 +70,18 @@ class TestFileAdminBase(TestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
         # A valid GIF.
         self.name_2 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -231,7 +231,7 @@ class TestFileAdminBase(TestCase):
 
         self.assertEqual(
             data.content,
-            '{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
+            b'{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
                 pk1=self.obj_1.pk,
                 pk2=self.obj_2.pk,
                 content_type=ContentType.objects.get_for_model(File).pk,
@@ -263,10 +263,10 @@ class TestFileAdminBase(TestCase):
 
         self.request.method = 'POST'
         response = self.file_admin.redactor_upload(self.request, '')
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
         self.request = self.factory.post('/', data={
             'file': self.obj_1.file
@@ -274,7 +274,7 @@ class TestFileAdminBase(TestCase):
         self.request.user = MockSuperUser()
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '{{"filelink": "/r/{}-{}/"}}'.format(
+        self.assertEqual(response.content, b'{{"filelink": "/r/{}-{}/"}}'.format(
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
         ))
@@ -288,7 +288,7 @@ class TestFileAdminBase(TestCase):
         self.assertEqual(response.content, '')
 
         response = self.file_admin.redactor_upload(self.request, 'pdf')
-        self.assertEqual(response.content, '{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
+        self.assertEqual(response.content, b'{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
         ))
@@ -306,12 +306,12 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
     def tearDown(self):
@@ -350,7 +350,7 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
         }
         view = self.file_admin.remote_view(self.request, self.obj_1.pk)
 
-        self.assertEqual(view.content, '{"status": "ok"}')
+        self.assertEqual(view.content, b'{"status": "ok"}')
         self.assertEqual(view.status_code, 200)
 
     # def test_fileadminbase_

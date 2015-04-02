@@ -1,4 +1,6 @@
 """Core models used by the CMS."""
+from __future__ import unicode_literals
+
 from django.apps import apps
 
 from django.contrib.contenttypes.models import ContentType
@@ -326,7 +328,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         return u" ".join((
             super(PageSearchAdapter, self).get_content(obj),
             self.prepare_content(u" ".join(
-                unicode(self._resolve_field(content_obj, field_name))
+                str(self._resolve_field(content_obj, field_name))
                 for field_name in (
                     field.name for field
                     in content_obj._meta.fields
@@ -405,7 +407,7 @@ class ContentBase(models.Model):
 
     def __unicode__(self):
         """Returns a unicode representation."""
-        return unicode(self.page)
+        return str(self.page)
 
     class Meta:
         abstract = True

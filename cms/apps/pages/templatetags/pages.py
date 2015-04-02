@@ -1,5 +1,5 @@
 """Template tags used to render pages."""
-
+from __future__ import unicode_literals
 
 from django import template
 from django.utils.html import escape
@@ -30,7 +30,7 @@ def navigation(context, pages, section=None):
         return {
             "url": url,
             "page": page,
-            "title": unicode(page),
+            "title": str(page),
             "here": request.path.startswith(url),
         }
     entries = map(page_entry, pages)

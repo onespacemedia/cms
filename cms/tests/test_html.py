@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
+from django.utils import six
 from django.utils.timezone import now
 
 from ..apps.media.models import File
@@ -12,7 +13,6 @@ import base64
 import mock
 import random
 import re
-import sys
 
 
 class TestImageModel(models.Model):
@@ -31,7 +31,7 @@ class TestHTML(TestCase):
     def setUp(self):
         self.name = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -43,7 +43,7 @@ class TestHTML(TestCase):
         # An invalid JPEG
         self.invalid_jpeg_name = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.invalid_jpeg = File.objects.create(

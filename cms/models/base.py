@@ -1,4 +1,5 @@
 """Abstract base models used by the page management application."""
+from __future__ import unicode_literals
 
 from django.db import models
 from django.shortcuts import render
@@ -151,7 +152,7 @@ class SearchMetaBase(OnlineBase):
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""
-        title = unicode(self)
+        title = str(self)
         # Return the context.
         return {
             "meta_description": self.meta_description,
