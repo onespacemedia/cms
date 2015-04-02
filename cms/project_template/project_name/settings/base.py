@@ -329,8 +329,8 @@ if 'test' in sys.argv:
             for app in INSTALLED_APPS
         }
 
-    else:
-        MIGRATION_MODULES = {
-            app: app + '.no_migrations'
-            for app in INSTALLED_APPS
-        }
+    # else:
+    #     MIGRATION_MODULES = {
+    #         app: app + '.no_migrations'
+    #         for app in INSTALLED_APPS
+    #     }
