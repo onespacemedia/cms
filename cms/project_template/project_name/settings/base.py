@@ -323,7 +323,14 @@ if 'test' in sys.argv:
     # Note: This will not catch a situation where a developer commits model
     # changes without the migration files.
 
-    MIGRATION_MODULES = {
-        app + '.no_migrations'
-        for app in INSTALLED_APPS
-    }
+    if sys.version_info[0] == 2:
+        MIGRATION_MODULES = {
+            app.split('.')[-1]: app.split('.')[-1] + '.no_migrations'
+            for app in INSTALLED_APPS
+        }
+
+    else:
+        MIGRATION_MODULES = {
+            app: app + '.no_migrations'
+            for app in INSTALLED_APPS
+        }
