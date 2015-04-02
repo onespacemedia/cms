@@ -10,7 +10,7 @@ install:
     - pip install -q Django==$DJANGO
     - pip install -e .[testing]
     - start_cms_project.py testing testing_dir/ --with-people --with-faqs --with-jobs --skip-frontend
-script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test
+script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false
