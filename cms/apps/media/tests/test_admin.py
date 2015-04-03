@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.contenttypes.models import ContentType
@@ -131,14 +133,14 @@ class TestFileAdminBase(TestCase):
 
     def test_fileadminbase_get_size(self):
         # Why this has to use a unicode space, I don't know..
-        self.assertEqual(self.file_admin.get_size(self.obj_1), u'4\xa0bytes')
+        self.assertEqual(self.file_admin.get_size(self.obj_1), six.text_type('4\xa0bytes'))
 
         obj = File.objects.create(
             title="Foo",
             file='media/not/a/real.file'
         )
 
-        self.assertEqual(self.file_admin.get_size(obj), u'0 bytes')
+        self.assertEqual(self.file_admin.get_size(obj), '0 bytes')
 
     def test_fileadminbase_get_preview(self):
         self.assertEqual(

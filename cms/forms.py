@@ -61,7 +61,7 @@ class HtmlWidget(forms.Textarea):
             pass
         else:
             # Add in the initializer.
-            html += u'<script>django.jQuery("#{element_id}").redactor({settings_js});</script>'.format(
+            html += '<script>django.jQuery("#{element_id}").redactor({settings_js});</script>'.format(
                 element_id=element_id,
                 settings_js=json.dumps(getattr(settings, 'REDACTOR_OPTIONS', {})),
             )

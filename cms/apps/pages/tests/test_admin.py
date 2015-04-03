@@ -336,7 +336,7 @@ class TestPageAdmin(TestCase):
         self.assertIsInstance(form.base_fields['inline_model'].widget, FilteredSelectMultiple)
 
         # No homepage.
-        self.assertEqual(form.base_fields['parent'].choices, [(self.homepage.pk, u'Homepage')])
+        self.assertEqual(form.base_fields['parent'].choices, [(self.homepage.pk, 'Homepage')])
 
         request.pages.homepage = None
         form = self.page_admin.get_form(request, obj=self.content_page)

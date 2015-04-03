@@ -66,10 +66,10 @@ class TestTemplatetags(TestCase):
 
         self.assertListEqual(list(navigation), [
             {
-                'url': u'/section/',
+                'url': '/section/',
                 'page': self.section,
                 'here': False,
-                'title': u'Section'
+                'title': 'Section'
             }
         ])
 

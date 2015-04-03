@@ -96,10 +96,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form._errors, {
             'new_password1': [
-                u'Your password needs to be at least 8 characters long.',
-                u'Your password needs include at least 1 uppercase character.',
-                u'Your password needs include at least 1 lowercase character.',
-                u'Your password needs include at least 1 special character.'
+                'Your password needs to be at least 8 characters long.',
+                'Your password needs include at least 1 uppercase character.',
+                'Your password needs include at least 1 lowercase character.',
+                'Your password needs include at least 1 special character.'
             ]
         })
 
@@ -125,10 +125,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form._errors, {
             'password1': [
-                u'Your password needs to be at least 8 characters long.',
-                u'Your password needs include at least 1 uppercase character.',
-                u'Your password needs include at least 1 lowercase character.',
-                u'Your password needs include at least 1 special character.'
+                'Your password needs to be at least 8 characters long.',
+                'Your password needs include at least 1 uppercase character.',
+                'Your password needs include at least 1 lowercase character.',
+                'Your password needs include at least 1 special character.'
             ]
         })
 

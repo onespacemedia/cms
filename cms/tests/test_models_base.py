@@ -39,13 +39,13 @@ class ModelsBaseTest(TestCase):
     def test_searchmetabase_get_context_data(self):
         obj = TestSearchMetaBaseModel.objects.create()
         self.assertDictEqual(obj.get_context_data(), {
-            'meta_description': u'',
+            'meta_description': '',
             'robots_follow': True,
-            'meta_keywords': u'',
+            'meta_keywords': '',
             'robots_index': True,
-            'title': u'TestSearchMetaBaseModel object',
+            'title': 'TestSearchMetaBaseModel object',
             'robots_archive': True,
-            'header': u'TestSearchMetaBaseModel object'
+            'header': 'TestSearchMetaBaseModel object'
         })
 
     def test_searchmetabase_render(self):
@@ -68,11 +68,11 @@ class ModelsBaseTest(TestCase):
     def test_pagebasemodel_get_context_data(self):
         obj = PageBaseModel.objects.create()
         self.assertDictEqual(obj.get_context_data(), {
-            'meta_description': u'',
+            'meta_description': '',
             'robots_follow': True,
-            'meta_keywords': u'',
+            'meta_keywords': '',
             'robots_index': True,
-            'title': u'',
+            'title': '',
             'robots_archive': True,
-            'header': u''
+            'header': ''
         })

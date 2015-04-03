@@ -103,19 +103,19 @@ class TestViews(TestCase):
 
         data = view.get_context_data()
 
-        self.assertEqual(data['meta_description'], u'')
-        self.assertEqual(data['meta_keywords'], u'')
+        self.assertEqual(data['meta_description'], '')
+        self.assertEqual(data['meta_keywords'], '')
         self.assertEqual(data['robots_follow'], True)
         self.assertEqual(list(data['category_list']), [self.category])
         self.assertEqual(data['robots_index'], True)
         self.assertEqual(data['title'], 'Foo')
-        self.assertEqual(data[u'object'], self.article)
+        self.assertEqual(data['object'], self.article)
         self.assertEqual(data['robots_archive'], True)
         self.assertEqual(data['header'], 'Foo')
         self.assertEqual(data['prev_article'], None)
         self.assertEqual(data['article'], self.article)
         self.assertEqual(data['next_article'], None)
-        self.assertEqual(data[u'view'], view)
+        self.assertEqual(data['view'], view)
 
     def test_articlecategoryarchiveview_get_queryset(self):
         view = ArticleCategoryArchiveView()
@@ -135,19 +135,19 @@ class TestViews(TestCase):
 
         data = view.get_context_data()
 
-        self.assertEqual(data['meta_description'], u'')
+        self.assertEqual(data['meta_description'], '')
         self.assertEqual(data['robots_follow'], True)
-        self.assertEqual(data['meta_keywords'], u'')
+        self.assertEqual(data['meta_keywords'], '')
         self.assertEqual(list(data['category_list']), [self.category])
         self.assertEqual(data['robots_index'], True)
         self.assertEqual(data['title'], 'Foo')
-        self.assertEqual(list(data[u'object_list']), [self.article])
+        self.assertEqual(list(data['object_list']), [self.article])
         self.assertEqual(data['robots_archive'], True)
         self.assertEqual(data['header'], 'Foo')
-        self.assertEqual(list(data[u'article_list']), [self.article])
-        self.assertEqual(repr(data[u'page_obj']), '<Page 1 of 1>')
+        self.assertEqual(list(data['article_list']), [self.article])
+        self.assertEqual(repr(data['page_obj']), '<Page 1 of 1>')
         self.assertEqual(data['category'], self.category)
-        self.assertEqual(data[u'view'], view)
+        self.assertEqual(data['view'], view)
 
     def test_articlecategoryarchiveview_dispatch(self):
         view = ArticleCategoryArchiveView()
@@ -158,6 +158,6 @@ class TestViews(TestCase):
         dispatch = view.dispatch(view.request, url_title='foo')
         self.assertListEqual(dispatch.template_name, [
             'news/article_category_archive.html',
-            u'news/article_archive.html'
+            'news/article_archive.html'
         ])
         self.assertEqual(dispatch.status_code, 200)

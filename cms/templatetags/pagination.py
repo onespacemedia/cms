@@ -45,7 +45,7 @@ def pagination_url(context, page_number):
     request = context["request"]
     url = request.path
     params = request.GET.copy()
-    if str(page_number) != u"1":
+    if str(page_number) != "1":
         params[context.get("pagination_key", "page")] = page_number
     else:
         params.pop(context.get("pagination_key", "page"), None)

@@ -79,7 +79,7 @@ class TestNews(TestCase):
 
     def test_category_get_permalinks(self):
         self._create_objects()
-        self.assertEqual(self.category._get_permalinks(), {u'page_' + str(self.page.pk): u'/foo/'})
+        self.assertEqual(self.category._get_permalinks(), {'page_' + str(self.page.pk): '/foo/'})
 
     def test_article_get_permalink_for_page(self):
         self._create_objects()

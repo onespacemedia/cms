@@ -218,7 +218,7 @@ class PageAdmin(PageBaseAdmin):
             parent_choices = []
             for page in [homepage] + self.get_all_children(homepage):
                 if page.id not in invalid_parents:
-                    parent_choices.append((page.id, u" \u203a ".join(str(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
+                    parent_choices.append((page.id, " \u203a ".join(str(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
         else:
             parent_choices = []
         if not parent_choices:

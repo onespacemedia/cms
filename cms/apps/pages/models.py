@@ -325,9 +325,9 @@ class PageSearchAdapter(PageBaseSearchAdapter):
                     for field_name in field_names
                 ))
 
-        return u" ".join((
+        return " ".join((
             super(PageSearchAdapter, self).get_content(obj),
-            self.prepare_content(u" ".join(
+            self.prepare_content(" ".join(
                 str(self._resolve_field(content_obj, field_name))
                 for field_name in (
                     field.name for field
