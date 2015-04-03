@@ -301,7 +301,7 @@ class TestPageAdmin(TestCase):
                 'browser_title', 'meta_keywords', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
                 'robots_follow', 'robots_archive']
-        self.assertListEqual(form.base_fields.keys(), keys)
+        self.assertListEqual(list(form.base_fields.keys()), keys)
 
         request = self._build_request()
 
@@ -327,7 +327,7 @@ class TestPageAdmin(TestCase):
                 'in_navigation', 'browser_title', 'meta_keywords',
                 'meta_description', 'sitemap_priority', 'sitemap_changefreq',
                 'robots_index', 'robots_follow', 'robots_archive']
-        self.assertListEqual(form.base_fields.keys(), keys)
+        self.assertListEqual(list(form.base_fields.keys()), keys)
 
         self.assertIsInstance(form.base_fields['inline_model'].widget, RelatedFieldWidgetWrapper)
 
@@ -522,9 +522,6 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.sitemap_json_view(request)
 
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
-
-        # if six.PY3:
-        #     sitemap = bytes(sitemap, 'utf-8')
 
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")

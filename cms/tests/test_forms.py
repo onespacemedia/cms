@@ -70,7 +70,7 @@ class TestForms(TestCase):
         )
 
         self.assertIn(
-            '"minHeight": 300,',
+            '"minHeight": 300',
             rendered,
         )
 

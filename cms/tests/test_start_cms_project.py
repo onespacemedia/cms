@@ -87,18 +87,8 @@ class TestStartCMSProject(TestCase):
             mock_sys.stdout.write.assert_called_with('Foo [Y/n] ')
 
     def test_configure_apps(self):
-        os_paths = [
-            '/tmp/apps/temp/',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-            '/tmp/apps/temp/people/',
-            '/tmp/apps/temp/people/apps/people/',
-            '/tmp/apps/',
-            '/tmp/apps/people/models.py',
-            '/tmp/apps/people/models.py',
-            '/tmp/apps/temp/people/apps/people/',
-            '/tmp/templates/',
-        ]
+        def os_paths(*args, **kwargs):
+            return '/'.join(args)
 
         os_walk = [
             ('/tmp/apps/temp/people', ['apps', 'templates'], ['.gitignore']),
@@ -120,50 +110,90 @@ class TestStartCMSProject(TestCase):
                 mock.patch('cms.bin.start_cms_project.shutil.move') as mock_shutil_move, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
                 mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
-            configure_apps('/tmp', {'people': True, 'jobs': False}, 'foo')
+            configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foo')
 
         self.assertListEqual(mock_os_walk.call_args_list, [
-            call('/tmp/apps/temp/people/'),
+            call('/tmp/apps/temp/people'),
         ])
 
-        self.assertListEqual(mock_os_path_join.call_args_list, [
+        self.assertIn(
             call('/tmp', 'apps', 'temp'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp', 'settings', 'base.py'),
-            call('/tmp', 'settings', 'base.py'),
-            call('/tmp/apps/temp/', 'people'),
-            call('/tmp/apps/temp/people/', 'apps', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/temp', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/temp/people', 'apps', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp', 'apps'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp', 'apps', 'people', 'models.py'),
-            call('/tmp', 'apps', 'people', 'models.py'),
-            call('/tmp/apps/temp/people/', 'templates', 'people'),
-            call('/tmp', 'templates')
-        ])
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/temp/people', 'templates', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp', 'apps', 'temp'),
+            mock_os_path_join.call_args_list
+        )
 
         self.assertListEqual(mock_check_call.call_args_list, [
             call([
                 'git',
                 'clone',
                 'git://github.com/onespacemedia/cms-people.git',
-                '/tmp/apps/temp/people/',
+                '/tmp/apps/temp/people',
                 '-q'
             ])
         ])
 
         self.assertListEqual(mock_shutil_move.call_args_list, [
-            call('/tmp/apps/temp/people/apps/people/', '/tmp/apps/'),
-            call('/tmp/apps/temp/people/apps/people/', '/tmp/templates/')
+            call('/tmp/apps/temp/people/apps/people', '/tmp/apps'),
+            call('/tmp/apps/temp/people/templates/people', '/tmp/templates')
         ])
 
         self.assertListEqual(mock_shutil_rmtree.call_args_list, [
-            call('/tmp/apps/temp/')
+            call('/tmp/apps/temp')
         ])
 
-        self.assertListEqual(mock_open.call_args_list, [
+        self.assertIn(
             call('/tmp/settings/base.py'),
-            call('/tmp/settings/base.py', 'w'),
+            mock_open.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/people/models.py', 'w'),
+            mock_open.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp/apps/people/models.py', 'r'),
-            call('/tmp/apps/people/models.py', 'w')
-        ])
+            mock_open.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/settings/base.py', 'w'),
+            mock_open.call_args_list
+        )
 
         self.assertEqual(self.stdout.getvalue().strip(), '[\x1b[92mINFO\x1b[0m] Installed people app')
 
@@ -177,13 +207,6 @@ class TestStartCMSProject(TestCase):
             '/tmp/settings/base.py',
             '/tmp/settings/base.py',
             '/tmp/settings/base.py',
-        ]
-
-        files = [
-            SimpleUploadedFile('base.py', b'{{ project_name }}'),
-            SimpleUploadedFile('base.py', b'{{ project_name }}'),
-            SimpleUploadedFile('base.py', b'{{ project_name }}'),
-            SimpleUploadedFile('base.py', b'{{ project_name }}'),
         ]
 
         m = mock.mock_open()
