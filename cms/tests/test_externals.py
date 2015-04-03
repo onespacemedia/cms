@@ -34,3 +34,6 @@ class TestExternals(TestCase):
         self.assertIs(type(external.context_manager('')), FunctionType)
         self.assertIsInstance(external.context_manager('')(), GeneratorContextManager)
         self.assertTrue(external.context_manager('', fallback=True))
+
+        with external.context_manager('')():
+            self.assertTrue(True)
