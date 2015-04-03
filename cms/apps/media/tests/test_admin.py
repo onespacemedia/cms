@@ -12,6 +12,7 @@ from ..admin import FileAdminBase, VideoAdmin
 from ..models import File, Label, Video
 
 import base64
+import json
 import random
 
 
@@ -230,12 +231,12 @@ class TestFileAdminBase(TestCase):
         data = self.file_admin.redactor_data(self.request)
 
         self.assertEqual(
-            data.content,
-            '{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
+            json.loads(data.content.decode()),
+            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
                 pk1=self.obj_1.pk,
                 pk2=self.obj_2.pk,
                 content_type=ContentType.objects.get_for_model(File).pk,
-            )
+            ))
         )
 
         self.request.user.has_perm = lambda x: False
@@ -274,24 +275,26 @@ class TestFileAdminBase(TestCase):
         self.request.user = MockSuperUser()
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '{{"filelink": "/r/{}-{}/"}}'.format(
+
+        self.assertEqual(json.loads(response.content.decode()), json.loads('{{"filelink": "/r/{}-{}/"}}'.format(
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
-        ))
+        )))
 
         self.request = self.factory.post('/', data={
-            'file': SimpleUploadedFile('xoxo.pdf', "data")
+            'file': SimpleUploadedFile('xoxo.pdf', b"data")
         })
         self.request.user = MockSuperUser()
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
         response = self.file_admin.redactor_upload(self.request, 'pdf')
-        self.assertEqual(response.content, b'{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
+
+        self.assertEqual(json.loads(response.content.decode()), json.loads('{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
-        ))
+        )))
 
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):

@@ -14,6 +14,7 @@ from ..admin import PageAdmin, PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE
 from ..models import get_registered_content, ContentBase, Page
 from .... import externals
 
+import json
 import os
 import sys
 
@@ -521,7 +522,11 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.sitemap_json_view(request)
 
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
-        self.assertEqual(response.content, sitemap)
+
+        # if six.PY3:
+        #     sitemap = bytes(sitemap, 'utf-8')
+
+        self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
         # Add a child page.
@@ -542,13 +547,13 @@ class TestPageAdmin(TestCase):
         request.pages.homepage = Page.objects.get(url_title='homepage')
         response = self.page_admin.sitemap_json_view(request)
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
-        self.assertEqual(response.content, sitemap)
+        self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
         request.pages.homepage = None
         response = self.page_admin.sitemap_json_view(request)
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
-        self.assertEqual(response.content, sitemap)
+        self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
     def test_pageadmin_move_page_view(self):
