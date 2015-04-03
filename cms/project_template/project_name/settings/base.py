@@ -323,14 +323,12 @@ if 'test' in sys.argv:
     # Note: This will not catch a situation where a developer commits model
     # changes without the migration files.
 
-    if sys.version_info[0] == 2:
-        MIGRATION_MODULES = {
-            app.split('.')[-1]: app.split('.')[-1] + '.no_migrations'
-            for app in INSTALLED_APPS
-        }
+    class DisableMigrations(object):
 
-    # else:
-    #     MIGRATION_MODULES = {
-    #         app: app + '.no_migrations'
-    #         for app in INSTALLED_APPS
-    #     }
+        def __contains__(self, item):
+            return True
+
+        def __getitem__(self, item):
+            return "notmigrations"
+
+    MIGRATION_MODULES = DisableMigrations()
