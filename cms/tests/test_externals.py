@@ -2,7 +2,11 @@ from django.test import TestCase
 
 from ..externals import External
 
-from contextlib import GeneratorContextManager
+try:
+    from contextlib import GeneratorContextManager
+except ImportError:
+    from contextlib import _GeneratorContextManager as GeneratorContextManager
+
 from types import FunctionType
 
 
