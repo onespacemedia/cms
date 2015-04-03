@@ -145,7 +145,7 @@ class TestPageMiddleware(TestCase):
 
         self.assertEqual(processed_response['Location'], '/foo/')
         self.assertEqual(processed_response.status_code, 302)
-        self.assertEqual(processed_response.content, '')
+        self.assertEqual(processed_response.content, b'')
 
         request = factory.get('/foobar/')
         request.pages = RequestPageManager('/foobar/', '/foobar/')
