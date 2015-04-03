@@ -15,6 +15,7 @@ from ..models import get_registered_content, ContentBase, Page
 from .... import externals
 
 import json
+import mock
 import os
 import sys
 
@@ -342,6 +343,21 @@ class TestPageAdmin(TestCase):
         form = self.page_admin.get_form(request, obj=self.content_page)
 
         self.assertListEqual(form.base_fields['parent'].choices, [('', '---------')])
+
+        # Trigger the `content_cls.DoesNotExist` exception.
+        content_cls = self.page_admin.get_page_content_cls(request, self.content_page)
+
+        class Obj(object):
+
+            def __getattr__(self, name):
+                return getattr(self.page, name)
+
+            def __init__(self, page, *args, **kwargs):
+                self.page = page
+                self.content = mock.Mock(side_effect=content_cls.DoesNotExist)
+
+        obj = Obj(self.content_page)
+        self.page_admin.get_form(request, obj=obj)
 
     def test_pageadmin_save_model(self):
         # NOTE: This page type is different to the one used by the homepage.
