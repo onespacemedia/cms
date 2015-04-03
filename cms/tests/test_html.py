@@ -41,7 +41,7 @@ class TestHTML(TestCase):
         base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
         self.image = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string), content_type="image/gif")
+            file=SimpleUploadedFile(self.name, six.binary_type(base64.b64decode(base64_string)), content_type="image/gif")
         )
 
         # An invalid JPEG
