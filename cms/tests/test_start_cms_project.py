@@ -28,7 +28,7 @@ class TestStartCMSProject(TestCase):
         self.stdout = StringIO()
         sys.stdout = self.stdout
 
-        self.mock_open_data = '{{ project_name }}\n\"usertools\",\n"foo.apps.people",'
+        self.mock_open_data = '{{ project_name }}\n\"usertools\",\n"foo.apps.people",\n{{ project_name }}\n'
 
     def tearDown(self):
         sys.stdout = self.orig_stdout
