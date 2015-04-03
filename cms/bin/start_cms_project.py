@@ -1,5 +1,4 @@
 from django.core import management
-from django.utils import six
 
 import argparse
 import getpass

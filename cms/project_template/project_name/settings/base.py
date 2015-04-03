@@ -8,6 +8,7 @@ For an explanation of these settings, please see the Django documentation at:
 While many of these settings assume sensible defaults, you must provide values
 for the site, database, media and email sections below.
 """
+from __future__ import unicode_literals
 
 from social.pipeline import DEFAULT_AUTH_PIPELINE
 
@@ -74,7 +75,7 @@ EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
 
-SERVER_EMAIL = u"{name} <notifications@{domain}>".format(
+SERVER_EMAIL = "{name} <notifications@{domain}>".format(
     name=SITE_NAME,
     domain=SITE_DOMAIN,
 )
