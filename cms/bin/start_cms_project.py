@@ -248,9 +248,9 @@ def main():
 
         template_path = os.path.join(path, 'templates', 'admin', 'auth', 'user')
         os.makedirs(template_path)
-        with open(os.path.join(template_path, 'change_list.html'), 'w+') as f:
-            f.write(b'{% extends "admin/change_list.html" %}')
-            f.write(b'\n')
+        with open(os.path.join(template_path, 'change_list.html'), 'w') as f:
+            f.write('{% extends "admin/change_list.html" %}')
+            f.write('\n')
 
     # Create the server.json for the `server_management` tools.
     server_json = {
@@ -272,10 +272,7 @@ def main():
     }
 
     with open(os.path.join(path, 'server.json'), 'w') as f:
-        if six.PY2:
-            f.write(json.dumps(server_json, indent=4))
-        else:
-            f.write(bytes(json.dumps(server_json, indent=4), 'utf-8'))
+        f.write(json.dumps(server_json, indent=4))
 
     # Run `npm` commands.
     if not getattr(args, 'skip_frontend'):

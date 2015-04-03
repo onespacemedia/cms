@@ -605,7 +605,11 @@ class TestPageAdmin(TestCase):
         request.POST['page'] = content_page_1.pk
         request.POST['direction'] = 'down'
         response = self.page_admin.move_page_view(request)
-        self.assertEqual(response.content, "Page #{} was moved down.".format(content_page_1.pk))
+
+        if six.PY2:
+            self.assertEqual(response.content, "Page #" + six.text_type(content_page_1.pk) + " was moved down.")
+        else:
+            self.assertEqual(response.content, bytes("Page #" + six.text_type(content_page_1.pk) + " was moved down.", 'utf-8'))
         self.assertEqual(response.status_code, 200)
 
         request.user.has_perm = lambda x: False

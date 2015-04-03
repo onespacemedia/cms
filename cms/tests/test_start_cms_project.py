@@ -112,20 +112,14 @@ class TestStartCMSProject(TestCase):
             ('/tmp/apps/temp/people/templates/people/includes', [], ['people_list.html'])
         ]
 
-        files = [
-            SimpleUploadedFile('base.py', b'{{ project_name }}'),
-            SimpleUploadedFile('base.py', b'{{ project_name }}'),
-            SimpleUploadedFile('models.py', b'{{ project_name }}'),
-            SimpleUploadedFile('models.py', b'')
-        ]
-
+        m = mock.mock_open()
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.walk', return_value=os_walk) as mock_os_walk, \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
                 mock.patch('cms.bin.start_cms_project.subprocess.check_call') as mock_check_call, \
                 mock.patch('cms.bin.start_cms_project.shutil.move') as mock_shutil_move, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
-                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
             configure_apps('/tmp', {'people': True, 'jobs': False}, 'foo')
 
         self.assertListEqual(mock_os_walk.call_args_list, [
@@ -192,10 +186,11 @@ class TestStartCMSProject(TestCase):
             SimpleUploadedFile('base.py', b'{{ project_name }}'),
         ]
 
+        m = mock.mock_open()
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
-                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
             configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foobar')
             self.assertEqual(self.stdout.getvalue().strip(), 'Error:')
 
@@ -208,25 +203,16 @@ class TestStartCMSProject(TestCase):
             'foo',
             '/tmp',
             '--{}-people'.format(with_or_without),
-            # '--with-jobs',
-            # '--with-faqs',
         ]
 
-        files = [
-            SimpleUploadedFile('base.py', b'"usertools",\n""'),
-            SimpleUploadedFile('base.py', b''),
-            SimpleUploadedFile('change_list.html', b''),
-            SimpleUploadedFile('server.json', b''),
-            open(os.devnull, 'w'),
-        ]
-
+        m = mock.mock_open()
         with mock.patch('os.makedirs') as mock_os_makedirs, \
                 mock.patch('cms.bin.start_cms_project.management') as mock_django_core_management, \
                 mock.patch('cms.bin.start_cms_project.query_yes_no', side_effect=[True, True]) as mock_query_yes_no, \
                 mock.patch('cms.bin.start_cms_project.make_executable') as mock_make_executable, \
                 mock.patch('cms.bin.start_cms_project.configure_apps') as mock_configure_apps, \
                 mock.patch('cms.bin.start_cms_project.subprocess.call') as mock_call, \
-                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
             main()
 
             self.assertListEqual(mock_os_makedirs.call_args_list, [
@@ -238,11 +224,17 @@ class TestStartCMSProject(TestCase):
 
             ])
 
-            self.assertListEqual(mock_query_yes_no.call_args_list, [
-                # call('Would you like the people module?'),
+            self.assertIn(
+                call('Would you like the FAQs module?'),
+                mock_query_yes_no.call_args_list,
+            )
+
+            self.assertIn(
                 call('Would you like the jobs module?'),
-                call('Would you like the FAQs module?')
-            ])
+                mock_query_yes_no.call_args_list,
+            )
+
+            self.assertEqual(len(mock_query_yes_no.call_args_list), 2)
 
             if with_or_without == 'with':
                 self.assertListEqual(mock_configure_apps.call_args_list, [
@@ -260,7 +252,7 @@ class TestStartCMSProject(TestCase):
             self.assertListEqual(mock_open.call_args_list, [
                 call('/tmp/foo/settings/base.py'),
                 call('/tmp/foo/settings/base.py', 'w'),
-                call('/tmp/foo/templates/admin/auth/user/change_list.html', 'w+'),
+                call('/tmp/foo/templates/admin/auth/user/change_list.html', 'w'),
                 call('/tmp/foo/server.json', 'w'),
                 call('/dev/null', 'w')
             ])
