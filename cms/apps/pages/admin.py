@@ -27,6 +27,7 @@ from cms import debug, externals
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter
 
+from functools import cmp_to_key
 import json
 
 # Used to track references to and from the JS sitemap.
@@ -336,10 +337,15 @@ class PageAdmin(PageBaseAdmin):
 
     def add_view(self, request, *args, **kwargs):
         """Ensures that a valid content type is chosen."""
-        if not PAGE_TYPE_PARAMETER in request.GET:
+        if PAGE_TYPE_PARAMETER not in request.GET:
             # Generate the available content items.
             content_items = get_registered_content()
-            content_items.sort(lambda a, b: cmp(a.classifier, b.classifier) or cmp(a._meta.verbose_name.lower(), b._meta.verbose_name.lower()))
+
+            def cmp_function(a, b):
+                return (a.classifier > b.classifier) - (a.classifier < b.classifier) or \
+                       (a._meta.verbose_name.lower() > b._meta.verbose_name.lower()) - (a._meta.verbose_name.lower() < b._meta.verbose_name.lower())
+
+            content_items.sort(key=cmp_to_key(cmp_function))
             content_types = []
             for content_type in content_items:
                 if self.has_add_content_permission(request, content_type):
