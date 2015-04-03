@@ -201,18 +201,14 @@ class TestStartCMSProject(TestCase):
         self.stdout = StringIO()
         sys.stdout = self.stdout
 
-        os_paths = [
-            '/tmp/apps/temp/',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-        ]
+        def os_paths(*args):
+            return '/'.join(args)
 
         m = mock.mock_open()
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
+                mock.patch('cms.bin.start_cms_project.subprocess.call', side_effect=Exception), \
                 mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
             configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foobar')
             self.assertEqual(self.stdout.getvalue().strip(), 'Error:')
