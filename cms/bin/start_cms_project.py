@@ -228,7 +228,6 @@ def main():
     # If we don't have usertools, then we need to do a couple of things.
     try:
         from usertools.admin import UserAdmin
-        assert UserAdmin
     except ImportError:
         # We don't have usertools, so remove the line from INSTALLED_APPS, and
         # add a template override for the admin.
@@ -289,5 +288,5 @@ def main():
     # Give some help to the user.
     Output().info('CMS project created')
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
