@@ -4,8 +4,12 @@ from django.utils import six
 from ..bin.start_cms_project import (Output, git, make_executable, query_yes_no,
                                      configure_apps, main)
 
-import mock
-from mock import call
+try:
+    from unittest import mock
+    from unittest.mock import call
+except ImportError:
+    import mock
+    from mock import call
 import os
 
 try:
@@ -23,6 +27,8 @@ class TestStartCMSProject(TestCase):
         self.orig_stdout = sys.stdout
         self.stdout = StringIO()
         sys.stdout = self.stdout
+
+        self.mock_open_data = '{{ project_name }}\n\"usertools\",\n"foo.apps.people",'
 
     def tearDown(self):
         sys.stdout = self.orig_stdout
@@ -101,7 +107,7 @@ class TestStartCMSProject(TestCase):
             ('/tmp/apps/temp/people/templates/people/includes', [], ['people_list.html'])
         ]
 
-        m = mock.mock_open()
+        m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.walk', return_value=os_walk) as mock_os_walk, \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
@@ -203,7 +209,7 @@ class TestStartCMSProject(TestCase):
         def os_paths(*args):
             return '/'.join(args)
 
-        m = mock.mock_open()
+        m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
@@ -223,7 +229,7 @@ class TestStartCMSProject(TestCase):
             '--{}-people'.format(with_or_without),
         ]
 
-        m = mock.mock_open()
+        m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('os.makedirs') as mock_os_makedirs, \
                 mock.patch('cms.bin.start_cms_project.management') as mock_django_core_management, \
                 mock.patch('cms.bin.start_cms_project.query_yes_no', side_effect=[True, True]) as mock_query_yes_no, \
