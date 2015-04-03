@@ -352,9 +352,12 @@ class TestPageAdmin(TestCase):
             def __getattr__(self, name):
                 return getattr(self.page, name)
 
+            @property
+            def content(self):
+                raise content_cls.DoesNotExist
+
             def __init__(self, page, *args, **kwargs):
                 self.page = page
-                self.content = mock.Mock(side_effect=content_cls.DoesNotExist)
 
         obj = Obj(self.content_page)
         self.page_admin.get_form(request, obj=obj)
