@@ -4,6 +4,7 @@ import traceback
 from functools import wraps
 
 from django.conf import settings
+from django.utils import six
 
 
 def print_exc(func):
@@ -12,7 +13,7 @@ def print_exc(func):
 
     This is useful for catching those pesky errors that Django would otherwise squeltch.
     """
-    if settings.DEBUG:
+    if settings.DEBUG and six.PY2:
         @wraps(func)
         def wrapper(*args, **kwargs):
             try:
@@ -27,5 +28,5 @@ def print_exc(func):
 
 def print_current_exc():
     """Prints the current exception, if in debug model"""
-    if settings.DEBUG:
+    if settings.DEBUG and six.PY2:
         traceback.print_exc()
