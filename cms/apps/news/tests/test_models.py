@@ -109,3 +109,8 @@ class TestNews(TestCase):
             with self.settings(NEWS_APPROVAL_SYSTEM=True):
                 self.assertEqual(Article.objects.count(), 1)
                 self.assertEqual(len(Article.objects.all()), 1)
+
+        # We need to generate an exception within the published block.
+        with self.assertRaises(TypeError), \
+                publication_manager.select_published(True):
+            assert 1 / 'a'
