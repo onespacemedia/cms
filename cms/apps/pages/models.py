@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.db import models, connection, transaction
 from django.db.models import Q, F
-from django.utils.encoding import force_text
+from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils import timezone
 
@@ -379,6 +379,7 @@ def filter_indexable_pages(queryset):
     )
 
 
+@python_2_unicode_compatible
 class ContentBase(models.Model):
 
     """Base class for page content."""
@@ -405,7 +406,7 @@ class ContentBase(models.Model):
         related_name="+",
     )
 
-    def __unicode__(self):
+    def __str__(self):
         """Returns a unicode representation."""
         return str(self.page)
 

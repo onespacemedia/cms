@@ -131,10 +131,10 @@ class TestPage(TestCase):
         self.assertEqual(len(sitemap.items()), 3)
 
     def test_contentbase_unicode(self):
-        self.assertEqual(self.homepage.content.__unicode__(), 'Homepage')
-        self.assertEqual(self.section.content.__unicode__(), 'Section')
-        self.assertEqual(self.subsection.content.__unicode__(), 'Subsection')
-        self.assertEqual(self.subsubsection.content.__unicode__(), 'Subsubsection')
+        self.assertEqual(self.homepage.content.__str__(), 'Homepage')
+        self.assertEqual(self.section.content.__str__(), 'Section')
+        self.assertEqual(self.subsection.content.__str__(), 'Subsection')
+        self.assertEqual(self.subsubsection.content.__str__(), 'Subsubsection')
 
     def test_pagesearchadapter_get_live_queryset(self):
         search_adapter = PageSearchAdapter(Page)

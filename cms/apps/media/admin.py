@@ -262,7 +262,7 @@ class FileAdminBase(admin.ModelAdmin):
         obj.file.save(url.split('/')[-1], DjangoFile(img_temp))
 
         messages.success(request, u'The file "{}" was changed successfully. You may edit it again below.'.format(
-            obj.__unicode__()
+            obj.__str__()
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')
 

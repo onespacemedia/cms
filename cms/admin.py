@@ -27,7 +27,7 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
     actions = ("publish_selected", "unpublish_selected",)
 
-    list_display = ("__unicode__", "is_online",)
+    list_display = ("__str__", "is_online",)
 
     list_filter = ("is_online",)
 
@@ -55,7 +55,7 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
 
     adapter_cls = SearchMetaBaseSearchAdapter
 
-    list_display = ("__unicode__", "is_online",)
+    list_display = ("__str__", "is_online",)
 
     SEO_FIELDS = ("Search engine optimization", {
         "fields": ("browser_title", "meta_keywords", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),

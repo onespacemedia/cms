@@ -64,7 +64,7 @@ class TestTemplatetags(TestCase):
         self.homepage = Page.objects.get(pk=self.homepage.pk)
         navigation = get_navigation({'request': self.request}, self.homepage.navigation)
 
-        self.assertListEqual(navigation, [
+        self.assertListEqual(list(navigation), [
             {
                 'url': u'/section/',
                 'page': self.section,

@@ -1,8 +1,11 @@
+from __future__ import unicode_literals
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
 from django.utils import six
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
 from ..apps.media.models import File
@@ -15,11 +18,12 @@ import random
 import re
 
 
+@python_2_unicode_compatible
 class TestImageModel(models.Model):
 
     image = models.FileField()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Foo'
 
     def get_absolute_url(self):

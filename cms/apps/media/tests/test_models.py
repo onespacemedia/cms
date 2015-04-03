@@ -40,7 +40,7 @@ class TestLabel(TestCase):
 
         self.assertEqual(repr(obj), "<Label: Foo>")
         self.assertEqual(str(obj), "Foo")
-        self.assertEqual(obj.__unicode__(), "Foo")
+        self.assertEqual(obj.__str__(), "Foo")
 
 
 class TestFile(TestCase):
@@ -96,7 +96,7 @@ class TestFile(TestCase):
         ))
 
     def test_file_unicode(self):
-        self.assertEqual(self.obj_1.__unicode__(), 'Foo')
+        self.assertEqual(self.obj_1.__str__(), 'Foo')
         self.assertEqual(self.obj_1.file.name, 'uploads/files/' + self.name_1)
 
     def test_file_is_image(self):
@@ -180,4 +180,4 @@ class TestVideo(TestCase):
             high_resolution_mp4=self.obj_1
         )
 
-        self.assertEqual(video.__unicode__(), 'Foo')
+        self.assertEqual(video.__str__(), 'Foo')
