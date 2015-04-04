@@ -18,6 +18,5 @@ script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py te
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false
-  webhooks:
-   urls:
-    - https://coveralls.io/webhook?repo_token=PeCQ8UsN63HkAZTShBTNZrwdWznYJ0sjz
+after_success:
+  - coveralls
