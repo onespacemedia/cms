@@ -153,13 +153,10 @@ def configure_apps(path, apps, project):
                             # Replace the {{ project_name }} placeholder.
                             with open(os.path.join(path, 'apps', app, 'models.py'), 'r') as f:
                                 lines = f.readlines()
-                                print(lines)
 
                             with open(os.path.join(path, 'apps', app, 'models.py'), 'w') as f:
                                 for line in lines:
-                                    print(line, project)
                                     line = line.replace('{{ project_name }}', project)
-                                    print(line)
                                     f.write(line)
 
                         elif d == 'templates':

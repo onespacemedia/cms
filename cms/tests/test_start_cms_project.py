@@ -115,7 +115,7 @@ class TestStartCMSProject(TestCase):
                 mock.patch('cms.bin.start_cms_project.shutil.move') as mock_shutil_move, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
                 mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
-            configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foo')
+            configure_apps('/tmp', {'people': True}, 'foo')
 
         self.assertListEqual(mock_os_walk.call_args_list, [
             call('/tmp/apps/temp/people'),
@@ -123,11 +123,6 @@ class TestStartCMSProject(TestCase):
 
         self.assertIn(
             call('/tmp', 'apps', 'temp'),
-            mock_os_path_join.call_args_list
-        )
-
-        self.assertIn(
-            call('/tmp', 'settings', 'base.py'),
             mock_os_path_join.call_args_list
         )
 
@@ -181,11 +176,6 @@ class TestStartCMSProject(TestCase):
         ])
 
         self.assertIn(
-            call('/tmp/settings/base.py'),
-            mock_open.call_args_list
-        )
-
-        self.assertIn(
             call('/tmp/apps/people/models.py', 'w'),
             mock_open.call_args_list
         )
@@ -195,13 +185,9 @@ class TestStartCMSProject(TestCase):
             mock_open.call_args_list
         )
 
-        self.assertIn(
-            call('/tmp/settings/base.py', 'w'),
-            mock_open.call_args_list
-        )
-
         self.assertEqual(self.stdout.getvalue().strip(), '[\x1b[92mINFO\x1b[0m] Installed people app')
 
+    def test_configure_apps_2(self):
         # Try to break things.
         self.stdout = StringIO()
         sys.stdout = self.stdout
@@ -211,10 +197,10 @@ class TestStartCMSProject(TestCase):
 
         m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('cms.bin.start_cms_project.os'), \
-                mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
-                mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
+                mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths), \
+                mock.patch('cms.bin.start_cms_project.shutil.rmtree'), \
                 mock.patch('cms.bin.start_cms_project.subprocess.call', side_effect=Exception), \
-                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m):
             configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foobar')
             self.assertEqual(self.stdout.getvalue().strip(), 'Error:')
 
