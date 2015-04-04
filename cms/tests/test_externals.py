@@ -1,13 +1,10 @@
 from django.test import TestCase
+from django.utils import six
 
 from ..externals import External
 
-try:
-    from contextlib import GeneratorContextManager
-except ImportError:
-    from contextlib import _GeneratorContextManager as GeneratorContextManager
-
 from types import FunctionType
+import unittest
 
 
 class TestExternals(TestCase):
@@ -29,7 +26,10 @@ class TestExternals(TestCase):
         self.assertIsNone(external.load_method('')())
         self.assertTrue(external.load_method('', fallback=True))
 
+    @unittest.skipIf(six.PY3, "Covered by Python 2.")
     def test_context_manager(self):
+        from contextlib import GeneratorContextManager
+
         external = External('foo')
         self.assertIs(type(external.context_manager('')), FunctionType)
         self.assertIsInstance(external.context_manager('')(), GeneratorContextManager)
