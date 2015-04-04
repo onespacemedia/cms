@@ -33,7 +33,7 @@ def truncate_paragraphs(text, number):
     position = 0
     count = 0
     while count < number and position < len(text):
-        position = text.find(u"</p>", position)
+        position = text.find("</p>", position)
         if position == -1:
             position = len(text)
         else:

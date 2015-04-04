@@ -1,7 +1,9 @@
 """Abstract base models used by the page management application."""
+from __future__ import unicode_literals
 
 from django.db import models
 from django.shortcuts import render
+from django.utils.encoding import python_2_unicode_compatible
 
 from cms import externals
 from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
@@ -151,7 +153,7 @@ class SearchMetaBase(OnlineBase):
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""
-        title = unicode(self)
+        title = str(self)
         # Return the context.
         return {
             "meta_description": self.meta_description,
@@ -188,6 +190,7 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
         )
 
 
+@python_2_unicode_compatible
 class PageBase(SearchMetaBase):
 
     """
@@ -231,7 +234,7 @@ class PageBase(SearchMetaBase):
 
     # Base model methods.
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Returns the short title of this page, falling back to the standard
         title.

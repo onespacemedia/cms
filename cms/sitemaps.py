@@ -72,12 +72,12 @@ class SitemapRegistrationError(Exception):
 def register(model, sitemap_cls=None):
     """Registers a model with the sitemap registry."""
     # Generate the registration key.
-    registration_key = u"{app_label}-{model_name}".format(
+    registration_key = "{app_label}-{model_name}".format(
         app_label=model._meta.app_label,
         model_name=model.__name__.lower(),
     )
     if registration_key in registered_sitemaps:
-        raise SitemapRegistrationError(u"A sitemap has already been registered under {registration_key}".format(
+        raise SitemapRegistrationError("A sitemap has already been registered under {registration_key}".format(
             registration_key=registration_key,
         ))
     # Generate the sitemap class.

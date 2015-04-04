@@ -149,12 +149,12 @@ class FileAdminBase(admin.ModelAdmin):
         for label in Label.objects.all():
             # Add action.
             action_function = partial(self.__class__.add_label_action, label=label)
-            action_description = u'Remove label %s from selected %s"' % (label.name, verbose_name_plural)
+            action_description = 'Remove label %s from selected %s"' % (label.name, verbose_name_plural)
             action_name = action_description.lower().replace(" ", "_")
             actions[action_name] = (action_function, action_name, action_description)
             # Remove action.
             action_function = partial(self.__class__.remove_label_action, label=label)
-            action_description = u'Remove label %s from selected %s"' % (label.name, verbose_name_plural)
+            action_description = 'Remove label %s from selected %s"' % (label.name, verbose_name_plural)
             action_name = action_description.lower().replace(" ", "_")
             actions[action_name] = (action_function, action_name, action_description)
         return actions
@@ -261,8 +261,8 @@ class FileAdminBase(admin.ModelAdmin):
         obj = get_object_or_404(File, pk=object_id)
         obj.file.save(url.split('/')[-1], DjangoFile(img_temp))
 
-        messages.success(request, u'The file "{}" was changed successfully. You may edit it again below.'.format(
-            obj.__unicode__()
+        messages.success(request, 'The file "{}" was changed successfully. You may edit it again below.'.format(
+            obj.__str__()
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')
 

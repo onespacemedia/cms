@@ -1,13 +1,17 @@
 """Models used by the static media management application."""
+from __future__ import unicode_literals
+
 from PIL import Image
 
 from django.db import models
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.utils.encoding import python_2_unicode_compatible
 
 import os
 
 
+@python_2_unicode_compatible
 class Label(models.Model):
 
     """
@@ -18,7 +22,7 @@ class Label(models.Model):
 
     name = models.CharField(max_length=200)
 
-    def __unicode__(self):
+    def __str__(self):
         """Returns the name of the label."""
         return self.name
 
@@ -26,6 +30,7 @@ class Label(models.Model):
         ordering = ("name",)
 
 
+@python_2_unicode_compatible
 class File(models.Model):
 
     """A static file."""
@@ -48,7 +53,7 @@ class File(models.Model):
         """Generates the absolute URL of the image."""
         return self.file.url
 
-    def __unicode__(self):
+    def __str__(self):
         """Returns the title of the media."""
         return self.title
 
@@ -131,6 +136,7 @@ class VideoFileRefField(FileRefField):
         super(VideoFileRefField, self).__init__(**kwargs)
 
 
+@python_2_unicode_compatible
 class Video(models.Model):
 
     title = models.CharField(
@@ -160,7 +166,7 @@ class Video(models.Model):
         null=True,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         """Returns the title of the media."""
         return self.title
 

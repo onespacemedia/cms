@@ -1,7 +1,11 @@
+from __future__ import unicode_literals
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
+from django.utils import six
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
 from ..apps.media.models import File
@@ -12,14 +16,14 @@ import base64
 import mock
 import random
 import re
-import sys
 
 
+@python_2_unicode_compatible
 class TestImageModel(models.Model):
 
     image = models.FileField()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Foo'
 
     def get_absolute_url(self):
@@ -31,10 +35,10 @@ class TestHTML(TestCase):
     def setUp(self):
         self.name = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
-        base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
         self.image = File.objects.create(
             title="Foo",
             file=SimpleUploadedFile(self.name, base64.b64decode(base64_string), content_type="image/gif")
@@ -43,12 +47,12 @@ class TestHTML(TestCase):
         # An invalid JPEG
         self.invalid_jpeg_name = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.invalid_jpeg = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.invalid_jpeg_name, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.invalid_jpeg_name, b"data", content_type="image/jpeg")
         )
 
         with externals.watson.context_manager("update_index")():

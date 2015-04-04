@@ -1,20 +1,20 @@
 language: python
+cache:
+  directories:
+    - $HOME/.cache/pip
 python:
 - "2.7"
+- "3.2"
 - "3.3"
 - "3.4"
-matrix:
- allow_failures:
-  - python: "3.3"
-  - python: "3.4"
 env:
  - DJANGO=1.7.7
  - DJANGO=1.8
 install:
     - pip install -q Django==$DJANGO
     - pip install -e .[testing]
-    - start_cms_project.py testing testing/ --with-people --with-faqs --with-jobs --skip-frontend
-script: coverage run --source=cms --omit='*migrations*' testing/manage.py test
+    - start_cms_project.py testing testing_dir/ --without-people --without-faqs --without-jobs --skip-frontend
+script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false

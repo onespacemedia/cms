@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.contenttypes.models import ContentType
@@ -5,14 +7,15 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
 from django.test import TestCase, LiveServerTestCase, RequestFactory
+from django.utils import six
 from django.utils.timezone import now
 
 from ..admin import FileAdminBase, VideoAdmin
 from ..models import File, Label, Video
 
 import base64
+import json
 import random
-import sys
 
 
 class BrokenFile(object):
@@ -70,21 +73,21 @@ class TestFileAdminBase(TestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
         # A valid GIF.
         self.name_2 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
-        base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
         self.obj_2 = File.objects.create(
             title="Foo",
             file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
@@ -130,14 +133,14 @@ class TestFileAdminBase(TestCase):
 
     def test_fileadminbase_get_size(self):
         # Why this has to use a unicode space, I don't know..
-        self.assertEqual(self.file_admin.get_size(self.obj_1), u'4\xa0bytes')
+        self.assertEqual(self.file_admin.get_size(self.obj_1), six.text_type('4\xa0bytes'))
 
         obj = File.objects.create(
             title="Foo",
             file='media/not/a/real.file'
         )
 
-        self.assertEqual(self.file_admin.get_size(obj), u'0 bytes')
+        self.assertEqual(self.file_admin.get_size(obj), '0 bytes')
 
     def test_fileadminbase_get_preview(self):
         self.assertEqual(
@@ -230,12 +233,12 @@ class TestFileAdminBase(TestCase):
         data = self.file_admin.redactor_data(self.request)
 
         self.assertEqual(
-            data.content,
-            '{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
+            json.loads(data.content.decode()),
+            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
                 pk1=self.obj_1.pk,
                 pk2=self.obj_2.pk,
                 content_type=ContentType.objects.get_for_model(File).pk,
-            )
+            ))
         )
 
         self.request.user.has_perm = lambda x: False
@@ -263,10 +266,10 @@ class TestFileAdminBase(TestCase):
 
         self.request.method = 'POST'
         response = self.file_admin.redactor_upload(self.request, '')
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
         self.request = self.factory.post('/', data={
             'file': self.obj_1.file
@@ -274,24 +277,26 @@ class TestFileAdminBase(TestCase):
         self.request.user = MockSuperUser()
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '{{"filelink": "/r/{}-{}/"}}'.format(
+
+        self.assertEqual(json.loads(response.content.decode()), json.loads('{{"filelink": "/r/{}-{}/"}}'.format(
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
-        ))
+        )))
 
         self.request = self.factory.post('/', data={
-            'file': SimpleUploadedFile('xoxo.pdf', "data")
+            'file': SimpleUploadedFile('xoxo.pdf', b"data")
         })
         self.request.user = MockSuperUser()
 
         response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, '')
+        self.assertEqual(response.content, b'')
 
         response = self.file_admin.redactor_upload(self.request, 'pdf')
-        self.assertEqual(response.content, '{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
+
+        self.assertEqual(json.loads(response.content.decode()), json.loads('{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
-        ))
+        )))
 
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):
@@ -306,12 +311,12 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
     def tearDown(self):
@@ -350,7 +355,7 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
         }
         view = self.file_admin.remote_view(self.request, self.obj_1.pk)
 
-        self.assertEqual(view.content, '{"status": "ok"}')
+        self.assertEqual(view.content, b'{"status": "ok"}')
         self.assertEqual(view.status_code, 200)
 
     # def test_fileadminbase_

@@ -1,13 +1,22 @@
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.utils import six
 
 from ..bin.start_cms_project import (Output, git, make_executable, query_yes_no,
                                      configure_apps, main)
 
-import mock
-from mock import call
+try:
+    from unittest import mock
+    from unittest.mock import call
+except ImportError:
+    import mock
+    from mock import call
 import os
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import sys
 
 
@@ -18,6 +27,8 @@ class TestStartCMSProject(TestCase):
         self.orig_stdout = sys.stdout
         self.stdout = StringIO()
         sys.stdout = self.stdout
+
+        self.mock_open_data = '{{ project_name }}\r\n\"usertools\",\r\n"foo.apps.people",\r\n{{ project_name }}\r\n'
 
     def tearDown(self):
         sys.stdout = self.orig_stdout
@@ -43,7 +54,7 @@ class TestStartCMSProject(TestCase):
         mock_os.chmod.assert_called()
 
     @mock.patch('cms.bin.start_cms_project.sys')
-    @mock.patch('__builtin__.raw_input', return_value='y')
+    @mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), return_value='y')
     def test_query_yes_no(self, mock_raw_input, mock_sys):
         query_yes_no('Foo')
         mock_raw_input.assert_called_with()
@@ -65,7 +76,7 @@ class TestStartCMSProject(TestCase):
             query_yes_no('Foo', 'foo')
 
         with mock.patch('cms.bin.start_cms_project.sys') as mock_sys:
-            with mock.patch('__builtin__.raw_input', side_effect=['foo', 'y']) as mock_raw_input:
+            with mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), side_effect=['foo', 'y']) as mock_raw_input:
                 query_yes_no('Foo')
                 mock_raw_input.assert_called_with()
 
@@ -75,24 +86,14 @@ class TestStartCMSProject(TestCase):
                     call('Foo [Y/n] ')
                 ])
 
-        with mock.patch('__builtin__.raw_input', return_value='') as mock_raw_input:
+        with mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), return_value='') as mock_raw_input:
             query_yes_no('Foo', 'no')
             mock_raw_input.assert_called_with()
             mock_sys.stdout.write.assert_called_with('Foo [Y/n] ')
 
     def test_configure_apps(self):
-        os_paths = [
-            '/tmp/apps/temp/',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-            '/tmp/apps/temp/people/',
-            '/tmp/apps/temp/people/apps/people/',
-            '/tmp/apps/',
-            '/tmp/apps/people/models.py',
-            '/tmp/apps/people/models.py',
-            '/tmp/apps/temp/people/apps/people/',
-            '/tmp/templates/',
-        ]
+        def os_paths(*args, **kwargs):
+            return '/'.join(args)
 
         os_walk = [
             ('/tmp/apps/temp/people', ['apps', 'templates'], ['.gitignore']),
@@ -106,90 +107,100 @@ class TestStartCMSProject(TestCase):
             ('/tmp/apps/temp/people/templates/people/includes', [], ['people_list.html'])
         ]
 
-        files = [
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('models.py', '{{ project_name }}'),
-            SimpleUploadedFile('models.py', '')
-        ]
-
+        m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('cms.bin.start_cms_project.os'), \
                 mock.patch('cms.bin.start_cms_project.os.walk', return_value=os_walk) as mock_os_walk, \
                 mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
                 mock.patch('cms.bin.start_cms_project.subprocess.check_call') as mock_check_call, \
                 mock.patch('cms.bin.start_cms_project.shutil.move') as mock_shutil_move, \
                 mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
-                mock.patch('__builtin__.open', side_effect=files) as mock_open:
-            configure_apps('/tmp', {'people': True, 'jobs': False}, 'foo')
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
+            configure_apps('/tmp', {'people': True}, 'foo')
 
         self.assertListEqual(mock_os_walk.call_args_list, [
-            call('/tmp/apps/temp/people/'),
+            call('/tmp/apps/temp/people'),
         ])
 
-        self.assertListEqual(mock_os_path_join.call_args_list, [
+        self.assertIn(
             call('/tmp', 'apps', 'temp'),
-            call('/tmp', 'settings', 'base.py'),
-            call('/tmp', 'settings', 'base.py'),
-            call('/tmp/apps/temp/', 'people'),
-            call('/tmp/apps/temp/people/', 'apps', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/temp', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/temp/people', 'apps', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp', 'apps'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp', 'apps', 'people', 'models.py'),
-            call('/tmp', 'apps', 'people', 'models.py'),
-            call('/tmp/apps/temp/people/', 'templates', 'people'),
-            call('/tmp', 'templates')
-        ])
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp/apps/temp/people', 'templates', 'people'),
+            mock_os_path_join.call_args_list
+        )
+
+        self.assertIn(
+            call('/tmp', 'apps', 'temp'),
+            mock_os_path_join.call_args_list
+        )
 
         self.assertListEqual(mock_check_call.call_args_list, [
             call([
                 'git',
                 'clone',
                 'git://github.com/onespacemedia/cms-people.git',
-                '/tmp/apps/temp/people/',
+                '/tmp/apps/temp/people',
                 '-q'
             ])
         ])
 
         self.assertListEqual(mock_shutil_move.call_args_list, [
-            call('/tmp/apps/temp/people/apps/people/', '/tmp/apps/'),
-            call('/tmp/apps/temp/people/apps/people/', '/tmp/templates/')
+            call('/tmp/apps/temp/people/apps/people', '/tmp/apps'),
+            call('/tmp/apps/temp/people/templates/people', '/tmp/templates')
         ])
 
         self.assertListEqual(mock_shutil_rmtree.call_args_list, [
-            call('/tmp/apps/temp/')
+            call('/tmp/apps/temp')
         ])
 
-        self.assertListEqual(mock_open.call_args_list, [
-            call('/tmp/settings/base.py'),
-            call('/tmp/settings/base.py', 'w'),
+        self.assertIn(
+            call('/tmp/apps/people/models.py', 'w'),
+            mock_open.call_args_list
+        )
+
+        self.assertIn(
             call('/tmp/apps/people/models.py', 'r'),
-            call('/tmp/apps/people/models.py', 'w')
-        ])
+            mock_open.call_args_list
+        )
 
         self.assertEqual(self.stdout.getvalue().strip(), '[\x1b[92mINFO\x1b[0m] Installed people app')
 
+    def test_configure_apps_2(self):
         # Try to break things.
         self.stdout = StringIO()
         sys.stdout = self.stdout
 
-        os_paths = [
-            '/tmp/apps/temp/',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-            '/tmp/settings/base.py',
-        ]
+        def os_paths(*args):
+            return '/'.join(args)
 
-        files = [
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-            SimpleUploadedFile('base.py', '{{ project_name }}'),
-        ]
-
+        m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('cms.bin.start_cms_project.os'), \
-                mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths) as mock_os_path_join, \
-                mock.patch('cms.bin.start_cms_project.shutil.rmtree') as mock_shutil_rmtree, \
-                mock.patch('__builtin__.open', side_effect=files) as mock_open:
+                mock.patch('cms.bin.start_cms_project.os.path.join', side_effect=os_paths), \
+                mock.patch('cms.bin.start_cms_project.shutil.rmtree'), \
+                mock.patch('cms.bin.start_cms_project.subprocess.call', side_effect=Exception), \
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m):
             configure_apps('/tmp', {'people': True, 'jobs': False, 'faqs': False}, 'foobar')
             self.assertEqual(self.stdout.getvalue().strip(), 'Error:')
 
@@ -201,24 +212,17 @@ class TestStartCMSProject(TestCase):
             '',
             'foo',
             '/tmp',
-            '--{}-people'.format(with_or_without)
+            '--{}-people'.format(with_or_without),
         ]
 
-        files = [
-            SimpleUploadedFile('base.py', '"usertools",\n""'),
-            SimpleUploadedFile('base.py', ''),
-            SimpleUploadedFile('change_list.html', ''),
-            SimpleUploadedFile('server.json', ''),
-            open(os.devnull, 'w'),
-        ]
-
+        m = mock.mock_open(read_data=self.mock_open_data)
         with mock.patch('os.makedirs') as mock_os_makedirs, \
                 mock.patch('cms.bin.start_cms_project.management') as mock_django_core_management, \
-                mock.patch('cms.bin.start_cms_project.query_yes_no', return_value=True) as mock_query_yes_no, \
+                mock.patch('cms.bin.start_cms_project.query_yes_no', side_effect=[True, True]) as mock_query_yes_no, \
                 mock.patch('cms.bin.start_cms_project.make_executable') as mock_make_executable, \
                 mock.patch('cms.bin.start_cms_project.configure_apps') as mock_configure_apps, \
                 mock.patch('cms.bin.start_cms_project.subprocess.call') as mock_call, \
-                mock.patch('__builtin__.open', side_effect=files) as mock_open:
+                mock.patch('{}.open'.format('__builtin__' if six.PY2 else 'builtins'), m) as mock_open:
             main()
 
             self.assertListEqual(mock_os_makedirs.call_args_list, [
@@ -230,11 +234,17 @@ class TestStartCMSProject(TestCase):
 
             ])
 
-            self.assertListEqual(mock_query_yes_no.call_args_list, [
-                # call('Would you like the people module?'),
+            self.assertIn(
+                call('Would you like the FAQs module?'),
+                mock_query_yes_no.call_args_list,
+            )
+
+            self.assertIn(
                 call('Would you like the jobs module?'),
-                call('Would you like the FAQs module?')
-            ])
+                mock_query_yes_no.call_args_list,
+            )
+
+            self.assertEqual(len(mock_query_yes_no.call_args_list), 2)
 
             if with_or_without == 'with':
                 self.assertListEqual(mock_configure_apps.call_args_list, [
@@ -252,8 +262,8 @@ class TestStartCMSProject(TestCase):
             self.assertListEqual(mock_open.call_args_list, [
                 call('/tmp/foo/settings/base.py'),
                 call('/tmp/foo/settings/base.py', 'w'),
-                call('/tmp/foo/templates/admin/auth/user/change_list.html', 'w+'),
-                call('/tmp/foo/server.json', 'w+'),
+                call('/tmp/foo/templates/admin/auth/user/change_list.html', 'w'),
+                call('/tmp/foo/server.json', 'w'),
                 call('/dev/null', 'w')
             ])
 
@@ -300,6 +310,7 @@ class TestStartCMSProject(TestCase):
         ]
 
         with mock.patch('os.makedirs', side_effect=OSError) as mock_os_makedirs, \
+                mock.patch('cms.bin.start_cms_project.query_yes_no', side_effect=[True, True]), \
                 mock.patch('cms.bin.start_cms_project.management.call_command') as mock_call_command, \
                 self.assertRaises(SystemExit):
             main()

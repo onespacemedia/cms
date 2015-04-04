@@ -1,11 +1,12 @@
 """HTML processing routines."""
-
+from __future__ import unicode_literals
 
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.html import escape
+from django.utils import six
 
 from sorl.thumbnail import get_thumbnail
 
@@ -43,7 +44,7 @@ def process(text):
                     # Add in the URL of the obj.
                     attrs[attr_name] = '"%s"' % escape(obj.get_absolute_url())
                     # Add in the title of the obj.
-                    attrs.setdefault("title", u'"%s"' % escape(getattr(obj, "title", unicode(obj))))
+                    attrs.setdefault("title", '"%s"' % escape(getattr(obj, "title", str(obj))))
                 return obj
             return None
         if tagname == "a":
@@ -77,6 +78,6 @@ def process(text):
         else:
             assert False
         # Regenerate the html tag.
-        attrs = u" ".join(u"%s=%s" % (key, value) for key, value in sorted(attrs.iteritems()))
-        return u"<%s %s%s>" % (tagname, attrs, match.group(3))
+        attrs = " ".join("%s=%s" % (key, value) for key, value in sorted(six.iteritems(attrs)))
+        return "<%s %s%s>" % (tagname, attrs, match.group(3))
     return RE_TAG.sub(sub_tag, text)

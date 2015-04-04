@@ -6,7 +6,7 @@ user-friendly appearance and providing additional functionality over the
 standard implementation.
 """
 
-from __future__ import with_statement
+from __future__ import unicode_literals, with_statement
 
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
@@ -20,12 +20,14 @@ from django.db import transaction, models
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import six
 from django import forms
 
 from cms import debug, externals
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter
 
+from functools import cmp_to_key
 import json
 
 # Used to track references to and from the JS sitemap.
@@ -197,7 +199,10 @@ class PageAdmin(PageBaseAdmin):
                 )
             # Store the field.
             form_attrs[field.name] = form_field
-        ContentForm = type("%sForm" % self.__class__.__name__, (forms.ModelForm,), form_attrs)
+        if six.PY2:
+            ContentForm = type(six.binary_type("{}Form").format(self.__class__.__name__), (forms.ModelForm,), form_attrs)
+        else:
+            ContentForm = type(six.text_type("{}Form".format(self.__class__.__name__)), (forms.ModelForm,), form_attrs)
         defaults = {"form": ContentForm}
         defaults.update(kwargs)
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)
@@ -213,7 +218,7 @@ class PageAdmin(PageBaseAdmin):
             parent_choices = []
             for page in [homepage] + self.get_all_children(homepage):
                 if page.id not in invalid_parents:
-                    parent_choices.append((page.id, u" \u203a ".join(unicode(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
+                    parent_choices.append((page.id, " \u203a ".join(str(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
         else:
             parent_choices = []
         if not parent_choices:
@@ -332,10 +337,15 @@ class PageAdmin(PageBaseAdmin):
 
     def add_view(self, request, *args, **kwargs):
         """Ensures that a valid content type is chosen."""
-        if not PAGE_TYPE_PARAMETER in request.GET:
+        if PAGE_TYPE_PARAMETER not in request.GET:
             # Generate the available content items.
             content_items = get_registered_content()
-            content_items.sort(lambda a, b: cmp(a.classifier, b.classifier) or cmp(a._meta.verbose_name.lower(), b._meta.verbose_name.lower()))
+
+            def cmp_function(a, b):
+                return (a.classifier > b.classifier) - (a.classifier < b.classifier) or \
+                       (a._meta.verbose_name.lower() > b._meta.verbose_name.lower()) - (a._meta.verbose_name.lower() < b._meta.verbose_name.lower())
+
+            content_items.sort(key=cmp_to_key(cmp_function))
             content_types = []
             for content_type in content_items:
                 if self.has_add_content_permission(request, content_type):
@@ -413,7 +423,7 @@ class PageAdmin(PageBaseAdmin):
                 return {
                     "isOnline": page.is_online,
                     "id": page.id,
-                    "title": unicode(page),
+                    "title": str(page),
                     "children": children,
                     "canChange": self.has_change_permission(request, page),
                     "canDelete": self.has_delete_permission(request, page),

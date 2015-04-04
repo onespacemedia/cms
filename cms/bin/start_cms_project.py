@@ -228,7 +228,6 @@ def main():
     # If we don't have usertools, then we need to do a couple of things.
     try:
         from usertools.admin import UserAdmin
-        assert UserAdmin
     except ImportError:
         # We don't have usertools, so remove the line from INSTALLED_APPS, and
         # add a template override for the admin.
@@ -247,7 +246,7 @@ def main():
 
         template_path = os.path.join(path, 'templates', 'admin', 'auth', 'user')
         os.makedirs(template_path)
-        with open(os.path.join(template_path, 'change_list.html'), 'w+') as f:
+        with open(os.path.join(template_path, 'change_list.html'), 'w') as f:
             f.write('{% extends "admin/change_list.html" %}')
             f.write('\n')
 
@@ -270,7 +269,7 @@ def main():
         }
     }
 
-    with open(os.path.join(path, 'server.json'), 'w+') as f:
+    with open(os.path.join(path, 'server.json'), 'w') as f:
         f.write(json.dumps(server_json, indent=4))
 
     # Run `npm` commands.
@@ -289,5 +288,5 @@ def main():
     # Give some help to the user.
     Output().info('CMS project created')
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

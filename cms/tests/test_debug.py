@@ -1,14 +1,22 @@
 from django.test import TestCase
+from django.utils import six
 
 from ..debug import print_exc, print_current_exc
 
 import os
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import sys
+import unittest
 
 
 class TestDebug(TestCase):
 
+    @unittest.skipIf(six.PY3, "Not applicable to Python 3.")
     def test_print_exc(self):
         def func():
             return True
@@ -29,6 +37,7 @@ class TestDebug(TestCase):
 
         sys.stderr = self.orig_stderr
 
+    @unittest.skipIf(six.PY3, "Not applicable to Python 3.")
     def test_print_current_exc(self):
         # Redirect STDOUT so we can capture the `print`.
         orig_stderr = sys.stderr

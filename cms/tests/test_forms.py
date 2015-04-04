@@ -53,15 +53,25 @@ class TestForms(TestCase):
         )
 
         rendered = widget.render('foo', 'bar', attrs={'id': 'foo'})
-        self.assertEqual(
+
+        self.assertIn(
+            '<textarea class="redactor" cols="40" id="foo" name="foo" rows="10">',
             rendered,
-            '<textarea class="redactor" cols="40" id="foo" name="foo" rows="10"' +
-            '>\r\nbar</textarea><script>django.jQuery("#foo").redactor({"fileUp' +
-            'load": "/admin/media/file/redactor/upload/file/", "imageUpload": "' +
-            '/admin/media/file/redactor/upload/image/", "minHeight": 300, "form' +
-            'attingAdd": [{"tag": "a", "class": "button primary", "title": "But' +
-            'ton"}], "plugins": ["table", "imagemanager", "video", "filemanager' +
-            '"]});</script>'
+        )
+
+        self.assertIn(
+            '"fileUpload": "/admin/media/file/redactor/upload/file/"',
+            rendered,
+        )
+
+        self.assertIn(
+            '"imageUpload": "/admin/media/file/redactor/upload/image/"',
+            rendered,
+        )
+
+        self.assertIn(
+            '"minHeight": 300',
+            rendered,
         )
 
     def test_password_validation(self):
@@ -86,10 +96,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form._errors, {
             'new_password1': [
-                u'Your password needs to be at least 8 characters long.',
-                u'Your password needs include at least 1 uppercase character.',
-                u'Your password needs include at least 1 lowercase character.',
-                u'Your password needs include at least 1 special character.'
+                'Your password needs to be at least 8 characters long.',
+                'Your password needs include at least 1 uppercase character.',
+                'Your password needs include at least 1 lowercase character.',
+                'Your password needs include at least 1 special character.'
             ]
         })
 
@@ -115,10 +125,10 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form._errors, {
             'password1': [
-                u'Your password needs to be at least 8 characters long.',
-                u'Your password needs include at least 1 uppercase character.',
-                u'Your password needs include at least 1 lowercase character.',
-                u'Your password needs include at least 1 special character.'
+                'Your password needs to be at least 8 characters long.',
+                'Your password needs include at least 1 uppercase character.',
+                'Your password needs include at least 1 lowercase character.',
+                'Your password needs include at least 1 special character.'
             ]
         })
 

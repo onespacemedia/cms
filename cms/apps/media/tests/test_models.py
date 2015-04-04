@@ -1,15 +1,15 @@
 from django.contrib import admin
+from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import six
 from django.utils.timezone import now
-from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 
 from ..models import File, FileRefField, Label, Video, VideoFileRefField, VideoRefField
 
 import base64
 import random
-import sys
 
 
 class TestModel(models.Model):
@@ -40,7 +40,7 @@ class TestLabel(TestCase):
 
         self.assertEqual(repr(obj), "<Label: Foo>")
         self.assertEqual(str(obj), "Foo")
-        self.assertEqual(obj.__unicode__(), "Foo")
+        self.assertEqual(obj.__str__(), "Foo")
 
 
 class TestFile(TestCase):
@@ -49,32 +49,32 @@ class TestFile(TestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
         # Plain text file
         self.name_2 = '{}-{}.txt'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_2 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_2, "data", content_type="text/plain")
+            file=SimpleUploadedFile(self.name_2, b"data", content_type="text/plain")
         )
 
         # A valid GIF.
         self.name_3 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
-        base64_string = 'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
         self.obj_3 = File.objects.create(
             title="Foo",
             file=SimpleUploadedFile(self.name_3, base64.b64decode(base64_string), content_type="image/gif")
@@ -96,7 +96,7 @@ class TestFile(TestCase):
         ))
 
     def test_file_unicode(self):
-        self.assertEqual(self.obj_1.__unicode__(), 'Foo')
+        self.assertEqual(self.obj_1.__str__(), 'Foo')
         self.assertEqual(self.obj_1.file.name, 'uploads/files/' + self.name_1)
 
     def test_file_is_image(self):
@@ -133,12 +133,12 @@ class TestVideo(TestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxint)
+            random.randint(0, six.MAXSIZE)
         )
 
         self.obj_1 = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name_1, "data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
     def test_videofilereffield_init(self):
@@ -180,4 +180,4 @@ class TestVideo(TestCase):
             high_resolution_mp4=self.obj_1
         )
 
-        self.assertEqual(video.__unicode__(), 'Foo')
+        self.assertEqual(video.__str__(), 'Foo')

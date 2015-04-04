@@ -78,7 +78,7 @@ class Category(PageBase):
         )
         return dict(
             (
-                u"page_{id}".format(id=page.id), self._get_permalink_for_page(page))
+                "page_{id}".format(id=page.id), self._get_permalink_for_page(page))
             for page in pages
         )
 

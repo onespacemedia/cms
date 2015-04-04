@@ -1,15 +1,19 @@
+from __future__ import unicode_literals
+
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase
+from django.utils.encoding import python_2_unicode_compatible
 
 from ..permalinks import expand, resolve, PermalinkError
 
 
+@python_2_unicode_compatible
 class TestPermalinkModel(models.Model):
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Foo'
 
     def get_absolute_url(self):
@@ -42,7 +46,7 @@ class PermalinksTest(TestCase):
     def test_expand(self):
         obj = TestPermalinkModel.objects.create()
 
-        self.assertEqual(obj.__unicode__(), 'Foo')
+        self.assertEqual(obj.__str__(), 'Foo')
 
         url = expand('/r/{}-{}/'.format(
             ContentType.objects.get_for_model(TestPermalinkModel).pk,

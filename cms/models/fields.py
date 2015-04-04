@@ -37,17 +37,17 @@ def resolve_link(value):
     else:
         # Check that it's not a relative URL.
         if not netloc and not scheme:
-            if path.startswith(u"/"):
+            if path.startswith("/"):
                 # This is a local absolute URL.
                 return value
-            elif path.startswith(u"www."):
+            elif path.startswith("www."):
                 # This link was given without a scheme.
                 scheme = "http"
-                path_parts = path.split(u"/", 1)
+                path_parts = path.split("/", 1)
                 netloc = path_parts[0]
-                path = u"/"
+                path = "/"
                 if len(path_parts) == 2:
-                    path = u"/" + path_parts[1]
+                    path = "/" + path_parts[1]
                 # Recompose the URL.
                 return urlparse.urlunparse((scheme, netloc, path, params, query, fragment,))
         if netloc and scheme:
