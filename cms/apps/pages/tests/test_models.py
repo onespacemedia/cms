@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.test import TestCase
+from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
 
 from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
@@ -30,6 +31,8 @@ class Section(models.Model):
 class TestPage(TestCase):
 
     def setUp(self):
+        call_command('installwatson')
+
         with externals.watson.context_manager("update_index")():
             content_type = ContentType.objects.get_for_model(TestPageContent)
 
@@ -137,18 +140,15 @@ class TestPage(TestCase):
         self.assertEqual(self.subsubsection.content.__str__(), 'Subsubsection')
 
     def test_pagesearchadapter_get_live_queryset(self):
-        search_adapter = PageSearchAdapter(Page)
-
-        self.assertEqual(search_adapter.get_live_queryset().count(), 4)
-
-        # Turn the sub-sub-section offline.
-        self.subsubsection.is_online = False
-        self.subsubsection.save()
-
-        self.assertEqual(search_adapter.get_live_queryset().count(), 4)
+        self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 1)
 
         with publication_manager.select_published(True):
-            self.assertEqual(search_adapter.get_live_queryset().count(), 3)
+            self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 1)
+
+            self.homepage.is_online = False
+            self.homepage.save()
+
+            self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 0)
 
 
 class TestSectionPage(TestCase):
