@@ -1448,7 +1448,7 @@
 					// dropdown
 					if (btnObject.dropdown)
 					{
-						var $dropdown = $('<div class="redactor-dropdown redactor-dropdown-box-' + btnName + '" style="display: none;">');
+						var $dropdown = $('<div class="redactor-dropdown redactor-dropdown-' + this.uuid.toString() + ' redactor-dropdown-box-' + btnName + '" style="display: none;">');
 						$button.data('dropdown', $dropdown);
 						this.dropdown.build(btnName, $dropdown, btnObject.dropdown);
 					}
@@ -2954,7 +2954,6 @@
 						else
 						{
 							var top = ($button.innerHeight() + keyPosition.top) + 'px';
-
 							$dropdown.css({ position: 'absolute', left: left, top: top }).show();
 						}
 
@@ -7712,15 +7711,15 @@
 						position = 'absolute';
 					}
 
-					$('.redactor-dropdown').each(function()
+					$('.redactor-dropdown-' + this.uuid.toString()).each(function()
 					{
-						$(this).css({ position: position, top: top + 'px' });
+						$(this).css({ position: position, top: top.toString() + 'px' });
 					});
 				},
 				unsetDropdownsFixed: function()
 				{
 					var top = (this.$toolbar.innerHeight() + this.$toolbar.offset().top);
-					$('.redactor-dropdown').each(function()
+					$('.redactor-dropdown-' + this.uuid.toString()).each(function()
 					{
 						$(this).css({ position: 'absolute', top: top + 'px' });
 					});
