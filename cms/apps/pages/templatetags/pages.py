@@ -40,10 +40,11 @@ def navigation(context, pages, section=None):
         section_entry["here"] = context["pages"].current == section_entry["page"]
         entries = [section_entry] + list(entries)
     # Render the template.
-    return {
+    context.update({
         "request": request,
         "navigation": entries,
-    }
+    })
+    return context
 
 
 @register.assignment_tag(takes_context=True)
