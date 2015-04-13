@@ -173,15 +173,6 @@ class TestSectionPage(TestCase):
         content = search_adapter.get_content(self.homepage)
         self.assertEqual(content, "   homepage Homepage  / ")
 
-        # Add sections.
-        Section.objects.create(
-            page=self.homepage,
-            title='Homepage Section'
-        )
-
-        content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, "   homepage Homepage  / Homepage Section")
-
 
 class TestPageComplex(TestCase):
 
