@@ -305,26 +305,6 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         """Returns the search text for the page."""
         content_obj = obj.content
 
-        content = ''
-
-        # Does this object have a section_set?
-        section_set = getattr(content_obj.page, 'section_set', None)
-
-        if section_set:
-            sections = section_set.all()
-
-            for section in sections:
-                field_names = (
-                    field.name for field
-                    in section._meta.fields
-                    if isinstance(field, (models.CharField, models.TextField))
-                )
-
-                content = content + self.prepare_content(" ".join(
-                    force_text(self._resolve_field(section, field_name))
-                    for field_name in field_names
-                ))
-
         return " ".join((
             super(PageSearchAdapter, self).get_content(obj),
             self.prepare_content(" ".join(
@@ -335,7 +315,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
                     if isinstance(field, (models.CharField, models.TextField))
                 )
             ))
-        )) + content
+        ))
 
     def get_live_queryset(self):
         """Selects the live page queryset."""
