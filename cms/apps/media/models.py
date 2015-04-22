@@ -102,7 +102,7 @@ class FileRefField(models.ForeignKey):
         to = File
         kwargs.setdefault("related_name", "+")
         kwargs.setdefault("on_delete", models.PROTECT)
-        super(FileRefField, self).__init__(**kwargs)
+        super(FileRefField, self).__init__(to, **kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
