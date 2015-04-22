@@ -126,6 +126,13 @@ class TestFile(TestCase):
         self.assertEqual(widget.admin_site, admin.site)
         self.assertIsNone(widget.db)
 
+    def test_file_init(self):
+        field = FileRefField(
+            to=TestModel,
+        )
+
+        self.assertEqual(field.rel.to, File)
+
 
 class TestVideo(TestCase):
 
