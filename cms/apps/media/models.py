@@ -96,15 +96,10 @@ class FileRefField(models.ForeignKey):
     """A foreign key to a File, constrained to only select image files."""
 
     def __init__(self, **kwargs):
-        self.serialize = False
-
-        if 'to' in kwargs:
-            del kwargs['to']
-
-        to = File
+        kwargs["to"] = 'media.File'
         kwargs.setdefault("related_name", "+")
         kwargs.setdefault("on_delete", models.PROTECT)
-        super(FileRefField, self).__init__(to, **kwargs)
+        super(FileRefField, self).__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
