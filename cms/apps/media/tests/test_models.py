@@ -131,7 +131,7 @@ class TestFile(TestCase):
             to=TestModel,
         )
 
-        self.assertEqual(field.rel.to, File)
+        self.assertEqual(field.rel.to, 'media.File')
 
 
 class TestVideo(TestCase):
