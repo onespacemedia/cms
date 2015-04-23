@@ -96,6 +96,8 @@ class FileRefField(models.ForeignKey):
     """A foreign key to a File, constrained to only select image files."""
 
     def __init__(self, **kwargs):
+        self.serialize = False
+
         if 'to' in kwargs:
             del kwargs['to']
 
