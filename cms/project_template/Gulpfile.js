@@ -156,7 +156,7 @@ gulp.task('default', function(callback) {
         'styles',
 
         // Start watching for changes to SCSS files.
-        'watch',
+        'serve',
 
         callback
     );
