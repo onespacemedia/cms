@@ -29,8 +29,8 @@ var config = {
     },
     js: {
         src: [
-            templateFolder + '*.js',
-            templateFolder + '/**/*.js'
+            staticFolder + '*.js',
+            staticFolder + '/**/*.js'
         ]
     },
     html: {
