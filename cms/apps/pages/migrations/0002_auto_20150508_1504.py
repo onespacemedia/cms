@@ -25,7 +25,21 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=256)),
                 ('default', models.BooleanField(default=False)),
-                ('countries', models.ManyToManyField(to='pages.Country')),
             ],
+        ),
+        migrations.AddField(
+            model_name='page',
+            name='is_content_object',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='page',
+            name='owner',
+            field=models.ForeignKey(related_name='owner_set', blank=True, to='pages.Page', null=True),
+        ),
+        migrations.AddField(
+            model_name='country',
+            name='group',
+            field=models.ForeignKey(blank=True, to='pages.CountryGroup', null=True),
         ),
     ]
