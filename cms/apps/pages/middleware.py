@@ -13,7 +13,16 @@ from django.template.response import SimpleTemplateResponse
 
 from cms.apps.pages.models import Page, Country
 
-from geoip_utils import core as geoip
+from django.contrib.gis.geoip import GeoIP
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 class RequestPageManager(object):
@@ -28,7 +37,10 @@ class RequestPageManager(object):
 
     def request_country_group(self):
         # Country data from geoip
-        country_data = geoip.get_country(self._request)
+        g = GeoIP()
+        country_data = g.country(get_client_ip(self._request))
+
+        print country_data
 
         # No code, return None
         if country_data['country_code'] is None:
