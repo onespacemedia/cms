@@ -92,12 +92,30 @@ class Page(PageBase):
         db_index=True,
     )
 
+    is_content_object = models.BooleanField(
+        default=False
+    )
+
+    country_group = models.ForeignKey(
+        'pages.CountryGroup',
+        blank=True,
+        null=True
+    )
+
+    owner = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        related_name="owner_set",
+    )
+
+
     @cached_property
     def children(self):
         """The child pages for this page."""
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children we know aren't there!
-            for child in self.child_set.all():
+            for child in self.child_set.filter(is_content_object=False):
                 child.parent = self
                 children.append(child)
         return children
@@ -276,7 +294,7 @@ class Page(PageBase):
         self._excise_branch()
 
     class Meta:
-        unique_together = (("parent", "url_title",),)
+        unique_together = (("parent", "url_title", "country_group"),)
         ordering = ("left",)
 
 
@@ -392,3 +410,37 @@ class ContentBase(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Country(models.Model):
+
+    name = models.CharField(
+        max_length=256
+    )
+
+    code = models.CharField(
+        max_length=16
+    )
+
+    group = models.ForeignKey(
+        'pages.CountryGroup',
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class CountryGroup(models.Model):
+
+    name = models.CharField(
+        max_length=256
+    )
+
+    default = models.BooleanField(
+        default=False
+    )
+
+    def __str__(self):
+        return self.name
