@@ -30,8 +30,6 @@ class RequestPageManager(object):
         # Country data from geoip
         country_data = geoip.get_country(self._request)
 
-        country_data['country_code'] = 'GB'
-
         # No code, return None
         if country_data['country_code'] is None:
             return None
