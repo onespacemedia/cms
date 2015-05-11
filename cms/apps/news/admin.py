@@ -85,9 +85,6 @@ class ArticleAdminBase(PageBaseAdmin):
         if db_field.name == "status":
             kwargs['choices'] = choices_list
 
-        print(ArticleAdminBase, self)
-        print(super(ArticleAdminBase, self))
-
         return super(ArticleAdminBase, self).formfield_for_choice_field(db_field, request, **kwargs)
 
 
