@@ -57,15 +57,15 @@ class ArticleAdminBase(PageBaseAdmin):
 
     filter_horizontal = ("categories", "authors",)
 
-    def save_related(self, request, form, formsets, change):
+    def save_related(self, request, form, formsets, change, *args, **kwargs):
         """Saves the author of the article."""
-        super(ArticleAdminBase, self).save_related(request, form, formsets, change)
+        super(ArticleAdminBase, self).save_related(request, form, formsets, change, *args, **kwargs)
         # For new articles, add in the current author.
         if not change and not form.cleaned_data["authors"]:
             form.instance.authors.add(request.user)
 
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super(ArticleAdminBase, self).get_fieldsets(request, obj)
+    def get_fieldsets(self, request, obj=None, *args, **kwargs):
+        fieldsets = super(ArticleAdminBase, self).get_fieldsets(request, obj, *args, **kwargs)
 
         if not getattr(settings, "NEWS_APPROVAL_SYSTEM", False):
             for fieldset in fieldsets:
