@@ -61,6 +61,11 @@ def _generate_pages(self):
             group=self.country_group
         )
 
+        self.country_gb = Country.objects.create(
+            name="United Kingdom",
+            code="GB"
+        )
+
         self.homepage_alt = Page.objects.create(
             title="Homepage",
             url_title='homepage',
@@ -151,8 +156,8 @@ class TestRequestPageManager(TestCase):
     def test_localisation(self):
         _generate_pages(self)
 
-        self.assertEqual(self.country_group.name, "United States of America")
-        self.assertEqual(self.country.name, "United States of America")
+        self.assertEqual(self.country_group.__str__(), "United States of America")
+        self.assertEqual(self.country.__str__(), "United States of America")
 
         self.request = self.factory.get('/')
         self.request.META['REMOTE_ADDR'] = '8.8.8.8'
@@ -169,6 +174,15 @@ class TestRequestPageManager(TestCase):
         self.assertEqual(self.page_manager.request_country_group(), self.country_group)
 
         self.assertEqual(self.page_manager.current, self.homepage_alt)
+
+        self.request.META['HTTP_X_FORWARDED_FOR'] = '81.110.144.126'
+        self.page_manager = RequestPageManager(self.request)
+        self.assertEqual(self.page_manager.request_country_group(), None)
+
+        self.request.META['HTTP_X_FORWARDED_FOR'] = '189.228.123.90'
+        self.page_manager = RequestPageManager(self.request)
+        self.assertEqual(self.page_manager.request_country_group(), None)
+
 
 
 class TestPageMiddleware(TestCase):
