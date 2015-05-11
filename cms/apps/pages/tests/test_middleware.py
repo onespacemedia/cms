@@ -2,8 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.test import TestCase, RequestFactory
 
-from ..middleware import RequestPageManager, PageMiddleware
-from ..models import ContentBase, Page
+from ..middleware import RequestPageManager, PageMiddleware, get_client_ip
+from ..models import ContentBase, Page, CountryGroup, Country
 from .... import externals
 
 
@@ -49,6 +49,16 @@ def _generate_pages(self):
 
         TestMiddlewarePage.objects.create(
             page=self.page_2,
+        )
+
+        self.country_group = CountryGroup.objects.create(
+            name="United States of America"
+        )
+
+        Country.objects.create(
+            name="United States of America",
+            code="US",
+            group=self.country_group
         )
 
 
@@ -122,6 +132,23 @@ class TestRequestPageManager(TestCase):
         self.request = self.factory.get('/foo/bar/')
         self.page_manager = RequestPageManager(self.request)
         self.assertTrue(self.page_manager.is_exact)
+
+    def test_localisation(self):
+        _generate_pages(self)
+
+        self.request = self.factory.get('')
+        self.request.META['REMOTE_ADDR'] = '8.8.8.8'
+
+        ip_address = get_client_ip(self.request)
+        self.assertEqual(self.request.META['REMOTE_ADDR'], ip_address)
+
+        self.request.META['HTTP_X_FORWARDED_FOR'] = '8.8.4.4'
+
+        ip_address = get_client_ip(self.request)
+        self.assertEqual(self.request.META['HTTP_X_FORWARDED_FOR'], ip_address)
+
+        self.page_manager = RequestPageManager(self.request)
+        self.assertEqual(self.page_manager.request_country_group(), self.country_group)
 
 
 class TestPageMiddleware(TestCase):
