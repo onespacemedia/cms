@@ -81,7 +81,7 @@ class TestPage(TestCase):
         with self.assertNumQueries(3):
             homepage = Page.objects.get_homepage()
 
-        with self.assertNumQueries(0):
+        with self.assertNumQueries(2):
             subsection = homepage.children[0].children[0]
         self.assertEqual(subsection.title, "Subsection")
 
