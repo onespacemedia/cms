@@ -55,10 +55,25 @@ def _generate_pages(self):
             name="United States of America"
         )
 
-        Country.objects.create(
+        self.country = Country.objects.create(
             name="United States of America",
             code="US",
             group=self.country_group
+        )
+
+        self.homepage_alt = Page.objects.create(
+            title="Homepage",
+            url_title='homepage',
+            owner=self.homepage,
+            is_content_object=True,
+            country_group=self.country_group,
+            content_type=content_type,
+            left=0,
+            right=0,
+        )
+
+        TestMiddlewarePage.objects.create(
+            page=self.homepage_alt,
         )
 
 
@@ -136,7 +151,10 @@ class TestRequestPageManager(TestCase):
     def test_localisation(self):
         _generate_pages(self)
 
-        self.request = self.factory.get('')
+        self.assertEqual(self.country_group.name, "United States of America")
+        self.assertEqual(self.country.name, "United States of America")
+
+        self.request = self.factory.get('/')
         self.request.META['REMOTE_ADDR'] = '8.8.8.8'
 
         ip_address = get_client_ip(self.request)
@@ -149,6 +167,8 @@ class TestRequestPageManager(TestCase):
 
         self.page_manager = RequestPageManager(self.request)
         self.assertEqual(self.page_manager.request_country_group(), self.country_group)
+
+        self.assertEqual(self.page_manager.current, self.homepage_alt)
 
 
 class TestPageMiddleware(TestCase):
