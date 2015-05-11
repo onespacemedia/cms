@@ -40,8 +40,6 @@ class RequestPageManager(object):
         g = GeoIP()
         country_data = g.country(get_client_ip(self._request))
 
-        print country_data
-
         # No code, return None
         if country_data['country_code'] is None:
             return None
