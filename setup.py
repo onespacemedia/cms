@@ -44,7 +44,7 @@ setup(
         'python-social-auth',
         'django-cachalot',
         'python-memcached',
-        ‘geoip’,
+        'geoip',
     ],
     extras_require={
         'usertools':  ["django-usertools"],
