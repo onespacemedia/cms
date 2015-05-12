@@ -15,7 +15,7 @@ from copy import deepcopy
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, url
 from django.contrib.admin.widgets import FilteredSelectMultiple

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import FilteredSelectMultiple, RelatedFieldWidgetWrapper
@@ -11,7 +12,8 @@ from django.test import TestCase, RequestFactory
 from django.utils import six
 
 from ..admin import PageAdmin, PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER
-from ..models import get_registered_content, ContentBase, Page
+from ..models import get_registered_content, ContentBase, Page, CountryGroup, \
+    Country
 from .... import externals
 
 import json
@@ -96,7 +98,7 @@ class TestPageAdmin(TestCase):
                 page=self.homepage,
             )
 
-    def _build_request(self, page_type=None):
+    def _build_request(self, page_type=None, method="GET"):
         request = MockRequest()
         request.user = MockSuperUser()
         request.pages = MockRequest()
@@ -105,7 +107,7 @@ class TestPageAdmin(TestCase):
         request.POST = QueryDict('', mutable=True)
         request.COOKIES = {}
         request.META = {}
-        request.method = 'GET'
+        request.method = method
         request.path = '/'
         request.resolver_match = False
 
@@ -113,6 +115,11 @@ class TestPageAdmin(TestCase):
             request.GET['type'] = page_type
 
         return request
+
+    def test_pageadmin_get_object(self):
+        factory = RequestFactory()
+        request = factory.get('/')
+        self.assertEqual(self.page_admin.get_object(request, -1), None)
 
     def test_pageadmin_register_page_inline(self):
         self.page_admin._register_page_inline(InlineModelNoPage)
@@ -348,6 +355,18 @@ class TestPageAdmin(TestCase):
 
         self.assertListEqual(form.base_fields['parent'].choices, [('', '---------')])
 
+        self.content_page.is_content_object = True
+        form = self.page_admin.get_form(request, obj=self.content_page)
+
+        keys = ['title', 'description', 'inline_model',
+                'publication_date', 'expiry_date', 'is_online', 'short_title',
+                'in_navigation', 'browser_title', 'meta_keywords',
+                'meta_description', 'sitemap_priority', 'sitemap_changefreq',
+                'robots_index', 'robots_follow', 'robots_archive']
+        self.assertListEqual(list(form.base_fields.keys()), keys)
+
+        self.content_page.is_content_object = False
+
         # Trigger the `content_cls.DoesNotExist` exception.
         content_cls = self.page_admin.get_page_content_cls(request, self.content_page)
 
@@ -459,10 +478,29 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response['Location'], '/admin/')
 
     def test_pageadmin_change_view(self):
+
+        self.homepage_alt = deepcopy(self.homepage)
+        self.homepage_alt.pk = None
+        self.homepage_alt.is_content_object = True
+        self.homepage_alt.owner = self.homepage
+        self.homepage_alt.title = "Homepage Alt"
+        self.homepage_alt.save()
+
         request = self._build_request()
         response = self.page_admin.change_view(request, str(self.homepage.pk))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context_data['title'], 'Change page')
+
+        self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
+
+        request = self._build_request()
+        response = self.page_admin.change_view(request, str(self.homepage_alt.pk))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context_data['title'], 'Change page')
+
+        self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
+
+        response = self.page_admin.change_view(request, str(self.homepage.pk))
 
     def test_pageadmin_revision_view(self):
         request = self._build_request()
@@ -640,3 +678,27 @@ class TestPageAdmin(TestCase):
         request.user.has_perm = lambda x: False
         response = self.page_admin.move_page_view(request)
         self.assertEqual(response.status_code, 403)
+
+    def test_pageadmin_duplicate_for_country_group(self):
+
+        self.country_group = CountryGroup.objects.create(
+            name="United Kingdom"
+        )
+
+        self.country = Country.objects.create(
+            name="United Kingdom",
+            code="GB",
+            group=self.country_group
+        )
+
+        request = self._build_request()
+        response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context_data['original_page'], self.homepage)
+
+        request = self._build_request(method='POST')
+        request.POST = dict(
+            country_group=self.country_group.pk
+        )
+        response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
+        self.assertEquals(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)

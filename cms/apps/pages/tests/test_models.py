@@ -1,9 +1,10 @@
 """Tests for the pages app."""
 
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
+from ..admin import PageAdmin
 
 from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
 from .... import externals
