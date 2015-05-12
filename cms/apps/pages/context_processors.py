@@ -4,6 +4,6 @@
 def pages(request):
     """Adds the current page backend to the template."""
     context = {
-        "pages": request.pages,
+        "pages": request.pages
     }
     return context

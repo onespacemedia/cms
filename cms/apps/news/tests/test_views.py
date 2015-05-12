@@ -55,14 +55,14 @@ class TestViews(TestCase):
     def test_articlelistmixin_get_paginate_by(self):
         view = ArticleListMixin()
         view.request = self.factory.get('/')
-        view.request.pages = RequestPageManager('/', '/')
+        view.request.pages = RequestPageManager(view.request)
 
         self.assertEqual(view.get_paginate_by(None), 5)
 
     def test_articlelistmixin_get_context_data(self):
         view = TestView()
         view.request = self.factory.get('/')
-        view.request.pages = RequestPageManager('/', '/')
+        view.request.pages = RequestPageManager(view.request)
         view.object_list = Article.objects.all()
         view.kwargs = {}
 
@@ -77,14 +77,14 @@ class TestViews(TestCase):
     def test_articlelistmixin_get_queryset(self):
         view = TestView()
         view.request = self.factory.get('/')
-        view.request.pages = RequestPageManager('/', '/')
+        view.request.pages = RequestPageManager(view.request)
 
         self.assertListEqual(list(view.get_queryset()), [self.article])
 
     def test_articlefeedview_get(self):
         view = ArticleFeedView()
         view.request = self.factory.get('/news/feed/')
-        view.request.pages = RequestPageManager('/news/feed/', '/news/feed/')
+        view.request.pages = RequestPageManager(view.request)
 
         get = view.get(view.request)
 
@@ -98,7 +98,7 @@ class TestViews(TestCase):
     def test_articledetailview_get_context_data(self):
         view = ArticleDetailView()
         view.request = self.factory.get('/news/foo/')
-        view.request.pages = RequestPageManager('/news/foo/', '/news/foo/')
+        view.request.pages = RequestPageManager(view.request)
         view.object = self.article
 
         data = view.get_context_data()
@@ -120,7 +120,7 @@ class TestViews(TestCase):
     def test_articlecategoryarchiveview_get_queryset(self):
         view = ArticleCategoryArchiveView()
         view.request = self.factory.get('')
-        view.request.pages = RequestPageManager('', '')
+        view.request.pages = RequestPageManager(view.request)
         view.object = self.category
 
         self.assertListEqual(list(view.get_queryset()), [self.article])
@@ -128,7 +128,7 @@ class TestViews(TestCase):
     def test_articlecategoryarchiveview_get_context_data(self):
         view = ArticleCategoryArchiveView()
         view.request = self.factory.get('')
-        view.request.pages = RequestPageManager('', '')
+        view.request.pages = RequestPageManager(view.request)
         view.object = self.category
         view.object_list = Article.objects.all()
         view.kwargs = {}
@@ -152,7 +152,7 @@ class TestViews(TestCase):
     def test_articlecategoryarchiveview_dispatch(self):
         view = ArticleCategoryArchiveView()
         view.request = self.factory.get('')
-        view.request.pages = RequestPageManager('', '')
+        view.request.pages = RequestPageManager(view.request)
         view.kwargs = {}
 
         dispatch = view.dispatch(view.request, url_title='foo')

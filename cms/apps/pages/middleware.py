@@ -1,4 +1,5 @@
 """Custom middleware used by the pages application."""
+import os
 
 import sys
 
@@ -11,17 +12,65 @@ from django.shortcuts import redirect
 from django.utils.functional import cached_property
 from django.template.response import SimpleTemplateResponse
 
-from cms.apps.pages.models import Page
+from cms.apps.pages.models import Page, Country
+
+from django.contrib.gis.geoip import GeoIP
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 class RequestPageManager(object):
 
     """Handles loading page objects."""
 
-    def __init__(self, path, path_info):
+    def __init__(self, request):
         """Initializes the RequestPageManager."""
-        self._path = path
-        self._path_info = path_info
+        self._request = request
+        self._path = self._request.path
+        self._path_info = self._request.path_info
+
+    def request_country_group(self):
+
+        # Get geoip data path
+        geo_ip_path = os.path.abspath(os.path.join(os.path.split(__file__)[0], 'data'))
+
+        # Country data from geoip
+        g = GeoIP(path=geo_ip_path)
+        country_data = g.country(get_client_ip(self._request))
+
+        # No code, return None
+        if country_data['country_code'] is None:
+            return None
+
+        # Get country matching code
+        try:
+            country = Country.objects.get(code=country_data['country_code'])
+            if not country.group:
+                return None
+            else:
+                return country.group
+        except:
+            return None
+
+    def alternate_page_version(self, page):
+
+        try:
+            # See if the page has any alternate versions for the current country
+            alternate_version = Page.objects.get(is_content_object=True,
+                                                 owner=page,
+                                                 country_group=self.request_country_group())
+
+            return alternate_version
+
+        except:
+            return page
 
     @cached_property
     def homepage(self):
@@ -59,7 +108,8 @@ class RequestPageManager(object):
     def section(self):
         """The current primary level section, or None."""
         try:
-            return self.breadcrumbs[1]
+            page = self.breadcrumbs[1]
+            return self.alternate_page_version(page)
         except IndexError:
             return None
 
@@ -67,7 +117,8 @@ class RequestPageManager(object):
     def subsection(self):
         """The current secondary level section, or None."""
         try:
-            return self.breadcrumbs[2]
+            page = self.breadcrumbs[2]
+            return self.alternate_page_version(page)
         except IndexError:
             return None
 
@@ -75,7 +126,8 @@ class RequestPageManager(object):
     def current(self):
         """The current best-matched page."""
         try:
-            return self.breadcrumbs[-1]
+            page = self.breadcrumbs[-1]
+            return self.alternate_page_version(page)
         except IndexError:
             return None
 
@@ -91,7 +143,7 @@ class PageMiddleware(object):
 
     def process_request(self, request):
         """Annotates the request with a page manager."""
-        request.pages = RequestPageManager(request.path, request.path_info)
+        request.pages = RequestPageManager(request)
 
     def process_response(self, request, response):
         """If the response was a 404, attempt to serve up a page."""

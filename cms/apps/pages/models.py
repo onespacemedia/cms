@@ -64,7 +64,7 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         """Returns the site homepage."""
-        return self.prefetch_related("child_set__child_set").get(parent=None)
+        return self.prefetch_related("child_set__child_set").get(parent=None, is_content_object=False)
 
 
 class Page(PageBase):
@@ -92,12 +92,30 @@ class Page(PageBase):
         db_index=True,
     )
 
+    is_content_object = models.BooleanField(
+        default=False
+    )
+
+    country_group = models.ForeignKey(
+        'pages.CountryGroup',
+        blank=True,
+        null=True
+    )
+
+    owner = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        related_name="owner_set",
+    )
+
+
     @cached_property
     def children(self):
         """The child pages for this page."""
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children we know aren't there!
-            for child in self.child_set.all():
+            for child in self.child_set.filter(is_content_object=False):
                 child.parent = self
                 children.append(child)
         return children
@@ -209,59 +227,64 @@ class Page(PageBase):
     @transaction.atomic
     def save(self, *args, **kwargs):
         """Saves the page."""
-        # Lock entire table.
-        existing_pages = dict(
-            (page["id"], page)
-            for page
-            in Page.objects.all().select_for_update().values("id", "parent_id", "left", "right")
-        )
-        if self.left is None or self.right is None:
-            # This page is being inserted.
-            if existing_pages:
-                parent_right = existing_pages[self.parent_id]["right"]
-                # Set the model left and right.
-                self.left = parent_right
-                self.right = self.left + 1
-                # Update the whole tree structure.
-                self._insert_branch()
-            else:
-                # This is the first page to be created, ever!
-                self.left = 1
-                self.right = 2
-        else:
-            # This is an update.
-            if self.id not in existing_pages:
-                old_parent_id = -1
-            else:
-                old_parent_id = existing_pages[self.id]["parent_id"]
 
-            if old_parent_id != self.parent_id:
-                # The page has moved.
-                branch_width = self.right - self.left + 1
-                # Disconnect child branch.
-                if branch_width > 2:
-                    Page.objects.filter(left__gt=self.left, right__lt=self.right).update(
-                        left=F("left") * -1,
-                        right=F("right") * -1,
-                    )
-                self._excise_branch()
-                # Store old left and right values.
-                old_left = self.left
-                old_right = self.right
-                # Put self into the tree.
-                parent_right = existing_pages[self.parent_id]["right"]
-                if parent_right > self.right:
-                    parent_right -= self._branch_width
-                self.left = parent_right
-                self.right = self.left + branch_width - 1
-                self._insert_branch()
-                # Put all children back into the tree.
-                if branch_width > 2:
-                    child_offset = self.left - old_left
-                    Page.objects.filter(left__lt=-old_left, right__gt=-old_right).update(
-                        left=(F("left") - child_offset) * -1,
-                        right=(F("right") - child_offset) * -1,
-                    )
+        if self.is_content_object is False:
+
+            # Lock entire table.
+            existing_pages = dict(
+                (page["id"], page)
+                for page
+                in Page.objects.filter(is_content_object=False).select_for_update().values("id", "parent_id", "left", "right")
+            )
+
+            if self.left is None or self.right is None:
+                # This page is being inserted.
+                if existing_pages:
+                    parent_right = existing_pages[self.parent_id]["right"]
+                    # Set the model left and right.
+                    self.left = parent_right
+                    self.right = self.left + 1
+                    # Update the whole tree structure.
+                    self._insert_branch()
+                else:
+                    # This is the first page to be created, ever!
+                    self.left = 1
+                    self.right = 2
+            else:
+                # This is an update.
+                if self.id not in existing_pages:
+                    old_parent_id = -1
+                else:
+                    old_parent_id = existing_pages[self.id]["parent_id"]
+
+                if old_parent_id != self.parent_id:
+                    # The page has moved.
+                    branch_width = self.right - self.left + 1
+                    # Disconnect child branch.
+                    if branch_width > 2:
+                        Page.objects.filter(left__gt=self.left, right__lt=self.right).update(
+                            left=F("left") * -1,
+                            right=F("right") * -1,
+                        )
+                    self._excise_branch()
+                    # Store old left and right values.
+                    old_left = self.left
+                    old_right = self.right
+                    # Put self into the tree.
+                    parent_right = existing_pages[self.parent_id]["right"]
+                    if parent_right > self.right:
+                        parent_right -= self._branch_width
+                    self.left = parent_right
+                    self.right = self.left + branch_width - 1
+                    self._insert_branch()
+                    # Put all children back into the tree.
+                    if branch_width > 2:
+                        child_offset = self.left - old_left
+                        Page.objects.filter(left__lt=-old_left, right__gt=-old_right).update(
+                            left=(F("left") - child_offset) * -1,
+                            right=(F("right") - child_offset) * -1,
+                        )
+
         # Now actually save it!
         super(Page, self).save(*args, **kwargs)
 
@@ -276,7 +299,7 @@ class Page(PageBase):
         self._excise_branch()
 
     class Meta:
-        unique_together = (("parent", "url_title",),)
+        unique_together = (("parent", "url_title", "country_group"),)
         ordering = ("left",)
 
 
@@ -392,3 +415,37 @@ class ContentBase(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Country(models.Model):
+
+    name = models.CharField(
+        max_length=256
+    )
+
+    code = models.CharField(
+        max_length=16
+    )
+
+    group = models.ForeignKey(
+        'pages.CountryGroup',
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class CountryGroup(models.Model):
+
+    name = models.CharField(
+        max_length=256
+    )
+
+    default = models.BooleanField(
+        default=False
+    )
+
+    def __str__(self):
+        return self.name

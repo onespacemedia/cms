@@ -8,27 +8,30 @@ standard implementation.
 
 from __future__ import unicode_literals, with_statement
 
+from functools import cmp_to_key
+import json
+from copy import deepcopy
+
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, url
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, models
-from django.db.models import F
+from django.db.models import F, Q
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils import six
 from django import forms
 
 from cms import debug, externals
 from cms.admin import PageBaseAdmin
-from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter
+from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
 
-from functools import cmp_to_key
-import json
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"
@@ -41,11 +44,13 @@ PAGE_TYPE_PARAMETER = "type"
 
 class PageAdmin(PageBaseAdmin):
 
+    list_display = ("__str__", "is_online",)
+
     """Admin settings for Page models."""
 
     fieldsets = (
         (None, {
-            "fields": ("title", "url_title", "parent",),
+            "fields": ("title", "url_title", "parent"),
         },),
         ("Publication", {
             "fields": ("publication_date", "expiry_date", "is_online",),
@@ -59,6 +64,22 @@ class PageAdmin(PageBaseAdmin):
     )
 
     search_adapter_cls = PageSearchAdapter
+
+    change_form_template = 'admin/pages/page/change_form.html'
+
+    def get_queryset(self, request):
+        return super(PageAdmin, self).get_queryset(request).filter(is_content_object=False)
+
+    def get_object(self, request, object_id, from_field=None):
+        queryset = super(PageAdmin, self).get_queryset(request)
+        model = queryset.model
+        field = model._meta.pk if from_field is None else model._meta.get_field(
+            from_field)
+        try:
+            object_id = field.to_python(object_id)
+            return queryset.get(**{field.name: object_id})
+        except (model.DoesNotExist, ValidationError, ValueError):
+            return None
 
     def _register_page_inline(self, model):
         """Registeres the given page inline with reversion."""
@@ -205,7 +226,16 @@ class PageAdmin(PageBaseAdmin):
             ContentForm = type(six.text_type("{}Form".format(self.__class__.__name__)), (forms.ModelForm,), form_attrs)
         defaults = {"form": ContentForm}
         defaults.update(kwargs)
+
+        if obj and obj.is_content_object == True:
+            self.prepopulated_fields = {}
+            self.fieldsets[0][1]['fields'] = ('title',)
+        else:
+            self.prepopulated_fields = {"url_title": ("title",), }
+            self.fieldsets[0][1]['fields'] = ("title", "url_title", "parent")
+
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)
+
         # HACK: Need to limit parents field based on object. This should be done in
         # formfield_for_foreignkey, but that method does not know about the object instance.
         if obj:
@@ -214,6 +244,7 @@ class PageAdmin(PageBaseAdmin):
         else:
             invalid_parents = frozenset()
         homepage = request.pages.homepage
+
         if homepage:
             parent_choices = []
             for page in [homepage] + self.get_all_children(homepage):
@@ -223,7 +254,10 @@ class PageAdmin(PageBaseAdmin):
             parent_choices = []
         if not parent_choices:
             parent_choices = (("", "---------"),)
-        PageForm.base_fields["parent"].choices = parent_choices
+
+        if obj and not obj.is_content_object:
+            PageForm.base_fields["parent"].choices = parent_choices
+
         # Return the completed form.
         return PageForm
 
@@ -324,8 +358,23 @@ class PageAdmin(PageBaseAdmin):
         # HACK: Add the current page to the request to pass to the get_inline_instances() method.
         page = get_object_or_404(self.model, id=object_id)
         request._admin_change_obj = page
+
+        extra_context = {}
+
+        if not page.is_content_object:
+            # Get all of the language pages
+            extra_context['language_pages'] = Page.objects.filter(
+                Q(pk=page.pk) |
+                Q(owner=page, is_content_object=True)
+            ).order_by('-country_group')
+        else:
+            extra_context['language_pages'] = Page.objects.filter(
+                Q(pk=page.owner.pk) |
+                Q(owner=page.owner, is_content_object=True)
+            ).order_by('-country_group')
+
         # Call the change view.
-        return super(PageAdmin, self).change_view(request, object_id, *args, **kwargs)
+        return super(PageAdmin, self).change_view(request, object_id, extra_context=extra_context, *args, **kwargs)
 
     def revision_view(self, request, object_id, *args, **kwargs):
         """Load up the correct content inlines."""
@@ -398,6 +447,7 @@ class PageAdmin(PageBaseAdmin):
             "",
             url("^sitemap.json$", admin_view(self.sitemap_json_view), name="pages_page_sitemap_json"),
             url("^move-page/$", admin_view(self.move_page_view), name="pages_page_move_page"),
+            url("^(?P<page>\d+)/duplicate/$", admin_view(self.duplicate_for_country_group), name="pages_page_duplicate_page"),
         ) + super(PageAdmin, self).get_urls()
 
     @debug.print_exc
@@ -493,7 +543,41 @@ class PageAdmin(PageBaseAdmin):
         # Report back.
         return HttpResponse("Page #%s was moved %s." % (page["id"], direction))
 
+    def duplicate_for_country_group(self, request, *args, **kwargs):
+        # Get the current page
+        original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
+        original_content = original_page.content
+
+        if request.method == 'POST':
+
+            with externals.watson.context_manager("update_index")():
+                page = deepcopy(original_page)
+                page.pk = None
+                page.is_content_object = True
+                page.owner = original_page
+                page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
+                page.save()
+
+                content = deepcopy(original_content)
+                content.pk = None
+                content.page = page
+                content.save()
+
+            return redirect('/admin/pages/page/{}'.format(page.pk))
+
+        context = dict(
+            original_page=original_page,
+            country_groups=CountryGroup.objects.all()
+        )
+        return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
+
+
+class CountryGroupAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(Page, PageAdmin)
+admin.site.register(Country)
+admin.site.register(CountryGroup, CountryGroupAdmin)
 
 page_admin = admin.site._registry[Page]

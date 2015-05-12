@@ -1,9 +1,10 @@
 """Tests for the pages app."""
 
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
+from ..admin import PageAdmin
 
 from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
 from .... import externals
@@ -81,7 +82,7 @@ class TestPage(TestCase):
         with self.assertNumQueries(3):
             homepage = Page.objects.get_homepage()
 
-        with self.assertNumQueries(0):
+        with self.assertNumQueries(2):
             subsection = homepage.children[0].children[0]
         self.assertEqual(subsection.title, "Subsection")
 

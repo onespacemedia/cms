@@ -4,6 +4,7 @@ from django.utils import six
 from ..bin.start_cms_project import (Output, git, make_executable, query_yes_no,
                                      configure_apps, main)
 
+import getpass
 try:
     from unittest import mock
     from unittest.mock import call
@@ -325,7 +326,7 @@ class TestStartCMSProject(TestCase):
                 'foo',
                 '/tmp',
                 extensions=['py', 'txt', 'conf', 'gitignore', 'md', 'css', 'js', 'json'],
-                user=os.getlogin(),
+                user=getpass.getuser(),
                 # Did someone say 'clunky'?
                 template=os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../project_template')),
                 project_slug='foo'

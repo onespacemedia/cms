@@ -84,7 +84,7 @@ class TestTemplatetags(TestCase):
         )
 
     def test_meta_keywords(self):
-        self.request.pages = RequestPageManager('/', '/')
+        self.request.pages = RequestPageManager(self.factory.get(''))
 
         self.assertEqual(meta_keywords({'request': self.request}), '')
         self.assertEqual(meta_keywords({
