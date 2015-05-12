@@ -20,5 +20,3 @@ class TestArticleAdminBase(TestCase):
             assert ArticleAdmin
             self.assertIs(ArticleAdmin.__bases__[0], ArticleAdminBase)
             self.assertEqual(len(ArticleAdmin.__bases__), 1)
-
-        print sys.modules['cms.apps.news.admin']
