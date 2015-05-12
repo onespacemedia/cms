@@ -150,9 +150,13 @@ class TestPageAdmin(TestCase):
 
         # Monkey patch the function back to Django 1.4.x style so we can trigger
         # the TypeError in `PageAdmin.get_inline_instances`.
+        initial_instances = getattr(admin.ModelAdmin, 'get_inline_instances')
         setattr(admin.ModelAdmin, 'get_inline_instances', get_inline_instances_1_4_x)
 
         self.assertEqual(len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1)
+
+        # Put the method back to what is was.
+        setattr(admin.ModelAdmin, 'get_inline_instances', initial_instances)
 
     def test_pageadmin_get_revision_instances(self):
         request = self._build_request(
