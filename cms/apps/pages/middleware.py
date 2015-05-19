@@ -37,9 +37,17 @@ class RequestPageManager(object):
         self._path_info = self._request.path_info
 
     def request_geo(self):
+        cookie_code = self._request.COOKIES.get('country_code', None)
+        if cookie_code:
+            return {
+                "country_code": cookie_code
+            }
+
         # Country data from geoip
         g = GeoIP()
-        return g.country(get_client_ip(self._request))
+        return {
+            "country_code": g.country(get_client_ip(self._request)).country_code
+        }
 
     def request_country(self):
 
