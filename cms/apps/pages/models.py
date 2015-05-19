@@ -461,9 +461,8 @@ class CountryGroup(models.Model):
         max_length=256
     )
 
-    default = models.BooleanField(
-        default=False
-    )
-
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ('name',)
