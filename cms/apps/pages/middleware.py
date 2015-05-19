@@ -37,9 +37,9 @@ class RequestPageManager(object):
         self._path_info = self._request.path_info
 
     def request_country(self):
+
         # Get geoip data path
-        geo_ip_path = os.path.abspath(
-            os.path.join(os.path.split(__file__)[0], 'data'))
+        geo_ip_path = os.path.abspath(os.path.join(os.path.split(__file__)[0], 'data'))
 
         # Country data from geoip
         g = GeoIP(path=geo_ip_path)
@@ -51,20 +51,24 @@ class RequestPageManager(object):
 
         # Get country matching code
         try:
-            country = Country.objects.get(code=self.request_country())
+            country = Country.objects.get(code=country_data['country_code'])
             if not country:
                 return None
-            return country
+            else:
+                return country
         except:
             return None
 
+    @cached_property
+    def country(self):
+        return self.request_country()
+
     def request_country_group(self):
         country = self.request_country()
-        if country:
-            if country.group:
-                return country.group
-            else:
-                return None
+
+        if country and country.group:
+            return country.group
+
         return None
 
     def alternate_page_version(self, page):
