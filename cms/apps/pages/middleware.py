@@ -46,7 +46,7 @@ class RequestPageManager(object):
         # Country data from geoip
         g = GeoIP()
         return {
-            "country_code": g.country(get_client_ip(self._request)).country_code
+            "country_code": g.country(get_client_ip(self._request)).get('country_code', None)
         }
 
     def request_country(self):
