@@ -37,12 +37,8 @@ class RequestPageManager(object):
         self._path_info = self._request.path_info
 
     def request_geo(self):
-        # Get geoip data path
-        geo_ip_path = os.path.abspath(
-            os.path.join(os.path.split(__file__)[0], 'data'))
-
         # Country data from geoip
-        g = GeoIP(path=geo_ip_path)
+        g = GeoIP()
         return g.country(get_client_ip(self._request))
 
     def request_country(self):
