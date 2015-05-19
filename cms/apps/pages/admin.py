@@ -12,7 +12,7 @@ from functools import cmp_to_key
 import json
 from copy import deepcopy
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth import get_permission_codename
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -31,6 +31,7 @@ from django import forms
 from cms import debug, externals
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
+
 
 
 # Used to track references to and from the JS sitemap.
@@ -252,10 +253,13 @@ class PageAdmin(PageBaseAdmin):
                     parent_choices.append((page.id, " \u203a ".join(str(breadcrumb) for breadcrumb in self.get_breadcrumbs(page))))
         else:
             parent_choices = []
+
         if not parent_choices:
             parent_choices = (("", "---------"),)
 
         if obj and not obj.is_content_object:
+            PageForm.base_fields["parent"].choices = parent_choices
+        elif not obj:
             PageForm.base_fields["parent"].choices = parent_choices
 
         # Return the completed form.
@@ -565,10 +569,17 @@ class PageAdmin(PageBaseAdmin):
 
             return redirect('/admin/pages/page/{}'.format(page.pk))
 
+        country_groups = CountryGroup.objects.all()
+
+        if not country_groups:
+            messages.add_message(request, messages.ERROR, 'You need to add at least one country group first before you can add a copy of this page')
+            return redirect('/admin/pages/page/{}'.format(original_page.pk))
+
         context = dict(
             original_page=original_page,
-            country_groups=CountryGroup.objects.all()
+            country_groups=country_groups
         )
+
         return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
 
 
