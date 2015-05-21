@@ -6,7 +6,7 @@ import sys
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.views.debug import technical_404_response
 from django.shortcuts import redirect
 from django.utils.functional import cached_property
@@ -169,6 +169,7 @@ class PageMiddleware(object):
         request.pages = RequestPageManager(request)
 
     def process_response(self, request, response):
+
         """If the response was a 404, attempt to serve up a page."""
         if response.status_code != 404:
             return response
@@ -178,6 +179,17 @@ class PageMiddleware(object):
             return response
         script_name = page.get_absolute_url()[:-1]
         path_info = request.path[len(script_name):]
+
+        # Continue for media
+        if request.path.startswith('/media/'):
+            return response
+
+        if request.country is not None:
+            script_name = '/{}{}'.format(
+                request.country.code.lower(),
+                script_name
+            )
+
         # Dispatch to the content.
         try:
             try:
@@ -186,6 +198,7 @@ class PageMiddleware(object):
                 # First of all see if adding a slash will help matters.
                 if settings.APPEND_SLASH:
                     new_path_info = path_info + "/"
+
                     try:
                         urlresolvers.resolve(new_path_info, page.content.urlconf)
                     except urlresolvers.Resolver404:
