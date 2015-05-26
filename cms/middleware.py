@@ -71,7 +71,7 @@ class LocalisationMiddleware(object):
         # Continue for media
         if request.path.startswith('/media/') \
             or request.path.startswith('/admin/') \
-            or request.path.startswith('/socoal-auth/'):
+            or request.path.startswith('/social-auth/'):
             return None
 
         # Set a default country object
@@ -98,7 +98,7 @@ class LocalisationMiddleware(object):
         # Continue for media
         if request.path.startswith('/media/') \
            or request.path.startswith('/admin/') \
-           or request.path.startswith('/socoal-auth/'):
+           or request.path.startswith('/social-auth/'):
             return response
 
         # If we don't have a country at this point, we need to do some ip

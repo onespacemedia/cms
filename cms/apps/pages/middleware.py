@@ -43,10 +43,9 @@ class RequestPageManager(object):
         return None
 
     def request_country_group(self):
-        country = self._request.country
-
-        if country and country.group:
-            return country.group
+        if hasattr(self._request, 'country'):
+            if self._request.country:
+                return self._request.country.group
 
         return None
 
