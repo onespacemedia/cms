@@ -69,7 +69,9 @@ class LocalisationMiddleware(object):
         # request.country = 'france'
 
         # Continue for media
-        if request.path.startswith('/media/'):
+        if request.path.startswith('/media/') \
+            or request.path.startswith('/admin/') \
+            or request.path.startswith('/socoal-auth/'):
             return None
 
         # Set a default country object
@@ -94,7 +96,9 @@ class LocalisationMiddleware(object):
     def process_response(self, request, response):
 
         # Continue for media
-        if request.path.startswith('/media/'):
+        if request.path.startswith('/media/') \
+           or request.path.startswith('/admin/') \
+           or request.path.startswith('/socoal-auth/'):
             return response
 
         # If we don't have a country at this point, we need to do some ip

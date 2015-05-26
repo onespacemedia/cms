@@ -269,12 +269,9 @@ def header(context, page_header=None):
 
 
 @register.simple_tag(takes_context=True)
-def country_absolute_url(context, url):
-
-    if context.request.country:
-        return '/{}{}'.format(
-            context.request.country.code.lower(),
-            url
+def country_code(context):
+    if hasattr(context.request, 'country') and context.request.country:
+        return '/{}'.format(
+            context.request.country.code.lower()
         )
-
-    return url
+    return ''

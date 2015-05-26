@@ -36,46 +36,14 @@ class RequestPageManager(object):
         self._path = self._request.path
         self._path_info = self._request.path_info
 
-    def request_geo(self):
-        cookie_code = self._request.COOKIES.get('country_code', None)
-        if cookie_code:
-            return {
-                "country_code": cookie_code
-            }
-
-        # Country data from geoip
-        g = GeoIP()
-        return {
-            "country_code": g.country(get_client_ip(self._request)).get('country_code', None)
-        }
-
-    def request_country(self):
-
-        country_data = self.request_geo()
-
-        # No code, return None
-        if country_data['country_code'] is None:
-            return None
-
-        # Get country matching code
-        try:
-            country = Country.objects.get(code=country_data['country_code'])
-            if not country:
-                return None
-            else:
-                return country
-        except:
-            return None
-
     @cached_property
     def country(self):
-        return dict(
-            actual=self.request_geo(),
-            cms=self.request_country()
-        )
+        if hasattr(self._request, 'country'):
+            return self._request.country
+        return None
 
     def request_country_group(self):
-        country = self.request_country()
+        country = self._request.country
 
         if country and country.group:
             return country.group
@@ -184,7 +152,7 @@ class PageMiddleware(object):
         if request.path.startswith('/media/'):
             return response
 
-        if request.country is not None:
+        if hasattr(request, 'country') and request.country is not None:
             script_name = '/{}{}'.format(
                 request.country.code.lower(),
                 script_name
