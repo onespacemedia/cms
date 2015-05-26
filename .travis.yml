@@ -4,11 +4,11 @@ cache:
     - $HOME/.cache/pip
 python:
 - "2.7"
-- "3.3"
-- "3.4"
+# - "3.3"
+# - "3.4"
 - "pypy"
 env:
- - DJANGO=1.7.7
+ # - DJANGO=1.7.7
  - DJANGO=1.8.1
 before_install:
  - sudo apt-get install libgeoip-dev
