@@ -13,7 +13,12 @@ from __future__ import unicode_literals
 from social.pipeline import DEFAULT_AUTH_PIPELINE
 
 import os
+import platform
 import sys
+
+if platform.python_implementation() == "PyPy":
+    from psycopg2cffi import compat
+    compat.register()
 
 
 # The name of this site.  Used for branding in the online admin area.
