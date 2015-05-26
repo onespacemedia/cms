@@ -191,7 +191,8 @@ class Page(PageBase):
 
     # Standard model methods.
 
-    def get_absolute_url(self, cached=True):
+    def get_absolute_url(self, cached=False):
+
         """Generates the absolute url of the page."""
         if self.cached_url and cached:
             return self.cached_url
@@ -446,6 +447,11 @@ class Country(models.Model):
         'pages.CountryGroup',
         blank=True,
         null=True
+    )
+
+    default = models.NullBooleanField(
+        default=None,
+        unique=True
     )
 
     def __str__(self):

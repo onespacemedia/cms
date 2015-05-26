@@ -6,7 +6,7 @@ import sys
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.views.debug import technical_404_response
 from django.shortcuts import redirect
 from django.utils.functional import cached_property
@@ -36,49 +36,16 @@ class RequestPageManager(object):
         self._path = self._request.path
         self._path_info = self._request.path_info
 
-    def request_geo(self):
-        cookie_code = self._request.COOKIES.get('country_code', None)
-        if cookie_code:
-            return {
-                "country_code": cookie_code
-            }
-
-        # Country data from geoip
-        g = GeoIP()
-        return {
-            "country_code": g.country(get_client_ip(self._request)).get('country_code', None)
-        }
-
-    def request_country(self):
-
-        country_data = self.request_geo()
-
-        # No code, return None
-        if country_data['country_code'] is None:
-            return None
-
-        # Get country matching code
-        try:
-            country = Country.objects.get(code=country_data['country_code'])
-            if not country:
-                return None
-            else:
-                return country
-        except:
-            return None
-
     @cached_property
     def country(self):
-        return dict(
-            actual=self.request_geo(),
-            cms=self.request_country()
-        )
+        if hasattr(self._request, 'country'):
+            return self._request.country
+        return None
 
     def request_country_group(self):
-        country = self.request_country()
-
-        if country and country.group:
-            return country.group
+        if hasattr(self._request, 'country'):
+            if self._request.country:
+                return self._request.country.group
 
         return None
 
@@ -169,6 +136,7 @@ class PageMiddleware(object):
         request.pages = RequestPageManager(request)
 
     def process_response(self, request, response):
+
         """If the response was a 404, attempt to serve up a page."""
         if response.status_code != 404:
             return response
@@ -178,6 +146,17 @@ class PageMiddleware(object):
             return response
         script_name = page.get_absolute_url()[:-1]
         path_info = request.path[len(script_name):]
+
+        # Continue for media
+        if request.path.startswith('/media/'):
+            return response
+
+        if hasattr(request, 'country') and request.country is not None:
+            script_name = '/{}{}'.format(
+                request.country.code.lower(),
+                script_name
+            )
+
         # Dispatch to the content.
         try:
             try:
@@ -186,6 +165,7 @@ class PageMiddleware(object):
                 # First of all see if adding a slash will help matters.
                 if settings.APPEND_SLASH:
                     new_path_info = path_info + "/"
+
                     try:
                         urlresolvers.resolve(new_path_info, page.content.urlconf)
                     except urlresolvers.Resolver404:

@@ -266,3 +266,12 @@ def header(context, page_header=None):
     return {
         "header": page_header,
     }
+
+
+@register.simple_tag(takes_context=True)
+def country_code(context):
+    if hasattr(context.request, 'country') and context.request.country:
+        return '/{}'.format(
+            context.request.country.code.lower()
+        )
+    return ''
