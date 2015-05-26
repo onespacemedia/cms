@@ -2,10 +2,41 @@
 # coding: utf-8
 from cms import VERSION
 
+import platform
 from setuptools import setup, find_packages
 
 
+DEPENDENCIES = [
+    'django',
+    'django-suit',
+    'Pillow',
+    'django-reversion',
+    # 'django-historylinks',
+    'django-watson',
+    'django-extensions',
+    'Werkzeug',
+    'opbeat',
+    'bcrypt',
+    'django-compressor',
+    'sorl-thumbnail',
+    'bcrypt',
+    'onespacemedia-server-management',
+    'requests',
+    'python-social-auth',
+    'django-cachalot',
+    'python-memcached',
+    'geoip',
+]
+
+
+if platform.python_implementation() == "PyPy":
+    DEPENDENCIES.append("psycopg2cffi")
+else:
+    DEPENDENCIES.append("psycopg2")
+
+
 EXCLUDE_FROM_PACKAGES = ['cms.bin']
+
 
 setup(
     name="onespacemedia-cms",
@@ -24,28 +55,7 @@ setup(
         ],
     },
     description='CMS used by Onespacemedia',
-    install_requires=[
-        'django',
-        'psycopg2',
-        'django-suit',
-        'Pillow',
-        'django-reversion',
-        # 'django-historylinks',
-        'django-watson',
-        'django-extensions',
-        'Werkzeug',
-        'opbeat',
-        'bcrypt',
-        'django-compressor',
-        'sorl-thumbnail',
-        'bcrypt',
-        'onespacemedia-server-management',
-        'requests',
-        'python-social-auth',
-        'django-cachalot',
-        'python-memcached',
-        'geoip',
-    ],
+    install_requires=DEPENDENCIES,
     extras_require={
         'usertools':  ["django-usertools"],
         'testing':  ["mock", "coverage", "coveralls"],
