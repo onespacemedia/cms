@@ -266,6 +266,11 @@ def main():
                 "user": args.project_name,
                 "password": ""
             }
+        },
+        "opbeat": {
+            "organization_id": "dde034beb33d4b77bb9937c39f0c158f",
+            "app_id": "",
+            "secret_token": ""
         }
     }
 

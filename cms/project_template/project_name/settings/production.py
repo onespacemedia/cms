@@ -4,10 +4,15 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 INSTALLED_APPS += (
-    'raven.contrib.django.raven_compat',
+    'opbeat.contrib.django',
 )
 
-# Sentry config.
-RAVEN_CONFIG = {
-    'dsn': '',
+OPBEAT = {
+    "ORGANIZATION_ID": "dde034beb33d4b77bb9937c39f0c158f",
+    "APP_ID": "",
+    "SECRET_TOKEN": ""
 }
+
+MIDDLEWARE_CLASSES = (
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
+) + MIDDLEWARE_CLASSES

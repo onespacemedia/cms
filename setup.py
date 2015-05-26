@@ -34,7 +34,7 @@ setup(
         'django-watson',
         'django-extensions',
         'Werkzeug',
-        'raven',
+        'opbeat',
         'bcrypt',
         'django-compressor',
         'sorl-thumbnail',
