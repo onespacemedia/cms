@@ -6,9 +6,10 @@ python:
 - "2.7"
 - "3.3"
 - "3.4"
+- "pypy"
 env:
- - DJANGO=1.7.7
- - DJANGO=1.8.1
+ - DJANGO=1.7.8
+ - DJANGO=1.8.2
 before_install:
  - sudo apt-get install libgeoip-dev
 install:
