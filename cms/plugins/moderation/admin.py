@@ -12,6 +12,8 @@ class ModerationAdminBase(admin.ModelAdmin):
 
     fieldsets = (MODERATION_FIELDS,)
 
+    list_filter = ['status']
+
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         """
         Give people who have the permission to approve item an extra option to
