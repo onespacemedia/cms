@@ -47,6 +47,7 @@ Currently supported are:
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
    getting_started
    links
@@ -54,3 +55,4 @@ Currently supported are:
    news
    pages
    testing
+   plugins/*
