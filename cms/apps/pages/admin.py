@@ -53,6 +53,9 @@ class PageAdmin(PageBaseAdmin):
         (None, {
             "fields": ("title", "url_title", "parent"),
         },),
+        ("Security", {
+            "fields": ("requires_password",),
+        }),
         ("Publication", {
             "fields": ("publication_date", "expiry_date", "is_online",),
             "classes": ("collapse",),
