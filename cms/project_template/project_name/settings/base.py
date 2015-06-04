@@ -180,6 +180,7 @@ COMPRESS_CSS_FILTERS = [
 # Dispatch settings.
 
 MIDDLEWARE_CLASSES = (
+    # "cms.middleware.LocalisationMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

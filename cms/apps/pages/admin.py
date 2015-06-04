@@ -12,6 +12,7 @@ from functools import cmp_to_key
 import json
 from copy import deepcopy
 
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth import get_permission_codename
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -377,6 +378,10 @@ class PageAdmin(PageBaseAdmin):
                 Q(owner=page.owner, is_content_object=True)
             ).order_by('-country_group')
 
+        extra_context['display_language_options'] = False
+        if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE_CLASSES:
+            extra_context['display_language_options'] = True
+
         # Call the change view.
         return super(PageAdmin, self).change_view(request, object_id, extra_context=extra_context, *args, **kwargs)
 
@@ -588,7 +593,9 @@ class CountryGroupAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Page, PageAdmin)
-admin.site.register(Country)
-admin.site.register(CountryGroup, CountryGroupAdmin)
+
+if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE_CLASSES:
+    admin.site.register(Country)
+    admin.site.register(CountryGroup, CountryGroupAdmin)
 
 page_admin = admin.site._registry[Page]
