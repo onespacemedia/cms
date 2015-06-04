@@ -64,6 +64,9 @@ setup(
         'usertools':  ["django-usertools"],
         'testing':  ["mock", "coverage", "coveralls"],
     },
+    dependency_links=[
+        'https://github.com/onespacemedia/django-historylinks/tarball/master#egg=django-historylinks'
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Framework :: Django :: 1.7',
