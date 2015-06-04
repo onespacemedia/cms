@@ -3,14 +3,12 @@
 import re
 
 from django.conf import settings
-from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
-from cms.apps.pages.models import Country
-
-from cms.models import publication_manager, PublicationManagementError
-
 from django.contrib.gis.geoip import GeoIP
+
+from cms.apps.pages.models import Country
+from cms.models import publication_manager, PublicationManagementError
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
