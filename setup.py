@@ -12,7 +12,7 @@ DEPENDENCIES = [
     'django-suit',
     'Pillow',
     'django-reversion',
-    # 'django-historylinks',
+    'django-historylinks',
     'django-watson',
     'django-extensions',
     'Werkzeug',
