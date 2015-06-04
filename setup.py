@@ -65,7 +65,7 @@ setup(
         'testing':  ["mock", "coverage", "coveralls"],
     },
     dependency_links=[
-        'https://github.com/onespacemedia/django-historylinks/tarball/master#egg=django-historylinks'
+        'https://github.com/onespacemedia/django-historylinks/tarball/master#egg=historylinks'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
