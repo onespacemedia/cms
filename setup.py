@@ -4,6 +4,7 @@ from cms import VERSION
 
 import platform
 from setuptools import setup, find_packages
+import sys
 
 
 DEPENDENCIES = [
@@ -33,6 +34,9 @@ if platform.python_implementation() == "PyPy":
     DEPENDENCIES.append("psycopg2cffi")
 else:
     DEPENDENCIES.append("psycopg2")
+
+if sys.version_info[0] == 3:
+    DEPENDENCIES.remove("onespacemedia-server-management")
 
 
 EXCLUDE_FROM_PACKAGES = ['cms.bin']
