@@ -159,6 +159,8 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
 )
 
+if sys.version_info[0] == 3:
+    INSTALLED_APPS.remove("server_management")
 
 # Additional static file locations.
 
