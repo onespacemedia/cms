@@ -166,14 +166,14 @@ class Page(PageBase):
         blank=True,
     )
 
-    requires_password = models.BooleanField(
+    requires_authentication = models.BooleanField(
         default=False
     )
 
-    def password_protected(self):
-        if self.requires_password or not self.parent:
-            return self.requires_password
-        return self.parent.password_protected()
+    def auth_required(self):
+        if self.requires_authentication or not self.parent:
+            return self.requires_authentication
+        return self.parent.auth_required()
 
     @cached_property
     def content(self):

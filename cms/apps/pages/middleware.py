@@ -177,7 +177,7 @@ class PageMiddleware(object):
                     callback.__name__
                 ))
 
-            if page.password_protected() and not request.user.is_authenticated():
+            if page.auth_required() and not request.user.is_authenticated():
                 return redirect("{}?next={}".format(
                         settings.LOGIN_URL,
                         request.path

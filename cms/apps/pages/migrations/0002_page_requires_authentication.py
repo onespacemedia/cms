@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='page',
-            name='requires_password',
+            name='requires_authentication',
             field=models.BooleanField(default=False),
         ),
     ]
