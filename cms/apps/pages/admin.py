@@ -33,7 +33,6 @@ from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
 
 
-
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"
 PAGE_FROM_SITEMAP_VALUE = "sitemap"
@@ -228,7 +227,7 @@ class PageAdmin(PageBaseAdmin):
         defaults = {"form": ContentForm}
         defaults.update(kwargs)
 
-        if obj and obj.is_content_object == True:
+        if obj and obj.is_content_object:
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
@@ -497,26 +496,40 @@ class PageAdmin(PageBaseAdmin):
         # Check that the user has permission to move pages.
         if not self.has_change_permission(request):
             return HttpResponseForbidden("You do not have permission to move this page.")
+
         # Lock entire table.
-        existing_pages_list = Page.objects.all().select_for_update().values("id", "parent_id", "left", "right", "title").order_by("left")
+        existing_pages_list = Page.objects.all().exclude(
+            is_content_object=True,
+        ).select_for_update().values(
+            "id",
+            "parent_id",
+            "left",
+            "right",
+            "title"
+        ).order_by("left")
         existing_pages = dict(
             (page["id"], page)
             for page
             in existing_pages_list
         )
+
         # Get the page.
         page = existing_pages[int(request.POST["page"])]
         parent_id = page["parent_id"]
+
         # Get all the siblings.
         siblings = [s for s in existing_pages_list if s["parent_id"] == parent_id]
+
         # Find the page to swap.
         direction = request.POST["direction"]
+
         if direction == "up":
             siblings.reverse()
         elif direction == "down":
             pass
         else:
             raise ValueError("Direction should be 'up' or 'down'.")
+
         sibling_iter = iter(siblings)
         for sibling in sibling_iter:
             if sibling["id"] == page["id"]:
@@ -525,25 +538,48 @@ class PageAdmin(PageBaseAdmin):
             other_page = next(sibling_iter)
         except StopIteration:
             return HttpResponse("Page could not be moved, as nothing to swap with.")
+
         # Put the pages in order.
         first_page, second_page = sorted((page, other_page), key=lambda p: p["left"])
+
         # Excise the first page.
         Page.objects.filter(left__gte=first_page["left"], right__lte=first_page["right"]).update(
             left=F("left") * -1,
             right=F("right") * -1,
         )
+
         # Move the other page.
         branch_width = first_page["right"] - first_page["left"] + 1
         Page.objects.filter(left__gte=second_page["left"], right__lte=second_page["right"]).update(
             left=F("left") - branch_width,
             right=F("right") - branch_width,
         )
+
         # Put the page back in.
         second_branch_width = second_page["right"] - second_page["left"] + 1
         Page.objects.filter(left__lte=-first_page["left"], right__gte=-first_page["right"]).update(
             left=(F("left") - second_branch_width) * -1,
-            right = (F("right") - second_branch_width) * -1,
+            right=(F("right") - second_branch_width) * -1,
         )
+
+        # Update all content models to match the left and right of their parents.
+        existing_pages_list = Page.objects.all().exclude(
+            is_content_object=False,
+        ).select_for_update().values(
+            "id",
+            "parent_id",
+            "owner",
+            "left",
+            "right",
+            "title"
+        ).order_by("left")
+
+        for page in existing_pages_list:
+            page.update(
+                left=F('owner__left'),
+                right=F('owner__right'),
+            )
+
         # Report back.
         return HttpResponse("Page #%s was moved %s." % (page["id"], direction))
 
