@@ -121,7 +121,7 @@ SITE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # A list of additional installed applications.
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
 
     "django.contrib.sessions",
     "django.contrib.auth",
@@ -157,7 +157,7 @@ INSTALLED_APPS = (
     'cachalot',
 
     'social.apps.django_app.default',
-)
+]
 
 if sys.version_info[0] == 3:
     INSTALLED_APPS.remove("server_management")
