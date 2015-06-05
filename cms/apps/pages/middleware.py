@@ -177,12 +177,13 @@ class PageMiddleware(object):
                     callback.__name__
                 ))
 
-            if page.auth_required() and not request.user.is_authenticated():
-                return redirect("{}?next={}".format(
-                        settings.LOGIN_URL,
-                        request.path
+            if request:
+                if page.auth_required() and not request.user.is_authenticated():
+                    return redirect("{}?next={}".format(
+                            settings.LOGIN_URL,
+                            request.path
+                        )
                     )
-                )
 
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()

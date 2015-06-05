@@ -237,6 +237,9 @@ class TestPageAdmin(TestCase):
             (None, {
                 'fields': ('title', 'url_title', 'parent')
             }),
+            ("Security", {
+                "fields": ("requires_authentication",),
+            }),
             ('Publication', {
                 'fields': ('publication_date', 'expiry_date', 'is_online'),
                 'classes': ('collapse',)
@@ -257,6 +260,9 @@ class TestPageAdmin(TestCase):
             }),
             ('Page content', {
                 'fields': ['description', 'inline_model']
+            }),
+            ("Security", {
+                "fields": ("requires_authentication",),
             }),
             ('Publication', {
                 'fields': ('publication_date', 'expiry_date', 'is_online'),
@@ -308,7 +314,8 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request)
 
-        keys = ['title', 'url_title', 'parent', 'publication_date',
+        keys = ['title', 'url_title', 'parent', 'requires_authentication',
+                'publication_date',
                 'expiry_date', 'is_online', 'short_title', 'in_navigation',
                 'browser_title', 'meta_keywords', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
@@ -334,7 +341,7 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request, obj=self.content_page)
 
-        keys = ['title', 'url_title', 'parent', 'description', 'inline_model',
+        keys = ['title', 'url_title', 'parent', 'description', 'inline_model', 'requires_authentication',
                 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_keywords',
                 'meta_description', 'sitemap_priority', 'sitemap_changefreq',
@@ -358,7 +365,7 @@ class TestPageAdmin(TestCase):
         self.content_page.is_content_object = True
         form = self.page_admin.get_form(request, obj=self.content_page)
 
-        keys = ['title', 'description', 'inline_model',
+        keys = ['title', 'description', 'inline_model', 'requires_authentication',
                 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_keywords',
                 'meta_description', 'sitemap_priority', 'sitemap_changefreq',
