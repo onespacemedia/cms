@@ -62,7 +62,7 @@ setup(
     install_requires=DEPENDENCIES,
     extras_require={
         'usertools':  ["django-usertools"],
-        'testing':  ["mock", "coverage", "coveralls"],
+        'testing':  ["mock", "coverage", "coveralls", "codecov"],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
