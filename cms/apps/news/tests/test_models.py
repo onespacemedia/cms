@@ -83,7 +83,7 @@ class TestNews(TestCase):
 
     def test_categoryhistorylinkadapter_get_permalinks(self):
         self._create_objects()
-        adapter = CategoryHistoryLinkAdapter()
+        adapter = CategoryHistoryLinkAdapter(Category)
         self.assertEqual(adapter.get_permalinks(self.category), {'page_' + str(self.page.pk): '/foo/'})
 
     def test_article_get_permalink_for_page(self):
