@@ -255,10 +255,13 @@ class Page(PageBase):
                 (page["id"], page)
                 for page
                 in Page.objects.filter(
-                    is_content_object=False).select_for_update().values("id",
-                                                                        "parent_id",
-                                                                        "left",
-                                                                        "right")
+                    is_content_object=False
+                ).select_for_update().values(
+                    "id",
+                    "parent_id",
+                    "left",
+                    "right"
+                )
             )
 
             if self.left is None or self.right is None:
