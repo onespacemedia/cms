@@ -41,9 +41,11 @@ class RequestPageManager(object):
 
         try:
             # See if the page has any alternate versions for the current country
-            alternate_version = Page.objects.get(is_content_object=True,
-                                                 owner=page,
-                                                 country_group=self.request_country_group())
+            alternate_version = Page.objects.get(
+                is_content_object=True,
+                owner=page,
+                country_group=self.request_country_group()
+            )
 
             return alternate_version
 
@@ -172,8 +174,7 @@ class PageMiddleware(object):
                     return redirect("{}?next={}".format(
                         settings.LOGIN_URL,
                         request.path
-                    )
-                    )
+                    ))
 
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()
