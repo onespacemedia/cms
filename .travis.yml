@@ -14,6 +14,7 @@ before_install:
  - sudo apt-get install libgeoip-dev
 install:
     - pip install -q Django==$DJANGO
+    - pip install -qe git+https://github.com/onespacemedia/django-historylinks.git#egg=historylinks
     - pip install -e .[testing]
     - start_cms_project.py testing testing_dir/ --without-people --without-faqs --without-jobs --skip-frontend
 script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
