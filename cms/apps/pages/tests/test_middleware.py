@@ -1,15 +1,10 @@
-from django.contrib.auth import login
-from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase, RequestFactory
 
-from ..middleware import RequestPageManager, PageMiddleware, get_client_ip
+from ..middleware import RequestPageManager, PageMiddleware
 from ..models import ContentBase, Page, CountryGroup, Country
 from .... import externals
-
-
-import mock
 
 
 class TestMiddlewarePage(ContentBase):
