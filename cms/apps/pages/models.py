@@ -345,10 +345,10 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         """Returns the search text for the page."""
         content_obj = obj.content
 
-        return " ".join((
+        return u" ".join((
             super(PageSearchAdapter, self).get_content(obj),
-            self.prepare_content(" ".join(
-                str(self._resolve_field(content_obj, field_name))
+            self.prepare_content(u" ".join(
+                unicode(self._resolve_field(content_obj, field_name))
                 for field_name in (
                     field.name for field
                     in content_obj._meta.fields
