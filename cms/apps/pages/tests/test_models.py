@@ -171,6 +171,7 @@ class TestPage(TestCase):
             )
 
         self.assertEqual(new_page.get_absolute_url(), '/')
+        self.assertEqual(new_page.get_absolute_url(True), '/')
 
         new_page = Page.objects.get(pk=new_page.pk)
         self.assertEqual(new_page.cached_url, '/')
