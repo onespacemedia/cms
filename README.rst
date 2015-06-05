@@ -2,7 +2,7 @@ Onespacemedia CMS
 =================
 
 .. image:: https://img.shields.io/badge/license-New%20BSD-blue.svg
-    :target: https://raw.githubusercontent.com/onespacemedia/cms/master/LICENSE
+    :target: https://raw.githubusercontent.com/onespacemedia/cms/master/LICENSES
 
 .. image:: https://travis-ci.org/onespacemedia/cms.svg?branch=master
     :target: https://travis-ci.org/onespacemedia/cms
