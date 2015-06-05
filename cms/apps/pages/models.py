@@ -17,6 +17,7 @@ from cms.models.managers import publication_manager
 
 
 class PageManager(OnlineBaseManager):
+
     """Manager for Page objects."""
 
     def select_published(self, queryset, page_alias=None):
@@ -69,6 +70,7 @@ class PageManager(OnlineBaseManager):
 
 
 class Page(PageBase):
+
     """A page within the site."""
 
     objects = PageManager()
@@ -114,7 +116,7 @@ class Page(PageBase):
         """The child pages for this page."""
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children
-        #  we know aren't there!
+            #  we know aren't there!
             for child in self.child_set.filter(is_content_object=False):
                 child.parent = self
                 children.append(child)
@@ -191,17 +193,20 @@ class Page(PageBase):
         if kwargs is None:
             kwargs = {}
         urlconf = ContentType.objects.get_for_id(
-            self.content_type_id).model_class().urlconf
-        return self.get_absolute_url() + urlresolvers.reverse(view_func,
-                                                              args=args,
-                                                              kwargs=kwargs,
-                                                              urlconf=urlconf,
-                                                              prefix="")
+            self.content_type_id
+        ).model_class().urlconf
+
+        return self.get_absolute_url() + urlresolvers.reverse(
+            view_func,
+            args=args,
+            kwargs=kwargs,
+            urlconf=urlconf,
+            prefix=""
+        )
 
     # Standard model methods.
 
     def get_absolute_url(self, cached=False):
-
         """Generates the absolute url of the page."""
         if self.cached_url and cached:
             return self.cached_url
@@ -254,10 +259,13 @@ class Page(PageBase):
                 (page["id"], page)
                 for page
                 in Page.objects.filter(
-                    is_content_object=False).select_for_update().values("id",
-                                                                        "parent_id",
-                                                                        "left",
-                                                                        "right")
+                    is_content_object=False
+                ).select_for_update().values(
+                    "id",
+                    "parent_id",
+                    "left",
+                    "right"
+                )
             )
 
             if self.left is None or self.right is None:
@@ -285,8 +293,10 @@ class Page(PageBase):
                     branch_width = self.right - self.left + 1
                     # Disconnect child branch.
                     if branch_width > 2:
-                        Page.objects.filter(left__gt=self.left,
-                                            right__lt=self.right).update(
+                        Page.objects.filter(
+                            left__gt=self.left,
+                            right__lt=self.right
+                        ).update(
                             left=F("left") * -1,
                             right=F("right") * -1,
                         )
@@ -304,8 +314,10 @@ class Page(PageBase):
                     # Put all children back into the tree.
                     if branch_width > 2:
                         child_offset = self.left - old_left
-                        Page.objects.filter(left__lt=-old_left,
-                                            right__gt=-old_right).update(
+                        Page.objects.filter(
+                            left__lt=-old_left,
+                            right__gt=-old_right
+                        ).update(
                             left=(F("left") - child_offset) * -1,
                             right=(F("right") - child_offset) * -1,
                         )
@@ -318,10 +330,12 @@ class Page(PageBase):
     @transaction.atomic
     def delete(self, *args, **kwargs):
         """Deletes the page."""
-        list(Page.objects.all().select_for_update().values_list("left",
-                                                                "right"))  #
-                                                                # Lock entire
-                                                                #  table.
+        list(Page.objects.all().select_for_update().values_list(
+            "left",
+            "right"
+        ))  #
+        # Lock entire
+        #  table.
         super(Page, self).delete(*args, **kwargs)
         # Update the entire tree.
         self._excise_branch()
@@ -335,6 +349,7 @@ externals.historylinks("register", Page)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
+
     """Sitemap for page models."""
 
     model = Page
@@ -348,6 +363,7 @@ sitemaps.register(Page, sitemap_cls=PageSitemap)
 
 
 class PageSearchAdapter(PageBaseSearchAdapter):
+
     """Search adapter for Page models."""
 
     def get_content(self, obj):
@@ -357,7 +373,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         return u" ".join((
             super(PageSearchAdapter, self).get_content(obj),
             self.prepare_content(u" ".join(
-                unicode(self._resolve_field(content_obj, field_name))
+                force_text(self._resolve_field(content_obj, field_name))
                 for field_name in (
                     field.name for field
                     in content_obj._meta.fields
@@ -389,7 +405,7 @@ def get_registered_content():
     return [
         model for model in apps.get_models()
         if issubclass(model, ContentBase) and not model._meta.abstract
-        ]
+    ]
 
 
 def filter_indexable_pages(queryset):
@@ -404,12 +420,13 @@ def filter_indexable_pages(queryset):
             for content_model
             in get_registered_content()
             if content_model.robots_index
-            ]
+        ]
     )
 
 
 @python_2_unicode_compatible
 class ContentBase(models.Model):
+
     """Base class for page content."""
 
     # This must be a 64 x 64 pixel image.

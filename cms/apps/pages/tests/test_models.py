@@ -1,10 +1,9 @@
 """Tests for the pages app."""
 
 from django.db import models
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
-from ..admin import PageAdmin
 
 from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
 from .... import externals
@@ -150,6 +149,33 @@ class TestPage(TestCase):
             self.homepage.save()
 
             self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 0)
+
+    def test_page_get_absolute_url(self):
+        with externals.watson.context_manager("update_index")():
+            Page.objects.all().delete()
+
+            content_type = ContentType.objects.get_for_model(TestPageContent)
+
+            new_page = Page(
+                content_type=content_type,
+                parent=None,
+                left=None,
+                right=None,
+            )
+            self.assertIsNone(new_page.cached_url)
+            new_page.save()
+            self.assertEqual(new_page.cached_url, '/')
+
+            TestPageContent.objects.create(
+                page=new_page,
+            )
+
+        self.assertEqual(new_page.get_absolute_url(), '/')
+        self.assertEqual(new_page.get_absolute_url(True), '/')
+
+        new_page = Page.objects.get(pk=new_page.pk)
+        self.assertEqual(new_page.cached_url, '/')
+        self.assertEqual(new_page.get_absolute_url(), '/')
 
 
 class TestSectionPage(TestCase):

@@ -1,15 +1,10 @@
-from django.contrib.auth import login
-from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.http import HttpResponse, HttpResponseNotFound
 from django.test import TestCase, RequestFactory
 
-from ..middleware import RequestPageManager, PageMiddleware, get_client_ip
+from ..middleware import RequestPageManager, PageMiddleware
 from ..models import ContentBase, Page, CountryGroup, Country
 from .... import externals
-
-
-import mock
 
 
 class TestMiddlewarePage(ContentBase):
@@ -176,29 +171,65 @@ class TestRequestPageManager(TestCase):
         self.assertEqual(self.country_group.__str__(), "United States of America")
         self.assertEqual(self.country.__str__(), "United States of America")
 
-        # self.request = self.factory.get('/')
-        # self.request.META['REMOTE_ADDR'] = '8.8.8.8'
-        #
-        # ip_address = get_client_ip(self.request)
-        # self.assertEqual(self.request.META['REMOTE_ADDR'], ip_address)
-        #
-        # self.request.META['HTTP_X_FORWARDED_FOR'] = '8.8.4.4'
-        #
-        # ip_address = get_client_ip(self.request)
-        # self.assertEqual(self.request.META['HTTP_X_FORWARDED_FOR'], ip_address)
-        #
-        # self.page_manager = RequestPageManager(self.request)
-        # self.assertEqual(self.page_manager.request_country_group(), self.country_group)
-        #
-        # self.assertEqual(self.page_manager.current, self.homepage_alt)
-        #
-        # self.request.META['HTTP_X_FORWARDED_FOR'] = '81.110.144.126'
-        # self.page_manager = RequestPageManager(self.request)
-        # self.assertEqual(self.page_manager.request_country_group(), None)
-        #
-        # self.request.META['HTTP_X_FORWARDED_FOR'] = '189.228.123.90'
-        # self.page_manager = RequestPageManager(self.request)
-        # self.assertEqual(self.page_manager.request_country_group(), None)
+    def test_country(self):
+        _generate_pages(self)
+
+        self.request = self.factory.get('/')
+        self.page_manager = RequestPageManager(self.request)
+        self.assertIsNone(self.page_manager.country)
+
+        self.request = self.factory.get('/')
+        self.request.country = 'GB'
+        self.page_manager = RequestPageManager(self.request)
+        self.assertEqual(self.page_manager.country, 'GB')
+
+    def test_alternate_page_version(self):
+        _generate_pages(self)
+
+        # Create a country group.
+        group = CountryGroup.objects.create(
+            name='Foo',
+        )
+
+        group2 = CountryGroup.objects.create(
+            name='Bar',
+        )
+
+        # Create a country.
+        Country.objects.create(
+            code='GB',
+            group=group,
+        )
+
+        country2 = Country.objects.create(
+            code='FR',
+            group=group2,
+            default=False,
+        )
+
+        # Create an alternate version of the page with the country.
+        with externals.watson.context_manager("update_index")():
+            content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
+
+            alternate_page = Page.objects.create(
+                is_content_object=True,
+                owner=self.homepage,
+                country_group=group2,
+                left=self.homepage.left,
+                right=self.homepage.right,
+                content_type=content_type,
+            )
+
+            TestMiddlewarePage.objects.create(
+                page=alternate_page,
+            )
+
+        self.request = self.factory.get('/')
+        self.request.country = country2
+        self.page_manager = RequestPageManager(self.request)
+        alternate_check = self.page_manager.alternate_page_version(self.homepage)
+
+        self.assertEqual(alternate_check, alternate_page)
 
 
 class MockUser(object):
@@ -310,3 +341,15 @@ class TestPageMiddleware(TestCase):
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response.status_code, 200)
 
+        request = self.factory.get('/media/')
+        request.pages = RequestPageManager(request)
+        processed_response = middleware.process_response(request, response)
+        self.assertEqual(processed_response, response)
+
+        request = self.factory.get('/foo/')
+        request.country = Country.objects.create(
+            code='GB',
+        )
+        request.pages = RequestPageManager(request)
+        processed_response = middleware.process_response(request, response)
+        self.assertEqual(processed_response.status_code, 200)

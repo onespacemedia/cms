@@ -10,6 +10,7 @@ from django.contrib.gis.geoip import GeoIP
 from cms.apps.pages.models import Country
 from cms.models import publication_manager, PublicationManagementError
 
+
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -60,6 +61,7 @@ class PublicationMiddleware(object):
 
 
 class LocalisationMiddleware(object):
+
     def process_request(self, request):
 
         # request.path = '/news/'
@@ -68,8 +70,8 @@ class LocalisationMiddleware(object):
 
         # Continue for media
         if request.path.startswith('/media/') \
-            or request.path.startswith('/admin/') \
-            or request.path.startswith('/social-auth/'):
+                or request.path.startswith('/admin/') \
+                or request.path.startswith('/social-auth/'):
             return None
 
         # Set a default country object

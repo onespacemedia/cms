@@ -14,15 +14,6 @@ from django.template.response import SimpleTemplateResponse
 from cms.apps.pages.models import Page
 
 
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
 class RequestPageManager(object):
 
     """Handles loading page objects."""
@@ -50,9 +41,11 @@ class RequestPageManager(object):
 
         try:
             # See if the page has any alternate versions for the current country
-            alternate_version = Page.objects.get(is_content_object=True,
-                                                 owner=page,
-                                                 country_group=self.request_country_group())
+            alternate_version = Page.objects.get(
+                is_content_object=True,
+                owner=page,
+                country_group=self.request_country_group()
+            )
 
             return alternate_version
 
@@ -133,7 +126,6 @@ class PageMiddleware(object):
         request.pages = RequestPageManager(request)
 
     def process_response(self, request, response):
-
         """If the response was a 404, attempt to serve up a page."""
         if response.status_code != 404:
             return response
@@ -180,10 +172,9 @@ class PageMiddleware(object):
             if request:
                 if page.auth_required() and not request.user.is_authenticated():
                     return redirect("{}?next={}".format(
-                            settings.LOGIN_URL,
-                            request.path
-                        )
-                    )
+                        settings.LOGIN_URL,
+                        request.path
+                    ))
 
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()
@@ -196,4 +187,3 @@ class PageMiddleware(object):
             return response
         except:
             return BaseHandler().handle_uncaught_exception(request, urlresolvers.get_resolver(None), sys.exc_info())
-

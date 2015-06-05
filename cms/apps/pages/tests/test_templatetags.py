@@ -2,8 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, RequestFactory
 
 from ..middleware import RequestPageManager
-from ..models import ContentBase, Page
-from ..templatetags.pages import get_navigation, page_url, meta_keywords, breadcrumbs
+from ..models import ContentBase, Page, Country
+from ..templatetags.pages import get_navigation, page_url, meta_keywords, breadcrumbs, country_code
 from .... import externals
 
 
@@ -12,6 +12,7 @@ class TestTemplatetagPage(ContentBase):
 
 
 class TestTemplatetags(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
@@ -102,3 +103,20 @@ class TestTemplatetags(TestCase):
         self.assertDictEqual(output, {
             'breadcrumbs': []
         })
+
+    def test_country_code(self):
+        class Context(object):
+            pass
+
+        context = Context()
+        context.request = self.request
+        self.assertEqual(country_code(context), '')
+
+        country = Country.objects.create(
+            code='GB',
+        )
+
+        context = Context()
+        context.request = self.request
+        context.request.country = country
+        self.assertEqual(country_code(context), '/gb')

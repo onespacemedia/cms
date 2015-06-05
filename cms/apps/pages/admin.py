@@ -582,8 +582,8 @@ class PageAdmin(PageBaseAdmin):
             "title"
         ).order_by("left")
 
-        for page in existing_pages_list:
-            page.update(
+        for child_page in existing_pages_list:
+            child_page.update(
                 left=F('owner__left'),
                 right=F('owner__right'),
             )

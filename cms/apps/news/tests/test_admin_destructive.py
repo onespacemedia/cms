@@ -10,6 +10,7 @@ import mock
 class TestArticleAdminBase(TestCase):
 
     def test_article_admin(self):
+        module = sys.modules['cms.apps.news.admin']
         del sys.modules['cms.apps.news.admin']
 
         admin.site.unregister(Article)
@@ -20,3 +21,5 @@ class TestArticleAdminBase(TestCase):
             assert ArticleAdmin
             self.assertIs(ArticleAdmin.__bases__[0], ArticleAdminBase)
             self.assertEqual(len(ArticleAdmin.__bases__), 1)
+
+        sys.modules['cms.apps.news.admin'] = module
