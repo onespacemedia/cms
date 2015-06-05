@@ -1,4 +1,5 @@
 from copy import deepcopy
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import FilteredSelectMultiple, RelatedFieldWidgetWrapper
@@ -17,7 +18,6 @@ from ..models import get_registered_content, ContentBase, Page, CountryGroup, \
 from .... import externals
 
 import json
-import mock
 import os
 import sys
 
@@ -497,6 +497,7 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.change_view(request, str(self.homepage.pk))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context_data['title'], 'Change page')
+        self.assertFalse(response.context_data['display_language_options'])
 
         self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
 
@@ -508,6 +509,16 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
+
+        NEW_MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES + (
+            'cms.middleware.LocalisationMiddleware',
+        )
+
+        with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
+            request = self._build_request()
+            response = self.page_admin.change_view(request, str(self.homepage.pk))
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context_data['display_language_options'])
 
     def test_pageadmin_revision_view(self):
         request = self._build_request()
@@ -661,6 +672,19 @@ class TestPageAdmin(TestCase):
                 page=content_page_1,
             )
 
+            # Create an alternative page.
+            alternative_page = Page.objects.create(
+                is_content_object=True,
+                owner=content_page_1,
+                left=content_page_1.left,
+                right=content_page_1.right,
+                content_type=content_type,
+            )
+
+            PageContent.objects.create(
+                page=alternative_page,
+            )
+
             content_page_2 = Page.objects.create(
                 title="Bar",
                 url_title='bar',
@@ -672,9 +696,38 @@ class TestPageAdmin(TestCase):
                 page=content_page_2,
             )
 
+        self.homepage = Page.objects.get(pk=self.homepage.pk)
+        content_page_1 = Page.objects.get(pk=content_page_1.pk)
+        alternative_page = Page.objects.get(pk=alternative_page.pk)
+        content_page_2 = Page.objects.get(pk=content_page_2.pk)
+
+        self.assertEqual(self.homepage.left, 1)
+        self.assertEqual(self.homepage.right, 6)
+        self.assertEqual(content_page_1.left, 2)
+        self.assertEqual(content_page_1.right, 3)
+        self.assertEqual(alternative_page.left, 2)
+        self.assertEqual(alternative_page.right, 3)
+        self.assertEqual(content_page_2.left, 4)
+        self.assertEqual(content_page_2.right, 5)
+
+        # Move the page
         request.POST['page'] = content_page_1.pk
         request.POST['direction'] = 'down'
         response = self.page_admin.move_page_view(request)
+
+        self.homepage = Page.objects.get(pk=self.homepage.pk)
+        content_page_1 = Page.objects.get(pk=content_page_1.pk)
+        alternative_page = Page.objects.get(pk=alternative_page.pk)
+        content_page_2 = Page.objects.get(pk=content_page_2.pk)
+
+        self.assertEqual(self.homepage.left, 1)
+        self.assertEqual(self.homepage.right, 6)
+        self.assertEqual(content_page_1.left, 4)
+        self.assertEqual(content_page_1.right, 5)
+        self.assertEqual(alternative_page.left, 4)
+        self.assertEqual(alternative_page.right, 5)
+        self.assertEqual(content_page_2.left, 2)
+        self.assertEqual(content_page_2.right, 3)
 
         if six.PY2:
             self.assertEqual(response.content, "Page #" + six.text_type(content_page_1.pk) + " was moved down.")
@@ -687,7 +740,25 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_pageadmin_duplicate_for_country_group(self):
+        # Test without country groups first.
+        factory = RequestFactory()
+        request = factory.get('/?preview=a')
 
+        # Allow the messages framework to work.
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/admin/pages/page/' + str(self.homepage.pk))
+        self.assertEqual(len(request._messages._queued_messages), 1)
+        self.assertEqual(
+            request._messages._queued_messages[0].message,
+            "You need to add at least one country group first before you can add a copy of this page"
+        )
+
+        # Create country groups.
         self.country_group = CountryGroup.objects.create(
             name="United Kingdom"
         )
