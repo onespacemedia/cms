@@ -166,6 +166,15 @@ class Page(PageBase):
         blank=True,
     )
 
+    requires_authentication = models.BooleanField(
+        default=False
+    )
+
+    def auth_required(self):
+        if self.requires_authentication or not self.parent:
+            return self.requires_authentication
+        return self.parent.auth_required()
+
     @cached_property
     def content(self):
         """The associated content model for this page."""

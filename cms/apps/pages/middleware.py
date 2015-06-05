@@ -1,20 +1,17 @@
 """Custom middleware used by the pages application."""
-import os
 
 import sys
 
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.views.debug import technical_404_response
 from django.shortcuts import redirect
 from django.utils.functional import cached_property
 from django.template.response import SimpleTemplateResponse
 
-from cms.apps.pages.models import Page, Country
-
-from django.contrib.gis.geoip import GeoIP
+from cms.apps.pages.models import Page
 
 
 def get_client_ip(request):
@@ -179,8 +176,18 @@ class PageMiddleware(object):
                 raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(
                     callback.__name__
                 ))
+
+            if request:
+                if page.auth_required() and not request.user.is_authenticated():
+                    return redirect("{}?next={}".format(
+                            settings.LOGIN_URL,
+                            request.path
+                        )
+                    )
+
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()
+
             return response
         except Http404 as ex:
             if settings.DEBUG:
@@ -189,3 +196,4 @@ class PageMiddleware(object):
             return response
         except:
             return BaseHandler().handle_uncaught_exception(request, urlresolvers.get_resolver(None), sys.exc_info())
+

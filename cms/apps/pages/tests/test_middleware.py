@@ -1,3 +1,5 @@
+from django.contrib.auth import login
+from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.test import TestCase, RequestFactory
@@ -5,6 +7,9 @@ from django.test import TestCase, RequestFactory
 from ..middleware import RequestPageManager, PageMiddleware, get_client_ip
 from ..models import ContentBase, Page, CountryGroup, Country
 from .... import externals
+
+
+import mock
 
 
 class TestMiddlewarePage(ContentBase):
@@ -79,6 +84,18 @@ def _generate_pages(self):
 
         TestMiddlewarePage.objects.create(
             page=self.homepage_alt,
+        )
+
+        self.auth_page = Page.objects.create(
+            title='Auth Page',
+            url_title='auth',
+            parent=self.homepage,
+            content_type=content_type,
+            requires_authentication=True,
+        )
+
+        TestMiddlewarePage.objects.create(
+            page=self.auth_page,
         )
 
 
@@ -184,6 +201,14 @@ class TestRequestPageManager(TestCase):
         # self.assertEqual(self.page_manager.request_country_group(), None)
 
 
+class MockUser(object):
+
+    def __init__(self, authenticated=True):
+        self.authenticated = authenticated
+
+    def is_authenticated(self):
+        return self.authenticated
+
 
 class TestPageMiddleware(TestCase):
 
@@ -271,3 +296,17 @@ class TestPageMiddleware(TestCase):
             request.pages = RequestPageManager(request)
             processed_response = middleware.process_response(request, HttpResponseNotFound())
             self.assertEqual(processed_response.status_code, 404)
+
+        request = self.factory.get('/auth/')
+        request.user = MockUser(authenticated=False)
+        request.pages = RequestPageManager(request)
+        processed_response = middleware.process_response(request, response)
+        self.assertEqual(processed_response['Location'], '/accounts/login/?next=/auth/')
+        self.assertEqual(processed_response.status_code, 302)
+
+        request = self.factory.get('/auth/')
+        request.user = MockUser(authenticated=True)
+        request.pages = RequestPageManager(request)
+        processed_response = middleware.process_response(request, response)
+        self.assertEqual(processed_response.status_code, 200)
+
