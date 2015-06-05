@@ -12,6 +12,7 @@ class TestTemplatetagPage(ContentBase):
 
 
 class TestTemplatetags(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.request = self.factory.get('/')

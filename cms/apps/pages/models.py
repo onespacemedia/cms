@@ -17,6 +17,7 @@ from cms.models.managers import publication_manager
 
 
 class PageManager(OnlineBaseManager):
+
     """Manager for Page objects."""
 
     def select_published(self, queryset, page_alias=None):
@@ -69,6 +70,7 @@ class PageManager(OnlineBaseManager):
 
 
 class Page(PageBase):
+
     """A page within the site."""
 
     objects = PageManager()
@@ -114,7 +116,7 @@ class Page(PageBase):
         """The child pages for this page."""
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children
-        #  we know aren't there!
+            #  we know aren't there!
             for child in self.child_set.filter(is_content_object=False):
                 child.parent = self
                 children.append(child)
@@ -201,7 +203,6 @@ class Page(PageBase):
     # Standard model methods.
 
     def get_absolute_url(self, cached=False):
-
         """Generates the absolute url of the page."""
         if self.cached_url and cached:
             return self.cached_url
@@ -320,8 +321,8 @@ class Page(PageBase):
         """Deletes the page."""
         list(Page.objects.all().select_for_update().values_list("left",
                                                                 "right"))  #
-                                                                # Lock entire
-                                                                #  table.
+        # Lock entire
+        #  table.
         super(Page, self).delete(*args, **kwargs)
         # Update the entire tree.
         self._excise_branch()
@@ -335,6 +336,7 @@ externals.historylinks("register", Page)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
+
     """Sitemap for page models."""
 
     model = Page
@@ -348,6 +350,7 @@ sitemaps.register(Page, sitemap_cls=PageSitemap)
 
 
 class PageSearchAdapter(PageBaseSearchAdapter):
+
     """Search adapter for Page models."""
 
     def get_content(self, obj):
@@ -389,7 +392,7 @@ def get_registered_content():
     return [
         model for model in apps.get_models()
         if issubclass(model, ContentBase) and not model._meta.abstract
-        ]
+    ]
 
 
 def filter_indexable_pages(queryset):
@@ -404,12 +407,13 @@ def filter_indexable_pages(queryset):
             for content_model
             in get_registered_content()
             if content_model.robots_index
-            ]
+        ]
     )
 
 
 @python_2_unicode_compatible
 class ContentBase(models.Model):
+
     """Base class for page content."""
 
     # This must be a 64 x 64 pixel image.

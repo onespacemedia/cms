@@ -133,7 +133,6 @@ class PageMiddleware(object):
         request.pages = RequestPageManager(request)
 
     def process_response(self, request, response):
-
         """If the response was a 404, attempt to serve up a page."""
         if response.status_code != 404:
             return response
@@ -180,9 +179,9 @@ class PageMiddleware(object):
             if request:
                 if page.auth_required() and not request.user.is_authenticated():
                     return redirect("{}?next={}".format(
-                            settings.LOGIN_URL,
-                            request.path
-                        )
+                        settings.LOGIN_URL,
+                        request.path
+                    )
                     )
 
             if isinstance(response, SimpleTemplateResponse):
@@ -196,4 +195,3 @@ class PageMiddleware(object):
             return response
         except:
             return BaseHandler().handle_uncaught_exception(request, urlresolvers.get_resolver(None), sys.exc_info())
-

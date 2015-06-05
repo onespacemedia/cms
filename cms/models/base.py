@@ -93,10 +93,10 @@ class SearchMetaBase(OnlineBase):
             (0.3, "Low"),
             (0.0, "Very low"),
         ),
-        default = None,
-        blank = True,
-        null = True,
-        help_text = (
+        default=None,
+        blank=True,
+        null=True,
+        help_text=(
             "The relative importance of this content in your site.  Search engines use this "
             "as a hint when ranking the pages within your site."
         ),
@@ -113,10 +113,10 @@ class SearchMetaBase(OnlineBase):
             (6, "Yearly"),
             (7, "Never")
         ),
-        default = None,
-        blank = True,
-        null = True,
-        help_text = (
+        default=None,
+        blank=True,
+        null=True,
+        help_text=(
             "How frequently you expect this content to be updated."
             "Search engines use this as a hint when scanning your site for updates."
         ),

@@ -19,6 +19,7 @@ import random
 
 
 class BrokenFile(object):
+
     """
     A special class designed to raise an IOError the second time it's `file`
     method is called. Used to test sorl.

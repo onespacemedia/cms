@@ -309,4 +309,3 @@ class TestPageMiddleware(TestCase):
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response.status_code, 200)
-
