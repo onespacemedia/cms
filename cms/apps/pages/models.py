@@ -193,12 +193,16 @@ class Page(PageBase):
         if kwargs is None:
             kwargs = {}
         urlconf = ContentType.objects.get_for_id(
-            self.content_type_id).model_class().urlconf
-        return self.get_absolute_url() + urlresolvers.reverse(view_func,
-                                                              args=args,
-                                                              kwargs=kwargs,
-                                                              urlconf=urlconf,
-                                                              prefix="")
+            self.content_type_id
+        ).model_class().urlconf
+
+        return self.get_absolute_url() + urlresolvers.reverse(
+            view_func,
+            args=args,
+            kwargs=kwargs,
+            urlconf=urlconf,
+            prefix=""
+        )
 
     # Standard model methods.
 
@@ -289,8 +293,10 @@ class Page(PageBase):
                     branch_width = self.right - self.left + 1
                     # Disconnect child branch.
                     if branch_width > 2:
-                        Page.objects.filter(left__gt=self.left,
-                                            right__lt=self.right).update(
+                        Page.objects.filter(
+                            left__gt=self.left,
+                            right__lt=self.right
+                        ).update(
                             left=F("left") * -1,
                             right=F("right") * -1,
                         )
@@ -308,8 +314,10 @@ class Page(PageBase):
                     # Put all children back into the tree.
                     if branch_width > 2:
                         child_offset = self.left - old_left
-                        Page.objects.filter(left__lt=-old_left,
-                                            right__gt=-old_right).update(
+                        Page.objects.filter(
+                            left__lt=-old_left,
+                            right__gt=-old_right
+                        ).update(
                             left=(F("left") - child_offset) * -1,
                             right=(F("right") - child_offset) * -1,
                         )
@@ -322,8 +330,10 @@ class Page(PageBase):
     @transaction.atomic
     def delete(self, *args, **kwargs):
         """Deletes the page."""
-        list(Page.objects.all().select_for_update().values_list("left",
-                                                                "right"))  #
+        list(Page.objects.all().select_for_update().values_list(
+            "left",
+            "right"
+        ))  #
         # Lock entire
         #  table.
         super(Page, self).delete(*args, **kwargs)
