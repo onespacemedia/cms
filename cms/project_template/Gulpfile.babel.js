@@ -12,7 +12,7 @@ const $ = gulpLoadPlugins();
 // - Gulp tasks
 import {bower, files} from './tasks/bower';
 import images from './tasks/images';
-import {watch} from './tasks/scripts';
+import scripts from './tasks/scripts';
 import serve from './tasks/serve';
 import styles from './tasks/styles';
 
@@ -35,7 +35,7 @@ gulp.task('images', images);
 gulp.task('styles', styles);
 
 // - JS Scripts
-gulp.task('scripts', watch);
+gulp.task('scripts', scripts);
 
 // - Browser sync
 gulp.task('serve', serve);
