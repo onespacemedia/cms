@@ -22,7 +22,7 @@ const reload = browserSync.reload;
 // - Project config
 import config from './_config';
 
-export function compile(watch) {
+function compile(watch) {
   const bundler = watchify(browserify(config.watchify.fileIn, {debug: true}).transform(babelify));
 
   function rebundle() {
@@ -54,6 +54,4 @@ export function compile(watch) {
   rebundle();
 }
 
-export function watch() {
-  return compile(true);
-}
+export default () => compile(true);
