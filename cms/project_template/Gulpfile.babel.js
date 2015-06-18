@@ -4,6 +4,7 @@
 // - Main
 import gulp from 'gulp';
 import runSequence from 'run-sequence';
+import del from 'del';
 
 // - Gulp modules
 import gulpLoadPlugins from 'gulp-load-plugins';
@@ -27,6 +28,9 @@ const reload = bs.reload;
 // - Bower
 gulp.task('bower', bower);
 gulp.task('bowerFiles', files);
+
+// - Clean
+gulp.task('clean:temp', cb => del('.tmp', cb));
 
 // - Images
 gulp.task('images', images);
