@@ -13,6 +13,7 @@ export function bower() {
 }
 
 export function files() {
+  // Move the Vendor JS files
   gulp.src([
     'bower_components/fastclick/lib/fastclick.js',
     'bower_components/jquery/dist/jquery.js',
@@ -23,9 +24,11 @@ export function files() {
   ])
     .pipe(gulp.dest('testing/static/js/vendor/'));
 
+  // Move the Foundation JS files
   gulp.src('bower_components/foundation/js/foundation/*')
     .pipe(gulp.dest('testing/static/js/vendor/foundation/'));
 
+  // Move the Foundation CSS files
   gulp.src([
     'bower_components/foundation/scss/normalize.scss',
     'bower_components/foundation/scss/**/*',
@@ -33,6 +36,7 @@ export function files() {
   ])
     .pipe(gulp.dest('testing/static/scss/'));
 
+  // Move base Foundation file and rename it
   gulp.src('bower_components/foundation/scss/foundation.scss')
     .pipe($.rename({
       basename: 'screen'

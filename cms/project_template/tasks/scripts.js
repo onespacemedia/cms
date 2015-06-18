@@ -23,6 +23,7 @@ const reload = browserSync.reload;
 import config from './_config';
 
 function compile(watch) {
+  // Create our browserify instance
   const bundler = watchify(browserify(config.watchify.fileIn, {debug: true}).transform(babelify));
 
   function rebundle() {
@@ -31,10 +32,19 @@ function compile(watch) {
         console.error(err);
         this.emit('end');
       })
+      // Grab our entry file
       .pipe(source(config.watchify.fileOut))
+
+      // Buffer it.. (?)
       .pipe(buffer())
+
+      // Initialise source maps, load the maps from browserify
       .pipe($.sourcemaps.init({loadMaps: true}))
+
+      // Write the source maps, need to provide the source for Browser Sync
       .pipe($.sourcemaps.write({includeContent: false, sourceRoot: config.watchify.folderIn}))
+
+      // Place our nice new JS file
       .pipe(gulp.dest(config.watchify.folderOut));
   }
 
