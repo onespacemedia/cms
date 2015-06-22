@@ -1,8 +1,8 @@
+{% load pages html compress %}
+
 <!DOCTYPE html>
 <html>
-    {% load pages html compress %}
     <head>
-
         <meta charset="utf-8">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">{% comment %}
         <meta name="keywords" content="{% block meta_keywords %}{% meta_keywords %}{% endblock %}">
@@ -19,7 +19,6 @@
             <link rel="stylesheet" href="/static/css/normalize.css"/>
             <link rel="stylesheet" href="/static/css/screen.css"/>
         {% endcompress %}
-
     </head>
 
     <body class="{% block body_class %}{% endblock %}">
@@ -37,7 +36,7 @@
         </script>
         {% endif %}
 
-		{% include 'browser_update.html' %}
+        {% include 'browser_update.html' %}
 
         <header>
             <h1><a href="{{pages.homepage.get_absolute_url}}">{{settings.SITE_NAME}}</a></h1>
@@ -67,8 +66,8 @@
         </footer>
 
         {% compress js %}
+          <script src="/static/js/build/app.js"></script>
         {% endcompress %}
 
     </body>
-
 </html>
