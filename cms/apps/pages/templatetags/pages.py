@@ -40,7 +40,7 @@ def navigation(context, pages, section=None):
         }
 
     # All the applicable nav items
-    entries = [x for x in pages if page_entry(x) is not None]
+    entries = [page_entry(x) for x in pages if page_entry(x) is not None]
 
     # Add the section.
     if section:
