@@ -54,7 +54,7 @@ class PageAdmin(PageBaseAdmin):
             "fields": ("title", "url_title", "parent"),
         },),
         ("Security", {
-            "fields": ("requires_authentication", "hide_from_anonymous"),
+            "fields": ("requires_authentication",),
         }),
         ("Publication", {
             "fields": ("publication_date", "expiry_date", "is_online",),
