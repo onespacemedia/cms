@@ -26,34 +26,24 @@ def navigation(context, pages, section=None):
     # Compile the entries.
 
     def page_entry(page):
-        # Do nothing if the page is to be hidden from not logged in users
-        if page.hide_from_anonymous and not request.user.is_authenticated():
-            return
-
         url = page.get_absolute_url()
-
         return {
             "url": url,
             "page": page,
             "title": str(page),
-            "here": request.path.startswith(url)
+            "here": request.path.startswith(url),
         }
-
-    # All the applicable nav items
-    entries = [x for x in pages if page_entry(x) is not None]
-
+    entries = map(page_entry, pages)
     # Add the section.
     if section:
         section_entry = page_entry(section)
         section_entry["here"] = context["pages"].current == section_entry["page"]
         entries = [section_entry] + list(entries)
-
     # Render the template.
     context.update({
         "request": request,
         "navigation": entries,
     })
-
     return context
 
 
@@ -64,6 +54,7 @@ def get_navigation(context, pages, section=None):
 
 
 # Page linking.
+
 @register.simple_tag
 def page_url(page, view_func=None, *args, **kwargs):
     """Renders the URL of the given view func in the given page."""
