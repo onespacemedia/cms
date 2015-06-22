@@ -169,7 +169,14 @@ class Page(PageBase):
     )
 
     requires_authentication = models.BooleanField(
-        default=False
+        default=False,
+        help_text="Visitors will need to be logged in to see this page"
+    )
+
+    hide_from_anonymous = models.BooleanField(
+        'show to logged in only',
+        default=False,
+        help_text="Visitors that aren't logged in won't see this page in the navigation"
     )
 
     def auth_required(self):
