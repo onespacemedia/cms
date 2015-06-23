@@ -62,6 +62,16 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
         "classes": ("collapse",),
     })
 
+    OPENGRAPH_FIELDS = ("Open graph", {
+        "fields": ("og_title", "og_description", "og_image"),
+        "classes": ("collapse",)
+    })
+
+    OPENGRAPH_TWITTER_FIELDS = ("Open graph twitter", {
+        "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
+        "classes": ("collapse",)
+    })
+
 
 if externals.reversion:
     class SearchMetaBaseAdmin(SearchMetaBaseAdmin, externals.reversion["admin.VersionMetaAdmin"]):
@@ -92,12 +102,14 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         "classes": ("collapse",),
     })
 
-    fieldsets = (
+    fieldsets = [
         TITLE_FIELDS,
         OnlineBaseAdmin.PUBLICATION_FIELDS,
         NAVIGATION_FIELDS,
         SearchMetaBaseAdmin.SEO_FIELDS,
-    )
+        SearchMetaBaseAdmin.OPENGRAPH_FIELDS,
+        SearchMetaBaseAdmin.OPENGRAPH_TWITTER_FIELDS
+    ]
 
 
 class CMSUserAdmin(UserAdmin):
