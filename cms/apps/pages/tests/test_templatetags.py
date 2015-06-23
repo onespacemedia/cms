@@ -7,6 +7,14 @@ from ..templatetags.pages import get_navigation, page_url, meta_keywords, breadc
 from .... import externals
 
 
+class MockUser(object):
+    def __init__(self, authenticated=True):
+        self.authenticated = authenticated
+
+    def is_authenticated(self):
+        return self.authenticated
+
+
 class TestTemplatetagPage(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'
 
@@ -35,6 +43,7 @@ class TestTemplatetags(TestCase):
                 title="Section",
                 url_title='section',
                 content_type=content_type,
+                hide_from_anonymous=True
             )
 
             TestTemplatetagPage.objects.create(
@@ -62,10 +71,13 @@ class TestTemplatetags(TestCase):
             )
 
     def test_get_navigation(self):
-        self.homepage = Page.objects.get(pk=self.homepage.pk)
-        navigation = get_navigation({'request': self.request}, self.homepage.navigation)
+        request = self.factory.get('/')
+        request.user = MockUser(authenticated=True)
+        request.pages = RequestPageManager(request)
 
-        self.assertListEqual(list(navigation), [
+        navigation = get_navigation({'request': request}, request.pages.current.navigation)
+
+        self.assertListEqual(navigation, [
             {
                 'url': '/section/',
                 'page': self.section,
@@ -73,6 +85,13 @@ class TestTemplatetags(TestCase):
                 'title': 'Section'
             }
         ])
+
+        # Section page isn't visible to non logged in users
+        request.user = MockUser(authenticated=False)
+
+        navigation = get_navigation({'request': request}, request.pages.current.navigation)
+
+        self.assertListEqual(navigation, [])
 
     def test_page_url(self):
         self.assertEqual(page_url(self.homepage), '/')

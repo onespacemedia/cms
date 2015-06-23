@@ -34,7 +34,7 @@ urlpatterns = patterns(
     url(r"^robots.txt$", TextTemplateView.as_view(template_name="robots.txt")),
 
     # There's no favicon here!
-    url(r"^favicon.ico$", generic.RedirectView.as_view()),
+    url(r"^favicon.ico$", generic.RedirectView.as_view(permanent=True)),
 
     url('', include('social.apps.django_app.urls', namespace='social'))
 

@@ -238,7 +238,7 @@ class TestPageAdmin(TestCase):
                 'fields': ('title', 'url_title', 'parent')
             }),
             ("Security", {
-                "fields": ("requires_authentication",),
+                "fields": ("requires_authentication", "hide_from_anonymous"),
             }),
             ('Publication', {
                 'fields': ('publication_date', 'expiry_date', 'is_online'),
@@ -262,7 +262,7 @@ class TestPageAdmin(TestCase):
                 'fields': ['description', 'inline_model']
             }),
             ("Security", {
-                "fields": ("requires_authentication",),
+                "fields": ("requires_authentication", "hide_from_anonymous"),
             }),
             ('Publication', {
                 'fields': ('publication_date', 'expiry_date', 'is_online'),
@@ -314,7 +314,7 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request)
 
-        keys = ['title', 'url_title', 'parent', 'requires_authentication',
+        keys = ['title', 'url_title', 'parent', 'requires_authentication', 'hide_from_anonymous',
                 'publication_date',
                 'expiry_date', 'is_online', 'short_title', 'in_navigation',
                 'browser_title', 'meta_keywords', 'meta_description',
@@ -342,7 +342,7 @@ class TestPageAdmin(TestCase):
         form = self.page_admin.get_form(request, obj=self.content_page)
 
         keys = ['title', 'url_title', 'parent', 'description', 'inline_model', 'requires_authentication',
-                'publication_date', 'expiry_date', 'is_online', 'short_title',
+                'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_keywords',
                 'meta_description', 'sitemap_priority', 'sitemap_changefreq',
                 'robots_index', 'robots_follow', 'robots_archive']
@@ -366,7 +366,7 @@ class TestPageAdmin(TestCase):
         form = self.page_admin.get_form(request, obj=self.content_page)
 
         keys = ['title', 'description', 'inline_model', 'requires_authentication',
-                'publication_date', 'expiry_date', 'is_online', 'short_title',
+                'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_keywords',
                 'meta_description', 'sitemap_priority', 'sitemap_changefreq',
                 'robots_index', 'robots_follow', 'robots_archive']

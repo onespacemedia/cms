@@ -67,7 +67,7 @@ class TestArticleAdminBase(TestCase):
         self.assertTrue(form.is_valid())
 
         save_instance(form, self.article, commit=False)
-        formsets = self.article_admin.get_formsets(self.request)
+        formsets = self.article_admin.get_formsets_with_inlines(self.request)
         self.article_admin.save_related(self.request, form, formsets, True)
 
         form.save()
