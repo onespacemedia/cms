@@ -219,7 +219,7 @@ class Page(PageBase):
             return self.cached_url
 
         if self.parent:
-            url = self.parent.get_absolute_url() + self.url_title + "/"
+            url = self.parent.get_absolute_url() + self.slug + "/"
         else:
             url = urlresolvers.get_script_prefix()
 
@@ -348,7 +348,7 @@ class Page(PageBase):
         self._excise_branch()
 
     class Meta:
-        unique_together = (("parent", "url_title", "country_group"),)
+        unique_together = (("parent", "slug", "country_group"),)
         ordering = ("left",)
 
 

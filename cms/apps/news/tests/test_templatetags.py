@@ -33,7 +33,7 @@ class NewsTest(TestCase):
 
             self.homepage = Page.objects.create(
                 title="Homepage",
-                url_title='homepage',
+                slug='homepage',
                 content_type=content_type,
             )
 
@@ -55,7 +55,7 @@ class NewsTest(TestCase):
 
             self.page = Page.objects.create(
                 title="News Feed",
-                url_title='news',
+                slug='news',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -65,14 +65,14 @@ class NewsTest(TestCase):
             )
 
             self.category = Category.objects.create(
-                url_title='foo'
+                slug='foo'
             )
 
         # Create an Article.
         self.article = Article.objects.create(
             news_feed=self.feed,
             title='Article',
-            url_title='foo',
+            slug='foo',
             date=self.date,
         )
 

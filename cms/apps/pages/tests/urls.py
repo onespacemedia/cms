@@ -10,5 +10,5 @@ def view(request, *args, **kwargs):
 urlpatterns = patterns(
     "",
     url("^$", view, name="index"),
-    url("^(?P<url_title>[^/]+)/$", view, name="detail"),
+    url("^(?P<slug>[^/]+)/$", view, name="detail"),
 )

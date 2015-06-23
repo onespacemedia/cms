@@ -30,7 +30,7 @@ class TestTemplatetags(TestCase):
 
             self.homepage = Page.objects.create(
                 title="Homepage",
-                url_title='homepage',
+                slug='homepage',
                 content_type=content_type,
             )
 
@@ -41,7 +41,7 @@ class TestTemplatetags(TestCase):
             self.section = Page.objects.create(
                 parent=self.homepage,
                 title="Section",
-                url_title='section',
+                slug='section',
                 content_type=content_type,
                 hide_from_anonymous=True
             )
@@ -99,7 +99,7 @@ class TestTemplatetags(TestCase):
         self.assertEqual(page_url(-1), '#')
         self.assertEqual(page_url(None), '#')
         self.assertEqual(
-            page_url(self.homepage.pk, 'detail', url_title='homepage'),
+            page_url(self.homepage.pk, 'detail', slug='homepage'),
             '/homepage/'
         )
 
