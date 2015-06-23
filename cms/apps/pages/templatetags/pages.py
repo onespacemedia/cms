@@ -161,19 +161,83 @@ def meta_robots(context, index=None, follow=None, archive=None):
     return escape(robots)
 
 
+def absolute_domain_url(context):
+    request = context['request']
+
+    https = 's' if request.is_secure() else ''
+
+    return 'http{}://{}'.format(
+        https,
+        request.META['HTTP_HOST']
+    )
+
+
 @register.simple_tag(takes_context=True)
 def canonical_url(context):
     request = context['request']
 
-    https = 's' if request.is_secure else ''
-
-    url = 'http{}://{}{}'.format(
-        https,
-        request.META['HTTP_HOST'],
+    url = '{}{}'.format(
+        absolute_domain_url(context),
         request.path
     )
 
     return escape(url)
+
+
+@register.simple_tag(takes_context=True)
+def og_title(context, title=None):
+    if title is None:
+        title = context.get('og_title')
+
+    if title is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            title = page.og_title
+
+        if title is None:
+            title = context.get('title') or (page and page.title) or (page and page.browser_title)
+
+    return escape(title or '')
+
+
+@register.simple_tag(takes_context=True)
+def og_description(context, description=None):
+    if description is None:
+        description = context.get('og_description')
+
+    if description is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            description = page.og_description
+
+    return escape(description or '')
+
+
+@register.simple_tag(takes_context=True)
+def og_image(context, image=None):
+    image_obj = None
+
+    if image is None:
+        image_obj = context.get('og_image')
+
+    if image is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            image_obj = page.og_image
+
+    if image_obj:
+        image = '{}{}'.format(
+            absolute_domain_url(context),
+            image_obj.get_absolute_url()
+        )
+
+    return escape(image or '')
 
 
 @register.inclusion_tag("pages/title.html", takes_context=True)
