@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.utils.encoding import python_2_unicode_compatible
 
 from cms import externals
+from cms.apps.media.models import ImageRefField
 from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
 
 
@@ -149,6 +150,72 @@ class SearchMetaBase(OnlineBase):
             "Use this to prevent search engines from archiving this page. "
             "Disable this only if the page is likely to change on a very regular basis. "
         ),
+    )
+
+    # Open graph fields
+    og_title = models.CharField(
+        blank=True,
+        max_length=100,
+        help_text='Title that will appear on the Facebook post, it is limited to 100 characters'
+                  'because Facebook truncates the title to 88 characters.'
+    )
+
+    og_description = models.TextField(
+        blank=True,
+        max_length=300,
+        help_text='Description that will appear ont he Facebook post, it is limited to 300'
+                  'characters but is recommended not to use anything over 200.'
+    )
+
+    og_image = ImageRefField(
+        blank=True,
+        null=True,
+        help_text='The recommended image size is 1200x627 (1.91/1 ratio) this gives you a big'
+                  'stand out thumbnail. Using an image smaller than 400x209 will give you a very'
+                  'small thumbnail and splits your post into 2 columns.'
+                  ''
+                  'If you have text on the image make sure it is centered as Facebook crops images'
+                  'to get the text centered so you may lose some of your image.'
+    )
+
+    # Twitter card fields
+    twitter_card = models.CharField(
+        choices=[
+            ('summary', 'Summary'),
+            ('photo', 'Photo'),
+            ('video', 'Video'),
+            ('product', 'Product'),
+            ('app', 'App'),
+            ('gallery', 'Gallery'),
+            ('large-summary', 'Large Summary'),
+        ],
+        default='summary',
+        max_length=100,
+        help_text='The type of content on the page, most of the time summary will suffice'
+                  ''
+                  'Before you can benefit with any of these fields make sure to go to'
+                  'https://dev.twitter.com/docs/cards/validation/validator and get approved'
+    )
+
+    twitter_title = models.CharField(
+        blank=True,
+        max_length=70,
+        help_text='The title that appears on the Twitter card, it is limited to 70 characters.'
+    )
+
+    twitter_description = models.TextField(
+        blank=True,
+        max_length=200,
+        help_text='Description that will appear on the Twitter card, it is limited to 200 characters'
+                  'You don\'t need to focus on keywords as this does\'nt effect SEO so focus on'
+                  'copy that compliments the tweet and title.'
+    )
+
+    twitter_image = ImageRefField(
+        blank=True,
+        null=True,
+        help_text='The minimum size it needs to be is 280x150, if you want to use a larger image'
+                  'make sure the card type is set to "Large Summary"'
     )
 
     def get_context_data(self):
