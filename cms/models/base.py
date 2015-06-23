@@ -144,6 +144,7 @@ class SearchMetaBase(OnlineBase):
 
     # Open graph fields
     og_title = models.CharField(
+        verbose_name='title',
         blank=True,
         max_length=100,
         help_text='Title that will appear on the Facebook post, it is limited to 100 characters'
@@ -151,6 +152,7 @@ class SearchMetaBase(OnlineBase):
     )
 
     og_description = models.TextField(
+        verbose_name='description',
         blank=True,
         max_length=300,
         help_text='Description that will appear ont he Facebook post, it is limited to 300'
@@ -158,6 +160,7 @@ class SearchMetaBase(OnlineBase):
     )
 
     og_image = ImageRefField(
+        verbose_name='image',
         blank=True,
         null=True,
         help_text='The recommended image size is 1200x627 (1.91/1 ratio) this gives you a big'
@@ -170,6 +173,7 @@ class SearchMetaBase(OnlineBase):
 
     # Twitter card fields
     twitter_card = models.CharField(
+        verbose_name='card',
         choices=[
             ('summary', 'Summary'),
             ('photo', 'Photo'),
@@ -188,12 +192,14 @@ class SearchMetaBase(OnlineBase):
     )
 
     twitter_title = models.CharField(
+        verbose_name='title',
         blank=True,
         max_length=70,
         help_text='The title that appears on the Twitter card, it is limited to 70 characters.'
     )
 
     twitter_description = models.TextField(
+        verbose_name='description',
         blank=True,
         max_length=200,
         help_text='Description that will appear on the Twitter card, it is limited to 200 characters'
@@ -202,6 +208,7 @@ class SearchMetaBase(OnlineBase):
     )
 
     twitter_image = ImageRefField(
+        verbose_name='image',
         blank=True,
         null=True,
         help_text='The minimum size it needs to be is 280x150, if you want to use a larger image'
@@ -219,6 +226,13 @@ class SearchMetaBase(OnlineBase):
             "robots_follow": self.robots_follow,
             "title": self.browser_title or title,
             "header": title,
+            "og_title": self.og_title,
+            "og_description": self.og_description,
+            "og_image": self.og_image,
+            "twitter_card": self.twitter_card,
+            "twitter_title": self.twitter_title,
+            "twitter_description": self.twitter_description,
+            "twitter_image": self.twitter_image
         }
 
     def render(self, request, template, context=None, **kwargs):
