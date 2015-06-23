@@ -49,23 +49,18 @@ class PageAdmin(PageBaseAdmin):
 
     """Admin settings for Page models."""
 
-    fieldsets = (
+    fieldsets = [
         (None, {
             "fields": ("title", "slug", "parent"),
-        },),
+        }),
         ("Security", {
             "fields": ("requires_authentication", "hide_from_anonymous"),
-        }),
-        ("Publication", {
-            "fields": ("publication_date", "expiry_date", "is_online",),
-            "classes": ("collapse",),
-        }),
-        ("Navigation", {
-            "fields": ("short_title", "in_navigation",),
-            "classes": ("collapse",),
-        }),
-        PageBaseAdmin.SEO_FIELDS,
-    )
+        })
+    ]
+
+    fieldsets.extend(PageBaseAdmin.fieldsets)
+
+    fieldsets.remove(PageBaseAdmin.TITLE_FIELDS)
 
     search_adapter_cls = PageSearchAdapter
 
@@ -233,10 +228,10 @@ class PageAdmin(PageBaseAdmin):
 
         if obj and obj.is_content_object:
             self.prepopulated_fields = {}
-            self.fieldsets[0][1]['fields'] = ('title',)
+            # self.fieldsets[0][1]['fields'] = ('title',)
         else:
             self.prepopulated_fields = {"slug": ("title",), }
-            self.fieldsets[0][1]['fields'] = ("title", "slug", "parent")
+            # self.fieldsets[0][1]['fields'] = ("title", "slug", "parent")
 
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)
 

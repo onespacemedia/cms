@@ -38,7 +38,7 @@ class ArticleAdminBase(PageBaseAdmin):
 
     list_filter = ("is_online", "categories", "status",)
 
-    fieldsets = (
+    fieldsets = [
         (None, {
             "fields": ("title", "slug", "news_feed", "date", "status",),
         }),
@@ -49,9 +49,11 @@ class ArticleAdminBase(PageBaseAdmin):
             "fields": ("categories", "authors", "is_online",),
             "classes": ("collapse",),
         }),
-        PageBaseAdmin.NAVIGATION_FIELDS,
-        PageBaseAdmin.SEO_FIELDS,
-    )
+    ]
+
+    fieldsets.extend(PageBaseAdmin.fieldsets)
+
+    fieldsets.remove(PageBaseAdmin.TITLE_FIELDS)
 
     raw_id_fields = ("image",)
 
