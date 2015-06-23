@@ -39,10 +39,6 @@ class PageDetailMixin(SearchMetaDetailMixin):
 
     """Generates the context for a page detail view."""
 
-    slug_field = "slug"
-
-    slug_url_kwarg = "slug"
-
 
 class SearchMetaDetailView(SearchMetaDetailMixin, generic.DetailView):
 
