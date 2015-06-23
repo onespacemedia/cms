@@ -114,6 +114,7 @@ def meta_description(context, description=None):
         page = request.pages.current
         if page:
             description = page.meta_description
+
     return escape(description or "")
 
 
@@ -158,6 +159,21 @@ def meta_robots(context, index=None, follow=None, archive=None):
         archive and "ARCHIVE" or "NOARCHIVE",
     ))
     return escape(robots)
+
+
+@register.simple_tag(takes_context=True)
+def canonical_url(context):
+    request = context['request']
+
+    https = 's' if request.is_secure else ''
+
+    url = 'http{}://{}{}'.format(
+        https,
+        request.META['HTTP_HOST'],
+        request.path
+    )
+
+    return escape(url)
 
 
 @register.inclusion_tag("pages/title.html", takes_context=True)
