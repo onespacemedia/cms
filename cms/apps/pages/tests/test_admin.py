@@ -249,7 +249,7 @@ class TestPageAdmin(TestCase):
                 'classes': ('collapse',)
             }),
             ('Search engine optimization', {
-                'fields': ('browser_title', 'meta_keywords', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
+                'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
             })
         )
@@ -273,7 +273,7 @@ class TestPageAdmin(TestCase):
                 'classes': ('collapse',)
             }),
             ('Search engine optimization', {
-                'fields': ('browser_title', 'meta_keywords', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
+                'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
             })
         )
@@ -317,7 +317,7 @@ class TestPageAdmin(TestCase):
         keys = ['title', 'slug', 'parent', 'requires_authentication', 'hide_from_anonymous',
                 'publication_date',
                 'expiry_date', 'is_online', 'short_title', 'in_navigation',
-                'browser_title', 'meta_keywords', 'meta_description',
+                'browser_title', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
                 'robots_follow', 'robots_archive']
         self.assertListEqual(list(form.base_fields.keys()), keys)
@@ -343,9 +343,8 @@ class TestPageAdmin(TestCase):
 
         keys = ['title', 'slug', 'parent', 'description', 'inline_model', 'requires_authentication',
                 'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
-                'in_navigation', 'browser_title', 'meta_keywords',
-                'meta_description', 'sitemap_priority', 'sitemap_changefreq',
-                'robots_index', 'robots_follow', 'robots_archive']
+                'in_navigation', 'browser_title', 'meta_description', 'sitemap_priority',
+                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive']
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
         self.assertIsInstance(form.base_fields['inline_model'].widget, RelatedFieldWidgetWrapper)
@@ -367,9 +366,8 @@ class TestPageAdmin(TestCase):
 
         keys = ['title', 'description', 'inline_model', 'requires_authentication',
                 'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
-                'in_navigation', 'browser_title', 'meta_keywords',
-                'meta_description', 'sitemap_priority', 'sitemap_changefreq',
-                'robots_index', 'robots_follow', 'robots_archive']
+                'in_navigation', 'browser_title', 'meta_description', 'sitemap_priority',
+                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive']
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
         self.content_page.is_content_object = False

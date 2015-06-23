@@ -69,16 +69,6 @@ class SearchMetaBase(OnlineBase):
         )
     )
 
-    meta_keywords = models.CharField(
-        "keywords",
-        max_length=1000,
-        blank=True,
-        help_text=(
-            "A comma-separated list of keywords for this page. Use this to specify common mis-spellings "
-            "or alternative versions of important words in this page."
-        ),
-    )
-
     meta_description = models.TextField(
         "description",
         blank=True,
@@ -224,7 +214,6 @@ class SearchMetaBase(OnlineBase):
         # Return the context.
         return {
             "meta_description": self.meta_description,
-            "meta_keywords": self.meta_keywords,
             "robots_index": self.robots_index,
             "robots_archive": self.robots_archive,
             "robots_follow": self.robots_follow,

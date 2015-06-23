@@ -170,23 +170,6 @@ You can also provide the meta description as an argument to this tag::
 
     {% meta_description "foo" %}
 
-.. py:method:: meta_keywords(context, keywords=None)
-
-Renders the content of the meta keywords tag for the current page::
-
-    {% meta_keywords %}
-
-You can override the meta keywords by setting a context variable called ``meta_keywords``::
-
-    {% with "foo" as meta_keywords %}
-        {% meta_keywords %}
-    {% endwith %}
-
-You can also provide the meta keywords as an argument to this tag::
-
-    {% meta_keywords "foo" %}
-
-
 .. py:method:: meta_robots(context, index=None, follow=None, archive=None)
 
 Renders the content of the meta robots tag for the current page::
