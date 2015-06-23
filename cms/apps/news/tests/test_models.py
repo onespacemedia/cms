@@ -33,13 +33,13 @@ class TestNews(TestCase):
             )
 
             self.category = Category.objects.create(
-                url_title='foo'
+                slug='foo'
             )
 
             self.article = Article.objects.create(
                 news_feed=self.feed,
                 title='Foo',
-                url_title='foo',
+                slug='foo',
                 date=self.date,
             )
             self.article.categories.add(self.category)
@@ -47,14 +47,14 @@ class TestNews(TestCase):
             self.article_2 = Article.objects.create(
                 news_feed=self.feed,
                 title='Foo 2',
-                url_title='foo2',
+                slug='foo2',
                 date=self.date + timedelta(days=10)
             )
 
             self.article_3 = Article.objects.create(
                 news_feed=self.feed,
                 title='Foo 3',
-                url_title='foo3',
+                slug='foo3',
                 status='approved',
                 date=self.date,
             )

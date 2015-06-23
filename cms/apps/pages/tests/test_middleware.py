@@ -21,7 +21,7 @@ def _generate_pages(self):
 
         self.homepage = Page.objects.create(
             title="Homepage",
-            url_title='homepage',
+            slug='homepage',
             content_type=content_type,
         )
 
@@ -31,7 +31,7 @@ def _generate_pages(self):
 
         self.page_1 = Page.objects.create(
             title='Foo',
-            url_title='foo',
+            slug='foo',
             parent=self.homepage,
             content_type=content_type,
         )
@@ -42,7 +42,7 @@ def _generate_pages(self):
 
         self.page_2 = Page.objects.create(
             title='Bar',
-            url_title='bar',
+            slug='bar',
             parent=self.page_1,
             content_type=content_type,
         )
@@ -68,7 +68,7 @@ def _generate_pages(self):
 
         self.homepage_alt = Page.objects.create(
             title="Homepage",
-            url_title='homepage',
+            slug='homepage',
             owner=self.homepage,
             is_content_object=True,
             country_group=self.country_group,
@@ -83,7 +83,7 @@ def _generate_pages(self):
 
         self.auth_page = Page.objects.create(
             title='Auth Page',
-            url_title='auth',
+            slug='auth',
             parent=self.homepage,
             content_type=content_type,
             requires_authentication=True,
@@ -289,7 +289,7 @@ class TestPageMiddleware(TestCase):
 
             self.content_url = Page.objects.create(
                 title="Foo",
-                url_title='urls',
+                slug='urls',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -308,7 +308,7 @@ class TestPageMiddleware(TestCase):
 
             self.content_url = Page.objects.create(
                 title="Foo",
-                url_title='raise404',
+                slug='raise404',
                 parent=self.homepage,
                 content_type=content_type,
             )

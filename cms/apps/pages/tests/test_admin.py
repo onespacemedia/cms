@@ -90,7 +90,7 @@ class TestPageAdmin(TestCase):
 
             self.homepage = Page.objects.create(
                 title="Homepage",
-                url_title='homepage',
+                slug='homepage',
                 content_type=content_type,
             )
 
@@ -224,7 +224,7 @@ class TestPageAdmin(TestCase):
 
             self.content_page = Page.objects.create(
                 title="Content page",
-                url_title='content_page',
+                slug='content_page',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -235,7 +235,7 @@ class TestPageAdmin(TestCase):
 
         pagecontent_fields = (
             (None, {
-                'fields': ('title', 'url_title', 'parent')
+                'fields': ('title', 'slug', 'parent')
             }),
             ("Security", {
                 "fields": ("requires_authentication", "hide_from_anonymous"),
@@ -256,7 +256,7 @@ class TestPageAdmin(TestCase):
 
         pagecontentwithfields_fields = (
             (None, {
-                'fields': ('title', 'url_title', 'parent')
+                'fields': ('title', 'slug', 'parent')
             }),
             ('Page content', {
                 'fields': ['description', 'inline_model']
@@ -290,7 +290,7 @@ class TestPageAdmin(TestCase):
 
             self.content_page = Page.objects.create(
                 title="Content page",
-                url_title='content_page',
+                slug='content_page',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -301,7 +301,7 @@ class TestPageAdmin(TestCase):
 
         # The `children` attribute is cached as long as we use the original
         # reference, so get the Page again.
-        self.homepage = Page.objects.get(url_title='homepage')
+        self.homepage = Page.objects.get(slug='homepage')
         self.assertListEqual(self.page_admin.get_all_children(self.homepage), [self.content_page])
 
     def test_pageadmin_get_breadcrumbs(self):
@@ -314,7 +314,7 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request)
 
-        keys = ['title', 'url_title', 'parent', 'requires_authentication', 'hide_from_anonymous',
+        keys = ['title', 'slug', 'parent', 'requires_authentication', 'hide_from_anonymous',
                 'publication_date',
                 'expiry_date', 'is_online', 'short_title', 'in_navigation',
                 'browser_title', 'meta_keywords', 'meta_description',
@@ -330,7 +330,7 @@ class TestPageAdmin(TestCase):
 
             self.content_page = Page.objects.create(
                 title="Content page",
-                url_title='content_page',
+                slug='content_page',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -341,7 +341,7 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request, obj=self.content_page)
 
-        keys = ['title', 'url_title', 'parent', 'description', 'inline_model', 'requires_authentication',
+        keys = ['title', 'slug', 'parent', 'description', 'inline_model', 'requires_authentication',
                 'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_keywords',
                 'meta_description', 'sitemap_priority', 'sitemap_changefreq',
@@ -401,7 +401,7 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request)(data={
             'title': 'Homepage',
-            'url_title': 'homepage',
+            'slug': 'homepage',
             'description': 'Foo'
         })
         form.is_valid()
@@ -611,7 +611,7 @@ class TestPageAdmin(TestCase):
 
             self.content_page = Page.objects.create(
                 title="Content page",
-                url_title='content_page',
+                slug='content_page',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -620,7 +620,7 @@ class TestPageAdmin(TestCase):
                 page=self.content_page,
             )
 
-        request.pages.homepage = Page.objects.get(url_title='homepage')
+        request.pages.homepage = Page.objects.get(slug='homepage')
         response = self.page_admin.sitemap_json_view(request)
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
@@ -663,7 +663,7 @@ class TestPageAdmin(TestCase):
 
             content_page_1 = Page.objects.create(
                 title="Foo",
-                url_title='foo',
+                slug='foo',
                 parent=self.homepage,
                 content_type=content_type,
             )
@@ -687,7 +687,7 @@ class TestPageAdmin(TestCase):
 
             content_page_2 = Page.objects.create(
                 title="Bar",
-                url_title='bar',
+                slug='bar',
                 parent=self.homepage,
                 content_type=content_type,
             )

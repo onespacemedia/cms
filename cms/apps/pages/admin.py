@@ -51,7 +51,7 @@ class PageAdmin(PageBaseAdmin):
 
     fieldsets = (
         (None, {
-            "fields": ("title", "url_title", "parent"),
+            "fields": ("title", "slug", "parent"),
         },),
         ("Security", {
             "fields": ("requires_authentication", "hide_from_anonymous"),
@@ -235,8 +235,8 @@ class PageAdmin(PageBaseAdmin):
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
-            self.prepopulated_fields = {"url_title": ("title",), }
-            self.fieldsets[0][1]['fields'] = ("title", "url_title", "parent")
+            self.prepopulated_fields = {"slug": ("title",), }
+            self.fieldsets[0][1]['fields'] = ("title", "slug", "parent")
 
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)
 

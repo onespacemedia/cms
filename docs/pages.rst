@@ -92,7 +92,7 @@ You can access the page data like this::
 
     <!-- Fields on the Page model -->
     {{ pages.current.title }}
-    {{ pages.current.url_title }}
+    {{ pages.current.slug }}
 
     <!-- Fields on the Content model -->
     {{ pages.current.content.introduction }}

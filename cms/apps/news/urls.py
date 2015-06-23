@@ -18,8 +18,8 @@ urlpatterns = patterns(
 
     url("^(?P<year>\d+)/(?P<month>\w+)/(?P<day>\d+)/$", views.ArticleDayArchiveView.as_view(), name="article_day_archive"),
 
-    url("^(?P<year>\d+)/(?P<month>\w+)/(?P<day>\d+)/(?P<url_title>[^/]+)/$", views.ArticleDetailView.as_view(), name="article_detail"),
+    url("^(?P<year>\d+)/(?P<month>\w+)/(?P<day>\d+)/(?P<slug>[^/]+)/$", views.ArticleDetailView.as_view(), name="article_detail"),
 
-    url("^(?P<url_title>[^/]+)/$", views.ArticleCategoryArchiveView.as_view(), name="article_category_archive"),
+    url("^(?P<slug>[^/]+)/$", views.ArticleCategoryArchiveView.as_view(), name="article_category_archive"),
 
 )

@@ -66,7 +66,7 @@ class Category(PageBase):
     def _get_permalink_for_page(self, page):
         """Returns the URL for this category for the given page."""
         return page.reverse("article_category_archive", kwargs={
-            "url_title": self.url_title,
+            "slug": self.slug,
         })
 
     def _get_permalinks(self):
@@ -84,7 +84,7 @@ class Category(PageBase):
 
     class Meta:
         verbose_name_plural = "categories"
-        unique_together = (("url_title",),)
+        unique_together = (("slug",),)
         ordering = ("title",)
 
 
@@ -173,7 +173,7 @@ class Article(PageBase):
             "year": self.date.year,
             "month": self.date.strftime("%b").lower(),
             "day": self.date.day,
-            "url_title": self.url_title,
+            "slug": self.slug,
         })
 
     def get_absolute_url(self):
@@ -181,7 +181,7 @@ class Article(PageBase):
         return self._get_permalink_for_page(self.news_feed.page)
 
     class Meta:
-        unique_together = (("news_feed", "date", "url_title",),)
+        unique_together = (("news_feed", "date", "slug",),)
         ordering = ("-date",)
         permissions = (
             ("can_approve_articles", "Can approve articles"),
