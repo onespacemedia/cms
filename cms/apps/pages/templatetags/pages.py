@@ -196,7 +196,7 @@ def og_title(context, title=None):
         if page:
             title = page.og_title
 
-        if title is None:
+        if not title:
             title = context.get('title') or (page and page.title) or (page and page.browser_title)
 
     return escape(title or '')
@@ -224,7 +224,7 @@ def og_image(context, image=None):
     if image is None:
         image_obj = context.get('og_image')
 
-    if image is None:
+    if image_obj is None:
         request = context['request']
         page = request.pages.current
 
@@ -236,6 +236,76 @@ def og_image(context, image=None):
             absolute_domain_url(context),
             image_obj.get_absolute_url()
         )
+
+    return escape(image or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_card(context, card=None):
+    if card is None:
+        card = context.get('twitter_card')
+
+    if card is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            card = page.twitter_card
+
+    return escape(card or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_title(context, title=None):
+    if title is None:
+        title = context.get('twitter_title')
+
+    if title is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            title = page.twitter_title or og_title(context)
+
+    return escape(title or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_description(context, description=None):
+    if description is None:
+        description = context.get('twitter_description')
+
+    if description is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            description = page.twitter_description or og_description(context)
+
+    return escape(description or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_image(context, image=None):
+    image_obj = None
+
+    if image is None:
+        image_obj = context.get('twitter_image')
+
+    if image_obj is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            image_obj = page.twitter_image
+
+    if image_obj:
+        image = '{}{}'.format(
+            absolute_domain_url(context),
+            image_obj.get_absolute_url()
+        )
+    else:
+        image = og_image(context)
 
     return escape(image or '')
 
