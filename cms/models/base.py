@@ -193,7 +193,7 @@ class SearchMetaBase(OnlineBase):
         max_length=100,
         help_text='The type of content on the page, most of the time summary will suffice'
                   ''
-                  'Before you can benefit with any of these fields make sure to go to'
+                  'Before you can benefit with any of these fields make sure to go to '
                   'https://dev.twitter.com/docs/cards/validation/validator and get approved'
     )
 
