@@ -40,7 +40,7 @@ class ArticleAdminBase(PageBaseAdmin):
 
     fieldsets = (
         (None, {
-            "fields": ("title", "url_title", "news_feed", "date", "status",),
+            "fields": ("title", "slug", "news_feed", "date", "status",),
         }),
         ("Content", {
             "fields": ("image", "content", "summary",),

@@ -202,8 +202,8 @@ class PageBase(SearchMetaBase):
 
     # Base fields.
 
-    url_title = models.SlugField(
-        "URL title",
+    slug = models.SlugField(
+        help_text='A user friendly URL'
     )
 
     title = models.CharField(

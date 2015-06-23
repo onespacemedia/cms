@@ -31,7 +31,7 @@ class TestViews(TestCase):
 
             self.page = Page.objects.create(
                 title="News Feed",
-                url_title='news',
+                slug='news',
                 content_type=content_type,
             )
 
@@ -42,13 +42,13 @@ class TestViews(TestCase):
             self.article = Article.objects.create(
                 news_feed=self.feed,
                 title='Foo',
-                url_title='foo',
+                slug='foo',
                 date=self.date,
             )
 
             self.category = Category.objects.create(
                 title='Foo',
-                url_title='foo'
+                slug='foo'
             )
             self.article.categories.add(self.category)
 
@@ -155,7 +155,7 @@ class TestViews(TestCase):
         view.request.pages = RequestPageManager(view.request)
         view.kwargs = {}
 
-        dispatch = view.dispatch(view.request, url_title='foo')
+        dispatch = view.dispatch(view.request, slug='foo')
         self.assertListEqual(dispatch.template_name, [
             'news/article_category_archive.html',
             'news/article_archive.html'

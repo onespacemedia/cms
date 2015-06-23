@@ -77,7 +77,7 @@ class RequestPageManager(object):
             if slugs:
                 slug = slugs.pop()
                 for child in page.children:
-                    if child.url_title == slug:
+                    if child.slug == slug:
                         do_breadcrumbs(child)
                         break
         if self.homepage:

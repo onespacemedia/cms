@@ -38,7 +38,7 @@ class TestArticleAdminBase(TestCase):
 
             self.page = Page.objects.create(
                 title="News Feed",
-                url_title='news',
+                slug='news',
                 content_type=content_type,
             )
 
@@ -47,13 +47,13 @@ class TestArticleAdminBase(TestCase):
             )
 
             self.category = Category.objects.create(
-                url_title='foo'
+                slug='foo'
             )
 
             self.article = Article.objects.create(
                 news_feed=self.feed,
                 title='Foo',
-                url_title='foo',
+                slug='foo',
                 date=self.date,
             )
 
@@ -61,7 +61,7 @@ class TestArticleAdminBase(TestCase):
         form = self.article_admin.get_form(self.request, obj=self.article)({
             'date': self.date,
             'news_feed': self.feed.pk,
-            'url_title': 'bar',
+            'slug': 'bar',
             'title': 'Bar'
         })
         self.assertTrue(form.is_valid())

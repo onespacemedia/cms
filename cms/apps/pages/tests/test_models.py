@@ -38,7 +38,7 @@ class TestPage(TestCase):
 
             self.homepage = Page.objects.create(
                 title="Homepage",
-                url_title='homepage',
+                slug='homepage',
                 content_type=content_type,
             )
 
@@ -100,7 +100,7 @@ class TestPage(TestCase):
 
     def test_page_reverse(self):
         url = self.homepage.reverse('detail', kwargs={
-            'url_title': self.homepage.url_title
+            'slug': self.homepage.slug
         })
 
         self.assertEqual(url, '/homepage/')
@@ -186,7 +186,7 @@ class TestSectionPage(TestCase):
 
             self.homepage = Page.objects.create(
                 title="Homepage",
-                url_title='homepage',
+                slug='homepage',
                 content_type=content_type,
             )
 
@@ -267,11 +267,11 @@ class TestPageComplex(TestCase):
         self.pages = {}
 
         def _add_page(page, parent=None):
-            url_title = page['title'].replace(' ', '_').replace('-', '_')
+            slug = page['title'].replace(' ', '_').replace('-', '_')
 
             page_obj = Page.objects.create(
                 title=page['title'],
-                url_title=url_title,
+                slug=slug,
                 content_type=content_type,
                 parent=parent,
             )
@@ -280,7 +280,7 @@ class TestPageComplex(TestCase):
                 page=page_obj,
             )
 
-            self.page_ids[url_title] = page_obj.pk
+            self.page_ids[slug] = page_obj.pk
 
             if page.get('children', None):
                 for child in page['children']:
