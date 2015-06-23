@@ -41,7 +41,6 @@ class ModelsBaseTest(TestCase):
         self.assertDictEqual(obj.get_context_data(), {
             'meta_description': '',
             'robots_follow': True,
-            'meta_keywords': '',
             'robots_index': True,
             'title': 'TestSearchMetaBaseModel object',
             'robots_archive': True,
@@ -70,7 +69,6 @@ class ModelsBaseTest(TestCase):
         self.assertDictEqual(obj.get_context_data(), {
             'meta_description': '',
             'robots_follow': True,
-            'meta_keywords': '',
             'robots_index': True,
             'title': '',
             'robots_archive': True,

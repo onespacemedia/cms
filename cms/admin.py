@@ -58,7 +58,7 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
     list_display = ("__str__", "is_online",)
 
     SEO_FIELDS = ("Search engine optimization", {
-        "fields": ("browser_title", "meta_keywords", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
+        "fields": ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
         "classes": ("collapse",),
     })
 
@@ -89,7 +89,7 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
 
     prepopulated_fields = {"slug": ("title",), }
 
-    search_fields = ("title", "short_title", "meta_keywords", "meta_description",)
+    search_fields = ("title", "short_title", "meta_description",)
 
     adapter_cls = PageBaseSearchAdapter
 

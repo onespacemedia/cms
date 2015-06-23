@@ -3,7 +3,7 @@ from django.test import TestCase, RequestFactory
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Page, Country
-from ..templatetags.pages import get_navigation, page_url, meta_keywords, breadcrumbs, country_code
+from ..templatetags.pages import get_navigation, page_url, breadcrumbs, country_code
 from .... import externals
 
 
@@ -102,15 +102,6 @@ class TestTemplatetags(TestCase):
             page_url(self.homepage.pk, 'detail', slug='homepage'),
             '/homepage/'
         )
-
-    def test_meta_keywords(self):
-        self.request.pages = RequestPageManager(self.factory.get(''))
-
-        self.assertEqual(meta_keywords({'request': self.request}), '')
-        self.assertEqual(meta_keywords({
-            'request': self.request,
-            'meta_keywords': 'Foo'
-        }), 'Foo')
 
     def test_breadcrumbs(self):
         class Object(object):

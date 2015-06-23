@@ -118,35 +118,6 @@ def meta_description(context, description=None):
 
 
 @register.simple_tag(takes_context=True)
-def meta_keywords(context, keywords=None):
-    """
-    Renders the content of the meta keywords tag for the current page::
-
-        {% meta_keywords %}
-
-    You can override the meta keywords by setting a context variable called
-    'meta_keywords'::
-
-        {% with "foo" as meta_keywords %}
-            {% meta_keywords %}
-        {% endwith %}
-
-    You can also provide the meta keywords as an argument to this tag::
-
-        {% meta_keywords "foo" %}
-
-    """
-    if keywords is None:
-        keywords = context.get("meta_keywords")
-    if keywords is None:
-        request = context["request"]
-        page = request.pages.current
-        if page:
-            keywords = page.meta_keywords
-    return escape(keywords or "")
-
-
-@register.simple_tag(takes_context=True)
 def meta_robots(context, index=None, follow=None, archive=None):
     """
     Renders the content of the meta robots tag for the current page::
