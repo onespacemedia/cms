@@ -44,7 +44,14 @@ class ModelsBaseTest(TestCase):
             'robots_index': True,
             'title': 'TestSearchMetaBaseModel object',
             'robots_archive': True,
-            'header': 'TestSearchMetaBaseModel object'
+            'header': 'TestSearchMetaBaseModel object',
+            'og_title': '',
+            'og_description': '',
+            'og_image': None,
+            'twitter_card': None,
+            'twitter_title': '',
+            'twitter_description': '',
+            'twitter_image': None
         })
 
     def test_searchmetabase_render(self):
@@ -72,5 +79,12 @@ class ModelsBaseTest(TestCase):
             'robots_index': True,
             'title': '',
             'robots_archive': True,
-            'header': ''
+            'header': '',
+            'og_title': '',
+            'og_description': '',
+            'og_image': None,
+            'twitter_card': None,
+            'twitter_title': '',
+            'twitter_description': '',
+            'twitter_image': None
         })
