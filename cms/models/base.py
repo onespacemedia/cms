@@ -172,19 +172,20 @@ class SearchMetaBase(OnlineBase):
     )
 
     # Twitter card fields
-    twitter_card = models.CharField(
+    twitter_card = models.IntegerField(
         verbose_name='card',
         choices=[
-            ('summary', 'Summary'),
-            ('photo', 'Photo'),
-            ('video', 'Video'),
-            ('product', 'Product'),
-            ('app', 'App'),
-            ('gallery', 'Gallery'),
-            ('large-summary', 'Large Summary'),
+            (0, 'Summary'),
+            (1, 'Photo'),
+            (2, 'Video'),
+            (3, 'Product'),
+            (4, 'App'),
+            (5, 'Gallery'),
+            (6, 'Large Summary'),
         ],
-        default='summary',
-        max_length=100,
+        blank=True,
+        null=True,
+        default=None,
         help_text='The type of content on the page, most of the time summary will suffice'
                   ''
                   'Before you can benefit with any of these fields make sure to go to '
