@@ -233,7 +233,7 @@ class TestPageAdmin(TestCase):
                 page=self.content_page,
             )
 
-        pagecontent_fields = (
+        pagecontent_fields = [
             (None, {
                 'fields': ('title', 'slug', 'parent')
             }),
@@ -251,10 +251,18 @@ class TestPageAdmin(TestCase):
             ('Search engine optimization', {
                 'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
+            }),
+            ("Open graph", {
+                "fields": ("og_title", "og_description", "og_image"),
+                "classes": ("collapse",)
+            }),
+            ("Open graph twitter", {
+                "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
+                "classes": ("collapse",)
             })
-        )
+        ]
 
-        pagecontentwithfields_fields = (
+        pagecontentwithfields_fields = [
             (None, {
                 'fields': ('title', 'slug', 'parent')
             }),
@@ -275,8 +283,16 @@ class TestPageAdmin(TestCase):
             ('Search engine optimization', {
                 'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
+            }),
+            ("Open graph", {
+                "fields": ("og_title", "og_description", "og_image"),
+                "classes": ("collapse",)
+            }),
+            ("Open graph twitter", {
+                "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
+                "classes": ("collapse",)
             })
-        )
+        ]
 
         self.assertEqual(self.page_admin.get_fieldsets(request), pagecontent_fields)
         self.assertEqual(self.page_admin.get_fieldsets(request2), pagecontentwithfields_fields)
@@ -319,7 +335,9 @@ class TestPageAdmin(TestCase):
                 'expiry_date', 'is_online', 'short_title', 'in_navigation',
                 'browser_title', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
-                'robots_follow', 'robots_archive']
+                'robots_follow', 'robots_archive', 'og_title', 'og_description', 'og_image',
+                'twitter_card', 'twitter_title', 'twitter_description', 'twitter_image']
+
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
         request = self._build_request()
@@ -344,7 +362,9 @@ class TestPageAdmin(TestCase):
         keys = ['title', 'slug', 'parent', 'description', 'inline_model', 'requires_authentication',
                 'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_description', 'sitemap_priority',
-                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive']
+                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',
+                'og_title', 'og_description', 'og_image', 'twitter_card', 'twitter_title',
+                'twitter_description', 'twitter_image']
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
         self.assertIsInstance(form.base_fields['inline_model'].widget, RelatedFieldWidgetWrapper)
@@ -367,7 +387,10 @@ class TestPageAdmin(TestCase):
         keys = ['title', 'description', 'inline_model', 'requires_authentication',
                 'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
                 'in_navigation', 'browser_title', 'meta_description', 'sitemap_priority',
-                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive']
+                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',
+                'og_title', 'og_description', 'og_image', 'twitter_card', 'twitter_title',
+                'twitter_description', 'twitter_image']
+
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
         self.content_page.is_content_object = False
@@ -508,9 +531,9 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
-        NEW_MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES + (
+        NEW_MIDDLEWARE_CLASSES = [
             'cms.middleware.LocalisationMiddleware',
-        )
+        ] + settings.MIDDLEWARE_CLASSES
 
         with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
             request = self._build_request()
