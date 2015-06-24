@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django import template
+from django.conf import settings
 from django.utils.html import escape
 
 from cms.apps.pages.models import Page
@@ -168,7 +169,7 @@ def absolute_domain_url(context):
 
     return 'http{}://{}'.format(
         https,
-        request.META['HTTP_HOST']
+        settings.SITE_DOMAIN
     )
 
 
