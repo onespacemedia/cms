@@ -49,18 +49,32 @@ class PageAdmin(PageBaseAdmin):
 
     """Admin settings for Page models."""
 
-    fieldsets = [
+    new_fieldsets = [
         (None, {
             "fields": ("title", "slug", "parent"),
         }),
         ("Security", {
             "fields": ("requires_authentication", "hide_from_anonymous"),
+        }),
+        ("Publication", {
+            "fields": ("publication_date", "expiry_date", "is_online"),
+            "classes": ("collapse",)
+        }),
+        ("Navigation", {
+            "fields": ("short_title", "in_navigation"),
+            "classes": ("collapse",)
         })
     ]
 
-    fieldsets.extend(PageBaseAdmin.fieldsets)
+    new_fieldsets.extend(PageBaseAdmin.fieldsets)
 
-    fieldsets.remove(PageBaseAdmin.TITLE_FIELDS)
+    removed_fieldsets = [
+        new_fieldsets.index(PageBaseAdmin.TITLE_FIELDS),
+        new_fieldsets.index(PageBaseAdmin.PUBLICATION_FIELDS),
+        new_fieldsets.index(PageBaseAdmin.NAVIGATION_FIELDS)
+    ]
+
+    fieldsets = [v for k, v in enumerate(new_fieldsets) if k not in removed_fieldsets]
 
     search_adapter_cls = PageSearchAdapter
 
@@ -167,12 +181,12 @@ class PageAdmin(PageBaseAdmin):
         content_fields = [field.name for field in content_cls._meta.fields + content_cls._meta.many_to_many if field.name != "page"]
         fieldsets = super(PageAdmin, self).get_fieldsets(request, obj)
         if content_fields:
-            content_fieldsets = content_cls.fieldsets or (
+            content_fieldsets = content_cls.fieldsets or [
                 ("Page content", {
                     "fields": content_fields,
                 }),
-            )
-            fieldsets = tuple(fieldsets[0:1]) + content_fieldsets + tuple(fieldsets[1:])
+            ]
+            fieldsets = list(fieldsets[0:1]) + content_fieldsets + list(fieldsets[1:])
         return fieldsets
 
     def get_all_children(self, page):
@@ -228,10 +242,10 @@ class PageAdmin(PageBaseAdmin):
 
         if obj and obj.is_content_object:
             self.prepopulated_fields = {}
-            # self.fieldsets[0][1]['fields'] = ('title',)
+            self.fieldsets[0][1]['fields'] = ('title',)
         else:
             self.prepopulated_fields = {"slug": ("title",), }
-            # self.fieldsets[0][1]['fields'] = ("title", "slug", "parent")
+            self.fieldsets[0][1]['fields'] = ("title", "slug", "parent")
 
         PageForm = super(PageAdmin, self).get_form(request, obj, **defaults)
 
