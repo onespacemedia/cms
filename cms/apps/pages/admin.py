@@ -74,7 +74,11 @@ class PageAdmin(PageBaseAdmin):
         new_fieldsets.index(PageBaseAdmin.NAVIGATION_FIELDS)
     ]
 
-    fieldsets = [v for k, v in enumerate(new_fieldsets) if k not in removed_fieldsets]
+    fieldsets = []
+
+    for k, v in enumerate(new_fieldsets):
+        if k not in removed_fieldsets:
+            fieldsets.append(v)
 
     search_adapter_cls = PageSearchAdapter
 
