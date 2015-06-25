@@ -343,5 +343,8 @@ if 'test' in sys.argv:
 
     MIGRATION_MODULES = DisableMigrations()
 
+    # Convert MIDDLEWARE_CLASSES to a list so we can remove the localisation middleware
+    MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
+    MIDDLEWARE_CLASSES.remove('cms.middleware.LocalisationMiddleware')
 
 GEOIP_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../geoip/"))
