@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('media', '0001_initial'),
-        ('pages', '0001_squashed_0010_page_twitter_card'),
+        ('pages', '0001_initial'),
     ]
 
     operations = [
