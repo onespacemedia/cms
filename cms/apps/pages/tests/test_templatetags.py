@@ -1,10 +1,18 @@
+import base64
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, RequestFactory
+from django.utils import six
+from django.utils.timezone import now
+from cms.apps.media.models import File
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Page, Country
-from ..templatetags.pages import get_navigation, page_url, breadcrumbs, country_code
+from ..templatetags.pages import get_navigation, page_url, breadcrumbs, country_code, og_image, absolute_domain_url, \
+    twitter_image
 from .... import externals
+
+import random
 
 
 class MockUser(object):
@@ -24,6 +32,18 @@ class TestTemplatetags(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
+
+        # A valid GIF.
+        self.name_1 = '{}-{}.gif'.format(
+            now().strftime('%Y-%m-%d_%H-%M-%S'),
+            random.randint(0, six.MAXSIZE)
+        )
+
+        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+        self.obj_1 = File.objects.create(
+            title="Foo",
+            file=SimpleUploadedFile(self.name_1, base64.b64decode(base64_string), content_type="image/gif")
+        )
 
         with externals.watson.context_manager("update_index")():
             content_type = ContentType.objects.get_for_model(TestTemplatetagPage)
@@ -69,6 +89,10 @@ class TestTemplatetags(TestCase):
             TestTemplatetagPage.objects.create(
                 page=self.subsubsection,
             )
+
+    def tearDown(self):
+        self.obj_1.file.delete(False)
+        self.obj_1.delete()
 
     def test_get_navigation(self):
         request = self.factory.get('/')
@@ -130,3 +154,19 @@ class TestTemplatetags(TestCase):
         context.request = self.request
         context.request.country = country
         self.assertEqual(country_code(context), '/gb')
+
+    def test_image_obj(self):
+        context = {}
+        context['request'] = self.request
+
+        context['og_image'] = context['twitter_image'] = self.obj_1
+
+        self.assertEqual(og_image(context), '{}{}'.format(
+            absolute_domain_url(context),
+            self.obj_1.get_absolute_url()
+        ))
+
+        self.assertEqual(twitter_image(context), '{}{}'.format(
+            absolute_domain_url(context),
+            self.obj_1.get_absolute_url()
+        ))
