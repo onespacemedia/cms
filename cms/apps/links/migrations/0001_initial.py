@@ -8,7 +8,7 @@ import cms.models.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pages', '__first__'),
+        ('pages', '0001_initial'),
     ]
 
     operations = [
@@ -22,6 +22,5 @@ class Migration(migrations.Migration):
             options={
                 'abstract': False,
             },
-            bases=(models.Model,),
         ),
     ]
