@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils.html import escape
 
 from cms.apps.pages.models import Page
-
+from cms.models import SearchMetaBase
 
 register = template.Library()
 
@@ -243,6 +243,8 @@ def og_image(context, image=None):
 
 @register.simple_tag(takes_context=True)
 def twitter_card(context, card=None):
+    choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
+
     if card is None:
         card = context.get('twitter_card')
 
@@ -252,6 +254,9 @@ def twitter_card(context, card=None):
 
         if page:
             card = page.twitter_card
+
+    if card:
+        card = choices[card]
 
     return escape(card or '')
 
