@@ -280,8 +280,8 @@ def main():
     # Run `npm` commands.
     if not getattr(args, 'skip_frontend'):
         with open(os.devnull, 'w') as f:
-            Output().info("Installing bower and gulp")
-            subprocess.call(['npm', 'install', '-g', 'bower', 'gulp'], stdout=f, stderr=subprocess.STDOUT)
+            Output().info("Installing bower, babel and gulp")
+            subprocess.call(['npm', 'install', '-g', 'bower', 'gulp', 'babel'], stdout=f, stderr=subprocess.STDOUT)
 
             Output().info("Installing npm dependancies")
             subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
