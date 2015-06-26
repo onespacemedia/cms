@@ -270,7 +270,7 @@ class TestStartCMSProject(TestCase):
 
             self.assertEqual(
                 mock_call.call_args_list[0][0][0],
-                ['npm', 'install', '-g', 'bower', 'gulp']
+                ['npm', 'install', '-g', 'bower', 'gulp', 'babel']
             )
 
             self.assertEqual(
@@ -291,7 +291,7 @@ class TestStartCMSProject(TestCase):
             self.assertEqual(
                 self.stdout.getvalue().strip(),
                 '[\x1b[93mWARN\x1b[0m] Usertools is not installed\n[\x1b[92mINF'
-                'O\x1b[0m] Installing bower and gulp\n[\x1b[92mINFO\x1b[0m] Ins'
+                'O\x1b[0m] Installing bower, babel and gulp\n[\x1b[92mINFO\x1b[0m] Ins'
                 'talling npm dependancies\n[\x1b[92mINFO\x1b[0m] Running gulp\n'
                 '[\x1b[92mINFO\x1b[0m] CMS project created'
             )
