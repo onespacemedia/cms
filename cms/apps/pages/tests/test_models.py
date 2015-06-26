@@ -198,7 +198,7 @@ class TestSectionPage(TestCase):
         search_adapter = PageSearchAdapter(Page)
 
         content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, "   homepage Homepage  / ")
+        self.assertEqual(content, "      homepage Homepage  / ")
 
 
 class TestPageComplex(TestCase):

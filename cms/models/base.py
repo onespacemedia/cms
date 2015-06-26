@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.utils.encoding import python_2_unicode_compatible
 
 from cms import externals
+from cms.apps.media.models import ImageRefField
 from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
 
 
@@ -66,16 +67,6 @@ class SearchMetaBase(OnlineBase):
             "Leave blank to use the page title. "
             "Search engines pay particular attention to this attribute."
         )
-    )
-
-    meta_keywords = models.CharField(
-        "keywords",
-        max_length=1000,
-        blank=True,
-        help_text=(
-            "A comma-separated list of keywords for this page. Use this to specify common mis-spellings "
-            "or alternative versions of important words in this page."
-        ),
     )
 
     meta_description = models.TextField(
@@ -151,18 +142,98 @@ class SearchMetaBase(OnlineBase):
         ),
     )
 
+    # Open graph fields
+    og_title = models.CharField(
+        verbose_name='title',
+        blank=True,
+        max_length=100,
+        help_text='Title that will appear on the Facebook post, it is limited to 100 characters'
+                  'because Facebook truncates the title to 88 characters.'
+    )
+
+    og_description = models.TextField(
+        verbose_name='description',
+        blank=True,
+        max_length=300,
+        help_text='Description that will appear ont he Facebook post, it is limited to 300'
+                  'characters but is recommended not to use anything over 200.'
+    )
+
+    og_image = ImageRefField(
+        verbose_name='image',
+        blank=True,
+        null=True,
+        help_text='The recommended image size is 1200x627 (1.91/1 ratio) this gives you a big'
+                  'stand out thumbnail. Using an image smaller than 400x209 will give you a very'
+                  'small thumbnail and splits your post into 2 columns.'
+                  ''
+                  'If you have text on the image make sure it is centered as Facebook crops images'
+                  'to get the text centered so you may lose some of your image.'
+    )
+
+    # Twitter card fields
+    twitter_card = models.IntegerField(
+        verbose_name='card',
+        choices=[
+            (0, 'Summary'),
+            (1, 'Photo'),
+            (2, 'Video'),
+            (3, 'Product'),
+            (4, 'App'),
+            (5, 'Gallery'),
+            (6, 'Large Summary'),
+        ],
+        blank=True,
+        null=True,
+        default=None,
+        help_text='The type of content on the page, most of the time summary will suffice'
+                  ''
+                  'Before you can benefit with any of these fields make sure to go to '
+                  'https://dev.twitter.com/docs/cards/validation/validator and get approved'
+    )
+
+    twitter_title = models.CharField(
+        verbose_name='title',
+        blank=True,
+        max_length=70,
+        help_text='The title that appears on the Twitter card, it is limited to 70 characters.'
+    )
+
+    twitter_description = models.TextField(
+        verbose_name='description',
+        blank=True,
+        max_length=200,
+        help_text='Description that will appear on the Twitter card, it is limited to 200 characters'
+                  'You don\'t need to focus on keywords as this does\'nt effect SEO so focus on'
+                  'copy that compliments the tweet and title.'
+    )
+
+    twitter_image = ImageRefField(
+        verbose_name='image',
+        blank=True,
+        null=True,
+        help_text='The minimum size it needs to be is 280x150, if you want to use a larger image'
+                  'make sure the card type is set to "Large Summary"'
+    )
+
     def get_context_data(self):
         """Returns the SEO context data for this page."""
         title = str(self)
         # Return the context.
         return {
             "meta_description": self.meta_description,
-            "meta_keywords": self.meta_keywords,
             "robots_index": self.robots_index,
             "robots_archive": self.robots_archive,
             "robots_follow": self.robots_follow,
             "title": self.browser_title or title,
             "header": title,
+            "og_title": self.og_title,
+            "og_description": self.og_description,
+            "og_image": self.og_image,
+            "twitter_card": self.twitter_card,
+            "twitter_title": self.twitter_title,
+            "twitter_description": self.twitter_description,
+            "twitter_image": self.twitter_image
         }
 
     def render(self, request, template, context=None, **kwargs):

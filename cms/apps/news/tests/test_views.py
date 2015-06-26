@@ -104,7 +104,6 @@ class TestViews(TestCase):
         data = view.get_context_data()
 
         self.assertEqual(data['meta_description'], '')
-        self.assertEqual(data['meta_keywords'], '')
         self.assertEqual(data['robots_follow'], True)
         self.assertEqual(list(data['category_list']), [self.category])
         self.assertEqual(data['robots_index'], True)
@@ -137,7 +136,6 @@ class TestViews(TestCase):
 
         self.assertEqual(data['meta_description'], '')
         self.assertEqual(data['robots_follow'], True)
-        self.assertEqual(data['meta_keywords'], '')
         self.assertEqual(list(data['category_list']), [self.category])
         self.assertEqual(data['robots_index'], True)
         self.assertEqual(data['title'], 'Foo')

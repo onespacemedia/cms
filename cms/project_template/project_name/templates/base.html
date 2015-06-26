@@ -4,12 +4,18 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">{% comment %}
-        <meta name="keywords" content="{% block meta_keywords %}{% meta_keywords %}{% endblock %}">
-        {% endcomment %}<meta name="description" content="{% block meta_description %}{% meta_description %}{% endblock %}">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="description" content="{% block meta_description %}{% meta_description %}{% endblock %}">
         <meta name="robots" content="{% block meta_robots %}{% meta_robots %}{% endblock %}">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <link rel="canonical" href="http{% if request.is_secure %}s{% endif %}://{{ request.META.HTTP_HOST }}{{ request.path }}" />
+        <link rel="canonical" href="{% canonical_url %}"/>
+
+        <!-- Open Graph data -->
+        <meta property="og:title" content="{% block og_title %}{% og_title %}{% endblock %}">
+        <meta property="og:url" content="{% canonical_url %}">
+        <meta property="og:type" content="website">
+        <meta property="og:description" content="{% block og_description %}{% og_description %}{% endblock %}">
+        <meta property="og:image" content="{% block og_image %}{% og_image %}{% endblock %}">
 
         <title>{% block title %}{% title %}{% endblock %}</title>
 

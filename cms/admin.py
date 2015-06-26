@@ -58,8 +58,18 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
     list_display = ("__str__", "is_online",)
 
     SEO_FIELDS = ("Search engine optimization", {
-        "fields": ("browser_title", "meta_keywords", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
+        "fields": ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
         "classes": ("collapse",),
+    })
+
+    OPENGRAPH_FIELDS = ("Open graph", {
+        "fields": ("og_title", "og_description", "og_image"),
+        "classes": ("collapse",)
+    })
+
+    OPENGRAPH_TWITTER_FIELDS = ("Open graph twitter", {
+        "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
+        "classes": ("collapse",)
     })
 
 
@@ -79,7 +89,7 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
 
     prepopulated_fields = {"slug": ("title",), }
 
-    search_fields = ("title", "short_title", "meta_keywords", "meta_description",)
+    search_fields = ("title", "short_title", "meta_description",)
 
     adapter_cls = PageBaseSearchAdapter
 
@@ -92,12 +102,14 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         "classes": ("collapse",),
     })
 
-    fieldsets = (
+    fieldsets = [
         TITLE_FIELDS,
         OnlineBaseAdmin.PUBLICATION_FIELDS,
         NAVIGATION_FIELDS,
         SearchMetaBaseAdmin.SEO_FIELDS,
-    )
+        SearchMetaBaseAdmin.OPENGRAPH_FIELDS,
+        SearchMetaBaseAdmin.OPENGRAPH_TWITTER_FIELDS
+    ]
 
 
 class CMSUserAdmin(UserAdmin):

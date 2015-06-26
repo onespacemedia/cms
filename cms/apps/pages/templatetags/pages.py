@@ -2,10 +2,11 @@
 from __future__ import unicode_literals
 
 from django import template
+from django.conf import settings
 from django.utils.html import escape
 
 from cms.apps.pages.models import Page
-
+from cms.models import SearchMetaBase
 
 register = template.Library()
 
@@ -114,36 +115,8 @@ def meta_description(context, description=None):
         page = request.pages.current
         if page:
             description = page.meta_description
+
     return escape(description or "")
-
-
-@register.simple_tag(takes_context=True)
-def meta_keywords(context, keywords=None):
-    """
-    Renders the content of the meta keywords tag for the current page::
-
-        {% meta_keywords %}
-
-    You can override the meta keywords by setting a context variable called
-    'meta_keywords'::
-
-        {% with "foo" as meta_keywords %}
-            {% meta_keywords %}
-        {% endwith %}
-
-    You can also provide the meta keywords as an argument to this tag::
-
-        {% meta_keywords "foo" %}
-
-    """
-    if keywords is None:
-        keywords = context.get("meta_keywords")
-    if keywords is None:
-        request = context["request"]
-        page = request.pages.current
-        if page:
-            keywords = page.meta_keywords
-    return escape(keywords or "")
 
 
 @register.simple_tag(takes_context=True)
@@ -187,6 +160,160 @@ def meta_robots(context, index=None, follow=None, archive=None):
         archive and "ARCHIVE" or "NOARCHIVE",
     ))
     return escape(robots)
+
+
+def absolute_domain_url(context):
+    request = context['request']
+
+    https = 's' if request.is_secure() else ''
+
+    return 'http{}://{}'.format(
+        https,
+        settings.SITE_DOMAIN
+    )
+
+
+@register.simple_tag(takes_context=True)
+def canonical_url(context):
+    request = context['request']
+
+    url = '{}{}'.format(
+        absolute_domain_url(context),
+        request.path
+    )
+
+    return escape(url)
+
+
+@register.simple_tag(takes_context=True)
+def og_title(context, title=None):
+    if title is None:
+        title = context.get('og_title')
+
+    if title is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            title = page.og_title
+
+        if not title:
+            title = context.get('title') or (page and page.title) or (page and page.browser_title)
+
+    return escape(title or '')
+
+
+@register.simple_tag(takes_context=True)
+def og_description(context, description=None):
+    if description is None:
+        description = context.get('og_description')
+
+    if description is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            description = page.og_description
+
+    return escape(description or '')
+
+
+@register.simple_tag(takes_context=True)
+def og_image(context, image=None):
+    image_obj = None
+
+    if image is None:
+        image_obj = context.get('og_image')
+
+    if image_obj is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            image_obj = page.og_image
+
+    if image_obj:
+        image = '{}{}'.format(
+            absolute_domain_url(context),
+            image_obj.get_absolute_url()
+        )
+
+    return escape(image or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_card(context, card=None):
+    choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
+
+    if card is None:
+        card = context.get('twitter_card')
+
+    if card is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            card = page.twitter_card
+
+    if card:
+        card = choices[card]
+
+    return escape(card or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_title(context, title=None):
+    if title is None:
+        title = context.get('twitter_title')
+
+    if title is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            title = page.twitter_title or og_title(context)
+
+    return escape(title or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_description(context, description=None):
+    if description is None:
+        description = context.get('twitter_description')
+
+    if description is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            description = page.twitter_description or og_description(context)
+
+    return escape(description or '')
+
+
+@register.simple_tag(takes_context=True)
+def twitter_image(context, image=None):
+    image_obj = None
+
+    if image is None:
+        image_obj = context.get('twitter_image')
+
+    if image_obj is None:
+        request = context['request']
+        page = request.pages.current
+
+        if page:
+            image_obj = page.twitter_image
+
+    if image_obj:
+        image = '{}{}'.format(
+            absolute_domain_url(context),
+            image_obj.get_absolute_url()
+        )
+    else:
+        image = og_image(context)
+
+    return escape(image or '')
 
 
 @register.inclusion_tag("pages/title.html", takes_context=True)
