@@ -1,4 +1,3 @@
-$ cat ~/.pylintrc
 [MASTER]
 
 profile=no
