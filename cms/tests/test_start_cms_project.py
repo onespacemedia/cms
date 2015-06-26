@@ -291,7 +291,7 @@ class TestStartCMSProject(TestCase):
             self.assertEqual(
                 self.stdout.getvalue().strip(),
                 '[\x1b[93mWARN\x1b[0m] Usertools is not installed\n[\x1b[92mINF'
-                'O\x1b[0m] Installing bower and gulp\n[\x1b[92mINFO\x1b[0m] Ins'
+                'O\x1b[0m] Installing bower, babel and gulp\n[\x1b[92mINFO\x1b[0m] Ins'
                 'talling npm dependancies\n[\x1b[92mINFO\x1b[0m] Running gulp\n'
                 '[\x1b[92mINFO\x1b[0m] CMS project created'
             )
