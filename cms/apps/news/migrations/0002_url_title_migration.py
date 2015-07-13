@@ -7,16 +7,18 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('news', '0006_auto_20150623_1600'),
+        ('news', '0001_initial'),
     ]
 
     operations = [
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='article',
-            name='twitter_card',
+            old_name='url_title',
+            new_name='slug',
         ),
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='category',
-            name='twitter_card',
+            old_name='url_title',
+            new_name='slug',
         ),
     ]
