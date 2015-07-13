@@ -97,7 +97,7 @@ class FileAdminBase(admin.ModelAdmin):
             "fields": ("title", "file",),
         },),
         ("Media management", {
-            "fields": ("labels",),
+            "fields": ("attribution", "copyright", "labels",),
         },),
     )
 

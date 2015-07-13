@@ -49,6 +49,18 @@ class File(models.Model):
         max_length=250,
     )
 
+    attribution = models.CharField(
+        max_length=1000,
+        blank=True,
+        null=True,
+    )
+
+    copyright = models.CharField(
+        max_length=1000,
+        blank=True,
+        null=True,
+    )
+
     def get_absolute_url(self):
         """Generates the absolute URL of the image."""
         return self.file.url
