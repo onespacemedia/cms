@@ -330,13 +330,13 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request)
 
-        keys = ['title', 'slug', 'parent', 'requires_authentication', 'hide_from_anonymous',
-                'publication_date',
-                'expiry_date', 'is_online', 'short_title', 'in_navigation',
-                'browser_title', 'meta_description',
-                'sitemap_priority', 'sitemap_changefreq', 'robots_index',
-                'robots_follow', 'robots_archive', 'og_title', 'og_description', 'og_image',
-                'twitter_card', 'twitter_title', 'twitter_description', 'twitter_image']
+        keys = ['title', 'slug', 'parent', 'requires_authentication',
+                'publication_date', 'expiry_date', 'is_online', 'short_title',
+                'in_navigation', 'hide_from_anonymous', 'browser_title',
+                'meta_description', 'sitemap_priority', 'sitemap_changefreq',
+                'robots_index', 'robots_follow', 'robots_archive', 'og_title',
+                'og_description', 'og_image', 'twitter_card', 'twitter_title',
+                'twitter_description', 'twitter_image']
 
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
@@ -359,11 +359,13 @@ class TestPageAdmin(TestCase):
 
         form = self.page_admin.get_form(request, obj=self.content_page)
 
-        keys = ['title', 'slug', 'parent', 'description', 'inline_model', 'requires_authentication',
-                'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
-                'in_navigation', 'browser_title', 'meta_description', 'sitemap_priority',
-                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',
-                'og_title', 'og_description', 'og_image', 'twitter_card', 'twitter_title',
+        keys = ['title', 'slug', 'parent', 'description', 'inline_model',
+                'requires_authentication', 'publication_date', 'expiry_date',
+                'is_online', 'short_title', 'in_navigation',
+                'hide_from_anonymous',  'browser_title', 'meta_description',
+                'sitemap_priority', 'sitemap_changefreq', 'robots_index',
+                'robots_follow', 'robots_archive', 'og_title', 'og_description',
+                'og_image', 'twitter_card', 'twitter_title',
                 'twitter_description', 'twitter_image']
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
@@ -384,11 +386,13 @@ class TestPageAdmin(TestCase):
         self.content_page.is_content_object = True
         form = self.page_admin.get_form(request, obj=self.content_page)
 
-        keys = ['title', 'description', 'inline_model', 'requires_authentication',
-                'hide_from_anonymous', 'publication_date', 'expiry_date', 'is_online', 'short_title',
-                'in_navigation', 'browser_title', 'meta_description', 'sitemap_priority',
-                'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',
-                'og_title', 'og_description', 'og_image', 'twitter_card', 'twitter_title',
+        keys = ['title', 'description', 'inline_model',
+                'requires_authentication', 'publication_date', 'expiry_date',
+                'is_online', 'short_title', 'in_navigation',
+                'hide_from_anonymous', 'browser_title', 'meta_description',
+                'sitemap_priority', 'sitemap_changefreq', 'robots_index',
+                'robots_follow', 'robots_archive', 'og_title', 'og_description',
+                'og_image', 'twitter_card', 'twitter_title',
                 'twitter_description', 'twitter_image']
 
         self.assertListEqual(list(form.base_fields.keys()), keys)
