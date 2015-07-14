@@ -238,14 +238,14 @@ class TestPageAdmin(TestCase):
                 'fields': ('title', 'slug', 'parent')
             }),
             ("Security", {
-                "fields": ("requires_authentication", "hide_from_anonymous"),
+                "fields": ("requires_authentication",),
             }),
             ('Publication', {
                 'fields': ('publication_date', 'expiry_date', 'is_online'),
                 'classes': ('collapse',)
             }),
             ('Navigation', {
-                'fields': ('short_title', 'in_navigation'),
+                'fields': ('short_title', 'in_navigation', "hide_from_anonymous",),
                 'classes': ('collapse',)
             }),
             ('Search engine optimization', {
@@ -270,14 +270,14 @@ class TestPageAdmin(TestCase):
                 'fields': ['description', 'inline_model']
             }),
             ("Security", {
-                "fields": ("requires_authentication", "hide_from_anonymous"),
+                "fields": ("requires_authentication",),
             }),
             ('Publication', {
                 'fields': ('publication_date', 'expiry_date', 'is_online'),
                 'classes': ('collapse',)
             }),
             ('Navigation', {
-                'fields': ('short_title', 'in_navigation'),
+                'fields': ('short_title', 'in_navigation', "hide_from_anonymous",),
                 'classes': ('collapse',)
             }),
             ('Search engine optimization', {
