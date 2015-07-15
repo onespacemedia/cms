@@ -47,12 +47,28 @@ def process(text):
                     attrs.setdefault("title", '"%s"' % escape(getattr(obj, "title", str(obj))))
                 return obj
             return None
+
         if tagname == "a":
             # Process hyperlinks.
             get_obj("href")
         elif tagname == "img":
             # Process images.
             obj = get_obj("src")
+
+            if obj.attribution or obj.copyright:
+                attrs["title"] = ''
+
+                if obj.copyright:
+                    attrs["title"] += '&copy; {}. '.format(
+                        obj.copyright,
+                    )
+
+                if obj.attribution:
+                    attrs["title"] += obj.attribution
+
+                if attrs["title"]:
+                    attrs["title"] = '"{}"'.format(attrs["title"])
+
             if obj:
                 try:
                     width = int(attrs["width"][1:-1])
@@ -77,6 +93,7 @@ def process(text):
                             attrs["height"] = '"%s"' % thumbnail.height
         else:
             assert False
+
         # Regenerate the html tag.
         attrs = " ".join("%s=%s" % (key, value) for key, value in sorted(six.iteritems(attrs)))
         return "<%s %s%s>" % (tagname, attrs, match.group(3))
