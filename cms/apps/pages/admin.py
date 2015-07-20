@@ -624,6 +624,18 @@ class PageAdmin(PageBaseAdmin):
                 content.page = page
                 content.save()
 
+                links = [rel.get_accessor_name() for rel in original_page._meta.get_all_related_objects()]
+                for link in links:
+                    if link not in ['child_set', 'owner_set', 'link_to_page']:
+                        objects = getattr(original_page, link).all()
+                        for page_object in objects:
+                            new_object = deepcopy(page_object)
+                            new_object.pk = None
+                            new_object.page = page
+                            new_object.save()
+
+                return HttpResponse('Testing')
+
             return redirect('/admin/pages/page/{}'.format(page.pk))
 
         country_groups = CountryGroup.objects.all()
