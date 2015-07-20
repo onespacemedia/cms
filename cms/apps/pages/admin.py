@@ -634,8 +634,6 @@ class PageAdmin(PageBaseAdmin):
                             new_object.page = page
                             new_object.save()
 
-                return HttpResponse('Testing')
-
             return redirect('/admin/pages/page/{}'.format(page.pk))
 
         country_groups = CountryGroup.objects.all()
