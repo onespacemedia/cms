@@ -654,10 +654,14 @@ class CountryGroupAdmin(admin.ModelAdmin):
     pass
 
 
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'group')
+
+
 admin.site.register(Page, PageAdmin)
 
 if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE_CLASSES:
-    admin.site.register(Country)
+    admin.site.register(Country, CountryAdmin)
     admin.site.register(CountryGroup, CountryGroupAdmin)
 
 page_admin = admin.site._registry[Page]
