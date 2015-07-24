@@ -24,7 +24,7 @@ export default () => {
 
   return gulp.src(config.sass.src)
     // Only pass through changed files
-    .pipe($.changed(config.css.path, {extension: '.css'}))
+    // .pipe($.changed(config.css.path, {extension: '.css'}))
 
     // Initialise source maps
     .pipe($.sourcemaps.init())
