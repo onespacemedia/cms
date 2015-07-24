@@ -55,21 +55,21 @@ def process(text):
             # Process images.
             obj = get_obj("src")
 
-            if obj.attribution or obj.copyright:
-                attrs["title"] = ''
-
-                if obj.copyright:
-                    attrs["title"] += '&copy; {}. '.format(
-                        obj.copyright,
-                    )
-
-                if obj.attribution:
-                    attrs["title"] += obj.attribution
-
-                if attrs["title"]:
-                    attrs["title"] = '"{}"'.format(attrs["title"])
-
             if obj:
+                if obj.attribution or obj.copyright:
+                    attrs["title"] = ''
+
+                    if obj.copyright:
+                        attrs["title"] += '&copy; {}. '.format(
+                            obj.copyright,
+                        )
+
+                    if obj.attribution:
+                        attrs["title"] += obj.attribution
+
+                    if attrs["title"]:
+                        attrs["title"] = '"{}"'.format(attrs["title"])
+
                 try:
                     width = int(attrs["width"][1:-1])
                     height = int(attrs["height"][1:-1])

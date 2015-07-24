@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('media', '0001_initial'),
         ('news', '0002_url_title_migration'),
+        ('pages', '0005_social_fields'),
     ]
 
     operations = [
