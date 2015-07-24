@@ -55,7 +55,7 @@ def process(text):
             # Process images.
             obj = get_obj("src")
 
-            if obj.attribution or obj.copyright:
+            if obj and obj.attribution or obj.copyright:
                 attrs["title"] = ''
 
                 if obj.copyright:
