@@ -22,11 +22,11 @@ export function files() {
     'bower_components/modernizr/modernizr.js',
     'bower_components/modernizr/modernizr.js',
   ])
-    .pipe(gulp.dest('testing/static/js/vendor/'));
+    .pipe(gulp.dest('{{ project_name }}/static/js/vendor/'));
 
   // Move the Foundation JS files
   gulp.src('bower_components/foundation/js/foundation/*')
-    .pipe(gulp.dest('testing/static/js/vendor/foundation/'));
+    .pipe(gulp.dest('{{ project_name }}/static/js/vendor/foundation/'));
 
   // Move the Foundation CSS files
   gulp.src([
@@ -34,12 +34,12 @@ export function files() {
     'bower_components/foundation/scss/**/*',
     '!bower_components/foundation/scss/foundation.scss',
   ])
-    .pipe(gulp.dest('testing/static/scss/'));
+    .pipe(gulp.dest('{{ project_name }}/static/scss/'));
 
   // Move base Foundation file and rename it
   gulp.src('bower_components/foundation/scss/foundation.scss')
     .pipe($.rename({
       basename: 'screen'
     }))
-    .pipe(gulp.dest('testing/static/scss'));
+    .pipe(gulp.dest('{{ project_name }}/static/scss'));
 }
