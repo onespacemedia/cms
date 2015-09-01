@@ -6,4 +6,4 @@ Developed by Dave Hall.
 <http://etianen.com/>
 """
 
-VERSION = (1, 9, 8, 2)
+VERSION = (1, 9, 8, 3)
