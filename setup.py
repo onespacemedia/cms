@@ -24,8 +24,8 @@ DEPENDENCIES = [
     'onespacemedia-server-management',
     'requests',
     'python-social-auth',
-    'django-cachalot',
     'python-memcached',
+    'django-cachalot',
     'geoip',
 ]
 
@@ -36,6 +36,8 @@ else:
     DEPENDENCIES.append("psycopg2")
 
 if sys.version_info[0] == 3:
+    DEPENDENCIES.remove("python-memcached")
+    DEPENDENCIES.append("python3-memcached")
     DEPENDENCIES.remove("onespacemedia-server-management")
 
 
