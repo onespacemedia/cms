@@ -56,7 +56,7 @@ def process(text):
             obj = get_obj("src")
 
             if obj:
-                if obj.attribution or obj.copyright:
+                if hasattr(obj, 'attribution') or hasattr(obj, 'copyright'):
                     attrs["title"] = ''
 
                     if obj.copyright:
@@ -69,6 +69,8 @@ def process(text):
 
                     if attrs["title"]:
                         attrs["title"] = '"{}"'.format(attrs["title"])
+                    else:
+                        attrs["title"] = '"{}"'.format(obj.title)
 
                 try:
                     width = int(attrs["width"][1:-1])

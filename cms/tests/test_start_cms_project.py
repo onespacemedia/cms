@@ -52,7 +52,7 @@ class TestStartCMSProject(TestCase):
     def test_make_executable(self, mock_os):
         make_executable('test.png')
         mock_os.stat.assert_called_with('test.png')
-        mock_os.chmod.assert_called()
+        self.assertTrue(mock_os.chmod.called)
 
     @mock.patch('cms.bin.start_cms_project.sys')
     @mock.patch('{}'.format('__builtin__.raw_input' if six.PY2 else 'builtins.input'), return_value='y')
