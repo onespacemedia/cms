@@ -11,7 +11,7 @@ DEPENDENCIES = [
     'django',
     'django-suit',
     'Pillow',
-    'django-reversion',
+    'django-reversion==1.8.7',
     'django-historylinks',
     'django-watson',
     'django-extensions',
