@@ -805,3 +805,32 @@ class TestPageAdmin(TestCase):
         )
         response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
         self.assertEquals(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)
+
+        with externals.watson.context_manager("update_index")():
+
+            content_type_2 = ContentType.objects.get_for_model(
+                PageContentWithFields)
+
+            inline_page = Page.objects.create(
+                parent=self.homepage,
+                title="Inline page",
+                content_type=content_type_2,
+            )
+
+            PageContentWithFields.objects.create(
+                page=inline_page,
+            )
+
+            inline_model = InlineModel.objects.create(
+                page=inline_page,
+            )
+
+            request = self._build_request(method='POST')
+            request.POST = dict(
+                country_group=self.country_group.pk
+            )
+            response = self.page_admin.duplicate_for_country_group(request, page=inline_page.pk)
+            self.assertEquals(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
+
+            inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
+            self.assertEquals(inline_page_clone.inlinemodel_set.count(), 1)
