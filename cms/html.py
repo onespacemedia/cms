@@ -59,12 +59,12 @@ def process(text):
                 if hasattr(obj, 'attribution') or hasattr(obj, 'copyright'):
                     attrs["title"] = ''
 
-                    if obj.copyright:
+                    if hasattr(obj, 'copyright') and obj.copyright:
                         attrs["title"] += '&copy; {}. '.format(
                             obj.copyright,
                         )
 
-                    if obj.attribution:
+                    if hasattr(obj, 'attribution') and obj.attribution:
                         attrs["title"] += obj.attribution
 
                     if attrs["title"]:

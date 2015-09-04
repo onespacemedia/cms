@@ -1,37 +1,21 @@
 from __future__ import unicode_literals
 
-from django.contrib.contenttypes.models import ContentType
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import models
-from django.test import TestCase
-from django.utils import six
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.timezone import now
-
-from ..apps.media.models import File
-from ..html import process
-from .. import externals
-
 import base64
-import mock
 import random
 import re
 
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+from django.utils import six
+from django.utils.timezone import now
+import mock
 
-@python_2_unicode_compatible
-class TestImageModel(models.Model):
-
-    image = models.FileField()
-
-    def __str__(self):
-        return 'Foo'
-
-    def get_absolute_url(self):
-        return '/foo/'
+from ..apps.media.models import File
+from ..html import process
 
 
 class TestHTML(TestCase):
-
     def setUp(self):
         self.name = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
@@ -41,7 +25,22 @@ class TestHTML(TestCase):
         base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
         self.image = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string), content_type="image/gif")
+            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string),
+                                    content_type="image/gif")
+        )
+
+        self.image_copyright = File.objects.create(
+            title="Foo c",
+            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string),
+                                    content_type="image/gif"),
+            copyright="Foo copyright"
+        )
+
+        self.image_attribution = File.objects.create(
+            title="Foo a",
+            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string),
+                                    content_type="image/gif"),
+            attribution="Foo attribution"
         )
 
         # An invalid JPEG
@@ -52,13 +51,9 @@ class TestHTML(TestCase):
 
         self.invalid_jpeg = File.objects.create(
             title="Foo",
-            file=SimpleUploadedFile(self.invalid_jpeg_name, b"data", content_type="image/jpeg")
+            file=SimpleUploadedFile(self.invalid_jpeg_name, b"data",
+                                    content_type="image/jpeg")
         )
-
-        with externals.watson.context_manager("update_index")():
-            self.obj = TestImageModel.objects.create(
-                image=self.image.file,
-            )
 
     def tearDown(self):
         self.image.file.delete(False)
@@ -95,16 +90,32 @@ class TestHTML(TestCase):
         with mock.patch('cms.html.get_thumbnail', side_effect=IOError):
             output = process(string)
 
-        self.assertEqual(output, '<img height="10" src="/media/uploads/files/' + self.name + '" title="Foo" width="10"/>')
+        self.assertEqual(output,
+                         '<img height="10" src="/media/uploads/files/' + self.name + '" title="Foo" width="10"/>')
 
-        content_type = ContentType.objects.get_for_model(TestImageModel).pk
+        content_type = ContentType.objects.get_for_model(File).pk
         string = '<img src="/r/{}-{}/"/>'.format(
             content_type,
-            self.obj.pk
+            self.image.pk
         )
-        self.assertEqual(process(string), '<img src="/foo/" title="Foo"/>')
+        self.assertEqual(process(string),
+                         '<img src="' + self.image.file.url + '" title="Foo"/>')
+
+        string = '<img src="/r/{}-{}/"/>'.format(
+            content_type,
+            self.image_copyright.pk
+        )
+        self.assertEqual(process(string),
+                         '<img src="' + self.image_copyright.file.url + '" title="&copy; Foo copyright. "/>')
+
+        string = '<img src="/r/{}-{}/"/>'.format(
+            content_type,
+            self.image_attribution.pk
+        )
+        self.assertEqual(process(string),
+                         '<img src="' + self.image_attribution.file.url + '" title="Foo attribution"/>')
 
         re_tag = re.compile(r"<(img|ab)(\s+.*?)(/?)>", re.IGNORECASE)
         with mock.patch('cms.html.RE_TAG', new=re_tag), \
-                self.assertRaises(AssertionError):
+             self.assertRaises(AssertionError):
             process('<ab />')
