@@ -41,9 +41,6 @@ class PageContentWithFields(ContentBase):
 class InlineModel(models.Model):
     page = models.ForeignKey(Page)
 
-    def __str__(self):
-        return self.page.title
-
 
 class InlineModelNoPage(models.Model):
     pass
