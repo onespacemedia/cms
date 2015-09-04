@@ -34,6 +34,7 @@ from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
 
 
+
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"
 PAGE_FROM_SITEMAP_VALUE = "sitemap"
@@ -624,9 +625,19 @@ class PageAdmin(PageBaseAdmin):
                 content.page = page
                 content.save()
 
-                links = [rel.get_accessor_name() for rel in original_page._meta.get_all_related_objects()]
-                for link in links:
-                    if link not in ['child_set', 'owner_set', 'link_to_page']:
+                # for field in original_page._meta.get_fields_with_model():
+                #
+                #     if RelatedField in inspect.getmro(field[0].__class__):
+                #         print field
+                #
+                # for attr in dir(original_page):
+                #     if attr.endswith('_set'):
+                #         print attr
+
+                # links = [rel.get_accessor_name() for rel in original_page._meta.get_all_related_objects()]
+
+                for link in dir(original_page):
+                    if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == "RelatedManager" and link not in ['child_set', 'owner_set', 'link_to_page']:
                         objects = getattr(original_page, link).all()
                         for page_object in objects:
                             new_object = deepcopy(page_object)

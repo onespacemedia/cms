@@ -41,6 +41,9 @@ class PageContentWithFields(ContentBase):
 class InlineModel(models.Model):
     page = models.ForeignKey(Page)
 
+    def __str__(self):
+        return self.page.title
+
 
 class InlineModelNoPage(models.Model):
     pass
@@ -833,4 +836,5 @@ class TestPageAdmin(TestCase):
             self.assertEquals(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
 
             inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
+
             self.assertEquals(inline_page_clone.inlinemodel_set.count(), 1)
