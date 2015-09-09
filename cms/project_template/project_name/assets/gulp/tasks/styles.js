@@ -56,7 +56,7 @@ export default () => {
     }))
 
     // Place our CSS in the location we link to
-    .pipe(gulp.dest(config.css.path))
+    .pipe(gulp.dest(config.css.dist))
 
     // Stream the changes to Browser Sync
     .pipe(browserSync.stream({match: '**/*.css'}))
