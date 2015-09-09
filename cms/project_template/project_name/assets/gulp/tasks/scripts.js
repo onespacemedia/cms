@@ -42,10 +42,10 @@ function compile(watch) {
       .pipe($.sourcemaps.init({loadMaps: true}))
 
       // Write the source maps, need to provide the source for Browser Sync
-      .pipe($.sourcemaps.write({includeContent: false, sourceRoot: config.watchify.folderIn}))
+      .pipe($.sourcemaps.write({includeContent: false, sourceRoot: config.watchify.srcFolder}))
 
       // Place our nice new JS file
-      .pipe(gulp.dest(config.watchify.folderOut));
+      .pipe(gulp.dest(config.watchify.distFolder));
   }
 
   if (watch) {
