@@ -34,7 +34,7 @@ export default () => {
   /* Watches */
   /***********/
   // - Pass SASS to the Styles task
-  gulp.watch(config.sass.src, ['styles', 'clean:temp']);
+  gulp.watch(config.sass.src, ['styles']);
 
   // - HTML and Images don't need to be processed
   gulp.watch(config.html.src, reload);
