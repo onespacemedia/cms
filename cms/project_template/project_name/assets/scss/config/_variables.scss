@@ -1,0 +1,58 @@
+/* ======================== */
+/* Colors
+/* ======================== */
+$colors: (
+  brand: #fff,
+  brandDark: #000,
+  text: red
+);
+
+/* ======================== */
+/* Fonts
+/* ======================== */
+
+/* Families
+/* ------------------------ */
+$fontFamilies: (
+  serif: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+);
+
+/* Sizes
+/* ------------------------ */
+$fontSizes: (
+  h1: 32px,
+  h2: 28px,
+  h3: 20px,
+  h4: 18px,
+  h5: 18px,
+  body: 16px
+);
+
+$fontSizes-lg: (
+  h1: 32px,
+  h2: 28px,
+  h3: 20px,
+  h4: 18px,
+  h5: 18px,
+  body: 16px
+);
+
+/* ======================== */
+/* Grid
+/* ======================== */
+$grid: (
+  container: 1180px,
+  gutter: 30px
+);
+
+/* ======================== */
+/* Media
+/* ======================== */
+$mediaRanges: (
+  xs: (0, 480px),
+  sm: (481px, 768px),
+  md: (769px, 1023px),
+  lg: (1024px, 1440px),
+  xlg: (1441px, 1920px),
+  xxlg: (1921px, 999999px)
+);
