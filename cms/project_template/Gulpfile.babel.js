@@ -11,7 +11,6 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 const $ = gulpLoadPlugins();
 
 // - Gulp tasks
-import {bower, files} from './{{ project_name }}/assets/gulp/tasks/bower';
 import images from './{{ project_name }}/assets/gulp/tasks/images';
 import scripts from './{{ project_name }}/assets/gulp/tasks/scripts';
 import serve from './{{ project_name }}/assets/gulp/tasks/serve';

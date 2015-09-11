@@ -42,7 +42,7 @@ body {
   @include fontSmoothing();
 
   // Make the `body` use the `font-size-root`
-  font-family: map-get($fontFamilies, serif);
+  font-family: #{map-get($fontFamilies, serif)};
   font-size: map-get($fontSizes, body);
   line-height: map-get($fontSizes, body) + 10px;
   // Go easy on the eyes and use something other than `#000` for text
