@@ -32,7 +32,8 @@ export default () => {
     // Process our SCSS to CSS
     .pipe($.sass({
       precision: 10,
-      stats: true
+      stats: true,
+      includePaths: ['node_modules/normalize.css/']
     }).on('error', $.sass.logError))
 
     // PostCSS our vendor prefixes
