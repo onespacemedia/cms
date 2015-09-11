@@ -15,22 +15,17 @@
 @import 'helpers/media-queries';
 @import 'helpers/mixins';
 
-@import "helpers/redefine"; // Like bootstraps reboot, define some base normalized styles
+@import "helpers/define"; // Like bootstraps reboot, define some base normalized styles
 
 /**
 * Objects
 */
 @import 'objects/buttons';
-@import 'objects/cards';
 @import 'objects/forms';
 @import 'objects/grid';
-@import 'objects/hamburger';
 @import 'objects/header';
-@import 'objects/images';
 @import 'objects/lists';
 @import 'objects/media';
-@import 'objects/sections';
-@import 'objects/typography';
 
 /**
 * Components

@@ -75,7 +75,7 @@ body { @include fontSizing('body') }
 /* ------------------------ */
 p {
   margin-top: 0;
-  margin-bottom: map-get($spacing, marginBottoms);
+  margin-bottom: map-get($spacing, margin);
 }
 
 /* Anchors
@@ -90,7 +90,7 @@ a {
 /* ------------------------ */
 ul[class] {
   margin: 0;
-  margin-bottom: map-get($spacing, marginBottoms);
+  margin-bottom: map-get($spacing, margin);
   padding: 0;
 
   list-style: none;
