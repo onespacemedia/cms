@@ -190,7 +190,7 @@ def og_title(context, title=None):
     if title is None:
         title = context.get('og_title')
 
-    if title is None:
+    if title is None or title == '':
         request = context['request']
         page = request.pages.current
 
