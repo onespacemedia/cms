@@ -13,7 +13,7 @@
   background-repeat: no-repeat;
   background-size: map-get($logo, width) map-get($logo, height);
 
-  @include breakpoint-gte(large) {
+  @include breakpoint-gte(lg) {
     height: map-get($logo-lg, height);
     width: map-get($logo-lg, width);
 
