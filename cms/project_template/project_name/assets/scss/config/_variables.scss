@@ -50,6 +50,21 @@ $grid: (
 );
 
 /* ======================== */
+/* Logo
+/* ======================== */
+$logo: (
+  height: 40px,
+  width: 40px,
+  path: '/static/img/logo.png'
+);
+
+$logo-lg: (
+  height: 80px,
+  width: 80px,
+  path: '/static/img/logo@lg.png'
+);
+
+/* ======================== */
 /* Media
 /* ======================== */
 $mediaRanges: (
