@@ -1,0 +1,86 @@
+/* ======================== */
+/* Fonts
+/* ======================== */
+@mixin fontSizing($el) {
+  @if map-has-key($fontSizes, $el) {
+    margin-bottom: map-get($fontSizes, $el) / 2;
+    font-size: map-get($fontSizes, $el);
+    line-height: map-get($fontSizes, $el) + 10px;
+
+    @include breakpoint-gte(large) {
+      font-size: map-get($fontSizes-lg, $el);
+      line-height: map-get($fontSizes-lg, $el) + 10px;
+    }
+  }
+}
+
+/* ======================== */
+/* Font smoothing
+/* ======================== */
+@mixin fontSmoothing($value: antialiased) {
+  @if $value == antialiased {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  } @else {
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+  }
+}
+
+/* ======================== */
+/* Form inputs
+/* ======================== */
+@mixin formInputs($extra: false) {
+  input[type="text"],
+  input[type="password"],
+  input[type="date"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"],
+  input[type="email"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="time"],
+  input[type="url"] {
+    @content;
+  }
+
+  @if $extra {
+    @each $el in $extra {
+      #{$el} {
+        @content;
+      }
+    }
+  }
+}
+
+/* ======================== */
+/* Grid
+/* ======================== */
+@mixin container($collapsed: false) {
+  max-width: map-get($grid, container);
+  margin: 0 auto;
+
+  @if $collapsed == 'right' {
+    padding-left: map-get($grid, gutter)/2;
+  } @else if $collapsed == 'left' {
+    padding-right: map-get($grid, gutter)/2;
+  } @else if $collapsed == false {
+    padding-right: map-get($grid, gutter)/2;
+    padding-left: map-get($grid, gutter)/2;
+  }
+}
+
+/* ======================== */
+/* Positioning
+/* ======================== */
+@mixin absoluteSpread() {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}

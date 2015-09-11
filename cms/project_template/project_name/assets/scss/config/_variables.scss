@@ -2,9 +2,11 @@
 /* Colors
 /* ======================== */
 $colors: (
+  anchor: #f00,
+  body: #fff,
   brand: #fff,
   brandDark: #000,
-  text: red
+  text: #ececec
 );
 
 /* ======================== */
@@ -25,7 +27,8 @@ $fontSizes: (
   h3: 20px,
   h4: 18px,
   h5: 18px,
-  body: 16px
+  body: 16px,
+  root: 16px
 );
 
 $fontSizes-lg: (
@@ -34,7 +37,8 @@ $fontSizes-lg: (
   h3: 20px,
   h4: 18px,
   h5: 18px,
-  body: 16px
+  body: 16px,
+  root: 16px
 );
 
 /* ======================== */
@@ -55,4 +59,11 @@ $mediaRanges: (
   lg: (1024px, 1440px),
   xlg: (1441px, 1920px),
   xxlg: (1921px, 999999px)
+);
+
+/* ======================== */
+/* Spacing
+/* ======================== */
+$spacing: (
+  marginBottoms: 20px
 );

@@ -1,0 +1,107 @@
+$mediaRanges: (
+    xs: (0, 480px),
+    sm: (481px, 768px),
+    md: (769px, 1023px),
+    lg: (1024px, 1440px),
+    xlg: (1441px, 1920px),
+    xxlg: (1921px, 999999px)
+) !default;
+
+// The sizes the media queries mixin can accept
+$SIZES: xs, sm, md, lg, xlg, xxlg !default;
+
+@mixin breakpoint($size) {
+  @if contains($SIZES, $size) {
+    @if $size == xs {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, xs))}) {
+        @content;
+      }
+    } @else if $size == sm {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, sm))}) and (max-width: #{upper-bound(map-get($mediaRanges, sm))}) {
+        @content;
+      }
+    } @else if $size == md {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, md))}) and (max-width: #{upper-bound(map-get($mediaRanges, md))}) {
+        @content;
+      }
+    } @else if $size == lg {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, lg))}) and (max-width: #{upper-bound(map-get($mediaRanges, lg))}) {
+        @content;
+      }
+    } @else if $size == xlg {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, xlg))}) and (max-width: #{upper-bound(map-get($mediaRanges, xlg))}) {
+        @content;
+      }
+    } @else if $size == xxlg {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, xxlg))}) and (max-width: #{upper-bound(map-get($mediaRanges, xxlg))}) {
+        @content;
+      }
+    }
+  } @else {
+    @error 'Argument must be any of: #{$SIZES}';
+  }
+}
+
+@mixin breakpoint-lte($size) {
+  @if contains($SIZES, $size) {
+    @if $size == xs {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, xs))}) {
+        @content;
+      }
+    } @else if $size == sm {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, sm))}) {
+        @content;
+      }
+    } @else if $size == md {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, md))}) {
+        @content;
+      }
+    } @else if $size == lg {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, lg))}) {
+        @content;
+      }
+    } @else if $size == xlg {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, xlg))}) {
+        @content;
+      }
+    } @else if $size == xxlg {
+      @media only screen and (max-width: #{upper-bound(map-get($mediaRanges, xxlg))}) {
+        @content;
+      }
+    }
+  } @else {
+    @error 'Argument must be any of: #{$SIZES}';
+  }
+}
+
+@mixin breakpoint-gte($size) {
+  @if contains($SIZES, $size) {
+    @if $size == xs {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, xs))}) {
+        @content;
+      }
+    } @else if $size == sm {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, sm))}) {
+        @content;
+      }
+    } @else if $size == md {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, md))}) {
+        @content;
+      }
+    } @else if $size == lg {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, lg))}) {
+        @content;
+      }
+    } @else if $size == xlg {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, xlg))}) {
+        @content;
+      }
+    } @else if $size == xxlg {
+      @media only screen and (min-width: #{lower-bound(map-get($mediaRanges, xxlg))}) {
+        @content;
+      }
+    }
+  } @else {
+    @error 'Argument must be any of: #{$SIZES}';
+  }
+}
