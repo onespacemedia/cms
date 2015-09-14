@@ -1,0 +1,66 @@
+/* ======================== */
+/* Container
+/* ======================== */
+.o-container {
+  @include container();
+}
+
+/* Collapses
+/* ------------------------ */
+.u-collapse       { padding-right: 0; padding-left: 0; }
+.u-collapse-right { padding-right: 0; }
+.u-collapse-left  { padding-left: 0; }
+
+/* ======================== */
+/* Layouts
+/* ======================== */
+
+/* Columned
+/* ------------------------ */
+/* A multi columned layout that has pre-defined responsiveness to it. Typically
+/* used with a card system as they tend to be a smallish fixed width
+/* ------------------------ */
+.o-layout-columned {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  margin-right: -#{map-get($grid, gutter)}/2;
+  margin-left: -#{map-get($grid, gutter)}/2;
+}
+
+.o-layout-columned .o-layout_item {
+  flex-basis: 100%;
+
+  margin-right: map-get($grid, gutter)/2;
+  margin-left: map-get($grid, gutter)/2;
+
+  @include breakpoint-gte(sm) {
+    flex-basis: calc(50% - #{map-get($grid, gutter)});
+  }
+
+  @include breakpoint-gte(lg) {
+    flex-basis: calc(33.33% - #{map-get($grid, gutter)});
+  }
+}
+
+/* Halfs
+/* ------------------------ */
+/* A 50/50 split layout with equal height columns
+/* ------------------------ */
+@include breakpoint-gte(sm) {
+  .o-layout-halfs\@sm {
+    display: flex;
+    justify-content: space-between;
+
+    margin-right: -#{map-get($grid, gutter)}/2;
+    margin-left: -#{map-get($grid, gutter)}/2;
+  }
+
+  .o-layout-halfs\@sm > .o-layout_item {
+    flex-basis: 50%;
+
+    margin-right: map-get($grid, gutter);
+    margin-left: map-get($grid, gutter);
+  }
+}

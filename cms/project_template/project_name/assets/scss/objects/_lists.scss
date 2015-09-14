@@ -1,0 +1,17 @@
+/* ======================== */
+/* Base
+/* ======================== */
+.o-list {}
+
+/* ======================== */
+/* Inline
+/* ======================== */
+.o-list-inline {
+  display: flex;
+}
+
+/* Justified
+/* ------------------------ */
+.o-list-inline.is-justified {
+  justify-content: space-between;
+}

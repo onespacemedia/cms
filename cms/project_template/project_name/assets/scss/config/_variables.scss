@@ -1,0 +1,84 @@
+/* ======================== */
+/* Colors
+/* ======================== */
+$colors: (
+  anchor: #1f2429,
+  body: #fff,
+  brand: #fff,
+  brandDark: #1f2429,
+  text: #1f1f1f
+);
+
+/* ======================== */
+/* Fonts
+/* ======================== */
+
+/* Families
+/* ------------------------ */
+$fontFamilies: (
+  serif: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+);
+
+/* Sizes
+/* ------------------------ */
+$fontSizes: (
+  h1: 32px,
+  h2: 28px,
+  h3: 20px,
+  h4: 18px,
+  h5: 18px,
+  body: 16px,
+  root: 16px
+);
+
+$fontSizes-lg: (
+  h1: 32px,
+  h2: 28px,
+  h3: 20px,
+  h4: 18px,
+  h5: 18px,
+  body: 16px,
+  root: 16px
+);
+
+/* ======================== */
+/* Grid
+/* ======================== */
+$grid: (
+  container: 1180px,
+  gutter: 30px
+);
+
+/* ======================== */
+/* Logo
+/* ======================== */
+$logo: (
+  height: 40px,
+  width: 40px,
+  path: '/static/img/logo.png'
+);
+
+$logo-lg: (
+  height: 80px,
+  width: 80px,
+  path: '/static/img/logo@lg.png'
+);
+
+/* ======================== */
+/* Media
+/* ======================== */
+$mediaRanges: (
+  xs: (0, 480px),
+  sm: (481px, 768px),
+  md: (769px, 1023px),
+  lg: (1024px, 1440px),
+  xlg: (1441px, 1920px),
+  xxlg: (1921px, 999999px)
+);
+
+/* ======================== */
+/* Spacing
+/* ======================== */
+$spacing: (
+  margin: 20px
+);

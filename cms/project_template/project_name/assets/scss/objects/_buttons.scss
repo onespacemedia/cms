@@ -1,0 +1,32 @@
+/* ======================== */
+/* Base
+/* ======================== */
+/* Buttons are normally 40px high so set this as the default, normally have
+/* borders as well so build the element with them in mind
+/* ------------------------ */
+.o-button {
+  display: inline-block;
+  margin-bottom: map-get($spacing, margin);
+  padding-top: 6px;
+  padding-right: map-get($grid, gutter);
+  padding-bottom: 6px;
+  padding-left: map-get($grid, gutter);
+
+  border: 1px solid transparent;
+}
+
+/* ======================== */
+/* Primary button
+/* ======================== */
+.o-button.o-button-primary {
+  background-color: map-get($colors, brand);
+  color: #fff;
+}
+
+/* ======================== */
+/* Bordered button
+/* ======================== */
+.o-button.o-button-bordered {
+  border: 1px solid #fff;
+  color: #fff;
+}

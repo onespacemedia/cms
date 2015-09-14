@@ -1,0 +1,104 @@
+/* ======================== */
+/* Redefine
+/* ======================== */
+/* Global resets to make like easier
+/* ------------------------ */
+
+/* ======================== */
+/* Box sizing
+/* ======================== */
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/* ======================== */
+/* Viewports
+/* ======================== */
+@at-root {
+  @-moz-viewport    { width: device-width; }
+  @-ms-viewport     { width: device-width; }
+  @-o-viewport      { width: device-width; }
+  @-webkit-viewport { width: device-width; }
+  @viewport         { width: device-width; }
+}
+
+/* ======================== */
+/* HTML/Body resets
+/* ======================== */
+html {
+  // Sets a specific default `font-size` for user with `rem` type scales.
+  font-size: map-get($fontSizes, root);
+  // Changes the default tap highlight to be completely transparent in iOS.
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+  @include fontSmoothing();
+
+  // Make the `body` use the `font-size-root`
+  font-family: #{map-get($fontFamilies, serif)};
+  font-size: map-get($fontSizes, body);
+  line-height: map-get($fontSizes, body) + 10px;
+  // Go easy on the eyes and use something other than `#000` for text
+  color: map-get($colors, text);
+  // By default, `<body>` has no `background-color` so we set one as a best practice.
+  background-color: map-get($colors, body);
+}
+
+/* ======================== */
+/* Typography
+/* ======================== */
+
+/* Headings
+/* ------------------------ */
+h1 { @include fontSizing('h1') }
+h2 { @include fontSizing('h2') }
+h3 { @include fontSizing('h3') }
+h4 { @include fontSizing('h4') }
+h5 { @include fontSizing('h5') }
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+}
+
+/* Body
+/* ------------------------ */
+body { @include fontSizing('body') }
+
+/* Paragraph
+/* ------------------------ */
+p {
+  margin-top: 0;
+  margin-bottom: map-get($spacing, margin);
+}
+
+/* Anchors
+/* ------------------------ */
+a {
+  text-decoration: none;
+
+  color: map-get($colors, anchor);
+}
+
+/* Lists
+/* ------------------------ */
+ul[class] {
+  margin: 0;
+  margin-bottom: map-get($spacing, margin);
+  padding: 0;
+
+  list-style: none;
+}
+
+/* ======================== */
+/* Images
+/* ======================== */
+img {
+  max-width: 100%;
+}

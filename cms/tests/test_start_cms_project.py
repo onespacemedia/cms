@@ -280,11 +280,6 @@ class TestStartCMSProject(TestCase):
 
             self.assertEqual(
                 mock_call.call_args_list[2][0][0],
-                ['gulp', 'initialise']
-            )
-
-            self.assertEqual(
-                mock_call.call_args_list[3][0][0],
                 ['gulp', 'styles']
             )
 

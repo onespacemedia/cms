@@ -287,7 +287,6 @@ def main():
             subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
 
             Output().info("Running gulp")
-            subprocess.call(['gulp', 'initialise'], stdout=f, stderr=subprocess.STDOUT)
             subprocess.call(['gulp', 'styles'], stdout=f, stderr=subprocess.STDOUT)
 
     # Give some help to the user.

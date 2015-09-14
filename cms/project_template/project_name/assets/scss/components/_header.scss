@@ -1,0 +1,34 @@
+/* ======================== */
+/* Logo
+/* ======================== */
+.c-header_logo {
+  position: relative;
+
+  display: block;
+  height: map-get($logo, height);
+  width: map-get($logo, width);
+
+  background-image: url(map-get($logo, path));
+  background-position: 0 (40px - #{map-get($logo, height)})/2;
+  background-repeat: no-repeat;
+  background-size: map-get($logo, width) map-get($logo, height);
+
+  @include breakpoint-gte(lg) {
+    height: map-get($logo-lg, height);
+    width: map-get($logo-lg, width);
+
+    background-image: url(map-get($logo-lg, path));
+    background-position: 0 (80px - #{map-get($logo-lg, height)})/2;
+    background-size: map-get($logo-lg, width) map-get($logo-lg, height);
+  }
+}
+
+/* ======================== */
+/* Navigation
+/* ======================== */
+.c-header_navigation {
+  @include breakpoint-gte(lg) {
+    display: block;
+    margin-left: auto;
+  }
+}
