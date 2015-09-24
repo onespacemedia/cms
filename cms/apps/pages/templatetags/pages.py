@@ -340,10 +340,10 @@ def twitter_image(context, image=None):
             image = og_image(context)
 
     # If its a file object, load the URL manually
-    if type(image).__name__ == 'File':
-        image = "//{}{}".format(
-            request.META['HTTP_HOST'],
-            image.file.url
+    if type(image).__name__ == 'File' and hasattr(request, "META"):
+        image = "{}{}".format(
+            absolute_domain_url(context),
+            image.get_absolute_url()
         )
 
     # Return image, or an empty string if nothing is working
