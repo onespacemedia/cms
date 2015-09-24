@@ -323,11 +323,12 @@ def twitter_image(context, image=None):
     if not image:
         image = context.get('twitter_image')
 
+    # Get current page from request
+    request = context['request']
+
     # If we are still None, look at page content
     if not image:
 
-        # Get current page from request
-        request = context['request']
         current_page = request.pages.current
         homepage = request.pages.homepage
 

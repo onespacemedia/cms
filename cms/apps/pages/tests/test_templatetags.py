@@ -171,7 +171,7 @@ class TestTemplatetags(TestCase):
         context['twitter_title'] = 'Title'
         context['twitter_description'] = 'Description'
 
-        self.assertEqual(twitter_card(context), 'Photo')
+        self.assertEqual(twitter_card(context), 'photo')
         self.assertEqual(twitter_title(context), 'Title')
         self.assertEqual(twitter_description(context), 'Description')
 
