@@ -245,74 +245,108 @@ def og_image(context, image=None):
 def twitter_card(context, card=None):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
 
-    if card is None:
+    # Load from context if exists
+    if not card:
         card = context.get('twitter_card')
 
-    if card is None:
+    # If we are still None, look at page content
+    if not card:
+
+        # Get current page from request
         request = context['request']
-        page = request.pages.current
+        current_page = request.pages.current
+        homepage = request.pages.homepage
 
-        if page:
-            card = page.twitter_card
+        # Use either the current page twitter card, or the homepage twitter card
+        card = current_page.twitter_card or homepage.twitter_card
 
-    if card:
-        card = choices[card]
+    if card or card == 0:
+        card = str(choices[card]).lower()
 
     return escape(card or '')
 
 
 @register.simple_tag(takes_context=True)
 def twitter_title(context, title=None):
-    if title is None:
+
+    # Load from context if exists
+    if not title:
         title = context.get('twitter_title')
 
-    if title is None:
+    # If we are still None, look at page content
+    if not title:
+
+        # Get current page from request
         request = context['request']
-        page = request.pages.current
+        current_page = request.pages.current
+        homepage = request.pages.homepage
 
-        if page:
-            title = page.twitter_title or og_title(context)
+        # Use either the current page twitter title, or the homepage twitter title
+        title = current_page.twitter_title or homepage.twitter_title
 
+        # If everything fails, fallback to OG tag title
+        if not title:
+            title = og_title(context)
+
+    # Return title, or an empty string if nothing is working
     return escape(title or '')
 
 
 @register.simple_tag(takes_context=True)
 def twitter_description(context, description=None):
-    if description is None:
+    # Load from context if exists
+    if not description:
         description = context.get('twitter_description')
 
-    if description is None:
+    # If we are still None, look at page content
+    if not description:
+
+        # Get current page from request
         request = context['request']
-        page = request.pages.current
+        current_page = request.pages.current
+        homepage = request.pages.homepage
 
-        if page:
-            description = page.twitter_description or og_description(context)
+        # Use either the current page twitter description, or the homepage twitter description
+        description = current_page.twitter_description or homepage.twitter_description
 
+        # If everything fails, fallback to OG tag title
+        if not description:
+            description = og_description(context)
+
+    # Return description, or an empty string if nothing is working
     return escape(description or '')
 
 
 @register.simple_tag(takes_context=True)
 def twitter_image(context, image=None):
-    image_obj = None
+    # Load from context if exists
+    if not image:
+        image = context.get('twitter_image')
 
-    if image is None:
-        image_obj = context.get('twitter_image')
+    # Get current page from request
+    request = context['request']
 
-    if image_obj is None:
-        request = context['request']
-        page = request.pages.current
+    # If we are still None, look at page content
+    if not image:
 
-        if page:
-            image_obj = page.twitter_image
+        current_page = request.pages.current
+        homepage = request.pages.homepage
 
-    if image_obj:
-        image = '{}{}'.format(
+        # Use either the current page twitter image, or the homepage twitter image
+        image = current_page.twitter_image or homepage.twitter_image
+
+        # If everything fails, fallback to OG tag title
+        if not image:
+            image = og_image(context)
+
+    # If its a file object, load the URL manually
+    if type(image).__name__ == 'File' and hasattr(request, "META"):
+        image = "{}{}".format(
             absolute_domain_url(context),
-            image_obj.get_absolute_url()
+            image.get_absolute_url()
         )
-    else:
-        image = og_image(context)
 
+    # Return image, or an empty string if nothing is working
     return escape(image or '')
 
 
