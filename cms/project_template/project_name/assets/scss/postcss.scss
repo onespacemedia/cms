@@ -1,0 +1,13 @@
+/* ======================== */
+/* Assets
+/* ======================== */
+/* PostCSS Assets is an asset manager for CSS. It isolates stylesheets from
+/* environmental changes, gets image sizes and inlines files.
+/* ------------------------ */
+.image {
+  height: height('image.png'); // height: 191px;
+  width: width('image.png'); // height: 339px;
+  background-image: resolve('image.png'); // -> background-image: url('path/to/image.png');
+  background-image: inline('image.png'); // -> background-image: url('data:image/png;base64/etc.');
+  background-size: size('image.png'); // -> background-size: 339px 191px;
+}
