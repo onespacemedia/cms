@@ -30,7 +30,8 @@ export default () => {
     .pipe($.sass({
       precision: 10,
       stats: true,
-      includePaths: ['node_modules/normalize.css/']
+      includePaths: ['node_modules/normalize.scss/'],
+      outputStyle: 'expanded'
     }).on('error', $.sass.logError))
 
     // PostCSS our vendor prefixes
