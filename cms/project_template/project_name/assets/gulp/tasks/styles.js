@@ -15,11 +15,41 @@ const reload = browserSync.reload;
 // - Project config
 import config from './_config';
 
+// - PostCSS
+import assets from 'postcss-assets';
+import at2x from 'postcss-at2x';
+import autoPrefixer from 'autoprefixer';
+import easings from 'postcss-easings';
+import enter from 'postcss-pseudo-class-enter';
+import fakeId from 'postcss-fakeid';
+import flexbugFixes from 'postcss-flexbugs-fixes';
+import propertyLookup from 'postcss-property-lookup';
+import quantityQueries from 'postcss-quantity-queries';
+import willChange from 'postcss-will-change';
+
 export default () => {
-  // Browsers we support
+  const assetsConfig = {
+    basePath: 'testing/static/',
+    baseUrl: '/static/',
+    loadPaths: ['img/', 'svg/']
+  };
+
   const autoprefixerBrowsers = [
     'last 2 versions',
     'ie >= 9'
+  ];
+
+  const postCSSPRocessors = [
+    assets(assetsConfig),
+    at2x,
+    easings,
+    enter,
+    fakeId,
+    quantityQueries,
+    willChange,
+    propertyLookup,
+    autoPrefixer(autoprefixerBrowsers),
+    flexbugFixes
   ];
 
   return gulp.src(config.sass.src)
@@ -34,8 +64,8 @@ export default () => {
       outputStyle: 'expanded'
     }).on('error', $.sass.logError))
 
-    // PostCSS our vendor prefixes
-    .pipe($.autoprefixer(autoprefixerBrowsers))
+    // PostCSS
+    .pipe($.postcss(postCSSPRocessors))
 
     // Convert viable px units to REM
     .pipe($.pxtorem())
