@@ -3,7 +3,7 @@ const srcFolder = './{{ project_name }}/assets';
 const distFolder = './{{ project_name }}/static';
 const templateFolder = './{{ project_name }}/templates';
 
-export default {
+export const config = {
   bower: {
     path: 'bower_components'
   },

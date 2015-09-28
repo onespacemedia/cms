@@ -3,40 +3,60 @@
 /*****************************************************************************/
 // - Main
 import gulp from 'gulp';
-import runSequence from 'run-sequence';
-import del from 'del';
 
 // - Gulp modules
 import gulpLoadPlugins from 'gulp-load-plugins';
 const $ = gulpLoadPlugins();
 
-// - Gulp tasks
-import images from './{{ project_name }}/assets/gulp/tasks/images';
-import scripts from './{{ project_name }}/assets/gulp/tasks/scripts';
-import serve from './{{ project_name }}/assets/gulp/tasks/serve';
-import styles from './{{ project_name }}/assets/gulp/tasks/styles';
-
-// - Browser sync
+// - Browser Sync
 import browserSync from 'browser-sync';
-export const bs = browserSync.create();
-const reload = bs.reload;
+const reload = browserSync.reload;
 
-/*****************************************************************************/
-/* Tasks */
-/*****************************************************************************/
-// - Images
-gulp.task('images', images);
+// - Project config
+import { config } from './_config';
 
-// - SCSS/CSS Styles
-gulp.task('styles', styles);
+// - PostCSS
+import autoPrefixer from 'autoprefixer';
 
-// - JS Scripts
-gulp.task('scripts', scripts);
+export default () => {
+  // Browsers we support
+  const autoprefixerBrowsers = ['last 2 versions', 'ie >= 9'];
+  const postCSSPRocessors = [
+    autoPrefixer
+  ];
 
-// - Browser sync
-gulp.task('serve', serve);
+  return gulp.src(config.sass.src)
+    // Initialise source maps
+    .pipe($.sourcemaps.init())
 
-// - Default task to use when deving
-gulp.task('default', (cb) => {
-  return runSequence('styles', 'scripts', 'serve', cb);
-});
+    // Process our SCSS to CSS
+    .pipe($.sass({
+      precision: 10,
+      stats: true,
+      includePaths: ['node_modules/normalize.css/'],
+      outputStyle: 'expanded'
+    }).on('error', $.sass.logError))
+
+    // PostCSS
+    .pipe($.postcss(postCSSPRocessors))
+
+    // Convert viable px units to REM
+    .pipe($.pxtorem())
+
+    // Write our source map, the root is needed for Django funnyness
+    .pipe($.sourcemaps.write('./', {
+      includeContent: false,
+      sourceRoot: () => {
+        return '../../static'
+      }
+    }))
+
+    // Place our CSS in the location we link to
+    .pipe(gulp.dest(config.css.dist))
+
+    // Stream the changes to Browser Sync
+    .pipe(browserSync.stream({match: '**/*.css'}))
+
+    // Spit out the size to the console
+    .pipe($.size({title: 'styles'}));
+}
