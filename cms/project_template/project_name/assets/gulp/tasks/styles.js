@@ -13,7 +13,7 @@ import browserSync from 'browser-sync';
 const reload = browserSync.reload;
 
 // - Project config
-import config from './_config';
+import { config } from './_config';
 
 // - PostCSS
 import assets from 'postcss-assets';
