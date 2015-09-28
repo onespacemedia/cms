@@ -39,7 +39,8 @@ export default () => {
     'ie >= 9'
   ];
 
-  const postCSSPRocessors = [
+  const postCSSProcessors = [
+    // Alphabetical
     assets(assetsConfig),
     at2x,
     easings,
@@ -48,7 +49,13 @@ export default () => {
     quantityQueries,
     willChange,
     propertyLookup,
+
+    // Autoprefixer always 2nd last as the other plugins might add code that
+    // needs to be prefixed
     autoPrefixer(autoprefixerBrowsers),
+
+    // Flexbugs always last as it might need to do something the browser
+    // prefixed declerations
     flexbugFixes
   ];
 
@@ -65,7 +72,7 @@ export default () => {
     }).on('error', $.sass.logError))
 
     // PostCSS
-    .pipe($.postcss(postCSSPRocessors))
+    .pipe($.postcss(postCSSProcessors))
 
     // Convert viable px units to REM
     .pipe($.pxtorem())
