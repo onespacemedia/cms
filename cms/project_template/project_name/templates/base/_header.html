@@ -1,0 +1,43 @@
+{% load site %}
+
+<header class="o-header">
+  <div class="o-container">
+    <a href="/" class="c-header_logo"></a>
+
+    <a class="c-header_navTrigger">
+      <div class="o-hamburger">
+        <div class="o-hamburger_line o-hamburger_line1"></div>
+        <div class="o-hamburger_line o-hamburger_line2"></div>
+        <div class="o-hamburger_line o-hamburger_line3"></div>
+      </div>
+    </a>
+
+    <nav class="c-header_nav">
+      <ul class="o-list c-list-nav">
+        {% for entry in pages.homepage.navigation %}
+        <li class="o-list_item{% if entry|here:request %} is-active{% endif %}{% if entry.navigation %} has-children{% endif %}">
+          <a class="o-list_itemAction" href="{{ entry.get_absolute_url }}"> {{ entry }} {% if entry.navigation %}>{% endif %} </a>
+
+          {% if entry.navigation %}
+          <ul class="o-list">
+            <li class="o-list_item c-list_itemBack">
+              <a href="#"> Back < </a>
+            </li>
+
+            <li class="o-list_item">
+              <a href="{{ entry.get_absolute_url }}">{{ entry }}</a>
+            </li>
+
+            {% for sub_entry in entry.navigation %}
+            <li class="o-list_item">
+              <a class="o-list_itemAction" href="{{ sub_entry.get_absolute_url }}">{{ sub_entry }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>

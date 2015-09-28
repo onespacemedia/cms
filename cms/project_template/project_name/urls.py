@@ -46,6 +46,7 @@ if settings.DEBUG:
         "",
         url("^404/$", generic.TemplateView.as_view(template_name="404.html")),
         url("^500/$", generic.TemplateView.as_view(template_name="500.html")),
+        url('^ui-kit/$', generic.TemplateView.as_view(template_name="ui-kit.html"))
     )
 
 
