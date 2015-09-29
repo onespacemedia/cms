@@ -19,7 +19,6 @@ import { config } from './_config';
 import assets from 'postcss-assets';
 import at2x from 'postcss-at2x';
 import autoPrefixer from 'autoprefixer';
-import easings from 'postcss-easings';
 import enter from 'postcss-pseudo-class-enter';
 import fakeId from 'postcss-fakeid';
 import flexbugFixes from 'postcss-flexbugs-fixes';
@@ -43,7 +42,6 @@ export default () => {
     // Alphabetical
     assets(assetsConfig),
     at2x,
-    easings,
     enter,
     fakeId,
     quantityQueries,
