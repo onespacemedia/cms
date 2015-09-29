@@ -51,7 +51,7 @@
 }
 
 /* ======================== */
-/* Autoprefixer
+/* Autoprefixer - https://github.com/postcss/autoprefixer
 /* ======================== */
 /* PostCSS plugin to parse CSS and add vendor prefixes to CSS rules using values
 /* from Can I Use.
@@ -73,4 +73,28 @@
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+/* ======================== */
+/* Enter - https://github.com/jonathantneal/postcss-pseudo-class-enter
+/* ======================== */
+/* Pseudo Class Enter is a PostCSS plugin that allows you to use the proposed
+/* :enter pseudo-class in CSS.
+
+/* :enter simplifies selectors targeting elements that are designated, as the
+/* naming of :hover is somewhat misleading; it specifically means elements
+/* designated with a pointing device, rather than any device.
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+.enter:enter {
+  box-shadow: 5px 5px 5px rgba(#000, 0.3);
+}
+
+/* OUTPUT
+/* ------------------------ */
+.enter:hover,
+.enter:focus {
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
 }
