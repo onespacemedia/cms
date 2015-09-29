@@ -49,3 +49,28 @@
     background-image: url('/static/img/image@2x.png');
   }
 }
+
+/* ======================== */
+/* Autoprefixer
+/* ======================== */
+/* PostCSS plugin to parse CSS and add vendor prefixes to CSS rules using values
+/* from Can I Use.
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+.autoprefixer {
+  display: flex;
+  transform: rotate(45deg);
+}
+
+/* OUTPUT
+/* ------------------------ */
+.autoprefixer {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
