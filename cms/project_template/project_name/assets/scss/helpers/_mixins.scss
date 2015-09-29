@@ -4,6 +4,7 @@
 @mixin fontSizing($el) {
   @if map-has-key($fontSizes, $el) {
     margin-bottom: map-get($fontSizes, $el) / 2;
+
     font-size: map-get($fontSizes, $el);
     line-height: map-get($fontSizes, $el) + 10px;
 
@@ -61,16 +62,16 @@
 /* Grid
 /* ======================== */
 @mixin container($collapsed: false) {
-  max-width: map-get($grid, container);
+  max-width: if($collapsed, map-get($grid, container), map-get($grid, container) + map-get($grid, gutter));
   margin: 0 auto;
 
   @if $collapsed == 'right' {
-    padding-left: map-get($grid, gutter)/2;
+    padding-left: #{map-get($grid, gutter) / 2};
   } @else if $collapsed == 'left' {
-    padding-right: map-get($grid, gutter)/2;
+    padding-right: #{map-get($grid, gutter) / 2};
   } @else if $collapsed == false {
-    padding-right: map-get($grid, gutter)/2;
-    padding-left: map-get($grid, gutter)/2;
+    padding-right: #{map-get($grid, gutter) / 2};
+    padding-left: #{map-get($grid, gutter) / 2};
   }
 }
 

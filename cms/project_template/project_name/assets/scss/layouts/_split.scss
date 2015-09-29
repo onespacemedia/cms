@@ -13,7 +13,7 @@
 .l-split > .o-layout_item {
   flex-basis: 50%;
 
-  margin-right: #{map-get($grid, gutter) / 2};
+  margin-right: map-get($grid, gutter) / 2;
   margin-left: #{'@margin-right'};
 }
 
@@ -41,7 +41,7 @@
   @include breakpoint-gte(sm) {
     flex-basis: 50%;
 
-    margin-right: #{map-get($grid, gutter) / 2};
+    margin-right: map-get($grid, gutter) / 2;
     margin-left: #{'@margin-right'};
   }
 }

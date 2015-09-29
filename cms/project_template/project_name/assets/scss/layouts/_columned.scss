@@ -16,7 +16,7 @@
 .l-columned .l-item {
   flex-basis: 100%;
 
-  margin-right: #{map-get($grid, gutter) / 2};
+  margin-right: map-get($grid, gutter) / 2;
   margin-left: #{'@margin-right'};
 
   @include breakpoint-gte(sm) {
