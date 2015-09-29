@@ -19,11 +19,17 @@
 @import "helpers/define"; // Like bootstraps reboot, define some base normalized styles
 
 /* ======================== */
+/* Layout
+/* ======================== */
+@import "layouts/columned";
+@import "layouts/grid";
+@import "layouts/split";
+
+/* ======================== */
 /* Objects
 /* ======================== */
 @import 'objects/buttons';
 @import 'objects/forms';
-@import 'objects/grid';
 @import 'objects/header';
 @import 'objects/lists';
 @import 'objects/media';
