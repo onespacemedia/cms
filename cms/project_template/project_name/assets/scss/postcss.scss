@@ -98,3 +98,24 @@
 .enter:focus {
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
 }
+
+/* ======================== */
+/* FakeId - https://github.com/pathsofdesign/postcss-fakeid
+/* ======================== */
+/* Transform #id's to attribute selectors.
+
+/* ID's should never be used in CSS as they are far too specific, this
+/* normalizes them to be the same specificity as class declarations.
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+#fakeId {
+  content: "I shouldn't be used...";
+}
+
+/* OUTPUT
+/* ------------------------ */
+[id="fakeId"] {
+  content: "I shouldn't be used...";
+}
