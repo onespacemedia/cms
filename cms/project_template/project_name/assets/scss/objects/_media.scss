@@ -10,7 +10,7 @@
 /* Left
 /* ------------------------ */
 .o-media_left {
-  flex-basis: 38%;
+  flex-basis: #{'@width'};
   flex-shrink: 0;
 
   margin-right: map-get($spacing, margin);
