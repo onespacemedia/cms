@@ -23,7 +23,6 @@ import enter from 'postcss-pseudo-class-enter';
 import fakeId from 'postcss-fakeid';
 import flexbugFixes from 'postcss-flexbugs-fixes';
 import propertyLookup from 'postcss-property-lookup';
-import quantityQueries from 'postcss-quantity-queries';
 import willChange from 'postcss-will-change';
 
 export default () => {
@@ -44,7 +43,6 @@ export default () => {
     at2x,
     enter,
     fakeId,
-    quantityQueries,
     willChange,
     propertyLookup,
 
@@ -53,7 +51,7 @@ export default () => {
     autoPrefixer(autoprefixerBrowsers),
 
     // Flexbugs always last as it might need to do something the browser
-    // prefixed declerations
+    // prefixed declarations
     flexbugFixes
   ];
 
