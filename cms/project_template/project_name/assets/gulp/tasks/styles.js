@@ -23,6 +23,7 @@ import enter from 'postcss-pseudo-class-enter';
 import fakeId from 'postcss-fakeid';
 import flexbugFixes from 'postcss-flexbugs-fixes';
 import propertyLookup from 'postcss-property-lookup';
+import vertHorz from 'postcss-verthorz';
 import willChange from 'postcss-will-change';
 
 export default () => {
@@ -43,8 +44,9 @@ export default () => {
     at2x,
     enter,
     fakeId,
-    willChange,
     propertyLookup,
+    vertHorz,
+    willChange,
 
     // Autoprefixer always 2nd last as the other plugins might add code that
     // needs to be prefixed

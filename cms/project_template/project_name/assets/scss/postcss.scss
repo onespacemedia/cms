@@ -178,6 +178,28 @@
 }
 
 /* ======================== */
+/* Vert Horz - https://github.com/davidhemphill/postcss-verthorz
+/* ======================== */
+/* Plugin to add vertical and horizontal spacing shorthand.
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+.foo {
+  margin-horz: auto;
+  padding-vert: 20px;
+}
+
+/* OUTPUT
+/* ------------------------ */
+.foo {
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* ======================== */
 /* Will Change - https://github.com/postcss/postcss-will-change
 /* ======================== */
 /* Plugin to insert 3D hack before will-change property.
