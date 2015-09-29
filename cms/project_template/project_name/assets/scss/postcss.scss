@@ -119,3 +119,31 @@
 [id="fakeId"] {
   content: "I shouldn't be used...";
 }
+
+/* ======================== */
+/* Flexbug Fixes - https://github.com/luisrudge/postcss-flexbugs-fixes
+/* ======================== */
+/* Fixes of common flexbox issues in older browsers
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+.flexFlex {
+  flex: 1;
+}
+
+.flexFlexCalc {
+  flex: 1 0 calc(1vw - 1px);
+}
+
+/* OUTPUT
+/* ------------------------ */
+.flexFlex {
+  flex: 1 1 0%;
+}
+
+.flexFlexCalc {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: calc(1vw - 1px);
+}
