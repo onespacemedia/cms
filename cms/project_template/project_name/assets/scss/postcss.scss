@@ -176,3 +176,22 @@
   margin-bottom: 10px;
   width: 60%;
 }
+
+/* ======================== */
+/* Will Change - https://github.com/postcss/postcss-will-change
+/* ======================== */
+/* Plugin to insert 3D hack before will-change property.
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+.willChange {
+  will-change: transform;
+}
+
+/* OUTPUT
+/* ------------------------ */
+.willChange {
+  backface-visibility: hidden;
+  will-change: transform;
+}
