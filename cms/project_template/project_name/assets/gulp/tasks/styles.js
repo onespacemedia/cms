@@ -15,7 +15,7 @@ const reload = browserSync.reload;
 // - Project config
 import { config } from './_config';
 
-// - PostCSS
+// - PostCSS - Local documentation for these @ assets/scss/postcss.scss
 import assets from 'postcss-assets';
 import at2x from 'postcss-at2x';
 import autoPrefixer from 'autoprefixer';
