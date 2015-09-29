@@ -147,3 +147,32 @@
   flex-shrink: 0;
   flex-basis: calc(1vw - 1px);
 }
+
+/* ======================== */
+/* Property Lookup - https://github.com/simonsmith/postcss-property-lookup
+/* ======================== */
+/* Allows referencing property values without a variable
+
+/* One thing to note Sass throws an error on compilation if you don't wrap the
+/* reference in a string and interpolate it.
+
+/* Declaration order doesn't matter. You can reference up or down the file.
+/* ------------------------ */
+
+/* INPUT
+/* ------------------------ */
+.propertyLookup {
+  flex-basis: #{'@width'};
+  margin-top: 10px;
+  margin-bottom: #{'@margin-top'};
+  width: 60%;
+}
+
+/* OUTPUT
+/* ------------------------ */
+.propertyLookup {
+  flex-basis: 60%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 60%;
+}
