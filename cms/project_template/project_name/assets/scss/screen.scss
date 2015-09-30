@@ -16,14 +16,19 @@
 @import 'helpers/mixins';
 @import 'helpers/quantity-queries';
 
-@import "helpers/define"; // Like bootstraps reboot, define some base normalized styles
+@import 'helpers/define'; // Like bootstraps reboot, define some base normalized styles
+
+/* ======================== */
+/* Base
+/* ======================== */
+@import 'base/typography';
 
 /* ======================== */
 /* Layout
 /* ======================== */
-@import "layouts/columned";
-@import "layouts/grid";
-@import "layouts/split";
+@import 'layouts/columned';
+@import 'layouts/grid';
+@import 'layouts/split';
 
 /* ======================== */
 /* Objects

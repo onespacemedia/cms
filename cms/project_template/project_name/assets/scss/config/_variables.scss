@@ -21,12 +21,13 @@ $fontFamilies: (
 
 /* Sizes
 /* ------------------------ */
+$fontClasses: ('xlarge', 'large', 'medium', 'small', 'xsmall', 'normal');
 $fontSizes: (
-  xlarge: 32px,
-  large: 28px,
+  xlarge: 24px,
+  large: 22px,
   medium: 20px,
   small: 18px,
-  xsmall: 18px,
+  xsmall: 16px,
   normal: 16px,
   root: 16px
 );
