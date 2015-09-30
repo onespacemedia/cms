@@ -1,4 +1,4 @@
-{% load pages html compress %}
+{% load compress html pages static %}
 
 <!DOCTYPE html>
 <html>
@@ -19,17 +19,22 @@
 
     <title>{% block title %}{% title %}{% endblock %}</title>
 
+    <!-- Favicons -->
+    {% include 'base/_favicons.html' %}
+
     {% block feeds %}{% endblock %}
 
     {% compress css %}
-      <link rel="stylesheet" href="/static/css/screen.css"/>
+      <link rel="stylesheet" href="{% static 'css/screen.css' %}"/>
     {% endcompress %}
   </head>
 
   <body class="{% block body_class %}{% endblock %}">
-    {% include 'base/_browser-update.html' %} {% include 'base/_analytics.html' %}
+    {% include 'base/_browser-update.html' %}
+    {% include 'base/_analytics.html' %}
 
-    {% block body_inner %} {% include 'base/_header.html' %}
+    {% block body_inner %}
+      {% include 'base/_header.html' %}
 
       <div class="l-siteContainer">
         {% block site %} {% block content_above %}{% endblock %}
@@ -47,10 +52,11 @@
         {% endblock %}
       </div>
 
-      {% include 'base/_footer.html' %} {% endblock %}
+      {% include 'base/_footer.html' %}
+    {% endblock %}
 
     {% compress js %}
-      <script src="/static/js/build/app.js"></script>
+      <script src="{% static 'js/app.js' %}"></script>
     {% endcompress %}
   </body>
 </html>
