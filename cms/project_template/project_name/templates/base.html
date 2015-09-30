@@ -22,7 +22,7 @@
     {% block feeds %}{% endblock %}
 
     {% compress css %}
-    <link rel="stylesheet" href="/static/css/screen.css"/>
+      <link rel="stylesheet" href="/static/css/screen.css"/>
     {% endcompress %}
   </head>
 
@@ -31,26 +31,26 @@
 
     {% block body_inner %} {% include 'base/_header.html' %}
 
-    <div class="l-siteContainer">
-      {% block site %} {% block content_above %}{% endblock %}
-      <div class="l-contentContainer">
-        {% block content %}
-        <main class="l-mainContainer">
-          {% block main %}{% endblock %}
-        </main>
+      <div class="l-siteContainer">
+        {% block site %} {% block content_above %}{% endblock %}
+          <div class="l-contentContainer">
+            {% block content %}
+              <main class="l-mainContainer">
+                {% block main %}{% endblock %}
+              </main>
 
-        <aside class="l-asideContainer">
-          {% block aside %}{% endblock %}
-        </aside>
+              <aside class="l-asideContainer">
+                {% block aside %}{% endblock %}
+              </aside>
+            {% endblock %}
+          </div>
         {% endblock %}
       </div>
-      {% endblock %}
-    </div>
 
-    {% include 'base/_footer.html' %} {% endblock %}
+      {% include 'base/_footer.html' %} {% endblock %}
 
     {% compress js %}
-    <script src="/static/js/build/app.js"></script>
+      <script src="/static/js/build/app.js"></script>
     {% endcompress %}
   </body>
 </html>
