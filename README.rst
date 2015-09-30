@@ -7,8 +7,8 @@ Onespacemedia CMS
 .. image:: https://travis-ci.org/onespacemedia/cms.svg?branch=master
     :target: https://travis-ci.org/onespacemedia/cms
 
-.. image:: https://coveralls.io/repos/onespacemedia/cms/badge.svg?branch=master
-    :target: https://coveralls.io/r/onespacemedia/cms?branch=master
+.. image:: http://codecov.io/github/onespacemedia/cms/coverage.svg?branch=master
+     :target: http://codecov.io/github/onespacemedia/cms?branch=master
 
 
 A collection of Django extensions that add content-management facilities
