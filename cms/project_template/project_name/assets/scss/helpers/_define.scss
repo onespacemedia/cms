@@ -56,8 +56,9 @@ html {
 body {
   @include fontSmoothing();
 
-  // Make the `body` use the `font-size-root`
+  // This needs escaping so it doesn't double string
   font-family: #{map-get($fontFamilies, serif)};
+  // Make the `body` use the `font-size-root`
   font-size: map-get($fontSizes, normal);
   line-height: map-get($fontSizes, normal) + 10px;
   // Go easy on the eyes and use something other than `#000` for text
