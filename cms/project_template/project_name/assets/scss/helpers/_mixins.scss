@@ -1,16 +1,16 @@
 /* ======================== */
 /* Fonts
 /* ======================== */
-@mixin fontSizing($el) {
-  @if map-has-key($fontSizes, $el) {
-    margin-bottom: map-get($fontSizes, $el) / 2;
+@mixin fontSizing($size) {
+  @if map-has-key($fontSizes, $size) {
+    margin-bottom: map-get($fontSizes, $size) / 2;
 
-    font-size: map-get($fontSizes, $el);
-    line-height: map-get($fontSizes, $el) + 10px;
+    font-size: map-get($fontSizes, $size);
+    line-height: map-get($lineHeights, $size);
 
     @include breakpoint-gte(lg) {
-      font-size: map-get($fontSizes-lg, $el);
-      line-height: map-get($fontSizes-lg, $el) + 10px;
+      font-size: map-get($fontSizes-lg, $size);
+      line-height: map-get($lineHeights-lg, $size);
     }
   }
 }
@@ -62,6 +62,9 @@
 /* Grid
 /* ======================== */
 @mixin container($collapsed: false) {
+  /* Add 30px to the container as the 'container' should be the size of the
+  /* content not the actual div
+  /* ------------------------ */
   max-width: if($collapsed, map-get($grid, container), map-get($grid, container) + map-get($grid, gutter));
   margin: 0 auto;
 

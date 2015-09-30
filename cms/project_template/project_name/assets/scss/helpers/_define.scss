@@ -21,16 +21,31 @@ html {
 /* Viewports
 /* ======================== */
 @at-root {
-  @-moz-viewport    { width: device-width; }
-  @-ms-viewport     { width: device-width; }
-  @-o-viewport      { width: device-width; }
-  @-webkit-viewport { width: device-width; }
-  @viewport         { width: device-width; }
+  @-moz-viewport {
+    width: device-width;
+  }
+  @-ms-viewport {
+    width: device-width;
+  }
+  @-o-viewport {
+    width: device-width;
+  }
+  @-webkit-viewport {
+    width: device-width;
+  }
+  @viewport {
+    width: device-width;
+  }
 }
 
 /* ======================== */
 /* HTML/Body resets
 /* ======================== */
+html,
+body {
+  height: 100%;
+}
+
 html {
   // Sets a specific default `font-size` for user with `rem` type scales.
   font-size: map-get($fontSizes, root);
@@ -43,8 +58,8 @@ body {
 
   // Make the `body` use the `font-size-root`
   font-family: #{map-get($fontFamilies, serif)};
-  font-size: map-get($fontSizes, body);
-  line-height: map-get($fontSizes, body) + 10px;
+  font-size: map-get($fontSizes, normal);
+  line-height: map-get($fontSizes, normal) + 10px;
   // Go easy on the eyes and use something other than `#000` for text
   color: map-get($colors, text);
   // By default, `<body>` has no `background-color` so we set one as a best practice.
@@ -57,19 +72,13 @@ body {
 
 /* Headings
 /* ------------------------ */
-h1 { @include fontSizing('h1') }
-h2 { @include fontSizing('h2') }
-h3 { @include fontSizing('h3') }
-h4 { @include fontSizing('h4') }
-h5 { @include fontSizing('h5') }
-
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
 }
 
 /* Body
 /* ------------------------ */
-body { @include fontSizing('body') }
+body { @include fontSizing('normal') }
 
 /* Paragraph
 /* ------------------------ */
@@ -82,7 +91,6 @@ p {
 /* ------------------------ */
 a {
   text-decoration: none;
-
   color: map-get($colors, anchor);
 }
 
@@ -92,7 +100,6 @@ ul[class] {
   margin: 0;
   margin-bottom: map-get($spacing, margin);
   padding: 0;
-
   list-style: none;
 }
 
@@ -101,4 +108,5 @@ ul[class] {
 /* ======================== */
 img {
   max-width: 100%;
+  width: 100%;
 }
