@@ -11,7 +11,7 @@ const $ = gulpLoadPlugins();
 
 // - Gulp tasks
 import images from './{{ project_name }}/assets/gulp/tasks/images';
-import scripts from './{{ project_name }}/assets/gulp/tasks/scripts';
+import { scripts, scriptsBuild } from './{{ project_name }}/assets/gulp/tasks/scripts';
 import serve from './{{ project_name }}/assets/gulp/tasks/serve';
 import styles from './{{ project_name }}/assets/gulp/tasks/styles';
 
@@ -31,6 +31,7 @@ gulp.task('styles', styles);
 
 // - JS Scripts
 gulp.task('scripts', scripts);
+gulp.task('scriptsBuild', scriptsBuild);
 
 // - Browser sync
 gulp.task('serve', serve);
