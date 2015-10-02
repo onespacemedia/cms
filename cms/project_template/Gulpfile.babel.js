@@ -36,6 +36,9 @@ gulp.task('scriptsBuild', scriptsBuild);
 // - Browser sync
 gulp.task('serve', serve);
 
+// - Build
+gulp.task('build', (cb) => runSequence('styles', 'scriptsBuild', cb));
+
 // - Default task to use when deving
 gulp.task('default', (cb) => {
   return runSequence('styles', 'scripts', 'serve', cb);
