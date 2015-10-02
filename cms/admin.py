@@ -62,12 +62,12 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
         "classes": ("collapse",),
     })
 
-    OPENGRAPH_FIELDS = ("Open graph", {
+    OPENGRAPH_FIELDS = ("Open Graph", {
         "fields": ("og_title", "og_description", "og_image"),
         "classes": ("collapse",)
     })
 
-    OPENGRAPH_TWITTER_FIELDS = ("Open graph twitter", {
+    OPENGRAPH_TWITTER_FIELDS = ("Twitter card", {
         "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
         "classes": ("collapse",)
     })
