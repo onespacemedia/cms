@@ -25,47 +25,49 @@ import flexbugFixes from 'postcss-flexbugs-fixes';
 import propertyLookup from 'postcss-property-lookup';
 import willChange from 'postcss-will-change';
 
-export default () => {
-  const assetsConfig = {
-    basePath: 'testing/static/',
-    baseUrl: '/static/',
-    loadPaths: ['img/', 'svg/']
-  };
+const assetsConfig = {
+  basePath: 'testing/static/',
+  baseUrl: '/static/',
+  loadPaths: ['img/', 'svg/']
+};
 
-  const autoprefixerBrowsers = [
-    'last 2 versions',
-    'ie >= 9'
-  ];
+const autoprefixerBrowsers = [
+  'last 2 versions',
+  'ie >= 9'
+];
 
-  const postCSSProcessors = [
-    // Alphabetical
-    assets(assetsConfig),
-    at2x,
-    enter,
-    fakeId,
-    propertyLookup,
-    willChange,
+const postCSSProcessors = [
+  // Alphabetical
+  assets(assetsConfig),
+  at2x,
+  enter,
+  fakeId,
+  propertyLookup,
+  willChange,
 
-    // Autoprefixer always 2nd last as the other plugins might add code that
-    // needs to be prefixed
-    autoPrefixer(autoprefixerBrowsers),
+  // Autoprefixer always 2nd last as the other plugins might add code that
+  // needs to be prefixed
+  autoPrefixer(autoprefixerBrowsers),
 
-    // Flexbugs always last as it might need to do something the browser
-    // prefixed declarations
-    flexbugFixes
-  ];
+  // Flexbugs always last as it might need to do something the browser
+  // prefixed declarations
+  flexbugFixes
+];
 
+const sassConfig = {
+  precision: 10,
+  stats: true,
+  includePaths: ['node_modules/normalize.scss/'],
+  outputStyle: 'expanded'
+};
+
+export function styles() {
   return gulp.src(config.sass.src)
     // Initialise source maps
     .pipe($.sourcemaps.init())
 
     // Process our SCSS to CSS
-    .pipe($.sass({
-      precision: 10,
-      stats: true,
-      includePaths: ['node_modules/normalize.scss/'],
-      outputStyle: 'expanded'
-    }).on('error', $.sass.logError))
+    .pipe($.sass(sassConfig).on('error', $.sass.logError))
 
     // PostCSS
     .pipe($.postcss(postCSSProcessors))
@@ -89,4 +91,12 @@ export default () => {
 
     // Spit out the size to the console
     .pipe($.size({title: 'styles'}));
+}
+
+export function stylesBuild() {
+  return gulp.src(config.sass.src)
+    .pipe($.sass(sassConfig).on('error', $.sass.logError))
+    .pipe($.postcss(postCSSProcessors))
+    .pipe($.pxtorem())
+    .pipe(gulp.dest(config.css.dist))
 }
