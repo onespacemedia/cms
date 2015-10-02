@@ -4,6 +4,7 @@ from django.db import models
 from django.test import TestCase
 from django.core.management import call_command
 from django.contrib.contenttypes.models import ContentType
+from cms.externals import External
 
 from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
 from .... import externals
@@ -176,6 +177,27 @@ class TestPage(TestCase):
         new_page = Page.objects.get(pk=new_page.pk)
         self.assertEqual(new_page.cached_url, '/')
         self.assertEqual(new_page.get_absolute_url(), '/')
+
+    def test_last_modified(self):
+
+        # We have no versions
+        self.assertEquals(self.homepage.last_modified(), '-')
+
+        # Create an initial revision.
+        with externals.reversion.create_revision():
+            self.homepage.save()
+
+        # We have reversion and a version in the db, last_modified should not be empty
+        self.assertNotEquals(self.homepage.last_modified(), '-')
+
+        # Remove reversion
+        externals.reversion = None
+
+        # We have no reversion
+        self.assertEquals(self.homepage.last_modified(), '-')
+
+        # Add back reversion
+        externals.reversion = External("reversion")
 
 
 class TestSectionPage(TestCase):
