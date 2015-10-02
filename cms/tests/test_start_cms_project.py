@@ -270,7 +270,7 @@ class TestStartCMSProject(TestCase):
 
             self.assertEqual(
                 mock_call.call_args_list[0][0][0],
-                ['npm', 'install', '-g', 'bower', 'gulp', 'babel']
+                ['npm', 'install', '-g', 'gulp', 'babel']
             )
 
             self.assertEqual(
