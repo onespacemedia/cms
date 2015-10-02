@@ -88,7 +88,7 @@ class SearchMetaBase(OnlineBase):
         blank=True,
         null=True,
         help_text=(
-            "The relative importance of this content in your site.  Search engines use this "
+            "The relative importance of this content on your site. Search engines use this "
             "as a hint when ranking the pages within your site."
         ),
     )
@@ -108,7 +108,7 @@ class SearchMetaBase(OnlineBase):
         blank=True,
         null=True,
         help_text=(
-            "How frequently you expect this content to be updated."
+            "How frequently you expect this content to be updated. "
             "Search engines use this as a hint when scanning your site for updates."
         ),
     )
@@ -117,8 +117,8 @@ class SearchMetaBase(OnlineBase):
         "allow indexing",
         default=True,
         help_text=(
-            "Use this to prevent search engines from indexing this page. "
-            "Disable this only if the page contains information which you do not wish "
+            "Uncheck to prevent search engines from indexing this page. "
+            "Do this only if the page contains information which you do not wish "
             "to show up in search results."
         ),
     )
@@ -127,8 +127,8 @@ class SearchMetaBase(OnlineBase):
         "follow links",
         default=True,
         help_text=(
-            "Use this to prevent search engines from following any links they find in this page. "
-            "Disable this only if the page contains links to other sites that you do not wish to "
+            "Uncheck to prevent search engines from following any links they find in this page. "
+            "Do this only if the page contains links to other sites that you do not wish to "
             "publicise."
         ),
     )
@@ -137,38 +137,36 @@ class SearchMetaBase(OnlineBase):
         "allow archiving",
         default=True,
         help_text=(
-            "Use this to prevent search engines from archiving this page. "
-            "Disable this only if the page is likely to change on a very regular basis. "
+            "Uncheck this to prevent search engines from archiving this page. "
+            "Do this this only if the page is likely to change on a very regular basis. "
         ),
     )
 
-    # Open graph fields
+    # Open Graph fields
     og_title = models.CharField(
         verbose_name='title',
         blank=True,
         max_length=100,
-        help_text='Title that will appear on the Facebook post, it is limited to 100 characters'
-                  'because Facebook truncates the title to 88 characters.'
+        help_text='Title that will appear on Facebook posts. This is limited to 100 characters, '
+                  'but Facebook will truncate the title to 88 characters.'
     )
 
     og_description = models.TextField(
         verbose_name='description',
         blank=True,
         max_length=300,
-        help_text='Description that will appear ont he Facebook post, it is limited to 300'
-                  'characters but is recommended not to use anything over 200.'
+        help_text='Description that will appear on Facebook posts. It is limited to 300 '
+                  'characters, but it is recommended that you do not use anything over 200.'
     )
 
     og_image = ImageRefField(
         verbose_name='image',
         blank=True,
         null=True,
-        help_text='The recommended image size is 1200x627 (1.91/1 ratio) this gives you a big'
-                  'stand out thumbnail. Using an image smaller than 400x209 will give you a very'
-                  'small thumbnail and splits your post into 2 columns.'
-                  ''
-                  'If you have text on the image make sure it is centered as Facebook crops images'
-                  'to get the text centered so you may lose some of your image.'
+        help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
+                  'stand out thumbnail. Using an image smaller than 400x209 will give you a '
+                  'small thumbnail and will splits posts into 2 columns. '
+                  'If you have text on the image make sure it is centered.'
     )
 
     # Twitter card fields
@@ -186,10 +184,9 @@ class SearchMetaBase(OnlineBase):
         blank=True,
         null=True,
         default=None,
-        help_text='The type of content on the page, most of the time summary will suffice'
-                  ''
-                  'Before you can benefit with any of these fields make sure to go to '
-                  'https://dev.twitter.com/docs/cards/validation/validator and get approved'
+        help_text='The type of content on the page. Most of the time "Summary" will suffice. '
+                  'Before you can benefit from any of these fields make sure to go to '
+                  'https://dev.twitter.com/docs/cards/validation/validator and get approved.'
     )
 
     twitter_title = models.CharField(
@@ -203,17 +200,17 @@ class SearchMetaBase(OnlineBase):
         verbose_name='description',
         blank=True,
         max_length=200,
-        help_text='Description that will appear on the Twitter card, it is limited to 200 characters'
-                  'You don\'t need to focus on keywords as this does\'nt effect SEO so focus on'
-                  'copy that compliments the tweet and title.'
+        help_text='Description that will appear on Twitter cards. It is limited '
+                  'to 200 characters. This does\'nt effect SEO, so focus on copy '
+                  'that complements the tweet and title rather than on keywords.'
     )
 
     twitter_image = ImageRefField(
         verbose_name='image',
         blank=True,
         null=True,
-        help_text='The minimum size it needs to be is 280x150, if you want to use a larger image'
-                  'make sure the card type is set to "Large Summary"'
+        help_text='The minimum size it needs to be is 280x150. If you want to use a larger image'
+                  'make sure the card type is set to "Large Summary".'
     )
 
     def get_context_data(self):
