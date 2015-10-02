@@ -121,6 +121,9 @@ class PageAdmin(PageBaseAdmin):
         for content_cls in get_registered_content():
             self._register_page_inline(content_cls)
 
+        if externals.reversion:
+            self.list_display = ("__str__", "last_modified", "is_online",)
+
     def register_content_inline(self, content_cls, inline_admin):
         """Registers an inline model with the page admin."""
         self.content_inlines.append((content_cls, inline_admin))
