@@ -474,7 +474,7 @@ class ContentBase(models.Model):
 
     def __str__(self):
         """Returns a unicode representation."""
-        return str(self.page)
+        return self.page.title
 
     class Meta:
         abstract = True
