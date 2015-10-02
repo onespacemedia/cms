@@ -347,6 +347,19 @@ class Page(PageBase):
         # Update the entire tree.
         self._excise_branch()
 
+    def last_modified(self):
+        if externals.reversion:
+            import reversion
+            versions = reversion.get_for_object(self)
+            if versions.count() > 0:
+                latest_version = versions[:1][0]
+                return "{} by {}".format(
+                    latest_version.revision.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+                    latest_version.revision.user
+                )
+        return "-"
+
+
     class Meta:
         unique_together = (("parent", "slug", "country_group"),)
         ordering = ("left",)
@@ -461,7 +474,7 @@ class ContentBase(models.Model):
 
     def __str__(self):
         """Returns a unicode representation."""
-        return str(self.page)
+        return self.page.title
 
     class Meta:
         abstract = True
