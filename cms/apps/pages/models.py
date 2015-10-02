@@ -444,6 +444,7 @@ def filter_indexable_pages(queryset):
     )
 
 
+@python_2_unicode_compatible
 class ContentBase(models.Model):
 
     """Base class for page content."""
@@ -471,9 +472,9 @@ class ContentBase(models.Model):
         related_name="+",
     )
 
-    def __unicode__(self):
+    def __str__(self):
         """Returns a unicode representation."""
-        return unicode(self.page)
+        return self.page.title
 
     class Meta:
         abstract = True
