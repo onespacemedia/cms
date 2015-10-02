@@ -1,0 +1,43 @@
+{% load site %}
+
+<header class="o-header">
+  <div class="l-container">
+    <a class="c-header_logo" href="/"></a>
+
+    <a class="c-header_navTrigger">
+      <div class="c-hamburger">
+        <div class="c-hamburger_line c-hamburger_bunTop"></div>
+        <div class="c-hamburger_line c-hamburger_patty"></div>
+        <div class="c-hamburger_line c-hamburger_bunBottom"></div>
+      </div>
+    </a>
+
+    <nav class="c-header_nav">
+      <ul class="c-nav c-nav-header">
+        {% for entry in pages.homepage.navigation %}
+          <li class="c-nav_item{% if entry|here:request %} is-active{% endif %}{% if entry.navigation %} has-children{% endif %}">
+            <a class="c-nav_itemAction" href="{{ entry.get_absolute_url }}">{{ entry }} {% if entry.navigation %}>{% endif %}</a>
+
+            {% if entry.navigation %}
+              <ul class="c-nav_subNav">
+                <li class="c-nav_subNavItem c-nav_back">
+                  <a class="c-nav_subNavItemAction" href="#">Back <</a>
+                </li>
+
+                <li class="c-nav_subNavItem">
+                  <a class="c-nav_subNavItemAction" href="{{ entry.get_absolute_url }}">{{ entry }}</a>
+                </li>
+
+                {% for sub_entry in entry.navigation %}
+                  <li class="c-nav_subNavItem">
+                    <a class="c-nav_subNavItemAction" href="{{ sub_entry.get_absolute_url }}">{{ sub_entry }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+</header>

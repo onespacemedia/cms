@@ -2,24 +2,20 @@
 /* Logo
 /* ======================== */
 .c-header_logo {
-  position: relative;
-
   display: block;
-  height: map-get($logo, height);
-  width: map-get($logo, width);
+  height: height(map-get($logo, file));
+  width: width(map-get($logo, file));
 
-  background-image: url(map-get($logo, path));
-  background-position: 0 (40px - #{map-get($logo, height)})/2;
+  background-image: resolve(map-get($logo, file));
   background-repeat: no-repeat;
-  background-size: map-get($logo, width) map-get($logo, height);
+  background-size: #{'@width'} #{'@height'};
 
   @include breakpoint-gte(lg) {
-    height: map-get($logo-lg, height);
-    width: map-get($logo-lg, width);
+    height: height(map-get($logo-lg, file));
+    width: width(map-get($logo-lg, file));
 
-    background-image: url(map-get($logo-lg, path));
-    background-position: 0 (80px - #{map-get($logo-lg, height)})/2;
-    background-size: map-get($logo-lg, width) map-get($logo-lg, height);
+    background-image: resolve(map-get($logo-lg, file));
+    background-size: #{'@width'} #{'@height'};
   }
 }
 
