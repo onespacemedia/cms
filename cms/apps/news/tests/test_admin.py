@@ -102,7 +102,7 @@ class TestArticleAdminBase(TestCase):
             ('submitted', 'Submitted for approval'),
         ])
 
-    def test_articleadminbase_save_related(self):
+    def test_articleadminbase_get_form(self):
         form = self.article_admin.get_form(self.request, obj=None)
         default_feed = get_default_news_feed()
         self.assertTrue("news_feed" in form.base_fields)
