@@ -36,6 +36,16 @@
     {% block body_inner %}
       {% include 'base/_header.html' %}
 
+      {% if not pages.is_homepage %}
+        <section class="o-breadcrumbs">{% block breadcrumbs %}{% breadcrumbs %}{% endblock %}</section>
+      {% endif %}
+
+      {% block header_group %}
+        <h1>{% block header %}{% header %}{% endblock %}</h1>
+      {% endblock %}
+
+      <nav>{% navigation pages.homepage.navigation section=pages.homepage %}</nav>
+
       <div class="l-siteContainer">
         {% block site %} {% block content_above %}{% endblock %}
           <div class="l-contentContainer">
