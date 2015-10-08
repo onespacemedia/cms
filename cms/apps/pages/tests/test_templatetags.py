@@ -8,8 +8,10 @@ from cms.apps.media.models import File
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Page, Country
-from ..templatetags.pages import get_navigation, page_url, breadcrumbs, country_code, og_image, absolute_domain_url, \
-    twitter_image, twitter_card, twitter_title, twitter_description
+from ..templatetags.pages import (get_navigation, page_url, breadcrumbs, header,
+                                  country_code, og_image, absolute_domain_url,
+                                  twitter_image, twitter_card, twitter_title,
+                                  twitter_description)
 from .... import externals
 
 import random
@@ -172,6 +174,16 @@ class TestTemplatetags(TestCase):
                 }
             ]
         })
+
+    def test_header(self):
+        request = self.factory.get('/')
+        request.user = MockUser(authenticated=True)
+        request.pages = RequestPageManager(request)
+
+        context = {}
+        context['request'] = request
+
+        self.assertEqual(header(context), 'Homepage')
 
     def test_country_code(self):
         class Context(object):
