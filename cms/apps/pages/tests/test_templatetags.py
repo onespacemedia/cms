@@ -183,7 +183,9 @@ class TestTemplatetags(TestCase):
         context = {}
         context['request'] = request
 
-        self.assertEqual(header(context), 'Homepage')
+        self.assertDictEqual(header(context), {
+            'header': 'Homepage'
+        })
 
     def test_country_code(self):
         class Context(object):
