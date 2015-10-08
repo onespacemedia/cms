@@ -1,4 +1,4 @@
-{% load site %}
+{% load pages site %}
 
 <header class="o-header">
   <div class="l-container">
@@ -13,6 +13,7 @@
     </a>
 
     <nav class="c-header_nav">
+      {% navigation pages.homepage.navigation section=pages.homepage %}
       <ul class="c-nav c-nav-header">
         {% for entry in pages.homepage.navigation %}
           <li class="c-nav_item{% if entry|here:request %} is-active{% endif %}{% if entry.navigation %} has-children{% endif %}">

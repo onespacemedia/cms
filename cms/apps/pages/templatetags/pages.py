@@ -37,7 +37,8 @@ def navigation(context, pages, section=None):
             "url": url,
             "page": page,
             "title": str(page),
-            "here": request.path.startswith(url)
+            "here": request.path.startswith(url),
+            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
         }
 
     # All the applicable nav items
@@ -48,6 +49,9 @@ def navigation(context, pages, section=None):
         section_entry = page_entry(section)
         section_entry["here"] = context["pages"].current == section_entry["page"]
         entries = [section_entry] + list(entries)
+
+    for entry in entries:
+        print entry
 
     # Render the template.
     context.update({

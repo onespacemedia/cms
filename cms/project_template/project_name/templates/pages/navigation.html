@@ -1,0 +1,25 @@
+<ul class="c-nav c-nav-header">
+  {% for entry in navigation %}
+  <li class="c-nav_item{% if entry.here %} is-active{% endif %}{% if entry.children %} has-children{% endif %}">
+    <a class="c-nav_itemAction" href="{{ entry.url }}">{{ entry.title }} {% if entry.children %}>{% endif %}</a>
+
+    {% if entry.children %}
+    <ul class="c-nav_subNav">
+      <li class="c-nav_subNavItem c-nav_back">
+        <a class="c-nav_subNavItemAction" href="#">Back <</a>
+      </li>
+
+      <li class="c-nav_subNavItem">
+        <a class="c-nav_subNavItemAction" href="{{ entry.url }}">{{ entry.title }}</a>
+      </li>
+
+      {% for sub_entry in entry.children %}
+      <li class="c-nav_subNavItem">
+        <a class="c-nav_subNavItemAction" href="{{ sub_entry.url }}">{{ sub_entry.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
