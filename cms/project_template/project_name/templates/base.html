@@ -1,4 +1,4 @@
-{% load compress html pages static %}
+{% load pages html compress %}
 
 <!DOCTYPE html>
 <html>
@@ -19,54 +19,69 @@
 
     <title>{% block title %}{% title %}{% endblock %}</title>
 
-    <!-- Favicons -->
-    {% include 'base/_favicons.html' %}
-
     {% block feeds %}{% endblock %}
 
     {% compress css %}
-      <link rel="stylesheet" href="{% static 'css/screen.css' %}"/>
+    <link rel="stylesheet" href="/static/css/screen.css"/>
     {% endcompress %}
   </head>
 
   <body class="{% block body_class %}{% endblock %}">
-    {% include 'base/_browser-update.html' %}
-    {% include 'base/_analytics.html' %}
 
-    {% block body_inner %}
-      {% include 'base/_header.html' %}
+    {% if settings.GOOGLE_ANALYTICS %}
+    <script>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+          }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-      {% if not pages.is_homepage %}
-        <section class="o-breadcrumbs">{% block breadcrumbs %}{% breadcrumbs %}{% endblock %}</section>
-      {% endif %}
+      ga('create', '{{ settings.GOOGLE_ANALYTICS }}', 'auto');
+      ga('send', 'pageview');
 
-      {% block header_group %}
+    </script>
+    {% endif %}
+
+    {% include 'browser_update.html' %}
+
+    <header>
+      <h1>
+        <a href="{{pages.homepage.get_absolute_url}}">{{settings.SITE_NAME}}</a>
+      </h1>
+    </header>
+
+    <nav>
+      {% navigation pages.homepage.navigation section=pages.homepage %}
+    </nav>
+
+    <div>
+      <article>
+        {% if not pages.is_homepage %}
+        <nav id="nav-breadcrumbs">{% block breadcrumbs %}{% breadcrumbs %}{% endblock %}</nav>
+        {% endif %}
+        {% block header_group %}
         <h1>{% block header %}{% header %}{% endblock %}</h1>
-      {% endblock %}
-
-      <nav>{% navigation pages.homepage.navigation section=pages.homepage %}</nav>
-
-      <div class="l-siteContainer">
-        {% block site %} {% block content_above %}{% endblock %}
-          <div class="l-contentContainer">
-            {% block content %}
-              <main class="l-mainContainer">
-                {% block main %}{% endblock %}
-              </main>
-
-              <aside class="l-asideContainer">
-                {% block aside %}{% endblock %}
-              </aside>
-            {% endblock %}
-          </div>
         {% endblock %}
-      </div>
+        {% block content_primary %}{{pages.current.content.content_primary|html}}{% endblock %}
+      </article>
+      <aside>
+        {% block content_secondary %}{% endblock %}
+      </aside>
+    </div>
 
-      {% include 'base/_footer.html' %}
-    {% endblock %}
+    <footer>
+      <p>© {% now "Y" %} Site owner.</p>
+    </footer>
 
     {% compress js %}
-      <script src="{% static 'js/app.js' %}"></script>
+    <script src="/static/js/build/app.js"></script>
     {% endcompress %}
+
   </body>
 </html>
