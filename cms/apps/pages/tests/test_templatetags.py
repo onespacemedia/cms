@@ -157,6 +157,22 @@ class TestTemplatetags(TestCase):
             'breadcrumbs': []
         })
 
+        request = self.factory.get('/')
+        request.user = MockUser(authenticated=True)
+        request.pages = RequestPageManager(request)
+        output = breadcrumbs({'request': request})
+        self.assertDictEqual(output, {
+            'breadcrumbs': [
+                {
+                    "short_title": 'Homepage',
+                    "title": 'Homepage',
+                    "url": '/',
+                    "last": True,
+                    "page": self.homepage
+                }
+            ]
+        })
+
     def test_country_code(self):
         class Context(object):
             pass
