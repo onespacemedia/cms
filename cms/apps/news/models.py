@@ -130,7 +130,8 @@ class Article(PageBase):
 
     news_feed = models.ForeignKey(
         NewsFeed,
-        default=get_default_news_feed,
+        null=True,
+        blank=False,
     )
 
     date = models.DateField(
