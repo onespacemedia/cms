@@ -73,6 +73,7 @@ class TestTemplatetags(TestCase):
             self.subsection = Page.objects.create(
                 parent=self.section,
                 title="Subsection",
+                slug='subsection',
                 content_type=content_type,
             )
 
@@ -83,6 +84,7 @@ class TestTemplatetags(TestCase):
             self.subsubsection = Page.objects.create(
                 parent=self.subsection,
                 title="Subsubsection",
+                slug='subsubsection',
                 content_type=content_type,
             )
 
@@ -109,13 +111,13 @@ class TestTemplatetags(TestCase):
                 'title': 'Section',
                 'children': [
                     {
-                        'url': '/section//',
+                        'url': '/section/subsection/',
                         'page': self.subsection,
                         'here': False,
                         'title': 'Subsection',
                         'children': [
                             {
-                                'url': '/section///',
+                                'url': '/section/subsection/subsubsection/',
                                 'page': self.subsubsection,
                                 'here': False,
                                 'title': 'Subsubsection',
