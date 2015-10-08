@@ -106,7 +106,24 @@ class TestTemplatetags(TestCase):
                 'url': '/section/',
                 'page': self.section,
                 'here': False,
-                'title': 'Section'
+                'title': 'Section',
+                'children': [
+                    {
+                        'url': '/section//',
+                        'page': self.subsection,
+                        'here': False,
+                        'title': 'Subsection',
+                        'children': [
+                            {
+                                'url': '/section///',
+                                'page': self.subsubsection,
+                                'here': False,
+                                'title': 'Subsubsection',
+                                'children': []
+                            }
+                        ]
+                    }
+                ]
             }
         ])
 

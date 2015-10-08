@@ -50,9 +50,6 @@ def navigation(context, pages, section=None):
         section_entry["here"] = context["pages"].current == section_entry["page"]
         entries = [section_entry] + list(entries)
 
-    for entry in entries:
-        print entry
-
     # Render the template.
     context.update({
         "request": request,
