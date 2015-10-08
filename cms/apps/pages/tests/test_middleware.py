@@ -106,7 +106,7 @@ class TestRequestPageManager(TestCase):
 
         _generate_pages(self)
         page_manager = RequestPageManager(self.request)
-        self.assertTrue(page_manager.is_homepage, self.homepage)
+        self.assertTrue(page_manager.is_homepage)
 
     def test_breadcrumbs(self):
         _generate_pages(self)
