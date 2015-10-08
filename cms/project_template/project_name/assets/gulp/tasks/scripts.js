@@ -20,11 +20,12 @@ import browserSync from 'browser-sync';
 const reload = browserSync.reload;
 
 // - Project config
-import config from './_config';
+import { config } from './_config';
 
 function compile(watch) {
   // Create our browserify instance
-  const bundler = watchify(browserify(config.watchify.fileIn, {debug: true}).transform(babelify));
+  let bundler = browserify(config.watchify.fileIn, {debug: true}).transform(babelify);
+  bundler = watch ? watchify(bundler) : bundler;
 
   function rebundle() {
     bundler.bundle()
@@ -42,7 +43,10 @@ function compile(watch) {
       .pipe($.sourcemaps.init({loadMaps: true}))
 
       // Write the source maps, need to provide the source for Browser Sync
-      .pipe($.sourcemaps.write({includeContent: false, sourceRoot: config.watchify.srcFolder}))
+      .pipe($.sourcemaps.write({
+        includeContent: false,
+        sourceRoot: config.watchify.srcFolder
+      }))
 
       // Place our nice new JS file
       .pipe(gulp.dest(config.watchify.distFolder));
@@ -64,4 +68,5 @@ function compile(watch) {
   rebundle();
 }
 
-export default () => compile(true);
+export const scripts = () => compile(true);
+export const scriptsBuild = () => compile(false);

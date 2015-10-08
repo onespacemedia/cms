@@ -8,8 +8,8 @@
   display: block;
   padding-top: 6px;
   padding-right: 10px;
-  padding-bottom: 6px;
-  padding-left: 10px;
+  padding-bottom: #{'@padding-top'};
+  padding-left: #{'@padding-right'};
   width: 100%;
 
   line-height: inherit;
