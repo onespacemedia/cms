@@ -4,8 +4,7 @@ cache:
     - $HOME/.cache/pip
 python:
 - "2.7"
-- "3.3"
-- "3.4"
+- "3.5"
 - "pypy"
 matrix:
   allow_failures:
@@ -15,11 +14,8 @@ addons:
   apt:
     packages:
     - libgeoip-dev
-env:
- - DJANGO=1.7.8
- - DJANGO=1.8.2
 install:
-    - pip install -q Django==$DJANGO
+    - pip install -q Django
     - pip install -e .[testing]
     - start_cms_project.py testing testing_dir/ --without-people --without-faqs --without-jobs --skip-frontend
 script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
