@@ -6,4 +6,5 @@ Developed by Dave Hall.
 <http://etianen.com/>
 """
 
-VERSION = (1, 9, 11, 3)
+# Always use 3 parts, not 1, 2, or 4.
+VERSION = (1, 9, 12)
