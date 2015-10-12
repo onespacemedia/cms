@@ -53,6 +53,20 @@ class MiddlewareTest(TestCase):
         self.assertEqual(self.request.path, '/')
         self.assertEqual(self.request.country, obj)
 
+    def test_localisationmiddleware_process_request_lowercase(self):
+        localisation_middleware = LocalisationMiddleware()
+
+        # Add a country.
+        obj = Country.objects.create(
+            code='gb'
+        )
+
+        self.request = self.factory.get('/gb/')
+        self.assertIsNone(localisation_middleware.process_request(self.request))
+        self.assertEqual(self.request.path_info, '/')
+        self.assertEqual(self.request.path, '/')
+        self.assertEqual(self.request.country, obj)
+
     def test_localisationmiddleware_process_response(self):
         response = SimpleTemplateResponse('../templates/pagination/pagination.html')
         localisation_middleware = LocalisationMiddleware()
