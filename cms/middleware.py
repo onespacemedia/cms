@@ -83,7 +83,9 @@ class LocalisationMiddleware(object):
 
             # Try and get a country from the database
             try:
-                request.country = Country.objects.get(code=str(country_match.group(1)).upper())
+                request.country = Country.objects.get(
+                    code__iexact=str(country_match.group(1))
+                )
 
                 request.path = request.path.replace('/{}'.format(
                     country_match.group(1)
@@ -112,7 +114,8 @@ class LocalisationMiddleware(object):
             if country_geo_ip['country_code']:
                 try:
                     request.country = Country.objects.get(
-                        code=country_geo_ip['country_code'])
+                        code__iexact=country_geo_ip['country_code']
+                    )
                 except Country.DoesNotExist:
                     pass
 
