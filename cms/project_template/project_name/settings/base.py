@@ -179,6 +179,8 @@ COMPRESS_CSS_FILTERS = [
     'compressor.filters.cssmin.CSSMinFilter'
 ]
 
+THUMBNAIL_PRESERVE_FORMAT = True
+
 # Dispatch settings.
 
 MIDDLEWARE_CLASSES = (
