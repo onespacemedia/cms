@@ -267,18 +267,24 @@ CACHES = {
 SECRET_KEY = "{{ secret_key }}"
 
 
-REDACTOR_OPTIONS = {
-    "plugins": ["table", "imagemanager", "video", "filemanager"],
-    "imageUpload": "/admin/media/file/redactor/upload/image/",
-    "fileUpload": "/admin/media/file/redactor/upload/file/",
-    "minHeight": 300,
-    "formattingAdd": [
-        {
-            "tag": "a",
-            "title": "Button",
-            "class": "button primary",
-        }
-    ]
+WYSIWYG_OPTIONS = {
+    "extraPlugins": "iframedialog,cms_image",
+    "toolbar": [
+        {"name": "document", "items": ['Source']},
+        {"name": "basicstyles",
+         "items": ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript',
+                   'Superscript', '-', 'RemoveFormat']},
+        {"name": "clipboard",
+         "items": ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-',
+                   'Undo', 'Redo']},
+        {"name": "links", "items": ['Link', 'Unlink', 'Anchor']},
+        {"name": "insert", "items": ['CmsImage', 'Table', 'SpecialChar']},
+        {"name": "paragraph", "items": ['NumberedList', 'BulletedList']},
+        {"name": "styles", "items": ['Styles', 'Format']},
+    ],
+    "stylesSet": "custom_styles:/static/js/ckeditor_styles.js",
+    "format_tags": "p;h1;h2;h3;h4;h5;h6",
+    "extraAllowedContent": "img[src,alt,width,height,title];*{*}"
 }
 
 
