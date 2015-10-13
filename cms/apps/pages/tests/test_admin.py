@@ -252,11 +252,11 @@ class TestPageAdmin(TestCase):
                 'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
             }),
-            ("Open graph", {
+            ("Open Graph", {
                 "fields": ("og_title", "og_description", "og_image"),
                 "classes": ("collapse",)
             }),
-            ("Open graph twitter", {
+            ("Twitter card", {
                 "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
                 "classes": ("collapse",)
             })
@@ -284,11 +284,11 @@ class TestPageAdmin(TestCase):
                 'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
             }),
-            ("Open graph", {
+            ("Open Graph", {
                 "fields": ("og_title", "og_description", "og_image"),
                 "classes": ("collapse",)
             }),
-            ("Open graph twitter", {
+            ("Twitter card", {
                 "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
                 "classes": ("collapse",)
             })

@@ -5,7 +5,7 @@ from django.test import TestCase, RequestFactory
 from django.utils.timezone import now
 
 from ..admin import ArticleAdminBase
-from ..models import Article, Category, NewsFeed
+from ..models import Article, Category, NewsFeed, get_default_news_feed
 from ...pages.models import Page
 from .... import externals
 
@@ -101,3 +101,9 @@ class TestArticleAdminBase(TestCase):
             ('draft', 'Draft'),
             ('submitted', 'Submitted for approval'),
         ])
+
+    def test_articleadminbase_get_form(self):
+        form = self.article_admin.get_form(self.request, obj=None)
+        default_feed = get_default_news_feed()
+        self.assertTrue("news_feed" in form.base_fields)
+        self.assertEqual(default_feed, form.base_fields["news_feed"].initial)
