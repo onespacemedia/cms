@@ -45,7 +45,8 @@ class HtmlWidget(forms.Textarea):
         attrs = attrs or {}
         attrs['class'] = "wysiwyg"
         attrs['data-wysiwyg-settings'] = json.dumps(
-            getattr(settings, 'WYSIWYG_OPTIONS', {}))
+            getattr(settings, 'WYSIWYG_OPTIONS', {})
+        )
 
         # Get the standard widget.
         html = super(HtmlWidget, self).render(name, value, attrs)
