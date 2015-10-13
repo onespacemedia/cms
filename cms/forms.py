@@ -24,20 +24,13 @@ class HtmlWidget(forms.Textarea):
     def get_media(self):
         """Returns the media used by the widget."""
         js = [
-            staticfiles_storage.url("cms/js/jquery.cms.js"),
-            staticfiles_storage.url("cms/js/jquery.cookie.js"),
-            staticfiles_storage.url("pages/js/jquery.cms.pages.js"),
-            staticfiles_storage.url("cms/js/redactor/redactor.js"),
-        ] + [
-            staticfiles_storage.url('cms/js/redactor/plugins/{plugin}/{plugin}.js'.format(plugin=plugin))
-            for plugin in getattr(settings, 'REDACTOR_OPTIONS', {}).get('plugins', [])
+            staticfiles_storage.url("cms/js/ckeditor/ckeditor.js"),
+            staticfiles_storage.url("cms/js/ckeditor/adapters/jquery.js"),
+            staticfiles_storage.url("cms/js/jquery.cms.wysiwyg.js"),
         ]
 
-        css = {
-            "all": [
-                "cms/js/redactor/redactor.css"
-            ]
-        }
+        css = {}
+
         return forms.Media(js=js, css=css)
 
     media = property(
@@ -50,24 +43,14 @@ class HtmlWidget(forms.Textarea):
 
         # Add on the JS initializer.
         attrs = attrs or {}
-        attrs['class'] = "redactor"
+        attrs['class'] = "wysiwyg"
+        attrs['data-wysiwyg-settings'] = json.dumps(
+            getattr(settings, 'WYSIWYG_OPTIONS', {}))
 
         # Get the standard widget.
         html = super(HtmlWidget, self).render(name, value, attrs)
 
-        try:
-            element_id = attrs["id"]
-        except KeyError:
-            pass
-        else:
-            # Add in the initializer.
-            html += '<script>django.jQuery("#{element_id}").redactor({settings_js});</script>'.format(
-                element_id=element_id,
-                settings_js=json.dumps(getattr(settings, 'REDACTOR_OPTIONS', {})),
-            )
-        # All done!
         return mark_safe(html)
-
 
 # Checks a string against some rules
 def password_validation(password):

@@ -17,6 +17,16 @@
                     redactor.imagemanager.insert("{{ permalink }}", "{{ title }}")
                 }
 
+                // Get ckeditor from parent
+                var ckeditor = parent.active_ckeditor;
+                var ckeditor_dialog = parent.active_ckeditor_dialog;
+
+                // Make sure we have ckeditor
+                if (ckeditor && ckeditor_dialog) {
+                    ckeditor.insertHtml('<img src="{{ permalink }}" title="{{ title }}"/>')
+                    ckeditor_dialog.hide()
+                }
+
             });
         </script>
 
