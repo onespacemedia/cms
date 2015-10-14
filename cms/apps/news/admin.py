@@ -5,7 +5,8 @@ from django.contrib import admin
 
 from cms import externals
 from cms.admin import PageBaseAdmin
-from cms.apps.news.models import Category, Article, STATUS_CHOICES
+from cms.apps.news.models import Category, Article, STATUS_CHOICES, \
+    get_default_news_feed
 
 
 class CategoryAdmin(PageBaseAdmin):
@@ -74,6 +75,11 @@ class ArticleAdminBase(PageBaseAdmin):
                 fieldset[1]['fields'] = tuple(x for x in fieldset[1]['fields'] if x != 'status')
 
         return fieldsets
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ArticleAdminBase, self).get_form(request, obj, **kwargs)
+        form.base_fields['news_feed'].initial = get_default_news_feed()
+        return form
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         """
