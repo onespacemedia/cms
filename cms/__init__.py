@@ -7,5 +7,4 @@ Developed by Dave Hall.
 """
 
 # Always use 3 parts, not 1, 2, or 4.
-VERSION = (1, 9, 13)
-
+VERSION = (1, 10, 0)

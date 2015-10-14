@@ -21,24 +21,55 @@ $fontFamilies: (
 
 /* Sizes
 /* ------------------------ */
+$fontClasses: ('xlarge', 'large', 'medium', 'small', 'xsmall', 'normal');
 $fontSizes: (
-  h1: 32px,
-  h2: 28px,
-  h3: 20px,
-  h4: 18px,
-  h5: 18px,
-  body: 16px,
+  xlarge: 24px,
+  large: 22px,
+  medium: 20px,
+  small: 18px,
+  xsmall: 16px,
+  normal: 16px,
   root: 16px
 );
 
 $fontSizes-lg: (
-  h1: 32px,
-  h2: 28px,
-  h3: 20px,
-  h4: 18px,
-  h5: 18px,
-  body: 16px,
+  xlarge: 32px,
+  large: 28px,
+  medium: 20px,
+  small: 18px,
+  xsmall: 18px,
+  normal: 16px,
   root: 16px
+);
+
+$lineHeightAddition: 10px;
+$lineHeights: (
+  xlarge: map-get($fontSizes, xlarge) + $lineHeightAddition,
+  large: map-get($fontSizes, large) + $lineHeightAddition,
+  medium: map-get($fontSizes, medium) + $lineHeightAddition,
+  small: map-get($fontSizes, small) + $lineHeightAddition,
+  xsmall: map-get($fontSizes, xsmall) + $lineHeightAddition,
+  normal: map-get($fontSizes, normal) + $lineHeightAddition,
+);
+
+$lineHeights-lg: (
+  xlarge: map-get($fontSizes-lg, xlarge) + $lineHeightAddition,
+  large: map-get($fontSizes-lg, large) + $lineHeightAddition,
+  medium: map-get($fontSizes-lg, medium) + $lineHeightAddition,
+  small: map-get($fontSizes-lg, small) + $lineHeightAddition,
+  xsmall: map-get($fontSizes-lg, xsmall) + $lineHeightAddition,
+  normal: map-get($fontSizes-lg, normal) + $lineHeightAddition,
+);
+
+/* ======================== */
+/* Header
+/* ======================== */
+$header: (
+  height: 40px
+);
+
+$header-lg: (
+  height: 80px
 );
 
 /* ======================== */
@@ -53,15 +84,11 @@ $grid: (
 /* Logo
 /* ======================== */
 $logo: (
-  height: 40px,
-  width: 40px,
-  path: '/static/img/logo.png'
+  file: 'image.png'
 );
 
 $logo-lg: (
-  height: 80px,
-  width: 80px,
-  path: '/static/img/logo@lg.png'
+  file: 'image.png'
 );
 
 /* ======================== */

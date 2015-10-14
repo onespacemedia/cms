@@ -37,7 +37,8 @@ def navigation(context, pages, section=None):
             "url": url,
             "page": page,
             "title": str(page),
-            "here": request.path.startswith(url)
+            "here": request.path.startswith(url),
+            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
         }
 
     # All the applicable nav items
