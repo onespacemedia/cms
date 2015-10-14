@@ -1,6 +1,8 @@
 import json
 from django.conf import settings
 from django.test import TestCase
+from django.utils.html import format_html, conditional_escape
+from django.utils.safestring import mark_safe
 
 from ..forms import CMSPasswordChangeForm, CMSAdminPasswordChangeForm, HtmlWidget, password_validation
 
@@ -43,14 +45,13 @@ class TestForms(TestCase):
 
         self.assertEqual(
             rendered,
-            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" name="foo" rows="10">\r\nbar<' +
-            '/textarea>'.format(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))
+            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" name="foo" rows="10">\r\nbar</textarea>'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {}))))
         )
 
         rendered = widget.render('foo', 'bar', attrs={'id': 'foo'})
 
         self.assertIn(
-            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" id="foo" name="foo" rows="10">'.format(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {}))),
+            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" id="foo" name="foo" rows="10">'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))),
             rendered,
         )
 
