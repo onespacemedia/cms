@@ -1,0 +1,19 @@
+/* ======================== */
+/* Container
+/* ======================== */
+.l-container {
+  @include container();
+}
+
+/* Collapses
+/* ------------------------ */
+.l-containerCollapse {
+  padding-right: 0;
+  padding-left: #{'@padding-right'};
+}
+.l-containerCollapse-right {
+  padding-right: 0;
+}
+.l-containerCollapse-left {
+  padding-left: 0;
+}

@@ -8,8 +8,10 @@ from cms.apps.media.models import File
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Page, Country
-from ..templatetags.pages import get_navigation, page_url, breadcrumbs, country_code, og_image, absolute_domain_url, \
-    twitter_image, twitter_card, twitter_title, twitter_description
+from ..templatetags.pages import (get_navigation, page_url, breadcrumbs, header,
+                                  country_code, og_image, absolute_domain_url,
+                                  twitter_image, twitter_card, twitter_title,
+                                  twitter_description)
 from .... import externals
 
 import random
@@ -73,6 +75,7 @@ class TestTemplatetags(TestCase):
             self.subsection = Page.objects.create(
                 parent=self.section,
                 title="Subsection",
+                slug='subsection',
                 content_type=content_type,
             )
 
@@ -83,6 +86,7 @@ class TestTemplatetags(TestCase):
             self.subsubsection = Page.objects.create(
                 parent=self.subsection,
                 title="Subsubsection",
+                slug='subsubsection',
                 content_type=content_type,
             )
 
@@ -106,7 +110,24 @@ class TestTemplatetags(TestCase):
                 'url': '/section/',
                 'page': self.section,
                 'here': False,
-                'title': 'Section'
+                'title': 'Section',
+                'children': [
+                    {
+                        'url': '/section/subsection/',
+                        'page': self.subsection,
+                        'here': False,
+                        'title': 'Subsection',
+                        'children': [
+                            {
+                                'url': '/section/subsection/subsubsection/',
+                                'page': self.subsubsection,
+                                'here': False,
+                                'title': 'Subsubsection',
+                                'children': []
+                            }
+                        ]
+                    }
+                ]
             }
         ])
 
@@ -136,6 +157,34 @@ class TestTemplatetags(TestCase):
         output = breadcrumbs({'request': self.request}, extended=True)
         self.assertDictEqual(output, {
             'breadcrumbs': []
+        })
+
+        request = self.factory.get('/')
+        request.user = MockUser(authenticated=True)
+        request.pages = RequestPageManager(request)
+        output = breadcrumbs({'request': request})
+        self.assertDictEqual(output, {
+            'breadcrumbs': [
+                {
+                    "short_title": 'Homepage',
+                    "title": 'Homepage',
+                    "url": '/',
+                    "last": True,
+                    "page": self.homepage
+                }
+            ]
+        })
+
+    def test_header(self):
+        request = self.factory.get('/')
+        request.user = MockUser(authenticated=True)
+        request.pages = RequestPageManager(request)
+
+        context = {}
+        context['request'] = request
+
+        self.assertDictEqual(header(context), {
+            'header': 'Homepage'
         })
 
     def test_country_code(self):

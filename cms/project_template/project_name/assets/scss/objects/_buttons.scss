@@ -9,8 +9,8 @@
   margin-bottom: map-get($spacing, margin);
   padding-top: 6px;
   padding-right: map-get($grid, gutter);
-  padding-bottom: 6px;
-  padding-left: map-get($grid, gutter);
+  padding-bottom: #{'@padding-top'};
+  padding-left: #{'@padding-right'};
 
   border: 1px solid transparent;
 }

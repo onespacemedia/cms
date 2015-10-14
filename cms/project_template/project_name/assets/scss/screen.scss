@@ -1,7 +1,7 @@
 /* ======================== */
 /* Normalize
 /* ======================== */
-@import 'normalize.css'; // Included by gulp-sass includePaths
+@import 'normalize'; // Included by gulp-sass includePaths
 
 /* ======================== */
 /* Config
@@ -14,15 +14,27 @@
 @import 'helpers/functions';
 @import 'helpers/media-queries';
 @import 'helpers/mixins';
+@import 'helpers/quantity-queries';
 
-@import "helpers/define"; // Like bootstraps reboot, define some base normalized styles
+@import 'helpers/define'; // Like bootstraps reboot, define some base normalized styles
+
+/* ======================== */
+/* Base
+/* ======================== */
+@import 'base/typography';
+
+/* ======================== */
+/* Layout
+/* ======================== */
+@import 'layouts/columned';
+@import 'layouts/grid';
+@import 'layouts/split';
 
 /* ======================== */
 /* Objects
 /* ======================== */
 @import 'objects/buttons';
 @import 'objects/forms';
-@import 'objects/grid';
 @import 'objects/header';
 @import 'objects/lists';
 @import 'objects/media';
