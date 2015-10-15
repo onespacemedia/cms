@@ -26,7 +26,7 @@ import propertyLookup from 'postcss-property-lookup';
 import willChange from 'postcss-will-change';
 
 const assetsConfig = {
-  basePath: 'testing/static/',
+  basePath: '{{ project_name }}/static/',
   baseUrl: '/static/',
   loadPaths: ['img/', 'svg/']
 };
