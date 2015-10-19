@@ -95,15 +95,6 @@ a {
   color: map-get($colors, anchor);
 }
 
-/* Lists
-/* ------------------------ */
-ul[class] {
-  margin: 0;
-  margin-bottom: map-get($spacing, margin);
-  padding: 0;
-  list-style: none;
-}
-
 /* ======================== */
 /* Images
 /* ======================== */

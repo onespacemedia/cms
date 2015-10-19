@@ -1,4 +1,5 @@
-{% load compress html pages static %}
+{% load compress html pages %}
+{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 <html>
@@ -7,7 +8,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="description" content="{% block meta_description %}{% meta_description %}{% endblock %}">
     <meta name="robots" content="{% block meta_robots %}{% meta_robots %}{% endblock %}">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="canonical" href="{% canonical_url %}"/>
 
     <!-- Open Graph data -->
@@ -25,7 +26,7 @@
     {% block feeds %}{% endblock %}
 
     {% compress css %}
-      <link rel="stylesheet" href="{% static 'css/screen.css' %}"/>
+      {% render_bundle 'main' 'css' %}
     {% endcompress %}
   </head>
 
@@ -56,7 +57,7 @@
     {% endblock %}
 
     {% compress js %}
-      <script src="{% static 'js/app.js' %}"></script>
+      {% render_bundle 'main' 'js' %}
     {% endcompress %}
   </body>
 </html>
