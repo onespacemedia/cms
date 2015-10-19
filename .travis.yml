@@ -17,6 +17,7 @@ addons:
 install:
     - pip install -q Django
     - pip install -e .[testing]
+    - ls
     - start_cms_project.py testing . --without-people --without-faqs --without-jobs
 script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
 notifications:
