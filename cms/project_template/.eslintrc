@@ -1,17 +1,7 @@
 {
   "parser": "babel-eslint",
   "ecmaFeatures": {
-    "arrowFunctions": true,
-    "blockBindings": true,
-    "classes": true,
-    "defaultParams": true,
-    "destructuring": true,
-    "forOf": true,
     "modules": true,
-    "restParams": true,
-    "spread": true,
-    "superInFunctions": true,
-    "templateStrings": true
   },
   "rules": {
     "camelcase": [2, {"properties": "always"}],
