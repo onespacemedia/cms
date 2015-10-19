@@ -67,6 +67,10 @@ STATIC_ROOT = "/var/www/{{ project_name }}_static"
 
 STATIC_URL = "/static/"
 
+NODE_MODULES_ROOT = "/var/www/{{ project_name }}_static"
+
+NODE_MODULES_URL = "/static/"
+
 
 # Email settings.
 

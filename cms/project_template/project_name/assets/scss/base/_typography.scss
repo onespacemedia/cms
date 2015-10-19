@@ -7,7 +7,7 @@
 $fontClasses: ('xlarge', 'large', 'medium', 'small', 'xsmall', 'normal') !default;
 
 @each $class in $fontClasses {
-  .o-fontSizing-#{$class} {
+  .fz-#{$class} {
     @include fontSizing($class);
   }
 }
