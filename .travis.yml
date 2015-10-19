@@ -21,7 +21,7 @@ install:
     - cd testing_dir/
     - npm install -g webpack
     - npm install
-script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
+script: coverage run --source=cms --omit='*migrations*' manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false
