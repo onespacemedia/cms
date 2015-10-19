@@ -270,7 +270,7 @@ class TestStartCMSProject(TestCase):
 
             self.assertEqual(
                 mock_call.call_args_list[0][0][0],
-                ['npm', 'install', '-g', 'gulp', 'babel']
+                ['npm', 'install', '-g', 'webpack']
             )
 
             self.assertEqual(
@@ -280,14 +280,14 @@ class TestStartCMSProject(TestCase):
 
             self.assertEqual(
                 mock_call.call_args_list[2][0][0],
-                ['gulp', 'styles']
+                ['webpack']
             )
 
             self.assertEqual(
                 self.stdout.getvalue().strip(),
                 '[\x1b[93mWARN\x1b[0m] Usertools is not installed\n[\x1b[92mINF'
-                'O\x1b[0m] Installing babel and gulp\n[\x1b[92mINFO\x1b[0m] Ins'
-                'talling npm dependancies\n[\x1b[92mINFO\x1b[0m] Running gulp\n'
+                'O\x1b[0m] Installing webpack\n[\x1b[92mINFO\x1b[0m] Ins'
+                'talling npm dependancies\n[\x1b[92mINFO\x1b[0m] Running webpack\n'
                 '[\x1b[92mINFO\x1b[0m] CMS project created'
             )
 
