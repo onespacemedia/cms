@@ -1,4 +1,5 @@
 {% load compress html pages static %}
+{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 <html>
@@ -25,7 +26,7 @@
     {% block feeds %}{% endblock %}
 
     {% compress css %}
-      <link rel="stylesheet" href="{% static 'css/screen.css' %}"/>
+      {% render_bundle 'main' 'css' %}
     {% endcompress %}
   </head>
 
@@ -56,7 +57,7 @@
     {% endblock %}
 
     {% compress js %}
-      <script src="{% static 'js/app.js' %}"></script>
+      {% render_bundle 'main 'js' %}
     {% endcompress %}
   </body>
 </html>
