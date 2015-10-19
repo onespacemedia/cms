@@ -1,6 +1,6 @@
 {
   "name": "{{ project_name }}",
-  "main": "dev.js",
+  "main": "server.js",
   "dependencies": {
     "webpack": "^1.12.2"
   },

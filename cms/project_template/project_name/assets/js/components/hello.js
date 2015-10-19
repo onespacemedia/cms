@@ -1,3 +1,3 @@
 export function hey() {
-  console.log('Hey there! :)');
+  console.log("Hey there! :)");
 }
