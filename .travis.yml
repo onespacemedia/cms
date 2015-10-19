@@ -17,7 +17,9 @@ addons:
 install:
     - pip install -q Django
     - pip install -e .[testing]
+    - npm install -g webpack
     - start_cms_project.py testing testing_dir/ --without-people --without-faqs --without-jobs
+    - npm install
 script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
