@@ -3,6 +3,7 @@ var path = require('path');
 var webpack = require('webpack');
 var production = process.env.NODE_ENV === 'production';
 var ExtractPlugin = require('extract-text-webpack-plugin');
+var BundleTracker = require('webpack-bundle-tracker');
 
 var at2x = require('postcss-at2x');
 var autoPrefixer = require('autoprefixer');
@@ -17,8 +18,8 @@ var plugins = [
   // This plugins optimizes chunks and modules by
   // how much they are used in your app
   new webpack.optimize.OccurenceOrderPlugin(),
-  new webpack.HotModuleReplacementPlugin(),
   new webpack.NoErrorsPlugin(),
+  new BundleTracker({filename: './webpack-stats.json'}),
   new webpack.ProvidePlugin({
     _: 'lodash',
     Vue: 'vue'
@@ -35,13 +36,6 @@ if (production) {
     new webpack.optimize.MinChunkSizePlugin({
       minChunkSize: 51200, // ~50kb
     }),
-    // This plugin minifies all the Javascript code of the final bundle
-    new webpack.optimize.UglifyJsPlugin({
-      mangle: true,
-      compress: {
-        warnings: false, // Suppress uglification warnings
-      }
-    }),
     new ExtractPlugin('bundle.css'),
     // This plugins defines various variables that we can set to false
     // in production to avoid code related to them from being compiled
@@ -54,6 +48,10 @@ if (production) {
         BABEL_ENV: JSON.stringify(process.env.NODE_ENV)
       }
     })
+  ]);
+} else {
+  plugins = plugins.concat([
+    new webpack.HotModuleReplacementPlugin(),
   ]);
 }
 
