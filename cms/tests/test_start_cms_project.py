@@ -280,8 +280,6 @@ class TestStartCMSProject(TestCase):
                 ['npm', 'install']
             )
 
-            print(os.listdir(settings.BASE_ROOT))
-
             self.assertEqual(
                 mock_call.call_args_list[2][0][0],
                 ['webpack']
