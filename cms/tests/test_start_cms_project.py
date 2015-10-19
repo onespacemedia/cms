@@ -18,6 +18,8 @@ try:
 except ImportError:
     from io import StringIO
 
+from django.conf import settings
+
 import sys
 
 
@@ -277,6 +279,8 @@ class TestStartCMSProject(TestCase):
                 mock_call.call_args_list[1][0][0],
                 ['npm', 'install']
             )
+
+            print os.listdir(settings.BASE_ROOT)
 
             self.assertEqual(
                 mock_call.call_args_list[2][0][0],
