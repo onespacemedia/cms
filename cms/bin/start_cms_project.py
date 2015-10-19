@@ -278,16 +278,16 @@ def main():
         f.write(json.dumps(server_json, indent=4))
 
     # Run `npm` commands.
-    # if not getattr(args, 'skip_frontend'):
-    with open(os.devnull, 'w') as f:
-        Output().info("Installing webpack")
-        subprocess.call(['npm', 'install', '-g', 'webpack'], stdout=f, stderr=subprocess.STDOUT)
+    if not getattr(args, 'skip_frontend'):
+        with open(os.devnull, 'w') as f:
+            Output().info("Installing webpack")
+            subprocess.call(['npm', 'install', '-g', 'webpack'], stdout=f, stderr=subprocess.STDOUT)
 
-        Output().info("Installing npm dependancies")
-        subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
+            Output().info("Installing npm dependancies")
+            subprocess.call(['npm', 'install'], stdout=f, stderr=subprocess.STDOUT)
 
-        Output().info("Running webpack")
-        subprocess.call(['webpack'], stdout=f, stderr=subprocess.STDOUT)
+            Output().info("Running webpack")
+            subprocess.call(['webpack'], stdout=f, stderr=subprocess.STDOUT)
 
     # Give some help to the user.
     Output().info('CMS project created')
