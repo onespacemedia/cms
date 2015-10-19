@@ -24,6 +24,7 @@ TEMPLATE_DEBUG = DEBUG
 
 MEDIA_ROOT = os.path.expanduser(os.path.join("~/Sites", SITE_DOMAIN, "media"))
 STATIC_ROOT = os.path.expanduser(os.path.join("~/Sites", SITE_DOMAIN, "static"))
+NODE_MODULES_ROOT = os.path.expanduser(os.path.join("~/Workspace/{{ project_name }}", "node_modules"))
 
 
 # Use local server.

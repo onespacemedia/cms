@@ -38,7 +38,11 @@ urlpatterns = patterns(
 
     url('', include('social.apps.django_app.urls', namespace='social'))
 
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+) + static(
+    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+) + static(
+    settings.NODE_MODULES_URL, document_root=settings.NODE_MODULES_ROOT
+)
 
 
 if settings.DEBUG:

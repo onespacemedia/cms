@@ -1,13 +1,19 @@
 /* ======================== */
 /* Base
 /* ======================== */
-.o-list {}
+.o-list {
+  margin: 0;
+  margin-bottom: map-get($spacing, margin);
+  padding: 0;
+  list-style: none;
+}
 
 /* ======================== */
 /* Inline
 /* ======================== */
 .o-list-inline {
   display: flex;
+  flex-wrap: wrap;
 }
 
 /* Justified

@@ -18,7 +18,7 @@
 /* ======================== */
 /* Primary button
 /* ======================== */
-.o-button.o-button-primary {
+.o-button-primary {
   background-color: map-get($colors, brand);
   color: #fff;
 }
@@ -26,7 +26,7 @@
 /* ======================== */
 /* Bordered button
 /* ======================== */
-.o-button.o-button-bordered {
+.o-button-bordered {
   border: 1px solid #fff;
   color: #fff;
 }
