@@ -66,3 +66,4 @@ node_modules/
 bower_components/
 */static/css/
 */static/js/app.js
+*/static/bundle.*
