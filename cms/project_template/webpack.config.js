@@ -20,10 +20,6 @@ var plugins = [
   new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.NoErrorsPlugin(),
   new BundleTracker({filename: './webpack-stats.json'}),
-  new webpack.ProvidePlugin({
-    _: 'lodash',
-    Vue: 'vue'
-  })
 ];
 
 if (production) {
