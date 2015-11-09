@@ -28,7 +28,6 @@ DEPENDENCIES = [
     'django-cachalot',
     'geoip',
     'django-webpack-loader',
-    'pip'
 ]
 
 

@@ -325,7 +325,7 @@ class TestStartCMSProject(TestCase):
                 extensions=['py', 'txt', 'conf', 'gitignore', 'md', 'css', 'js', 'json'],
                 user=getpass.getuser(),
                 # Did someone say 'clunky'?
-                template='https://github.com/DanGamble89/onespacemedia-django-template/archive/master.zip',
+                template='https://github.com/onespacemedia/project-template/archive/master.zip',
                 project_slug='foo'
             )
         ])

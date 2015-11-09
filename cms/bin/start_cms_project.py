@@ -5,7 +5,6 @@ import getpass
 import json
 import os
 import os.path
-import pip
 import stat
 import shutil
 import subprocess
@@ -196,7 +195,7 @@ def main():
         "startproject",
         args.project_name,
         dest_dir,
-        template='https://github.com/DanGamble89/onespacemedia-django-template/archive/master.zip',
+        template='https://github.com/onespacemedia/project-template/archive/master.zip',
         extensions=["py", "txt", "conf", "gitignore", "md", "css", "js", 'json'],
         user=getpass.getuser(),
         project_slug=args.project_name.replace("_", "-"),
