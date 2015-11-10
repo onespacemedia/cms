@@ -325,7 +325,7 @@ class TestStartCMSProject(TestCase):
                 extensions=['py', 'txt', 'conf', 'gitignore', 'md', 'css', 'js', 'json'],
                 user=getpass.getuser(),
                 # Did someone say 'clunky'?
-                template=os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../project_template')),
+                template='https://github.com/onespacemedia/project-template/archive/master.zip',
                 project_slug='foo'
             )
         ])

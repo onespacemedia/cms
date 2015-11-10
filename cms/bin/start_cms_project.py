@@ -195,7 +195,7 @@ def main():
         "startproject",
         args.project_name,
         dest_dir,
-        template=os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "project_template")),
+        template='https://github.com/onespacemedia/project-template/archive/master.zip',
         extensions=["py", "txt", "conf", "gitignore", "md", "css", "js", 'json'],
         user=getpass.getuser(),
         project_slug=args.project_name.replace("_", "-"),
@@ -288,6 +288,9 @@ def main():
 
             Output().info("Running webpack")
             subprocess.call(['webpack'], stdout=f, stderr=subprocess.STDOUT)
+
+    # Create a requirements.txt
+    os.system('pip freeze > requirements.txt')
 
     # Give some help to the user.
     Output().info('CMS project created')
