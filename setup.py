@@ -27,7 +27,7 @@ DEPENDENCIES = [
     'python-memcached',
     'django-cachalot',
     'geoip',
-    'django-webpack-loader'
+    'django-webpack-loader',
 ]
 
 
