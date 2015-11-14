@@ -17,12 +17,7 @@ addons:
 install:
     - pip install -q Django
     - pip install -e .[testing]
-    - start_cms_project.py testing testing_dir/ --without-people --without-faqs --without-jobs
-    - cd testing_dir/ # Change into the directory we just made so we can run npm install
-    - npm install -g webpack # These won't work in the start_cms_project script so we have to duplicate them here
-    - npm install
-    - webpack
-    - cd -
+    - cookiecutter gh:onespacemedia/project-template --checkout feature/cookiecutter
 script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt

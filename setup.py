@@ -33,7 +33,7 @@ setup(
     install_requires=DEPENDENCIES,
     extras_require={
         'usertools':  ["django-usertools"],
-        'testing':  ["mock", "coverage", "coveralls", "codecov"],
+        'testing':  ["mock", "coverage", "coveralls", "codecov", "cookiecutter"],
         'geoip': ['geoip']
     },
     classifiers=[
