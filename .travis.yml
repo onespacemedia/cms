@@ -17,7 +17,7 @@ addons:
 install:
     - pip install -q Django
     - pip install -e .[testing]
-    - cookiecutter gh:onespacemedia/project-template --checkout feature/cookiecutter --no_input --default-config
+    - cookiecutter gh:onespacemedia/project-template --checkout feature/cookiecutter --no-input --default-config
 script: coverage run --source=cms --omit='*migrations*' testing_dir/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
