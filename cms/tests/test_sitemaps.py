@@ -11,7 +11,7 @@ class SitemapModel(models.Model):
     pass
 
 
-class PageBaseModel(PageBase):
+class PageBaseModel2(PageBase):
     pass
 
 
@@ -85,7 +85,7 @@ class TestSitemaps(TestCase):
             PublishedBaseSitemap
         )
 
-        register(PageBaseModel)
+        register(PageBaseModel2)
 
         self.assertEqual(
             registered_sitemaps['cms-pagebasemodel'].__bases__[0],
