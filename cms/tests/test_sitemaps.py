@@ -88,6 +88,6 @@ class TestSitemaps(TestCase):
         register(PageBaseModel2)
 
         self.assertEqual(
-            registered_sitemaps['cms-pagebasemodel'].__bases__[0],
+            registered_sitemaps['cms-pagebasemodel2'].__bases__[0],
             PageBaseSitemap
         )
