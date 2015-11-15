@@ -1,0 +1,4 @@
+default_context:
+    news: no
+    sections: no
+    geoip: yes
