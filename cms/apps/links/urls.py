@@ -5,5 +5,5 @@ from django.conf.urls import url
 
 
 urlpatterns = [
-    url(r"^$", "index", name="index")
+    url(r"^$", "cms.apps.links.views.index", name="index")
 ]
