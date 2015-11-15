@@ -1,10 +1,9 @@
 """URLs used by the links application."""
 
 
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 
 
-urlpatterns = patterns(
-    "cms.apps.links.views",
+urlpatterns = [
     url(r"^$", "index", name="index")
-)
+]
