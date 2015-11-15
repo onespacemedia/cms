@@ -16,7 +16,7 @@ addons:
     - libgeoip-dev
 install:
     - pip install cookiecutter
-    - cookiecutter https://github.com/onespacemedia/project-template.git --checkout feature/cookiecutter --no-input --config-file .cookiecutter.yml
+    - cookiecutter https://github.com/onespacemedia/project-template.git --checkout develop --no-input --config-file .cookiecutter.yml
     - pip install -q Django
     - pip uninstall onespacemedia-cms -y
     - pip install -e .[testing]
