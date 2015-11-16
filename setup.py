@@ -10,7 +10,7 @@ EXCLUDE_FROM_PACKAGES = ['cms.project_template',
 
 setup(
     name = "cms",
-    version = "1.0.4",
+    version = "1.0.4.1",
     url = "https://github.com/onespacemedia/cms",
     author = "Daniel Samuels",
     author_email = "daniel@onespacemedia.com",
