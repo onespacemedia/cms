@@ -160,7 +160,7 @@ class PageMiddleware(object):
                     except urlresolvers.Resolver404:
                         pass
                     else:
-                        return redirect(script_name + new_path_info)
+                        return redirect(script_name + new_path_info, permanent=True)
                 return response
             response = callback(request, *callback_args, **callback_kwargs)
             # Validate the response.
