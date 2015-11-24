@@ -20,7 +20,7 @@ install:
     - pip install -q Django
     - pip uninstall onespacemedia-cms -y
     - pip install -e .[testing]
-script: coverage run --source=cms --omit='*migrations*' example_project/manage.py test cms
+script: coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false

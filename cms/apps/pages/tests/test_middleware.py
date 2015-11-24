@@ -280,7 +280,7 @@ class TestPageMiddleware(TestCase):
         processed_response = middleware.process_response(request, response)
 
         self.assertEqual(processed_response['Location'], '/foo/')
-        self.assertEqual(processed_response.status_code, 302)
+        self.assertEqual(processed_response.status_code, 301)
         self.assertEqual(processed_response.content, b'')
 
         request = self.factory.get('/foobar/')
