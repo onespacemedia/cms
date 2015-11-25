@@ -4,45 +4,19 @@ from cms import VERSION
 
 import platform
 from setuptools import setup, find_packages
-import sys
 
 
 DEPENDENCIES = [
     'django',
-    'django-suit',
     'Pillow',
-    'django-reversion==1.8.7',
-    'django-historylinks',
-    'django-watson',
-    'django-extensions',
-    'Werkzeug',
-    'opbeat',
-    'bcrypt',
-    'django-compressor',
     'sorl-thumbnail',
-    'bcrypt',
-    'onespacemedia-server-management',
     'requests',
-    'python-social-auth',
-    'python-memcached',
-    'django-cachalot',
-    'geoip',
-    'django-webpack-loader'
 ]
-
 
 if platform.python_implementation() == "PyPy":
     DEPENDENCIES.append("psycopg2cffi")
 else:
     DEPENDENCIES.append("psycopg2")
-
-if sys.version_info[0] == 3:
-    DEPENDENCIES.remove("python-memcached")
-    DEPENDENCIES.append("python3-memcached")
-    DEPENDENCIES.remove("onespacemedia-server-management")
-
-
-EXCLUDE_FROM_PACKAGES = ['cms.bin']
 
 
 setup(
@@ -52,20 +26,15 @@ setup(
     author="Daniel Samuels",
     author_email="daniel@onespacemedia.com",
     license="BSD",
-    packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
+    packages=find_packages(),
     include_package_data=True,
-    scripts=['cms/bin/start_cms_project.py'],
     zip_safe=False,
-    entry_points={
-        "console_scripts": [
-            "start_cms_project.py = cms.bin.start_cms_project:main",
-        ],
-    },
     description='CMS used by Onespacemedia',
     install_requires=DEPENDENCIES,
     extras_require={
         'usertools':  ["django-usertools"],
-        'testing':  ["mock", "coverage", "coveralls", "codecov"],
+        'testing':  ["mock", "coverage", "coveralls", "codecov", "cookiecutter"],
+        'geoip': ['geoip']
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

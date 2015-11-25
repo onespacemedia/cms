@@ -1,13 +1,17 @@
 from django.db import models
 from django.test import TestCase
 
-from ..models import SearchMetaBase, OnlineBase, PublishedBase
+from ..models import SearchMetaBase, OnlineBase, PublishedBase, PageBase
 from ..sitemaps import (BaseSitemap, SearchMetaBaseSitemap, OnlineBaseSitemap,
                         PublishedBaseSitemap, SitemapRegistrationError,
-                        register, registered_sitemaps)
+                        PageBaseSitemap, register, registered_sitemaps)
 
 
 class SitemapModel(models.Model):
+    pass
+
+
+class PageBaseModel2(PageBase):
     pass
 
 
@@ -79,4 +83,11 @@ class TestSitemaps(TestCase):
         self.assertEqual(
             registered_sitemaps['cms-publishedbasemodel'].__bases__[0],
             PublishedBaseSitemap
+        )
+
+        register(PageBaseModel2)
+
+        self.assertEqual(
+            registered_sitemaps['cms-pagebasemodel2'].__bases__[0],
+            PageBaseSitemap
         )

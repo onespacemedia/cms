@@ -15,7 +15,6 @@ Features enabled by default
 -  Hierarchal page management with no depth limit.
 -  Image and file management, with easy embedding via WYSIWYG editors or pure model fields.
 -  Internal / external links in menus (via bundled [[Links app]].
--  Simple blog managment (via bundled [[News app]].
 -  Version control and rollback (via `django-reversion <https://github.com/etianen/django-reversion>`_).
 -  Automatic SEO-friendly redirect management (via `django-historylinks <https://github.com/etianen/django-historylinks>`_).
 -  Full-text search with relevance ranking (via `django-watson <https://github.com/etianen/django-watson>`_).
@@ -32,7 +31,6 @@ Optional Features
 -  People module (via `cms-people <https://github.com/onespacemedia/cms-people/>`_)
 -  Photoshop-like image editing.
 -  Admin login via Google+.
--  News approval system.
 
 Integrations
 ------------
@@ -52,7 +50,6 @@ Currently supported are:
    getting_started
    links
    media
-   news
    pages
    testing
    plugins/*
