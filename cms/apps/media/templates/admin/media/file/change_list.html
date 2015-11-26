@@ -10,11 +10,11 @@
         <script>
             django.jQuery(function() {
 
-                // Get redactor from parent
-                var redactor = parent.active_redactor;
+                // Get tinymce from parent
+                var tinymce = parent.active_tinymce;
 
-                // Make sure we have redactor
-                if (redactor) {
+                // Make sure we have tinymce
+                if (tinymce) {
                     // Make the changelist links clickable and remove the original inline click listener.
                     $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
 
@@ -23,39 +23,25 @@
                         var title = img.attr("title");
                         var permalink = img.attr("cms:permalink");
 
-                        redactor.insert(permalink, title)
+                        tinymce.focus()
+                        tinymce.selection.setContent(tinymce.dom.createHTML('img', {
+                            src: permalink,
+                            alt: title,
+                            title: title,
+                        }));
 
                         // Prevent default
                         event.preventDefault()
 
-                    });
-                    // Made the add link flagged for CKEditor.
-                    $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_redactor=1");
-                }
-
-                // Get ckeditor from parent
-                var ckeditor = parent.active_ckeditor;
-                var ckeditor_dialog = parent.active_ckeditor_dialog;
-
-                // Make sure we have ckeditor
-                if (ckeditor && ckeditor_dialog) {
-                    // Make the changelist links clickable and remove the original inline click listener.
-                    $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
-
-                        // Get information
-                        var img = $("img", this);
-                        var title = img.attr("title");
-                        var permalink = img.attr("cms:permalink");
-
-                        ckeditor.insertHtml('<img src="' + permalink + '" title="' + title + '"/>')
-                        ckeditor_dialog.hide()
-
-                        // Prevent default
-                        event.preventDefault()
+                        // Get the active editor open window
+                        var tinymce_popup = parent.active_tinymce_window
+                        if(tinymce_popup){
+                            tinymce_popup.close()
+                        }
 
                     });
-                    // Made the add link flagged for CKEditor.
-                    $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_ckeditor=1");
+                    // Made the add link flagged for tinymce.
+                    $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_tinymce=1");
                 }
 
             });
