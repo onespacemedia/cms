@@ -32,8 +32,7 @@ class TestForms(TestCase):
         self.assertDictEqual(media.__dict__, {
             '_css': {},
             '_js': [
-                '/static/cms/js/ckeditor/ckeditor.js',
-                '/static/cms/js/ckeditor/adapters/jquery.js',
+                '/static/cms/js/tinymce/tinymce.min.js',
                 '/static/cms/js/jquery.cms.wysiwyg.js'
             ]
         })
