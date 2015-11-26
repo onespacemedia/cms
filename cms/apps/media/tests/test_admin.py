@@ -205,7 +205,7 @@ class TestFileAdminBase(TestCase):
         response = self.file_admin.response_add(self.request, self.obj_1)
         self.assertEqual(response.status_code, 302)
 
-        self.request = self.factory.get('/?_redactor')
+        self.request = self.factory.get('/?_tinymce')
         setattr(self.request, 'session', 'session')
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
