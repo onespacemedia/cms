@@ -17,7 +17,7 @@ addons:
 install:
     - pip install cookiecutter
     - cookiecutter https://github.com/onespacemedia/project-template.git --checkout develop --no-input --config-file .cookiecutter.yml
-    - pip install -q Django
+    - pip install -q "Django>=1.8,<1.9"
     - pip uninstall onespacemedia-cms -y
     - pip install -e .[testing]
 script: coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms
