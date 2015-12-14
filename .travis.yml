@@ -1,3 +1,4 @@
+
 language: python
 cache:
   directories:
@@ -14,13 +15,15 @@ addons:
   apt:
     packages:
     - libgeoip-dev
+    - nodejs
 install:
     - pip install cookiecutter
     - cookiecutter https://github.com/onespacemedia/project-template.git --checkout develop --no-input --config-file .cookiecutter.yml
-    - pip install -q Django
+    - pip install -q "Django>=1.8,<1.9"
     - pip uninstall onespacemedia-cms -y
     - pip install -e .[testing]
-script: coverage run --source=cms --omit='*migrations*' example_project/manage.py test cms
+    - npm run build
+script: coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false
