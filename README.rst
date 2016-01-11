@@ -19,7 +19,7 @@ the project, adding new features, updating existing ones and keeping it
 working with the latest versions of Django.
 
 The current version of ``onespacemedia-cms`` should always be compatible
-with the current version of Django.
+with the current LTS version of Django.
 
 Resources
 =========
