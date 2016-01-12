@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import sys
-sys.path.append("src")
-
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="onespacemedia-cms",
@@ -20,9 +17,6 @@ setup(
     install_requires=[
         'django>=1.4,<1.5'
     ],
-    package_dir = {
-        "": "src",
-    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Framework :: Django :: 1.4',
