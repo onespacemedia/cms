@@ -13,7 +13,7 @@ setup(
     author="Daniel Samuels",
     author_email="daniel@onespacemedia.com",
     license="BSD",
-    packages=find_packages(),
+    packages=['cms'],
     include_package_data=True,
     zip_safe=False,
     description='CMS used by Onespacemedia',
