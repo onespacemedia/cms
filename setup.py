@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="onespacemedia-cms",
-    version="2.4.2",  # Roughly..
+    # version="2.4.2",  # Roughly..
     url="https://github.com/onespacemedia/cms",
     author="Daniel Samuels",
     author_email="daniel@onespacemedia.com",
