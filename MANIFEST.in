@@ -1,0 +1,2 @@
+recursive-include src/cms/templates *
+recursive-include src/cms/apps/*/templates *

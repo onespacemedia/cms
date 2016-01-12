@@ -7,3 +7,7 @@
 .bzr
 .bzrignore
 Thumbs.db
+dist
+.venv
+.idea
+onespacemedia_cms.egg-info
