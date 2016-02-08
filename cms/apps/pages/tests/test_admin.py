@@ -535,9 +535,9 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
-        NEW_MIDDLEWARE_CLASSES = [
+        NEW_MIDDLEWARE_CLASSES = (
             'cms.middleware.LocalisationMiddleware',
-        ] + settings.MIDDLEWARE_CLASSES
+        ) + settings.MIDDLEWARE_CLASSES
 
         with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
             request = self._build_request()
