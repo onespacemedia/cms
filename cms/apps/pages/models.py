@@ -42,7 +42,8 @@ class PageManager(OnlineBaseManager):
                             {ancestors}.{is_online} = FALSE OR
                             {ancestors}.{publication_date} > %s OR
                             {ancestors}.{expiry_date} <= %s
-                        )
+                        ) AND
+                        {ancestors}.{country_group_id} = {page_alias}.{country_group_id}
                 )
             """.format(
                 page_alias=page_alias,
@@ -56,6 +57,7 @@ class PageManager(OnlineBaseManager):
                         "is_online",
                         "publication_date",
                         "expiry_date",
+                        "country_group_id",
                     )
                 )
             ),),
