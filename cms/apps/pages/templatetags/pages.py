@@ -147,6 +147,18 @@ def meta_robots(context, index=None, follow=None, archive=None):
         follow = context.get("robots_follow")
     if archive is None:
         archive = context.get("robots_archive")
+
+    # Try to get the values from the current page.
+    page = context['pages'].current
+
+    if page:
+        if index is None:
+            index = page.robots_index
+        if follow is None:
+            follow = page.robots_follow
+        if archive is None:
+            archive = page.robots_archive
+
     # Final override, set to True.
     if index is None:
         index = True
@@ -154,6 +166,7 @@ def meta_robots(context, index=None, follow=None, archive=None):
         follow = True
     if archive is None:
         archive = True
+
     # Generate the meta content.
     robots = ", ".join((
         index and "INDEX" or "NOINDEX",
