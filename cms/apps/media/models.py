@@ -61,6 +61,12 @@ class File(models.Model):
         null=True,
     )
 
+    alt_text = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+    )
+
     def get_absolute_url(self):
         """Generates the absolute URL of the image."""
         return self.file.url
