@@ -11,6 +11,7 @@ from django.conf.urls import patterns, url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, Http404
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import filesizeformat
@@ -57,13 +58,13 @@ admin.site.register(Video, VideoAdmin)
 
 
 # Different types of file.
-AUDIO_FILE_ICON = "media/img/audio-x-generic.png"
-DOCUMENT_FILE_ICON = "media/img/x-office-document.png"
-SPREADSHEET_FILE_ICON = "media/img/x-office-spreadsheet.png"
-TEXT_FILE_ICON = "media/img/text-x-generic.png"
-IMAGE_FILE_ICON = "media/img/image-x-generic.png"
-MOVIE_FILE_ICON = "media/img/video-x-generic.png"
-UNKNOWN_FILE_ICON = "media/img/text-x-generic-template.png"
+AUDIO_FILE_ICON = static("media/img/audio-x-generic.png")
+DOCUMENT_FILE_ICON = static("media/img/x-office-document.png")
+SPREADSHEET_FILE_ICON = static("media/img/x-office-spreadsheet.png")
+TEXT_FILE_ICON = static("media/img/text-x-generic.png")
+IMAGE_FILE_ICON = static("media/img/image-x-generic.png")
+MOVIE_FILE_ICON = static("media/img/video-x-generic.png")
+UNKNOWN_FILE_ICON = static("media/img/text-x-generic-template.png")
 
 # Different types of recognised file extensions.
 FILE_ICONS = {
@@ -179,7 +180,11 @@ class FileAdminBase(admin.ModelAdmin):
             try:
                 thumbnail = get_thumbnail(obj.file, '100x66', quality=99)
             except IOError:
-                pass
+                return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
+                    permalink,
+                    icon,
+                    obj.title
+                )
             else:
                 try:
                     return '<img cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>'.format(
@@ -190,7 +195,11 @@ class FileAdminBase(admin.ModelAdmin):
                         obj.title
                     )
                 except TypeError:
-                    pass
+                    return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
+                        permalink,
+                        icon,
+                        obj.title
+                    )
         else:
             icon = staticfiles_storage.url(icon)
 
