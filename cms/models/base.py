@@ -4,10 +4,12 @@ from __future__ import unicode_literals
 from django.db import models
 from django.shortcuts import render
 from django.utils.encoding import python_2_unicode_compatible
+from exclusivebooleanfield.fields import ExclusiveBooleanField
 
 from cms import externals
-from cms.apps.media.models import ImageRefField
-from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
+# from cms.apps.media.models import ImageRefField
+from cms.models.managers import (OnlineBaseManager, PageBaseManager,
+                                 PublishedBaseManager, SearchMetaBaseManager)
 
 
 class PublishedBase(models.Model):
@@ -33,13 +35,14 @@ class OnlineBase(PublishedBase):
 
     objects = OnlineBaseManager()
 
-    is_online = models.BooleanField(
-        "online",
-        default=True,
+    is_online = ExclusiveBooleanField(
+        verbose_name="online",
         help_text=(
             "Uncheck this box to remove the page from the public website. "
             "Logged-in admin users will still be able to view this page by clicking the 'view on site' button."
         ),
+        on=('page_id', 'language'),
+        default=False,
     )
 
     class Meta:
@@ -159,15 +162,15 @@ class SearchMetaBase(OnlineBase):
                   'characters, but it is recommended that you do not use anything over 200.'
     )
 
-    og_image = ImageRefField(
-        verbose_name='image',
-        blank=True,
-        null=True,
-        help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
-                  'stand out thumbnail. Using an image smaller than 400x209 will give you a '
-                  'small thumbnail and will splits posts into 2 columns. '
-                  'If you have text on the image make sure it is centered.'
-    )
+    # og_image = ImageRefField(
+    #     verbose_name='image',
+    #     blank=True,
+    #     null=True,
+    #     help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
+    #               'stand out thumbnail. Using an image smaller than 400x209 will give you a '
+    #               'small thumbnail and will splits posts into 2 columns. '
+    #               'If you have text on the image make sure it is centered.'
+    # )
 
     # Twitter card fields
     twitter_card = models.IntegerField(
@@ -205,13 +208,13 @@ class SearchMetaBase(OnlineBase):
                   'that complements the tweet and title rather than on keywords.'
     )
 
-    twitter_image = ImageRefField(
-        verbose_name='image',
-        blank=True,
-        null=True,
-        help_text='The minimum size it needs to be is 280x150. If you want to use a larger image'
-                  'make sure the card type is set to "Large Summary".'
-    )
+    # twitter_image = ImageRefField(
+    #     verbose_name='image',
+    #     blank=True,
+    #     null=True,
+    #     help_text='The minimum size it needs to be is 280x150. If you want to use a larger image'
+    #               'make sure the card type is set to "Large Summary".'
+    # )
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""

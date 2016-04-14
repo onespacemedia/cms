@@ -102,14 +102,26 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         "classes": ("collapse",),
     })
 
-    fieldsets = [
-        TITLE_FIELDS,
-        OnlineBaseAdmin.PUBLICATION_FIELDS,
-        NAVIGATION_FIELDS,
-        SearchMetaBaseAdmin.SEO_FIELDS,
-        SearchMetaBaseAdmin.OPENGRAPH_FIELDS,
-        SearchMetaBaseAdmin.OPENGRAPH_TWITTER_FIELDS
-    ]
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(PageBaseAdmin, self).get_fieldsets(request, obj)
+
+        if obj is None:
+            fieldsets = [
+                (None, {
+                    'fields': ['page', 'title', 'slug', 'language']
+                })
+            ]
+
+            if 'page' in request.GET:
+                fieldsets[0][1]['fields'].remove('page')
+
+        return fieldsets
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk and 'page' in request.GET:
+            obj.page_id = request.GET['page']
+
+        obj.save()
 
 
 class CMSUserAdmin(UserAdmin):

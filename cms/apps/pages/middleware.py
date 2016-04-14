@@ -25,38 +25,10 @@ class RequestPageManager(object):
         self._path_info = self._request.path_info
 
     @cached_property
-    def country(self):
-        if hasattr(self._request, 'country'):
-            return self._request.country
-        return None
-
-    def request_country_group(self):
-        if hasattr(self._request, 'country'):
-            if self._request.country:
-                return self._request.country.group
-
-        return None
-
-    def alternate_page_version(self, page):
-
-        try:
-            # See if the page has any alternate versions for the current country
-            alternate_version = Page.objects.get(
-                is_content_object=True,
-                owner=page,
-                country_group=self.request_country_group()
-            )
-
-            return alternate_version
-
-        except:
-            return page
-
-    @cached_property
     def homepage(self):
         """Returns the site homepage."""
         try:
-            return Page.objects.get_homepage()
+            return Page.objects.root_nodes()[0]
         except Page.DoesNotExist:
             return None
 
@@ -76,10 +48,11 @@ class RequestPageManager(object):
             breadcrumbs.append(page)
             if slugs:
                 slug = slugs.pop()
-                for child in page.children:
-                    if child.slug == slug:
+                for child in page.get_descendants(include_self=True):
+                    if child.slug() == slug:
                         do_breadcrumbs(child)
                         break
+                    pass
         if self.homepage:
             do_breadcrumbs(self.homepage)
         return breadcrumbs
@@ -107,7 +80,7 @@ class RequestPageManager(object):
         """The current best-matched page."""
         try:
             page = self.breadcrumbs[-1]
-            return self.alternate_page_version(page)
+            return page
         except IndexError:
             return None
 
@@ -133,7 +106,7 @@ class PageMiddleware(object):
         page = request.pages.current
         if page is None:
             return response
-        script_name = page.get_absolute_url()[:-1]
+        script_name = page.content().get_absolute_url()[:-1]
         path_info = request.path[len(script_name):]
 
         # Continue for media
@@ -149,18 +122,20 @@ class PageMiddleware(object):
         # Dispatch to the content.
         try:
             try:
-                callback, callback_args, callback_kwargs = urlresolvers.resolve(path_info, page.content.urlconf)
+                if path_info == '':
+                    path_info = '/'
+
+                callback, callback_args, callback_kwargs = urlresolvers.resolve(path_info, page.content().urlconf)
             except urlresolvers.Resolver404:
                 # First of all see if adding a slash will help matters.
                 if settings.APPEND_SLASH:
                     new_path_info = path_info + "/"
 
                     try:
-                        urlresolvers.resolve(new_path_info, page.content.urlconf)
+                        urlresolvers.resolve(new_path_info, page.content().urlconf)
+                        return redirect(script_name + new_path_info, permanent=True)
                     except urlresolvers.Resolver404:
                         pass
-                    else:
-                        return redirect(script_name + new_path_info, permanent=True)
                 return response
             response = callback(request, *callback_args, **callback_kwargs)
             # Validate the response.
@@ -170,7 +145,7 @@ class PageMiddleware(object):
                 ))
 
             if request:
-                if page.auth_required() and not request.user.is_authenticated():
+                if page.content().auth_required() and not request.user.is_authenticated():
                     return redirect("{}?next={}".format(
                         settings.LOGIN_URL,
                         request.path
