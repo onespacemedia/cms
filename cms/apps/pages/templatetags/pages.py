@@ -28,10 +28,10 @@ def navigation(context, pages, section=None):
 
     def page_entry(page):
         # Do nothing if the page is to be hidden from not logged in users
-        if page.content().hide_from_anonymous and not request.user.is_authenticated():
+        if page.content.hide_from_anonymous and not request.user.is_authenticated():
             return
 
-        url = page.content().get_absolute_url()
+        url = page.content.get_absolute_url()
 
         return {
             "url": url,
@@ -115,7 +115,7 @@ def meta_description(context, description=None):
         request = context["request"]
         page = request.pages.current
         if page:
-            description = page.content().meta_description
+            description = page.content.meta_description
 
     return escape(description or "")
 
@@ -153,11 +153,11 @@ def meta_robots(context, index=None, follow=None, archive=None):
 
     if page:
         if index is None:
-            index = page.content().robots_index
+            index = page.content.robots_index
         if follow is None:
-            follow = page.content().robots_follow
+            follow = page.content.robots_follow
         if archive is None:
-            archive = page.content().robots_archive
+            archive = page.content.robots_archive
 
     # Final override, set to True.
     if index is None:
@@ -209,10 +209,10 @@ def og_title(context, title=None):
         page = request.pages.current
 
         if page:
-            title = page.content().og_title
+            title = page.content.og_title
 
         if not title:
-            title = context.get('title') or (page and page.content().title) or (page and page.content().browser_title)
+            title = context.get('title') or (page and page.content.title) or (page and page.content.browser_title)
 
     return escape(title or '')
 
@@ -227,7 +227,7 @@ def og_description(context, description=None):
         page = request.pages.current
 
         if page:
-            description = page.content().og_description
+            description = page.content.og_description
 
     return escape(description or '')
 
@@ -244,7 +244,7 @@ def og_image(context, image=None):
     #     page = request.pages.current
 
     #     if page:
-    #         image_obj = page.content().og_image
+    #         image_obj = page.content.og_image
 
     if image_obj:
         image = '{}{}'.format(
@@ -387,8 +387,8 @@ def title(context, browser_title=None):
     homepage = request.pages.homepage
     # Render the title template.
     return {
-        "title": browser_title or context.get("title") or (page and page.content().browser_title) or (page and page.content().title) or "",
-        "site_title": (homepage and homepage.content().title) or ""
+        "title": browser_title or context.get("title") or (page and page.content.browser_title) or (page and page.content.title) or "",
+        "site_title": (homepage and homepage.content.title) or ""
     }
 
 

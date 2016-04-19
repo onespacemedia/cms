@@ -10,8 +10,10 @@ from django.core import urlresolvers
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import force_text, python_2_unicode_compatible
-from mptt.models import MPTTModel, TreeForeignKey, TreeManager
+from django.utils.functional import cached_property
 from django.utils.text import mark_safe
+from mptt.models import MPTTModel, TreeForeignKey, TreeManager
+from threadlocals.threadlocals import get_current_request
 
 
 class Page(MPTTModel):
@@ -31,27 +33,29 @@ class Page(MPTTModel):
     # Sortable property
     order = models.PositiveIntegerField()
 
-    def content(self, language='en'):
-        # Get the content for this page.
-        content_objects = []
+    @cached_property
+    def content(self):
+        language = get_current_request().language
 
+        # Get the content for this page.
         for model in get_registered_content():
             objects = model.objects.filter(
                 page_id=self.pk,
                 language=language,
                 is_online=True,
             )
-            content_objects.extend(objects)
 
-        if len(content_objects) > 0:
-            return content_objects[0]
+            if objects:
+                return objects[0]
 
         # If the current language isn't 'en', are we able to fill with en pages?
         if language != 'en':
-            return self.content()
+            get_current_request().language = 'en'
+            return self.content
 
-    def slug(self, language='en'):
-        return self.content(language).slug
+    @cached_property
+    def slug(self):
+        return self.content.slug
 
     @property
     def navigation(self):
@@ -121,9 +125,7 @@ class Page(MPTTModel):
         return "-"
 
     def __str__(self):
-        content = self.content()
-
-        print content
+        content = self.content
 
         if content:
             return content.title
@@ -245,6 +247,7 @@ class ContentBase(PageBase):
             ('de', 'German'),
         ],
         default='en',
+        db_index=True,
     )
 
     # Publication fields.
@@ -306,16 +309,25 @@ class ContentBase(PageBase):
     def auth_required(self):
         if self.requires_authentication or not self.page.parent:
             return self.requires_authentication
-        return self.page.parent.content().auth_required()
+        return self.page.parent.content.auth_required()
 
     def get_absolute_url(self):
-        path = '/'.join(
-            page.content(language=self.language).slug for page in
-            self.page.get_ancestors(ascending=False, include_self=True)
-            if not page.is_root_node()
-        )
+        language = get_current_request().language
 
-        return '/{}/'.format(path)
+        pages = self.page.get_ancestors(ascending=False, include_self=True).filter(
+            content__language=language,
+            content__is_online=True,
+        ).annotate(
+            slug=models.F('content__slug')
+        ).annotate(models.Count('id')).values_list('slug', flat=True)
+
+        if len(pages) == 1:
+            return '/{}'.format(language)
+
+        return '/{}/{}/'.format(
+            language,
+            '/'.join(pages[1:])
+        )
 
     def __str__(self):
         """Returns a unicode representation."""
