@@ -43,6 +43,7 @@ class OnlineBase(PublishedBase):
         ),
         on=('page_id', 'language'),
         default=False,
+        db_index=True,
     )
 
     class Meta:
