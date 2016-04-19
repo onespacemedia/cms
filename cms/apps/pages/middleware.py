@@ -1,17 +1,17 @@
 """Custom middleware used by the pages application."""
-
+import re
 import sys
 
+from cms.apps.pages.models import Page
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
 from django.http import Http404
-from django.views.debug import technical_404_response
 from django.shortcuts import redirect
-from django.utils.functional import cached_property
 from django.template.response import SimpleTemplateResponse
-
-from cms.apps.pages.models import Page
+from django.utils.functional import cached_property
+from django.views.debug import technical_404_response
+from threadlocals.threadlocals import get_current_request
 
 
 class RequestPageManager(object):
@@ -20,6 +20,18 @@ class RequestPageManager(object):
 
     def __init__(self, request):
         """Initializes the RequestPageManager."""
+
+        # Does the current path start with a language code?
+        code_test = re.match(r'^\/(en|de)\/', request.path)
+
+        if code_test:
+            request.language = code_test.group(1)
+            request.path = re.sub(r'^/{}'.format(request.language), '', request.path)
+            request.path_info = re.sub(r'^/{}'.format(request.language), '', request.path_info)
+        else:
+            # We need to redirect.
+            request.language = None
+
         self._request = request
         self._path = self._request.path
         self._path_info = self._request.path_info
@@ -43,26 +55,38 @@ class RequestPageManager(object):
         breadcrumbs = []
         slugs = self._path_info.strip("/").split("/")
         slugs.reverse()
+        language = get_current_request().language
 
         def do_breadcrumbs(page):
             breadcrumbs.append(page)
             if slugs:
                 slug = slugs.pop()
-                for child in page.get_descendants(include_self=True):
-                    if child.slug() == slug:
+
+                print page.get_descendants(include_self=True).query
+                print page.lft
+                print page.rght
+
+                children = page.get_descendants(include_self=True).filter(
+                    content__is_online=True,
+                    content__language=language,
+                )
+
+                for child in children:
+                    if child.slug == slug:
                         do_breadcrumbs(child)
                         break
                     pass
+
         if self.homepage:
             do_breadcrumbs(self.homepage)
+
         return breadcrumbs
 
     @property
     def section(self):
         """The current primary level section, or None."""
         try:
-            page = self.breadcrumbs[1]
-            return self.alternate_page_version(page)
+            return self.breadcrumbs[1]
         except IndexError:
             return None
 
@@ -70,8 +94,7 @@ class RequestPageManager(object):
     def subsection(self):
         """The current secondary level section, or None."""
         try:
-            page = self.breadcrumbs[2]
-            return self.alternate_page_version(page)
+            return self.breadcrumbs[2]
         except IndexError:
             return None
 
@@ -102,11 +125,17 @@ class PageMiddleware(object):
         """If the response was a 404, attempt to serve up a page."""
         if response.status_code != 404:
             return response
+
+        if not request.language:
+            # Redirect to the default language.
+            return redirect('/en{}'.format(request.path), permanent=False)
+
         # Get the current page.
         page = request.pages.current
         if page is None:
             return response
-        script_name = page.content().get_absolute_url()[:-1]
+
+        script_name = page.content.get_absolute_url()[:-1]
         path_info = request.path[len(script_name):]
 
         # Continue for media
@@ -125,14 +154,14 @@ class PageMiddleware(object):
                 if path_info == '':
                     path_info = '/'
 
-                callback, callback_args, callback_kwargs = urlresolvers.resolve(path_info, page.content().urlconf)
+                callback, callback_args, callback_kwargs = urlresolvers.resolve(path_info, page.content.urlconf)
             except urlresolvers.Resolver404:
                 # First of all see if adding a slash will help matters.
                 if settings.APPEND_SLASH:
                     new_path_info = path_info + "/"
 
                     try:
-                        urlresolvers.resolve(new_path_info, page.content().urlconf)
+                        urlresolvers.resolve(new_path_info, page.content.urlconf)
                         return redirect(script_name + new_path_info, permanent=True)
                     except urlresolvers.Resolver404:
                         pass
@@ -145,7 +174,7 @@ class PageMiddleware(object):
                 ))
 
             if request:
-                if page.content().auth_required() and not request.user.is_authenticated():
+                if page.content.auth_required() and not request.user.is_authenticated():
                     return redirect("{}?next={}".format(
                         settings.LOGIN_URL,
                         request.path
