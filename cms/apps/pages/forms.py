@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Page
+from .models import DEFAULT_LANGUAGE, LANGUAGES_ENGLISH, Page
 
 
 def generate_page_form(*outer_args, **outer_kwargs):
@@ -9,11 +9,9 @@ def generate_page_form(*outer_args, **outer_kwargs):
 
         language = forms.ChoiceField(
             label="Language",
-            choices=[
-                ('en', 'English'),
-                ('de', 'German'),
-            ],
-            help_text='The current language of the content fields.'
+            choices=LANGUAGES_ENGLISH,
+            help_text='The current language of the content fields.',
+            initial=DEFAULT_LANGUAGE,
         )
 
         page_type = forms.ChoiceField(

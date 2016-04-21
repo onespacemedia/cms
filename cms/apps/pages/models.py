@@ -1,3 +1,4 @@
+# coding=utf8
 """Core models used by the CMS."""
 from __future__ import unicode_literals
 
@@ -14,6 +15,39 @@ from django.utils.functional import cached_property
 from django.utils.text import mark_safe
 from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from threadlocals.threadlocals import get_current_request
+
+
+# ISO 639-1 codes.
+LANGUAGES = [
+    ('ar', ['Arabic', 'العربية']),
+    ('bn', ['Bengali', 'বাংলা']),
+    ('cs', ['Czech', 'Čeština']),
+    ('da', ['Danish', 'Dansk']),
+    ('nl', ['Dutch', 'Nederlands']),
+    ('en', ['English', 'English']),
+    ('fi', ['Finnish', 'Suomi']),
+    ('fr', ['French', 'Français']),
+    ('de', ['German', 'Deutsch']),
+    ('el', ['Greek', 'ελληνικά']),
+    ('hi', ['Hindi', 'हिन्दी']),
+    ('it', ['Italian', 'Italiano']),
+    ('ja', ['Japanese', '日本語']),
+    ('jv', ['Javanese', 'ꦧꦱꦗꦮ']),
+    ('zh', ['Mandarin', '中文']),
+    ('pa', ['Panjabi', 'ਪੰਜਾਬੀ']),
+    ('pl', ['Polish', 'Język polski']),
+    ('pt', ['Portugese', 'Português']),
+    ('ru', ['Russian', 'Русский']),
+    ('es', ['Spanish', 'Español']),
+    ('sv', ['Swedish', 'Svenska']),
+]
+
+LANGUAGES_ENGLISH = [
+    (x[0], x[1][0])
+    for x in LANGUAGES
+]
+
+DEFAULT_LANGUAGE = 'en'
 
 
 class Page(MPTTModel):
@@ -37,20 +71,24 @@ class Page(MPTTModel):
     def content(self):
         language = get_current_request().language
 
+        if hasattr(get_current_request(), 'temp_language'):
+            language = get_current_request().temp_language
+            del get_current_request().temp_language
+
         # Get the content for this page.
         for model in get_registered_content():
             objects = model.objects.filter(
                 page_id=self.pk,
                 language=language,
-                is_online=True,
             )
 
             if objects:
                 return objects[0]
 
-        # If the current language isn't 'en', are we able to fill with en pages?
-        if language != 'en':
-            get_current_request().language = 'en'
+        # If the current language isn't the default language, are we able to
+        # fill with a default language page?
+        if language != DEFAULT_LANGUAGE:
+            get_current_request().temp_language = DEFAULT_LANGUAGE
             return self.content
 
     @cached_property
@@ -60,34 +98,32 @@ class Page(MPTTModel):
     @property
     def navigation(self):
         """The sub-navigation of this page."""
-        return self.get_descendants(include_self=False)
+        return self.get_children()
 
     def languages(self):
         # TODO: Change this.
-        languages = ['en', 'de']
         output = []
 
-        for language in languages:
-            # Are there any content objects in this language?
-            content_objects = []
+        # Are there any content objects in this language?
+        content_objects = []
 
-            for model in get_registered_content():
-                objects = model.objects.filter(
-                    page_id=self.pk,
-                    language=language,
-                    is_online=True,
-                )
-                content_objects.extend(objects)
+        for model in get_registered_content():
+            objects = model.objects.filter(
+                page_id=self.pk,
+                is_online=True,
+            )
+            content_objects.extend(objects)
 
-            if len(content_objects) > 0:
-                content_type = ContentType.objects.get_for_model(content_objects[0]._meta.model)
+        if len(content_objects) > 0:
+            for content_object in content_objects:
+                content_type = ContentType.objects.get_for_model(content_object._meta.model)
 
                 output.append('<a href="{}">{}</a>'.format(
                     reverse('admin:{}_{}_change'.format(
                         content_type.app_label,
                         content_type.model
-                    ), args=[content_objects[0].pk]),
-                    language.upper()
+                    ), args=[content_object.pk]),
+                    content_object.language.upper()
                 ))
 
         return mark_safe(' | '.join(output))
@@ -128,7 +164,8 @@ class Page(MPTTModel):
         content = self.content
 
         if content:
-            return content.title
+            import six
+            return six.text_type(content.title)
         return 'N/A'
 
     class MPTTMeta:
@@ -241,12 +278,8 @@ class ContentBase(PageBase):
 
     language = models.CharField(
         max_length=2,
-        # ISO 639-1 codes.
-        choices=[
-            ('en', 'English'),
-            ('de', 'German'),
-        ],
-        default='en',
+        choices=LANGUAGES_ENGLISH,
+        default=DEFAULT_LANGUAGE,
         db_index=True,
     )
 
@@ -314,19 +347,20 @@ class ContentBase(PageBase):
     def get_absolute_url(self):
         language = get_current_request().language
 
-        pages = self.page.get_ancestors(ascending=False, include_self=True).filter(
-            content__language=language,
-            content__is_online=True,
-        ).annotate(
-            slug=models.F('content__slug')
-        ).annotate(models.Count('id')).values_list('slug', flat=True)
+        if language is None:
+            language = self.language
+
+        # Get the ancestors for this page.
+        pages = self.page.get_ancestors(ascending=False, include_self=True)
 
         if len(pages) == 1:
-            return '/{}'.format(language)
+            return '/{}/'.format(language)
 
         return '/{}/{}/'.format(
             language,
-            '/'.join(pages[1:])
+            '/'.join([
+                page.slug for page in pages[1:]
+            ])
         )
 
     def __str__(self):

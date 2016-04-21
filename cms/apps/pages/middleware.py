@@ -13,6 +13,8 @@ from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 from threadlocals.threadlocals import get_current_request
 
+from .models import get_registered_content, LANGUAGES
+
 
 class RequestPageManager(object):
 
@@ -22,7 +24,9 @@ class RequestPageManager(object):
         """Initializes the RequestPageManager."""
 
         # Does the current path start with a language code?
-        code_test = re.match(r'^\/(en|de)\/', request.path)
+        code_test = re.match(r'^\/({})\/'.format('|'.join([
+            x[0] for x in LANGUAGES
+        ])), request.path)
 
         if code_test:
             request.language = code_test.group(1)
@@ -31,6 +35,21 @@ class RequestPageManager(object):
         else:
             # We need to redirect.
             request.language = None
+
+        # Get the available languages and tack them onto the request too.
+        languages = []
+
+        for model in get_registered_content():
+            languages.extend(model.objects.exclude(
+                language__in=languages,
+            ).distinct('language').values_list('language', flat=True))
+
+        request.languages = languages
+        request.languages = [
+            (x[0], x[1][1])
+            for x in LANGUAGES
+            if x[0] in languages
+        ]
 
         self._request = request
         self._path = self._request.path
@@ -55,23 +74,18 @@ class RequestPageManager(object):
         breadcrumbs = []
         slugs = self._path_info.strip("/").split("/")
         slugs.reverse()
-        language = get_current_request().language
 
         def do_breadcrumbs(page):
             breadcrumbs.append(page)
             if slugs:
                 slug = slugs.pop()
 
-                print page.get_descendants(include_self=True).query
-                print page.lft
-                print page.rght
-
-                children = page.get_descendants(include_self=True).filter(
-                    content__is_online=True,
-                    content__language=language,
-                )
+                children = page.get_descendants(include_self=True)
 
                 for child in children:
+                    if child.content is None:
+                        continue
+
                     if child.slug == slug:
                         do_breadcrumbs(child)
                         break

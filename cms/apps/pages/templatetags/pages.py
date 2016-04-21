@@ -12,7 +12,6 @@ register = template.Library()
 
 
 # Navigation.
-
 @register.inclusion_tag("pages/navigation.html", takes_context=True)
 def navigation(context, pages, section=None):
     """
@@ -24,9 +23,12 @@ def navigation(context, pages, section=None):
     context rather than rendered.
     """
     request = context["request"]
-    # Compile the entries.
 
+    # Compile the entries.
     def page_entry(page):
+        if page.content is None:
+            return
+
         # Do nothing if the page is to be hidden from not logged in users
         if page.content.hide_from_anonymous and not request.user.is_authenticated():
             return
@@ -36,7 +38,7 @@ def navigation(context, pages, section=None):
         return {
             "url": url,
             "page": page,
-            "title": str(page),
+            "title": page.content.title,
             "here": request.path.startswith(url),
             "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
         }
