@@ -3,6 +3,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.admin.sites import NotRegistered
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 try:
     from usertools.admin import UserAdmin
@@ -122,6 +124,56 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
             obj.page_id = request.GET['page']
 
         obj.save()
+
+
+class ContentBaseAdmin(PageBaseAdmin):
+
+    """Base admin for ContentBase derivatives."""
+
+    # Special template - we override the breadcrumbs to avoid confusion. We
+    # want to appear that we're a sub-level of a Page, rather than the admin
+    # for <someapp>/<some_content_base_derivative>.
+    change_form_template = "admin/pages/contentbase/change_form.html"
+
+    delete_confirmation_template = "admin/pages/contentbase/delete_confirmation.html"
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """Override the standard redirect URL after a save - we want to return
+        people to the page's change form, not the one for the ContentBase
+        derivative."""
+        if "_continue" in request.POST:
+            return super(ContentBaseAdmin, self).response_change(request, obj)
+
+        page_url = reverse("admin:pages_page_change", args=[obj.page.pk])
+        return HttpResponseRedirect(page_url)
+
+    def response_change(self, request, obj):
+        """Override the standard redirect URL after a save - we want to return
+        people to the page's change form, not the one for the ContentBase
+        derivative."""
+        if "_continue" in request.POST:
+            return super(ContentBaseAdmin, self).response_change(request, obj)
+
+        page_url = reverse("admin:pages_page_change", args=[obj.page.pk])
+        return HttpResponseRedirect(page_url)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        """Redirect to the content object's page admin on deletion."""
+        this_object = self.get_object(request, object_id)
+        # In the unlikely case that this doesn't exist...
+        if not this_object:
+            return super(ContentBaseAdmin, self).delete_view(request, object_id, extra_context)
+
+        page_object_id = this_object.page_id
+
+        response = super(ContentBaseAdmin, self).delete_view(request, object_id, extra_context)
+
+        # If the return type of the original delete_view was a redirect, then
+        # use the deleted content's page admin URL.
+        if isinstance(response, HttpResponseRedirect):
+            return HttpResponseRedirect(reverse("admin:pages_page_change", args=[page_object_id]))
+
+        return response
 
 
 class CMSUserAdmin(UserAdmin):

@@ -1,0 +1,47 @@
+{% extends "admin/change_form.html" %}
+
+{% load i18n admin_urls admin_static admin_modify %}
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <ul class="breadcrumb">
+      <li>
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        <span class="divider">&raquo;</span>
+      </li>
+      <li>
+        <a href="{% url 'admin:app_list' app_label='pages' %}">
+          {% trans "Pages" %}
+        </a>
+        <span class="divider">&raquo;</span>
+      </li>
+      <li>
+        {% if has_change_permission %}
+          <a href="{% url 'admin:pages_page_changelist' %}">
+            {% trans 'Pages' %}
+          </a>
+        {% else %}
+          {% trans 'Pages' %}
+        {% endif %}
+        <span class="divider">&raquo;</span>
+      </li>
+
+      {% if original %}
+        <li>
+          <a href="{% url 'admin:pages_page_change' original.page.pk %}">
+            {{ original.page }}
+          </a>
+          <span class="divider">&raquo;</span>
+        </li>
+      {% endif %}
+
+      <li class="active">
+        {% if add %}
+          {% trans 'Add' %} {{ opts.verbose_name }}
+        {% else %}
+          {{ original|truncatewords:"18" }}
+        {% endif %}
+      </li>
+    </ul>
+  {% endblock %}
+{% endif %}
