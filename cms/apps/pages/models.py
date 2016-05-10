@@ -50,6 +50,7 @@ LANGUAGES_ENGLISH = [
 DEFAULT_LANGUAGE = 'en'
 
 
+@python_2_unicode_compatible
 class Page(MPTTModel):
 
     """A page within the site."""
