@@ -253,7 +253,7 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
 
     def get_description(self, obj):
         """Returns the meta description."""
-        return obj.meta_description
+        return obj.content.meta_description
 
     def get_live_queryset(self):
         """Selects only live models."""
