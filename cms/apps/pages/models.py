@@ -70,11 +70,23 @@ class Page(MPTTModel):
 
     @cached_property
     def content(self):
-        language = getattr(get_current_request(), 'language', 'en')
+        request = get_current_request()
+        language = getattr(request, 'language', 'en')
 
-        if hasattr(get_current_request(), 'temp_language'):
-            language = get_current_request().temp_language
-            del get_current_request().temp_language
+        if language is None:
+            language = 'en'
+
+        if hasattr(request, 'temp_language'):
+            language = request.temp_language
+            del request.temp_language
+
+        cache_key = 'page_{}_{}_content'.format(
+            self.pk,
+            language,
+        )
+
+        if hasattr(request, cache_key):
+            return getattr(request, cache_key)
 
         # Get the content for this page.
         for model in get_registered_content():
@@ -84,6 +96,7 @@ class Page(MPTTModel):
             )
 
             if objects:
+                setattr(request, cache_key, objects[0])
                 return objects[0]
 
         # If the current language isn't the default language, are we able to
