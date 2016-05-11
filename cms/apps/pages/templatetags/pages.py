@@ -13,7 +13,7 @@ register = template.Library()
 
 # Navigation.
 @register.inclusion_tag("pages/navigation.html", takes_context=True)
-def navigation(context, pages, section=None):
+def navigation(context, pages):
     """
     Renders a navigation list for the given pages.
 
@@ -25,7 +25,7 @@ def navigation(context, pages, section=None):
     request = context["request"]
 
     # Compile the entries.
-    def page_entry(page):
+    def page_entry(page, get_children=False):
         if page.content is None:
             return
 
@@ -33,24 +33,38 @@ def navigation(context, pages, section=None):
         if page.content.hide_from_anonymous and not request.user.is_authenticated():
             return
 
+        # Do nothing if the page is set to offline
+        if not page.content.is_online:
+            return
+
         url = page.content.get_absolute_url()
+
+        children = []
+
+        if get_children:
+            for child_page in page.get_children():
+                if child_page.is_root_node():
+                    continue
+
+                entry = page_entry(child_page, get_children=False)
+
+                if entry:
+                    children.append(entry)
 
         return {
             "url": url,
             "page": page,
             "title": page.content.title,
             "here": request.original_path.startswith(url),
-            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
+            "children": children,
         }
 
-    # All the applicable nav items
-    entries = [page_entry(x) for x in pages if page_entry(x) is not None]
+    entries = []
+    for page in pages.get_children():
+        entry = page_entry(page, get_children=True)
 
-    # Add the section.
-    if section:
-        section_entry = page_entry(section)
-        section_entry["here"] = context["pages"].current == section_entry["page"]
-        entries = [section_entry] + list(entries)
+        if entry:
+            entries.append(entry)
 
     # Render the template.
     context.update({
