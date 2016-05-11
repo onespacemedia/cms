@@ -70,7 +70,7 @@ class Page(MPTTModel):
 
     @cached_property
     def content(self):
-        language = get_current_request().language
+        language = getattr(get_current_request(), 'language', 'en')
 
         if hasattr(get_current_request(), 'temp_language'):
             language = get_current_request().temp_language
@@ -346,7 +346,7 @@ class ContentBase(PageBase):
         return self.page.parent.content.auth_required()
 
     def get_absolute_url(self):
-        language = get_current_request().language
+        language = getattr(get_current_request(), 'language', 'en')
 
         if language is None:
             language = self.language
