@@ -57,9 +57,10 @@ class PageAdmin(SortableMPTTModelAdmin):
 
     list_display = ['__str__', 'languages']
     list_display_links = ['__str__']
+
     mptt_indent_field = '__str__'
-    # list_editable = ['is_online']
     mptt_level_indent = 20
+
     sortable = 'order'
 
     search_adapter_cls = PageSearchAdapter
@@ -182,7 +183,6 @@ class PageAdmin(SortableMPTTModelAdmin):
         return super(PageAdmin, self).changeform_view(request, object_id, form_url, extra_context)
 
     def get_fieldsets(self, request, obj=None):
-        # fieldsets = super(PageAdmin, self).get_fieldsets(request, obj)
 
         if obj is None:
             fieldsets = [
@@ -201,6 +201,8 @@ class PageAdmin(SortableMPTTModelAdmin):
             ]
 
         return fieldsets
+
+
 
 
 admin.site.register(Page, PageAdmin)

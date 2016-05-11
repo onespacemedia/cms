@@ -13,30 +13,24 @@ from cms import externals
 from cms.models.base import SearchMetaBaseSearchAdapter, PageBaseSearchAdapter
 from cms.forms import CMSAdminPasswordChangeForm
 
+# Field collections - used instead of full fieldsets to allow for custom field settings
+SECURITY_FIELDS = ("requires_authentication",)
+PUBLICATION_FIELDS = ("publication_date", "expiry_date", "is_online",)
+NAVIGATION_FIELDS = ("short_title", "in_navigation", "hide_from_anonymous",)
+SEO_FIELDS = ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index",
+              "robots_follow", "robots_archive",)
+OG_FIELDS = ("og_title", "og_description")
+TWITTER_FIELDS = ("twitter_card", "twitter_title", "twitter_description")
+
 
 class PublishedBaseAdmin(admin.ModelAdmin):
-
-    """Base admin class for published models."""
-
     change_form_template = "admin/cms/publishedmodel/change_form.html"
 
 
 class OnlineBaseAdmin(PublishedBaseAdmin):
-
-    """Base admin class for OnlineModelBase instances."""
-
     actions = ("publish_selected", "unpublish_selected",)
-
     list_display = ("__str__", "is_online",)
-
     list_filter = ("is_online",)
-
-    PUBLICATION_FIELDS = ("Publication", {
-        "fields": ("is_online",),
-        "classes": ("collapse",),
-    })
-
-    # Custom admin actions.
 
     def publish_selected(self, request, queryset):
         """Publishes the selected models."""
@@ -50,27 +44,8 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
 
 class SearchMetaBaseAdmin(OnlineBaseAdmin):
-
-    """Base admin class for SearchMetaBase models."""
-
     adapter_cls = SearchMetaBaseSearchAdapter
-
     list_display = ("__str__", "is_online",)
-
-    SEO_FIELDS = ("Search engine optimization", {
-        "fields": ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
-        "classes": ("collapse",),
-    })
-
-    OPENGRAPH_FIELDS = ("Open Graph", {
-        "fields": ("og_title", "og_description", "og_image"),
-        "classes": ("collapse",)
-    })
-
-    OPENGRAPH_TWITTER_FIELDS = ("Twitter card", {
-        "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
-        "classes": ("collapse",)
-    })
 
 
 if externals.reversion:
@@ -84,23 +59,41 @@ if externals.watson:
 
 
 class PageBaseAdmin(SearchMetaBaseAdmin):
-
-    """Base admin class for PageBase models."""
-
     prepopulated_fields = {"slug": ("title",), }
-
     search_fields = ("title", "short_title", "meta_description",)
-
     adapter_cls = PageBaseSearchAdapter
+    suit_form_tabs = (('content', 'Content'), ('settings', 'Settings'),)
 
-    TITLE_FIELDS = (None, {
-        "fields": ("title", "slug",),
-    })
-
-    NAVIGATION_FIELDS = ("Navigation", {
-        "fields": ("short_title",),
-        "classes": ("collapse",),
-    })
+    fieldsets = [
+        (None, {
+            "fields": ("title", "slug",),
+            "classes": ('suit-tab', 'suit-tab-content')
+        }),
+        ("Security", {
+            "fields": SECURITY_FIELDS,
+            "classes": ('suit-tab', 'suit-tab-settings')
+        }),
+        ("Publication", {
+            "fields": PUBLICATION_FIELDS,
+            "classes": ('suit-tab', 'suit-tab-settings')
+        }),
+        ("Navigation", {
+            "fields": NAVIGATION_FIELDS,
+            "classes": ('suit-tab', 'suit-tab-settings')
+        }),
+        ("Search engine optimization", {
+            "fields": SEO_FIELDS,
+            "classes": ('suit-tab', 'suit-tab-settings')
+        }),
+        ("Open Graph", {
+            "fields": OG_FIELDS,
+            "classes": ('suit-tab', 'suit-tab-settings')
+        }),
+        ("Twitter card", {
+            "fields": TWITTER_FIELDS,
+            "classes": ('suit-tab', 'suit-tab-settings')
+        }),
+    ]
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(PageBaseAdmin, self).get_fieldsets(request, obj)
