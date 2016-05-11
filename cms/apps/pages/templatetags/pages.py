@@ -13,7 +13,7 @@ register = template.Library()
 
 # Navigation.
 @register.inclusion_tag("pages/navigation.html", takes_context=True)
-def navigation(context, pages, full_tree=False):
+def navigation(context, pages, full_tree=False, include_pages=True):
     """
     Renders a navigation list for the given pages.
 
@@ -53,7 +53,7 @@ def navigation(context, pages, full_tree=False):
 
         return {
             "url": url,
-            "page": page,
+            "page": page if include_pages else None,
             "title": page.content.title,
             "here": request.original_path.startswith(url),
             "children": children,
