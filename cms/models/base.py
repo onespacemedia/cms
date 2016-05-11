@@ -323,4 +323,4 @@ class PageBaseSearchAdapter(SearchMetaBaseSearchAdapter):
 
     def get_title(self, obj):
         """Returns the title of the page."""
-        return obj.title
+        return obj.content.title
