@@ -22,6 +22,8 @@ class RequestPageManager(object):
 
     def __init__(self, request):
         """Initializes the RequestPageManager."""
+        
+        request.original_path = request.path
 
         # Does the current path start with a language code?
         code_test = re.match(r'^\/({})\/'.format('|'.join([
