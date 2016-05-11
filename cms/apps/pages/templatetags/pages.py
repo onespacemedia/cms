@@ -13,7 +13,7 @@ register = template.Library()
 
 # Navigation.
 @register.inclusion_tag("pages/navigation.html", takes_context=True)
-def navigation(context, pages):
+def navigation(context, pages, full_tree=False):
     """
     Renders a navigation list for the given pages.
 
@@ -46,7 +46,7 @@ def navigation(context, pages):
                 if child_page.is_root_node():
                     continue
 
-                entry = page_entry(child_page, get_children=False)
+                entry = page_entry(child_page, get_children=full_tree)
 
                 if entry:
                     children.append(entry)
@@ -67,12 +67,10 @@ def navigation(context, pages):
             entries.append(entry)
 
     # Render the template.
-    context.update({
+    return {
         "request": request,
         "navigation": entries,
-    })
-
-    return context
+    }
 
 
 @register.assignment_tag(takes_context=True)
