@@ -39,7 +39,7 @@ def navigation(context, pages, section=None):
             "url": url,
             "page": page,
             "title": page.content.title,
-            "here": request.path.startswith(url),
+            "here": request.original_path.startswith(url),
             "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
         }
 
