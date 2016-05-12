@@ -13,7 +13,7 @@ from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 from threadlocals.threadlocals import get_current_request
 
-from .models import get_registered_content, LANGUAGES
+from .models import get_registered_content, LANGUAGES, DEFAULT_LANGUAGE
 
 
 class RequestPageManager(object):
@@ -144,7 +144,7 @@ class PageMiddleware(object):
 
         if not request.language:
             # Redirect to the default language.
-            return redirect('/en{}'.format(request.path), permanent=False)
+            return redirect('/{}{}'.format(DEFAULT_LANGUAGE, request.path), permanent=False)
 
         # Get the current page.
         page = request.pages.current
