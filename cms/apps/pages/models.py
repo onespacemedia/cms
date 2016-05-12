@@ -2,6 +2,8 @@
 """Core models used by the CMS."""
 from __future__ import unicode_literals
 
+from django.conf import settings
+
 from cms import externals, sitemaps
 from cms.models import PageBase, PageBaseSearchAdapter
 from cms.models.managers import publication_manager
@@ -18,7 +20,7 @@ from threadlocals.threadlocals import get_current_request
 
 
 # ISO 639-1 codes.
-LANGUAGES = [
+DEFAULT_LANGUAGES = [
     ('ar', ['Arabic', 'العربية']),
     ('bn', ['Bengali', 'বাংলা']),
     ('cs', ['Czech', 'Čeština']),
@@ -41,6 +43,8 @@ LANGUAGES = [
     ('es', ['Spanish', 'Español']),
     ('sv', ['Swedish', 'Svenska']),
 ]
+
+LANGUAGES = getattr(settings, 'LANGUAGES', DEFAULT_LANGUAGES)
 
 LANGUAGES_ENGLISH = [
     (x[0], x[1][0])

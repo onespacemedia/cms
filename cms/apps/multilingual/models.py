@@ -1,17 +1,7 @@
 from django.db import models
 from threadlocals.threadlocals import get_current_request
 
-LANGUAGES = [
-    ('en', ['English', 'English']),
-    ('de', ['German', 'Deutsch']),
-]
-
-LANGUAGES_ENGLISH = [
-    (x[0], x[1][0])
-    for x in LANGUAGES
-]
-
-DEFAULT_LANGUAGE = 'en'
+from cms.apps.pages.models import LANGUAGES_ENGLISH, DEFAULT_LANGUAGE
 
 
 class MultilingualTranslation(models.Model):
