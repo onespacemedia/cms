@@ -44,7 +44,7 @@ DEFAULT_LANGUAGES = [
     ('sv', ['Swedish', 'Svenska']),
 ]
 
-LANGUAGES = getattr(settings, 'LANGUAGES', DEFAULT_LANGUAGES)
+LANGUAGES = getattr(settings, 'PAGE_LANGUAGES', DEFAULT_LANGUAGES)
 
 LANGUAGES_ENGLISH = [
     (x[0], x[1][0])
