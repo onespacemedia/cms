@@ -68,7 +68,7 @@ class MultilingualModel(models.Model):
 
         # Missed cache, fetch from DB
         try:
-            self.translation_cache[language] = self.translations.select_related().get(language=language)
+            self.translation_cache[language] = self.translations.select_related().order_by('-version').filter(language=language)[0]
             return self.translation_cache[language]
         except self.language_model.DoesNotExist:
             return None

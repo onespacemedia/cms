@@ -14,6 +14,9 @@ from django.template.response import TemplateResponse
 from django.utils import six
 
 
+MULTILINGUAL_FIELDS = ('Language', {'fields': ['language', 'version', 'online']})
+
+
 class MultilingualChangeList(ChangeList):
     def url_for_result(self, result):
         pk = getattr(result, self.pk_attname)
@@ -32,7 +35,7 @@ class MultilingualLanguageList(ChangeList):
                                                        list_per_page, list_max_show_all, list_editable, model_admin)
 
         self.model = self.model.language_model
-        self.list_display = ['language']
+        self.list_display = ['language', 'version', 'online']
         self.list_display_links = ['language']
 
     def url_for_result(self, result):
@@ -185,6 +188,8 @@ class MultilingualAdmin(admin.ModelAdmin):
         if ordering:
             qs = qs.order_by(*ordering)
 
+        print qs
+
         return qs
 
     def get_changelist(self, request, **kwargs):
@@ -282,6 +287,20 @@ class MultilingualAdmin(admin.ModelAdmin):
             return dict()
 
         return super(MultilingualAdmin, self).get_actions(request)
+
+    def get_fieldsets(self, request, obj=None):
+        # Get super fieldsets
+        fieldsets = super(MultilingualAdmin, self).get_fieldsets(request, obj)
+        return fieldsets
+
+    def get_ordering(self, request):
+        if request.resolver_match.url_name in [
+            '{}_{}_languages'.format(self.opts.app_label, self.opts.model_name),
+        ]:
+            return ('language', 'version')
+
+        return super(MultilingualAdmin, self).get_ordering(request)
+
 
 
 
