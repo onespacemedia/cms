@@ -58,11 +58,9 @@ class MultilingualAdmin(admin.ModelAdmin):
 
         info = self.model._meta.app_label, self.model._meta.model_name
 
-        language_content_model = ContentType.objects.get_for_model(self.model.language_model)
-
         urlpatterns = [
             url(r'^$', wrap(self.changelist_view), name='%s_%s_changelist' % info),
-            url(r'^add/$'.format(language_content_model.pk), wrap(self.add_view), name='%s_%s_add' % info),
+            url(r'^add/$', wrap(self.add_view), name='%s_%s_add' % info),
 
             url(r'^(?P<obj>\d+)/languages/$', wrap(self.languagelist_view), name='%s_%s_languages' % info),
             url(r'^(?P<obj>\d+)/languages/add/$', wrap(self.languageadd_view),

@@ -15,11 +15,22 @@ class MultilingualTranslation(models.Model):
         db_index=True
     )
 
+    version = models.PositiveIntegerField(
+        default=1,
+        help_text="Version number of the language. A higher version has a higher priority."
+    )
+
+    online = models.BooleanField(
+        default=False,
+        help_text="Unchecking this box allows you to create / edit it without putting it live."
+    )
+
     def __unicode__(self):
         return self.language
 
     class Meta:
         abstract = True
+        unique_together = ("language", "version",)
 
 
 class MultilingualModel(models.Model):
