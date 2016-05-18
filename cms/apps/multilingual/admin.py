@@ -188,8 +188,6 @@ class MultilingualAdmin(admin.ModelAdmin):
         if ordering:
             qs = qs.order_by(*ordering)
 
-        print qs
-
         return qs
 
     def get_changelist(self, request, **kwargs):
