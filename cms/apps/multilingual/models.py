@@ -44,7 +44,7 @@ class MultilingualModel(models.Model):
                 translation = self.get_translation(DEFAULT_LANGUAGE)
                 return getattr(translation, name)
             except (self.language_model.DoesNotExist, AttributeError):
-                return 'Missing translation'
+                return 'N/A'
 
         # Default behaviour
         return self.__getattribute__(name)
@@ -64,6 +64,7 @@ class MultilingualModel(models.Model):
 
     def get_content_type(self):
         return ContentType.objects.get_for_model(self.language_model)
+
 
     class Meta:
         abstract = True

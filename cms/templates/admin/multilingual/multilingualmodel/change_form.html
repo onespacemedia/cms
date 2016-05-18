@@ -49,3 +49,19 @@
 </ul>
 {% endblock %}
 
+{% block submit_buttons_bottom %}
+  {% if not is_language %}
+    {{ block.super }}
+  {% else %}
+    <div class="submit-row">
+      <button type="submit" class="btn btn-high btn-info" name="_save">{% trans 'Save' %}</button>
+      <a href="delete/" class="text-error deletelink">{% trans "Delete" %}</a>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block object-tools %}
+  {% if not is_language %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}

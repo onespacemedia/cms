@@ -1,0 +1,45 @@
+{% extends 'admin/delete_confirmation.html' %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumb">
+    <li>
+      <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+      <span class="divider">&raquo;</span>
+    </li>
+    <li>
+      <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{% firstof opts.app_config.verbose_name app_label|capfirst|escape %}</a>
+      <span class="divider">&raquo;</span>
+    </li>
+
+    {% if multilingual_object %}
+
+      <li>
+          <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+        <span class="divider">&raquo;</span>
+      </li>
+
+      <li>
+        <a href="{% url opts|admin_urlname:'languages' obj=multilingual_object.pk %}">{{ multilingual_object }}</a>
+        <span class="divider">&raquo;</span>
+      </li>
+
+      <li><a href="
+        {% url opts|admin_urlname:'language' obj=multilingual_object.pk lang=object.pk %}">{{ object|truncatewords:"18" }}</a>
+        <span class="divider">&raquo;</span></li>
+      <li class="active">{% trans 'Delete' %}</li>
+
+    {% else %}
+
+      <li>
+        <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+        <span class="divider">&raquo;</span>
+      </li>
+      <li><a href="{% url opts|admin_urlname:'languages' obj=object.pk %}">{{ object|truncatewords:"18" }}</a>
+        <span class="divider">&raquo;</span></li>
+      <li class="active">{% trans 'Delete' %}</li>
+
+    {% endif %}
+
+  </ul>
+{% endblock %}

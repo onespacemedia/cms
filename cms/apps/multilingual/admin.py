@@ -13,8 +13,6 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils import six
 
-LANGUAGE_OBJECT_PARAMETER = 'langobj'
-
 
 class MultilingualChangeList(ChangeList):
     def url_for_result(self, result):
@@ -34,7 +32,7 @@ class MultilingualLanguageList(ChangeList):
                                                        list_per_page, list_max_show_all, list_editable, model_admin)
 
         self.model = self.model.language_model
-        self.list_display = ['action_checkbox', 'language']
+        self.list_display = ['language']
         self.list_display_links = ['language']
 
     def url_for_result(self, result):
@@ -49,6 +47,7 @@ class MultilingualLanguageList(ChangeList):
 class MultilingualAdmin(admin.ModelAdmin):
     change_list_template = 'admin/multilingual/multilingualmodel/change_list.html'
     change_form_template = 'admin/multilingual/multilingualmodel/change_form.html'
+    delete_confirmation_template = 'admin/multilingual/multilingualmodel/delete_confirmation.html'
 
     def get_urls(self):
         def wrap(view):
@@ -59,9 +58,11 @@ class MultilingualAdmin(admin.ModelAdmin):
 
         info = self.model._meta.app_label, self.model._meta.model_name
 
+        language_content_model = ContentType.objects.get_for_model(self.model.language_model)
+
         urlpatterns = [
             url(r'^$', wrap(self.changelist_view), name='%s_%s_changelist' % info),
-            url(r'^add/$', wrap(self.add_view), name='%s_%s_add' % info),
+            url(r'^add/$'.format(language_content_model.pk), wrap(self.add_view), name='%s_%s_add' % info),
 
             url(r'^(?P<obj>\d+)/languages/$', wrap(self.languagelist_view), name='%s_%s_languages' % info),
             url(r'^(?P<obj>\d+)/languages/add/$', wrap(self.languageadd_view),
@@ -79,10 +80,6 @@ class MultilingualAdmin(admin.ModelAdmin):
 
     def get_multilingual_language_class(self, request, obj):
 
-        # Check GET for the language object type
-        if LANGUAGE_OBJECT_PARAMETER in request.GET:
-            return ContentType.objects.get_for_id(request.GET[LANGUAGE_OBJECT_PARAMETER]).model_class()
-
         # If we have an object, we can skip that and use the language object on the multilingual model
         if obj:
 
@@ -99,8 +96,11 @@ class MultilingualAdmin(admin.ModelAdmin):
             if hasattr(obj, 'language_model'):
                 return ContentType.objects.get_for_model(obj.language_model).model_class()
 
+        else:
+            return ContentType.objects.get_for_model(self.model.language_model).model_class()
+
         # No type was found
-        raise Http404("You must specify a page content type.")
+        raise Http404("You must specify a language content type.")
 
     def get_form(self, request, obj=None, **kwargs):
 
@@ -177,6 +177,9 @@ class MultilingualAdmin(admin.ModelAdmin):
             '{}_{}_languagedelete'.format(self.opts.app_label, self.opts.model_name),
         ]:
             qs = self.model.language_model._default_manager.get_queryset()
+
+            if hasattr(request, 'multilingual_object'):
+                qs = qs.filter(parent=request.multilingual_object)
         else:
             qs = self.model._default_manager.get_queryset()
 
@@ -198,10 +201,15 @@ class MultilingualAdmin(admin.ModelAdmin):
 
     def languagelist_view(self, request, extra_context=None, *args, **kwargs):
 
+        multilingual_object = get_object_or_404(self.model, pk=kwargs['obj'])
+
         # Get the multilingual object if we can
         extra_context = dict(
-            multilingual_object=get_object_or_404(self.model, pk=kwargs['obj'])
+            multilingual_object=multilingual_object
         )
+
+        # Set object on request for global access
+        request.multilingual_object = multilingual_object
 
         return self.changelist_view(request, extra_context)
 
@@ -218,7 +226,8 @@ class MultilingualAdmin(admin.ModelAdmin):
 
         # Get the multilingual object if we can
         extra_context = dict(
-            multilingual_object=get_object_or_404(self.model, pk=kwargs['obj'])
+            multilingual_object=get_object_or_404(self.model, pk=kwargs['obj']),
+            is_language=True
         )
 
         return self.changeform_view(request, kwargs['lang'], '', extra_context)
@@ -267,3 +276,15 @@ class MultilingualAdmin(admin.ModelAdmin):
                 })
 
         return response
+
+    def get_actions(self, request):
+        if request.resolver_match.url_name in [
+            '{}_{}_languages'.format(self.opts.app_label, self.opts.model_name),
+        ]:
+            return dict()
+
+        return super(MultilingualAdmin, self).get_actions(request)
+
+
+
+
