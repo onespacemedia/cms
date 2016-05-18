@@ -70,7 +70,7 @@ class MultilingualModel(models.Model):
         try:
             self.translation_cache[language] = self.translations.select_related().order_by('-version').filter(language=language)[0]
             return self.translation_cache[language]
-        except self.language_model.DoesNotExist:
+        except IndexError:
             return None
 
     def get_content_type(self):
