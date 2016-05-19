@@ -55,7 +55,7 @@
   {% else %}
     <div class="submit-row">
       <button type="submit" class="btn btn-high btn-info" name="_save">{% trans 'Save' %}</button>
-      <a href="delete/" class="text-error deletelink">{% trans "Delete" %}</a>
+      {% if show_delete %}<a href="delete/" class="text-error deletelink">{% trans "Delete" %}</a>{% endif %}
     </div>
   {% endif %}
 {% endblock %}

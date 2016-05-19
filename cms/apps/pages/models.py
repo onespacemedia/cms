@@ -51,6 +51,11 @@ LANGUAGES_ENGLISH = [
     for x in LANGUAGES
 ]
 
+LANGUAGES_ENGLISH_DICTIONARY = {
+    x[0]: x[1][0]
+    for x in LANGUAGES
+}
+
 DEFAULT_LANGUAGE = 'en'
 
 

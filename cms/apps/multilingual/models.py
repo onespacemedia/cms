@@ -1,81 +1,86 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
-from threadlocals.threadlocals import get_current_request
 
-from cms.apps.pages.models import LANGUAGES_ENGLISH, DEFAULT_LANGUAGE
+from cms.apps.pages.models import DEFAULT_LANGUAGE, LANGUAGES_ENGLISH_DICTIONARY
+from cms.apps.pages.models import LANGUAGES_ENGLISH
+
+
+class MultilingualObject(models.Model):
+    admin_name = models.CharField(
+        max_length=4096,
+        help_text="Name of the object that will be used within the admin",
+        verbose_name="Name"
+    )
+
+    admin_description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Short description that will be used within the admin",
+        verbose_name="Description"
+    )
+
+    admin_notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="A set of notes that will be used within the admin",
+        verbose_name="Notes"
+    )
+
+    default_language = models.CharField(
+        max_length=2,
+        choices=LANGUAGES_ENGLISH,
+        default=DEFAULT_LANGUAGE,
+        db_index=True,
+        help_text="The default language that will be used when a language object isn't found"
+    )
+
+    def translation_objects(self):
+        return self.translation_object.objects.filter(parent=self)
+
+    def get_translation_add_url(self):
+        return '{}?parent={}'.format(
+            reverse('admin:{}_{}_add'.format(
+                self.translation_object._meta.app_label,
+                self.translation_object._meta.model_name
+            )),
+            self.pk
+        )
+
+    class Meta:
+        abstract = True
 
 
 class MultilingualTranslation(models.Model):
-    """ Translation class for content """
-
     language = models.CharField(
         max_length=2,
         choices=LANGUAGES_ENGLISH,
         default=DEFAULT_LANGUAGE,
-        db_index=True
+        db_index=True,
+        help_text="The language that this translation is for"
     )
 
     version = models.PositiveIntegerField(
         default=1,
-        help_text="Version number of the language. A higher version has a higher priority."
+        help_text="Priority is given to the higher number. <br> Using versions you are able to create new language versions without publishing them"
     )
 
-    online = models.BooleanField(
+    published = models.BooleanField(
         default=False,
-        help_text="Unchecking this box allows you to create / edit it without putting it live."
+        help_text="Unchecking this box will leave this translation as unpublished and it will not be used on the website"
     )
 
     def __unicode__(self):
-        return self.language
+        return self.parent.admin_name
 
-    class Meta:
-        abstract = True
-        unique_together = ("parent", "language", "version",)
+    def human_language(self):
+        return LANGUAGES_ENGLISH_DICTIONARY[self.language]
 
-
-class MultilingualModel(models.Model):
-    """ Container class for translations"""
-
-    translation_cache = {}
-
-    def __init__(self, *args, **kwargs):
-        super(MultilingualModel, self).__init__(*args, **kwargs)
-
-    def __unicode__(self):
-        return 'Multilingual Object'
-
-    def __getattr__(self, name):
-
-        # Check to see if the attr is in the list of fields that are potentially translatable
-        language_fields = self.language_model._meta.get_all_field_names()
-        if name in language_fields:
-
-            # Try to get a translation for the default language
-            try:
-                translation = self.get_translation(DEFAULT_LANGUAGE)
-                return getattr(translation, name)
-            except (self.language_model.DoesNotExist, AttributeError):
-                return 'N/A'
-
-        # Default behaviour
-        return self.__getattribute__(name)
-
-    def get_translation(self, language):
-
-        # Check model cache for translation
-        if hasattr(self.translation_cache, language):
-            return self.translation_cache[language]
-
-        # Missed cache, fetch from DB
-        try:
-            self.translation_cache[language] = self.translations.select_related().order_by('-version').filter(language=language)[0]
-            return self.translation_cache[language]
-        except IndexError:
-            return None
-
-    def get_content_type(self):
-        return ContentType.objects.get_for_model(self.language_model)
-
+    def get_change_url(self):
+        return reverse('admin:{}_{}_change'.format(
+            self._meta.app_label,
+            self._meta.model_name
+        ), args=[self.pk])
 
     class Meta:
         abstract = True

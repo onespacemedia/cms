@@ -1,0 +1,54 @@
+{% extends "admin/change_form.html" %}
+
+{% block after_related_objects %}
+
+  {% if not hide_translations %}
+    <div class="toolbar-content">
+      <div class="object-tools">
+        <a href="{{ original.get_translation_add_url }}" class="btn btn-success">
+          <i class="icon-plus-sign icon-white"></i>&nbsp;
+          Add translation
+        </a>
+      </div>
+    </div>
+
+    <div class="results">
+      <table id="result_list" class="table table-striped table-bordered table-hover table-condensed">
+        <thead>
+        <tr>
+          <th scope="col">
+            <div class="text"><span>Translation</span></div>
+          </th>
+          <th scope="col" width="200">
+            <div class="text"><span>Version</span></div>
+          </th>
+          <th scope="col" width="100">
+            <div class="text"><span>Published</span></div>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for translation_object in translation_objects %}
+          <tr>
+            <td>
+              <a href="{{ translation_object.get_change_url }}">{{ translation_object.human_language }}</a>
+            </td>
+
+            <td>{{ translation_object.human_language }}</td>
+
+            <td>
+              <img src="/static/admin/img/icon-{{ translation_object.published|yesno }}.gif" alt="{{ translation_object.published }}">
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">There are no translations.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+
+{% endblock %}
