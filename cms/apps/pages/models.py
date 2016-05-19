@@ -105,7 +105,8 @@ class Page(MPTTModel):
             )
 
             if objects:
-                setattr(request, cache_key, objects[0])
+                if request:
+                    setattr(request, cache_key, objects[0])
                 return objects[0]
 
         # If the current language isn't the default language, are we able to
