@@ -16,6 +16,7 @@ from cms.forms import CMSAdminPasswordChangeForm
 # Field collections - used instead of full fieldsets to allow for custom field settings
 SECURITY_FIELDS = ("requires_authentication",)
 PUBLICATION_FIELDS = ("publication_date", "expiry_date", "is_online",)
+PUBLICATION_FIELDS_SIMPLE = ("is_online",)
 NAVIGATION_FIELDS = ("short_title", "in_navigation", "hide_from_anonymous",)
 SEO_FIELDS = ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index",
               "robots_follow", "robots_archive",)
@@ -46,6 +47,73 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 class SearchMetaBaseAdmin(OnlineBaseAdmin):
     adapter_cls = SearchMetaBaseSearchAdapter
     list_display = ("__str__", "is_online",)
+
+    suit_form_tabs = (('content', 'Content'), ('settings', 'Settings'),)
+
+    def get_fields(self, request, obj=None):
+        # Get base fields
+        form = self.get_form(request, obj, fields=None)
+        fields = list(form.base_fields) + list(self.get_readonly_fields(request, obj))
+
+        # Create new fields array
+        new_fields = []
+
+        # Loop the base fields and only add those we want
+        for field in fields:
+            if field not in SEO_FIELDS + OG_FIELDS + TWITTER_FIELDS + PUBLICATION_FIELDS_SIMPLE:
+                new_fields.append(field)
+
+        # Return new fields
+        return new_fields
+
+    def get_fieldsets(self, request, obj=None):
+        # If we have pre-defined fieldsets, add the admin fields to those for the user
+        if self.fieldsets:
+            return [
+                       ("Publication", {
+                           "fields": PUBLICATION_FIELDS_SIMPLE,
+                           "classes": ('suit-tab', 'suit-tab-settings')
+                       }),
+                       ("Search engine optimization", {
+                           "fields": SEO_FIELDS,
+                           "classes": ('suit-tab', 'suit-tab-settings')
+                       }),
+                       ("Open Graph", {
+                           "fields": OG_FIELDS,
+                           "classes": ('suit-tab', 'suit-tab-settings')
+                       }),
+                       ("Twitter card", {
+                           "fields": TWITTER_FIELDS,
+                           "classes": ('suit-tab', 'suit-tab-settings')
+                       })
+                   ] + self.fieldsets
+
+        # We have no fieldsets, so ust generate a basic admin content field split
+        fieldsets = [
+            ("Publication", {
+                "fields": PUBLICATION_FIELDS_SIMPLE,
+                "classes": ('suit-tab', 'suit-tab-settings')
+            }),
+            ("Search engine optimization", {
+                "fields": SEO_FIELDS,
+                "classes": ('suit-tab', 'suit-tab-settings')
+            }),
+            ("Open Graph", {
+                "fields": OG_FIELDS,
+                "classes": ('suit-tab', 'suit-tab-settings')
+            }),
+            ("Twitter card", {
+                "fields": TWITTER_FIELDS,
+                "classes": ('suit-tab', 'suit-tab-settings')
+            })
+        ]
+        fields = self.get_fields(request, obj)
+        if fields:
+            fieldsets.append(
+                ("Content", {'fields': fields, "classes": ('suit-tab', 'suit-tab-content')})
+            )
+
+        return fieldsets
 
 
 if externals.reversion:
