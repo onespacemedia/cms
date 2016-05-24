@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
+from threadlocals.threadlocals import get_current_request
 
 from cms.apps.pages.models import DEFAULT_LANGUAGE, LANGUAGES_ENGLISH_DICTIONARY
 from cms.apps.pages.models import LANGUAGES_ENGLISH
@@ -46,6 +47,22 @@ class MultilingualObject(models.Model):
             )),
             self.pk
         )
+
+    def content(self):
+
+        # Get request and current language
+        request = get_current_request()
+        language = getattr(request, 'language', DEFAULT_LANGUAGE)
+        if language is None:
+            language = DEFAULT_LANGUAGE
+
+        # Check to see if object has a translation for the current language
+        translations = self.translation_objects().filter(language=language, published=True)
+
+        if translations.count() > 0:
+            return translations[0]
+
+        return None
 
     class Meta:
         abstract = True

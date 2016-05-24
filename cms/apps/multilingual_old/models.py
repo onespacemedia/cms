@@ -42,6 +42,8 @@ class MultilingualModel(models.Model):
         db_index=True
     )
 
+    objects = MultilingualManager
+
     def __init__(self, *args, **kwargs):
         super(MultilingualModel, self).__init__(*args, **kwargs)
 

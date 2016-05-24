@@ -80,10 +80,10 @@ class Page(MPTTModel):
     @cached_property
     def content(self):
         request = get_current_request()
-        language = getattr(request, 'language', 'en')
+        language = getattr(request, 'language', DEFAULT_LANGUAGE)
 
         if language is None:
-            language = 'en'
+            language = DEFAULT_LANGUAGE
 
         if hasattr(request, 'temp_language'):
             language = request.temp_language
