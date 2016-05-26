@@ -193,12 +193,17 @@ class PageAdmin(SortableMPTTModelAdmin):
 
             if 'page' in request.GET:
                 del fieldsets[0][1]['fields'][2]
+
+            self.prepopulated_fields = {'slug': ('title',)}
+
         else:
             fieldsets = [
                 (None, {
                     'fields': ['parent']
                 })
             ]
+
+            self.prepopulated_fields = {}
 
         return fieldsets
 

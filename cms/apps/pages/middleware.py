@@ -152,7 +152,7 @@ class PageMiddleware(object):
             return response
 
         script_name = page.content.get_absolute_url()[:-1]
-        path_info = request.path[len(script_name):]
+        path_info = request.original_path[len(script_name):]
 
         # Continue for media
         if request.path.startswith('/media/'):
