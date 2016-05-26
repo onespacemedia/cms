@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
+from exclusivebooleanfield import ExclusiveBooleanField
 from threadlocals.threadlocals import get_current_request
 
 from cms.apps.pages.models import DEFAULT_LANGUAGE, LANGUAGES_ENGLISH_DICTIONARY
@@ -57,12 +58,12 @@ class MultilingualObject(models.Model):
             language = DEFAULT_LANGUAGE
 
         # Check to see if object has a translation for the current language
-        translations = self.translation_objects().filter(language=language, published=True)
+        try:
+            translation = self.translation_objects().filter(language=language, published=True).order_by('-version').first()
+            return translation
 
-        if translations.count() > 0:
-            return translations[0]
-
-        return None
+        except self.translation_object.DoesNotExist:
+            return None
 
     class Meta:
         abstract = True
@@ -82,10 +83,12 @@ class MultilingualTranslation(models.Model):
         help_text="Priority is given to the higher number. <br> Using versions you are able to create new language versions without publishing them"
     )
 
-    published = models.BooleanField(
+    published = ExclusiveBooleanField(
+        on=('parent_id', 'language'),
         default=False,
-        help_text="Unchecking this box will leave this translation as unpublished and it will not be used on the website"
+        help_text="Checking this box will make it the active translation"
     )
+
 
     def __unicode__(self):
         return self.parent.admin_name

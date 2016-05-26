@@ -133,8 +133,6 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         if not obj.pk and 'page' in request.GET:
             obj.page_id = request.GET['page']
 
-        print obj.is_online
-
         obj.save()
 
 
