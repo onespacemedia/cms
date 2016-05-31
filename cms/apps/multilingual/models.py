@@ -11,7 +11,7 @@ from cms.apps.pages.models import LANGUAGES_ENGLISH
 class MultilingualObject(models.Model):
     admin_name = models.CharField(
         max_length=4096,
-        help_text="Name of the object that will be used within the admin",
+        help_text="Name that will be used to identify the object within the admin",
         verbose_name="Name"
     )
 
@@ -27,14 +27,6 @@ class MultilingualObject(models.Model):
         null=True,
         help_text="A set of notes that will be used within the admin",
         verbose_name="Notes"
-    )
-
-    default_language = models.CharField(
-        max_length=2,
-        choices=LANGUAGES_ENGLISH,
-        default=DEFAULT_LANGUAGE,
-        db_index=True,
-        help_text="The default language that will be used when a language object isn't found"
     )
 
     def translation_objects(self):

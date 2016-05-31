@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from cms.apps.multilingual.widgets import SmallTexarea
 
-MULTILINGUAL_ADMIN_FIELDS = ['admin_name', 'admin_description', 'admin_notes', 'default_language']
+MULTILINGUAL_ADMIN_FIELDS = ['admin_name', 'admin_description', 'admin_notes']
 MULTILINGUAL_LANGUAGE_FIELDS = ['parent', 'language', 'version', 'published']
 
 
@@ -41,12 +41,12 @@ class MultilingualObjectAdmin(admin.ModelAdmin):
         # If we have pre-defined fieldsets, add the admin fields to those for the user
         if self.fieldsets:
             return [
-                       (None, {'fields': MULTILINGUAL_ADMIN_FIELDS})
+                       ("Admin", {'fields': MULTILINGUAL_ADMIN_FIELDS})
                    ] + self.fieldsets
 
         # We have no fieldsets, so ust generate a basic admin content field split
         fieldsets = [
-            (None, {'fields': MULTILINGUAL_ADMIN_FIELDS}),
+            ("Admin", {'fields': MULTILINGUAL_ADMIN_FIELDS}),
         ]
         fields = self.get_fields(request, obj)
         if fields:

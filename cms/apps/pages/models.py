@@ -389,7 +389,10 @@ class ContentBase(PageBase):
 
     def __str__(self):
         """Returns a unicode representation."""
-        return self.title
+        return '{} - {}'.format(
+            self.title,
+            self.language
+        )
 
     class Meta:
         abstract = True
