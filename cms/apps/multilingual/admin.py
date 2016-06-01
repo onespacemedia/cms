@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from cms.apps.multilingual.widgets import SmallTexarea
 
-MULTILINGUAL_ADMIN_FIELDS = ['admin_name', 'admin_description', 'admin_notes']
+MULTILINGUAL_ADMIN_FIELDS = ['admin_name']
 MULTILINGUAL_LANGUAGE_FIELDS = ['parent', 'language', 'version', 'published']
 
 
@@ -17,7 +17,7 @@ class MultilingualObjectAdminForm(forms.ModelForm):
 
 
 class MultilingualObjectAdmin(admin.ModelAdmin):
-    list_display = ['admin_name', 'admin_description']
+    list_display = ['admin_name']
     form = MultilingualObjectAdminForm
     change_list_template = "admin/multilingual/multilingualobject/change_list.html"
     change_form_template = "admin/multilingual/multilingualobject/change_form.html"

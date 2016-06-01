@@ -43,7 +43,7 @@ def pagination(context, page_obj, pagination_key=None):
 def pagination_url(context, page_number):
     """Renders the URL for the given page number."""
     request = context["request"]
-    url = request.path
+    url = request.original_path
     params = request.GET.copy()
     if str(page_number) != "1":
         params[context.get("pagination_key", "page")] = page_number

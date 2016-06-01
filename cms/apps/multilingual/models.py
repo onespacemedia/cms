@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import models
 from exclusivebooleanfield import ExclusiveBooleanField
@@ -13,20 +12,6 @@ class MultilingualObject(models.Model):
         max_length=4096,
         help_text="Name that will be used to identify the object within the admin",
         verbose_name="Name"
-    )
-
-    admin_description = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Short description that will be used within the admin",
-        verbose_name="Description"
-    )
-
-    admin_notes = models.TextField(
-        blank=True,
-        null=True,
-        help_text="A set of notes that will be used within the admin",
-        verbose_name="Notes"
     )
 
     def translation_objects(self):
