@@ -41,12 +41,12 @@ class MultilingualObjectAdmin(admin.ModelAdmin):
         # If we have pre-defined fieldsets, add the admin fields to those for the user
         if self.fieldsets:
             return [
-                       ("Admin", {'fields': MULTILINGUAL_ADMIN_FIELDS})
+                       ("Admin options", {'fields': MULTILINGUAL_ADMIN_FIELDS})
                    ] + self.fieldsets
 
         # We have no fieldsets, so ust generate a basic admin content field split
         fieldsets = [
-            ("Admin", {'fields': MULTILINGUAL_ADMIN_FIELDS}),
+            ("Admin options", {'fields': MULTILINGUAL_ADMIN_FIELDS}),
         ]
         fields = self.get_fields(request, obj)
         if fields:

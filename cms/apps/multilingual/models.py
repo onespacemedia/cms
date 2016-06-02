@@ -81,3 +81,4 @@ class MultilingualTranslation(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = ('language', 'version', 'parent')
