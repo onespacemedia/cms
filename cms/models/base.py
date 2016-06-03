@@ -163,15 +163,15 @@ class SearchMetaBase(OnlineBase):
                   'characters, but it is recommended that you do not use anything over 200.'
     )
 
-    # og_image = ImageRefField(
-    #     verbose_name='image',
-    #     blank=True,
-    #     null=True,
-    #     help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
-    #               'stand out thumbnail. Using an image smaller than 400x209 will give you a '
-    #               'small thumbnail and will splits posts into 2 columns. '
-    #               'If you have text on the image make sure it is centered.'
-    # )
+    og_image = ImageRefField(
+        verbose_name='image',
+        blank=True,
+        null=True,
+        help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
+                  'stand out thumbnail. Using an image smaller than 400x209 will give you a '
+                  'small thumbnail and will splits posts into 2 columns. '
+                  'If you have text on the image make sure it is centered.'
+    )
 
     # Twitter card fields
     twitter_card = models.IntegerField(
@@ -209,13 +209,13 @@ class SearchMetaBase(OnlineBase):
                   'that complements the tweet and title rather than on keywords.'
     )
 
-    # twitter_image = ImageRefField(
-    #     verbose_name='image',
-    #     blank=True,
-    #     null=True,
-    #     help_text='The minimum size it needs to be is 280x150. If you want to use a larger image'
-    #               'make sure the card type is set to "Large Summary".'
-    # )
+    twitter_image = ImageRefField(
+        verbose_name='image',
+        blank=True,
+        null=True,
+        help_text='The minimum size it needs to be is 280x150. If you want to use a larger image'
+                  'make sure the card type is set to "Large Summary".'
+    )
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""
