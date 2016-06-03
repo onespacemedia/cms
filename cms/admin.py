@@ -20,8 +20,8 @@ PUBLICATION_FIELDS_SIMPLE = ("is_online",)
 NAVIGATION_FIELDS = ("short_title", "in_navigation", "hide_from_anonymous",)
 SEO_FIELDS = ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index",
               "robots_follow", "robots_archive",)
-OG_FIELDS = ("og_title", "og_description")
-TWITTER_FIELDS = ("twitter_card", "twitter_title", "twitter_description")
+OG_FIELDS = ("og_title", "og_description", "og_image")
+TWITTER_FIELDS = ("twitter_card", "twitter_title", "twitter_description", "twitter_image")
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):
