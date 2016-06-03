@@ -158,11 +158,11 @@ class Page(MPTTModel):
             args = ()
         if kwargs is None:
             kwargs = {}
-        urlconf = ContentType.objects.get_for_id(
-            self.content_type_id
+        urlconf = ContentType.objects.get_for_model(
+            self.content
         ).model_class().urlconf
 
-        return self.get_absolute_url() + urlresolvers.reverse(
+        return self.content.get_absolute_url() + urlresolvers.reverse(
             view_func,
             args=args,
             kwargs=kwargs,
