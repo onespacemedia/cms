@@ -1,8 +1,8 @@
+from cms.apps.multilingual.widgets import SmallTexarea
+from cms.apps.pages.models import Page
 from django import forms
 from django.contrib import admin
 from django.shortcuts import get_object_or_404
-
-from cms.apps.multilingual.widgets import SmallTexarea
 
 MULTILINGUAL_ADMIN_FIELDS = ['admin_name']
 MULTILINGUAL_LANGUAGE_FIELDS = ['parent', 'language', 'version', 'published']
@@ -72,6 +72,14 @@ class MultilingualObjectAdmin(admin.ModelAdmin):
 
         return super(MultilingualObjectAdmin, self).changeform_view(request, object_id, form_url, extra_context)
 
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        field = super(MultilingualObjectAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+        if db_field.name == 'page':
+            field.queryset = Page.objects.filter(pk__in=self.model.objects.values_list('page_id', flat=True))
+
+        return field
+
 
 class MultilingualTranslationAdmin(admin.ModelAdmin):
 
@@ -132,6 +140,3 @@ class MultilingualTranslationAdmin(admin.ModelAdmin):
             field.label_from_instance = lambda obj: obj.admin_name
 
         return field
-
-
-
