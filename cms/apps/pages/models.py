@@ -246,8 +246,6 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         return qs
 
 
-externals.watson("register", Page, adapter_cls=PageSearchAdapter)
-
 
 # Base content class.
 
