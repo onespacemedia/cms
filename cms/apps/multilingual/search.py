@@ -5,6 +5,12 @@ from watson import search as watson
 
 class MultilingualSearchAdapter(watson.SearchAdapter):
 
+    def get_url(self, obj):
+        if obj.content and hasattr(obj.content, 'get_absolute_url'):
+            return obj.content.get_absolute_url()
+
+        return ''
+
     def get_content(self, obj):
 
         if obj.content():

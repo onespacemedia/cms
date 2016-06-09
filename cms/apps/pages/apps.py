@@ -6,6 +6,12 @@ from watson.search import SearchAdapter
 
 
 class PageSearchAdapter(SearchAdapter):
+    def get_url(self, obj):
+        if obj.content and hasattr(obj.content, 'get_absolute_url'):
+            return obj.content.get_absolute_url()
+
+        return ''
+
     def get_content(self, obj):
         content = u" ".join((
             super(PageSearchAdapter, self).get_content(obj),
