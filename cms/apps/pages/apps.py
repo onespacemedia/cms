@@ -2,11 +2,11 @@ from django.apps import AppConfig
 from django.db import models
 from django.utils.encoding import force_text
 from watson import search as watson
+from watson.search import SearchAdapter
 
 
-class PageSearchAdapter(watson.SearchAdapter):
+class PageSearchAdapter(SearchAdapter):
     def get_content(self, obj):
-
         content = u" ".join((
             super(PageSearchAdapter, self).get_content(obj),
             self.prepare_content(u" ".join(
