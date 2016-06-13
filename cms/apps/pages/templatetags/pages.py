@@ -37,6 +37,10 @@ def navigation(context, pages, full_tree=False, include_pages=True):
         if not page.content.is_online:
             return
 
+        # Do nothing if the page is removed from navigation
+        if not page.content.in_navigation:
+            return
+
         url = page.content.get_absolute_url()
 
         children = []
