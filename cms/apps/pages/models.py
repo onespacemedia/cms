@@ -109,11 +109,7 @@ class Page(MPTTModel):
                     setattr(request, cache_key, objects[0])
                 return objects[0]
 
-        # If the current language isn't the default language, are we able to
-        # fill with a default language page?
-        if language != DEFAULT_LANGUAGE:
-            get_current_request().temp_language = DEFAULT_LANGUAGE
-            return self.content
+        return None
 
     @cached_property
     def slug(self):
