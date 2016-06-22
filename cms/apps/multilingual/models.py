@@ -41,7 +41,7 @@ class MultilingualObject(models.Model):
                 'language': language
             }
 
-            if not request or not request.user.is_superuser or request.GET.get('preview', None) is None:
+            if not hasattr(request, 'user') or not request.user.is_superuser or request.GET.get('preview', None) is None:
                 translation_filter['published'] = True
 
             translation_queryset = self.translation_objects().filter(
