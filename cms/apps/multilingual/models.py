@@ -36,8 +36,19 @@ class MultilingualObject(models.Model):
 
         # Check to see if object has a translation for the current language
         try:
-            translation = self.translation_objects().filter(language=language, published=True).order_by('-version').first()
-            return translation
+
+            translation_filter = {
+                'language': language
+            }
+
+            if not request.user.is_superuser or request.GET.get('preview', None) is None:
+                translation_filter['published'] = True
+
+            translation_queryset = self.translation_objects().filter(
+                **translation_filter
+            ).order_by('-version')
+
+            return translation_queryset.first()
 
         except self.translation_object.DoesNotExist:
             return None
