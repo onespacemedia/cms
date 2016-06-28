@@ -1,13 +1,16 @@
 from django.db import models
 from django.utils.encoding import force_text
+from threadlocals.threadlocals import get_current_request
 from watson import search as watson
+
+from cms.apps.pages.models import DEFAULT_LANGUAGE
 
 
 class MultilingualSearchAdapter(watson.SearchAdapter):
 
     def get_url(self, obj):
-        if obj.content and hasattr(obj.content, 'get_absolute_url'):
-            return obj.content.get_absolute_url()
+        if hasattr(obj, 'content') and obj.content() is not None:
+            return obj.content().get_absolute_url()
 
         return ''
 
@@ -31,3 +34,23 @@ class MultilingualSearchAdapter(watson.SearchAdapter):
             ))
 
         return content
+
+    def get_live_queryset(self):
+
+        request = get_current_request()
+        language = DEFAULT_LANGUAGE
+
+        if hasattr(request, 'language'):
+            request.language
+
+        filter = {}
+        filter['page__isnull'] = False
+        filter['{}__published'.format(self.model.translation_object.__name__.lower())] = True
+        filter['{}__language'.format(self.model.translation_object.__name__.lower())] = language
+
+        queryset = self.model.objects.filter(
+            **filter
+        ).distinct()
+
+        return queryset
+

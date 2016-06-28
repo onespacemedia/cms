@@ -148,7 +148,7 @@ class PageMiddleware(object):
 
         # Get the current page.
         page = request.pages.current
-        if page is None:
+        if page is None or hasattr(page.content, 'get_absolute_url') == False:
             return response
 
         script_name = page.content.get_absolute_url()[:-1]
