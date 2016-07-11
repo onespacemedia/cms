@@ -13,19 +13,22 @@ class PageSearchAdapter(SearchAdapter):
         return ''
 
     def get_content(self, obj):
-        content = u" ".join((
-            super(PageSearchAdapter, self).get_content(obj),
-            self.prepare_content(u" ".join(
-                force_text(self._resolve_field(obj.content, field_name))
-                for field_name in (
-                    field.name for field
-                    in obj.content._meta.fields
-                    if isinstance(field, (models.CharField, models.TextField))
-                )
+        if obj.content:
+            content = u" ".join((
+                super(PageSearchAdapter, self).get_content(obj),
+                self.prepare_content(u" ".join(
+                    force_text(self._resolve_field(obj.content, field_name))
+                    for field_name in (
+                        field.name for field
+                        in obj.content._meta.fields
+                        if isinstance(field, (models.CharField, models.TextField))
+                    )
+                ))
             ))
-        ))
 
-        return content
+            return content
+
+        return ""
 
 
 class PagesAppConfig(AppConfig):
