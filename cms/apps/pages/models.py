@@ -113,6 +113,9 @@ class Page(MPTTModel):
 
     @cached_property
     def slug(self):
+        if not hasattr(self.content, 'slug'):
+            return ''
+
         return self.content.slug
 
     @property
