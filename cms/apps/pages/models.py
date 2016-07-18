@@ -191,6 +191,11 @@ class Page(MPTTModel):
             return six.text_type(content.title)
         return 'N/A'
 
+    # It is required to rebuild tree after save, when using order for mptt-tree
+    def save(self, *args, **kwargs):
+        super(Page, self).save(*args, **kwargs)
+        Page.objects.rebuild()
+
     class MPTTMeta:
         order_insertion_by = ['order']
 

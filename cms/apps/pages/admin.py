@@ -8,9 +8,15 @@ standard implementation.
 
 from __future__ import unicode_literals, with_statement
 
-from django.contrib import admin
+from copy import deepcopy
+from functools import update_wrapper
+from random import randint
+
+from django.contrib import admin, messages
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.text import capfirst
 from mptt.admin import MPTTModelAdmin
 from suit.admin import SortableModelAdmin
@@ -64,6 +70,26 @@ class PageAdmin(SortableMPTTModelAdmin):
     sortable = 'order'
 
     search_adapter_cls = PageSearchAdapter
+
+    def get_urls(self):
+        from django.conf.urls import url
+
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+            return update_wrapper(wrapper, view)
+
+        info = self.model._meta.app_label, self.model._meta.model_name
+
+        urlpatterns = [
+            url(r'^$', wrap(self.changelist_view), name='%s_%s_changelist' % info),
+            url(r'^add/$', wrap(self.add_view), name='%s_%s_add' % info),
+            url(r'^duplicate/$', wrap(self.duplicate_view), name='%s_%s_duplicate' % info),
+            url(r'^(.+)/history/$', wrap(self.history_view), name='%s_%s_history' % info),
+            url(r'^(.+)/delete/$', wrap(self.delete_view), name='%s_%s_delete' % info),
+            url(r'^(.+)/$', wrap(self.change_view), name='%s_%s_change' % info),
+        ]
+        return urlpatterns
 
     def _register_page_inline(self, model):
         """Registeres the given page inline with reversion."""
@@ -207,6 +233,67 @@ class PageAdmin(SortableMPTTModelAdmin):
 
         return fieldsets
 
+    def duplicate_view(self, request, *args, **kwargs):
+
+        # Get the page we are going to duplicate
+        page = get_object_or_404(Page, pk=request.GET.get('page', None))
+
+        # Create list to store content objects in
+        content_objects = []
+
+        # Loop the registered content models
+        for model in get_registered_content():
+
+            # Extend the content objects list attached to the current page
+            content_objects.extend(model.objects.filter(
+                page_id=page.pk,
+            ))
+
+        # If the user has come from the post request and its a yes...
+        if request.method == 'POST' and request.POST.get('post', 'no') == 'yes':
+
+            # Duplicate the page
+            new_page = deepcopy(page)
+            new_page.pk = None # Strip pk to save as a valid copy
+            new_page.save()
+
+            # Loop the content objects...
+            for content_object in content_objects:
+
+                # Duplicate the content object
+                new_content_object = deepcopy(content_object)
+                new_content_object.pk = None # Strip pk to save as a valid copy
+                new_content_unique_key = randint(10000, 99999)
+                new_content_object.title = "{} - {}".format(
+                    new_content_object.title,
+                    new_content_unique_key
+                )
+                new_content_object.slug = "{}-{}".format(
+                    new_content_object.slug[0:40],
+                    new_content_unique_key
+                )
+                new_content_object.page = new_page
+                new_content_object.save()
+
+                for link in dir(content_object):
+                    if link.endswith('_set') and getattr(content_object, link).__class__.__name__ == "RelatedManager" and link not in ['child_set', 'owner_set', 'link_to_page']:
+                        objects = getattr(content_object, link).all()
+                        for content_related_object in objects:
+                            new_content_related_object = deepcopy(content_related_object)
+                            new_content_related_object.pk = None
+                            new_content_related_object.page = new_content_object
+                            new_content_related_object.save()
+
+            messages.add_message(request, messages.INFO, 'The page has been duplicated successfully!')
+            return redirect('/admin/pages/page/{}'.format(new_page.pk))
+
+        # Template context
+        context = dict(
+            page=page
+        )
+
+        # Render template
+        return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
 
 
 

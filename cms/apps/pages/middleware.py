@@ -2,7 +2,6 @@
 import re
 import sys
 
-from cms.apps.pages.models import Page
 from django.conf import settings
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
@@ -11,8 +10,8 @@ from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
 from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
-from threadlocals.threadlocals import get_current_request
 
+from cms.apps.pages.models import Page
 from .models import get_registered_content, LANGUAGES, DEFAULT_LANGUAGE
 
 
