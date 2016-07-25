@@ -90,6 +90,8 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
     search_fields = ("title", "short_title", "meta_description",)
     adapter_cls = PageBaseSearchAdapter
 
+    change_form_template = "admin/pages/content/change_form.html"
+
     fieldsets = [
         (None, {
             "fields": ("title", "slug", "language"),
