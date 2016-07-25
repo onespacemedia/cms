@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+
+{% load suit_tags %}
+
+{% block title %}Duplicate translation | {{ 'ADMIN_NAME'|suit_conf }}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+  <h2 class="content-title">Are you sure?</h2>
+
+  <form action="" method="post">
+    {% csrf_token %}
+
+    <div class="alert alert-block alert-info">
+      <h4 class="alert-heading">Duplicate translation?</h4>
+      <p>
+        Are you sure you want to duplicate the translation "{{ content_object }}"?
+      </p>
+
+      <br>
+
+      <div>
+        <input type="hidden" name="post" value="yes">
+        <input type="submit" value="Yes, I'm sure" class="btn btn-success">
+      </div>
+    </div>
+
+  </form>
+
+
+{% endblock %}
