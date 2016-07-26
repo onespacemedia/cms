@@ -22,51 +22,48 @@ def navigation(context, pages, full_tree=False, include_pages=True):
     You can also specify an alias for the navigation, at which point it will be set in the
     context rather than rendered.
     """
+
     request = context["request"]
 
     # Compile the entries.
-    def page_entry(page, get_children=False):
-        if page.content is None:
+    def page_entry(page):
+
+        if page['page'].content is None:
             return
 
         # Do nothing if the page is to be hidden from not logged in users
-        if page.content.hide_from_anonymous and not request.user.is_authenticated():
+        if page['page'].content.hide_from_anonymous and not request.user.is_authenticated():
             return
 
         # Do nothing if the page is set to offline
-        if not page.content.is_online:
+        if not page['page'].content.is_online:
             return
 
         # Do nothing if the page is removed from navigation
-        if not page.content.in_navigation:
+        if not page['page'].content.in_navigation:
             return
 
-        url = page.content.get_absolute_url()
+        url = page['page'].content.get_absolute_url()
 
         children = []
 
-        if get_children:
-            for child_page in page.get_children():
-                if child_page.is_root_node():
-                    continue
+        for child in page['children']:
+            entry = page_entry(child)
 
-                entry = page_entry(child_page, get_children=full_tree)
-
-                if entry:
-                    children.append(entry)
+            if entry:
+                children.append(entry)
 
         return {
             "url": url,
-            "page": page if include_pages else None,
-            "title": page.content.title,
+            "page": page['page'] if include_pages else None,
+            "title": page['page'].content.title,
             "here": request.original_path.startswith(url),
             "children": children,
         }
 
     entries = []
-    for page in pages.get_children():
-        entry = page_entry(page, get_children=True)
-
+    for page in request.pages.tree()[0]['children']:
+        entry = page_entry(page)
         if entry:
             entries.append(entry)
 

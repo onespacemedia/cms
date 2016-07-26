@@ -3,6 +3,7 @@ import re
 import sys
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
 from django.http import Http404
@@ -71,29 +72,44 @@ class RequestPageManager(object):
 
     @cached_property
     def breadcrumbs(self):
-        """The breadcrumbs for the current request."""
+        # Define breadcrumbs
         breadcrumbs = []
+
+        # Get slugs we can iterate
         slugs = self._path_info.strip("/").split("/")
         slugs.reverse()
 
-        def do_breadcrumbs(page):
-            breadcrumbs.append(page)
+        # Get site tree
+        tree = self.tree()
+
+        # Breadcrumb build function
+        def do_breadcrumbs(page=None):
+
+            # Add page to breadcrumbs
+            breadcrumbs.append(page['page'])
+
+            # Check to make sure the slug container isnt empty otherwise we get stuck
             if slugs:
+
+                # Get next slug
                 slug = slugs.pop()
 
-                children = page.get_descendants(include_self=True)
+                # Loop the children and check the slug
+                for key, child in enumerate(page['children']):
 
-                for child in children:
-                    if child.content is None:
+                    # If page has no content, skip
+                    if child['page'].content is None:
                         continue
 
-                    if child.slug == slug:
-                        do_breadcrumbs(child)
+                    # Check slug and continue of we match
+                    if slug == child['page'].slug:
+                        do_breadcrumbs(page['children'][key])
                         break
+
                     pass
 
         if self.homepage:
-            do_breadcrumbs(self.homepage)
+            do_breadcrumbs(tree[0])
 
         return breadcrumbs
 
@@ -126,6 +142,38 @@ class RequestPageManager(object):
     def is_exact(self):
         """Whether the current page exactly matches the request URL."""
         return self.current.get_absolute_url() == self._path
+
+    def tree(self):
+        # Get cache
+        tree_cache = cache.get('page_tree_{}'.format(
+            self._request.language
+        ))
+
+        # Return if valid
+        if tree_cache:
+            return tree_cache
+
+        # Create tree store
+        tree = []
+
+        # Add page to tree
+        tree.append(self.children(self.homepage))
+
+        # Set cache
+        cache.set('page_tree_{}'.format(
+            self._request.language
+        ), tree, None)
+
+        return tree
+
+    def children(self, page):
+        return {
+            'page': page,
+            'children': [
+                self.children(page=child)
+                for child in page.get_children()
+            ]
+        }
 
 
 class PageMiddleware(object):
