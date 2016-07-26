@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django import template
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.html import escape
 
 from cms.apps.pages.models import Page
@@ -55,17 +56,27 @@ def navigation(context, pages, full_tree=False, include_pages=True):
 
         return {
             "url": url,
-            "page": page['page'] if include_pages else None,
             "title": page['page'].content.title,
-            "here": request.original_path.startswith(url),
             "children": children,
         }
 
-    entries = []
-    for page in request.pages.tree()[0]['children']:
-        entry = page_entry(page)
-        if entry:
-            entries.append(entry)
+    # Check for nav cache
+    nav_cache = cache.get('page_nav_{}'.format(
+        request.language
+    ))
+
+    if nav_cache:
+        entries = nav_cache
+    else:
+        entries = []
+        for page in request.pages.tree()[0]['children']:
+            entry = page_entry(page)
+            if entry:
+                entries.append(entry)
+
+        cache.set('page_nav_{}'.format(
+            request.language
+        ), entries)
 
     # Render the template.
     return {
