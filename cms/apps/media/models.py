@@ -52,7 +52,7 @@ class File(AuditBase):
         ordering = ("title",)
 
 
-IMAGE_FILTER = {"file__iregex": ur"^.+\.(png|gif|jpg|jpeg)$"} 
+IMAGE_FILTER = {"file__iregex": ur"\.(png|gif|jpg|jpeg)$"} 
         
 class ImageRefField(models.ForeignKey):
     
