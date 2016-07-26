@@ -3,10 +3,12 @@ from copy import deepcopy
 from functools import update_wrapper
 from random import randint
 
+from cms.apps.pages.models import DEFAULT_LANGUAGES
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.admin.sites import NotRegistered
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
@@ -162,6 +164,21 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
             obj.page_id = request.GET['page']
 
         obj.save()
+
+        # Invalidate page cache
+        tree_cache_keys = [
+            'page_tree_{}'.format(language[0])
+            for language in DEFAULT_LANGUAGES
+        ]
+        nav_cache_keys = [
+            'page_nav_{}'.format(language[0])
+            for language in DEFAULT_LANGUAGES
+        ]
+        for key in tree_cache_keys:
+            cache.delete(key)
+        for key in nav_cache_keys:
+            cache.delete(key)
+
 
     def duplicate_view(self, request, *args, **kwargs):
 
