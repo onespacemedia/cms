@@ -1,58 +1,67 @@
-{% extends "admin/base_site.html" %}
-
-{% load thumbnail %}
-
-
-{% block extrahead %}
-    {{block.super}}
-    <link rel="stylesheet" href="{{ STATIC_URL }}pages/css/cms.pages.css"/>
-{% endblock %}
+{% extends "admin/change_list.html" %}
+{% load i18n admin_static suit_list %}
 
 
 {% block bodyclass %}page-content-types{% endblock %}
 
-
 {% block breadcrumbs %}
-    <div class="breadcrumbs">
-         <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
-         <a href="{% url 'admin:app_list' "pages" %}">Pages</a> &rsaquo;
-         <a href="{% url 'admin:pages_page_changelist' %}">Page</a> &rsaquo;
-         {{title}}
-    </div>
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url 'admin:index' %}">Home</a>
+            <span class="divider">&raquo;</span>
+        </li>
+        <li>
+            <a href="{% url 'admin:app_list' "pages" %}">Pages</a>
+            <span class="divider">&raquo;</span>
+        </li>
+        <li>
+            <a href="{% url 'admin:pages_page_changelist' %}">Pages</a>
+            <span class="divider">&raquo;</span>
+        </li>
+        <li class="active">{{ object }}</li>
+    </ul>
 {% endblock %}
 
-
-{% block content %}
-
-    {% if content_types %}
-
-        <p>Select a type of page from the choices below.</p>
-
-        {% regroup content_types by classifier as classifiers %}
-
+{% block result_list %}
+    {% if content_objects %}
+        {% regroup content_objects by get_language_display as classifiers %}
         {% for classifier in classifiers %}
+            <div class="results">
+                <table id="result_list" class="table table-striped table-bordered table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th scope="col"><div class="text"><span>Title</span></div></th>
+                            <th scope="col"><div class="text"><span>Language</span></div></th>
+                            <th scope="col"><div class="text"><span>Published</span></div></th>
+                            <th scope="col"><div class="text"><span>Last modified</span></div></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for content_object in classifier.list %}
+                        <tr>
+                            <td>
+                                <a href="{{ content_object.get_change_url }}">{{ content_object.title }}</a>
+                            </td>
 
-            <h3 class="classifier">{{classifier.grouper|capfirst}}</h3>
+                            <td>{{ content_object.get_language_display }}</td>
 
-            <ul class="content-types">
-                {% for content_type in classifier.list %}
-                    <li>
+                            <td>
+                                <img src="/static/admin/img/icon-{{ content_object.is_online|yesno }}.gif" alt="{{ content_object.is_online }}">
+                            </td>
 
-                        <a href="{{ content_type.url }}">
-                            <img src="{{ content_type.icon }}" alt="" class="content-type-icon"/>
-                            <span class="content-type-name">{{ content_type.name|capfirst }}</span>
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-
+                            <td>{{ content_object.last_modified }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endfor %}
-
     {% else %}
-
-        <p>You do not have permission to create any type of page.</p>
-
+        <p>This page does not currently have any content.</p>
     {% endif %}
 
+
 {% endblock %}
 
+{% block pagination %}{% endblock %}
+{% block search %}{% endblock %}

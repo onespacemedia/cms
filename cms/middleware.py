@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
 from django.contrib.gis.geoip import GeoIP
 
-from cms.apps.pages.models import Country
 from cms.models import publication_manager, PublicationManagementError
 
 
@@ -57,79 +56,4 @@ class PublicationMiddleware(object):
             except PublicationManagementError:
                 break
         # Carry on as normal.
-        return response
-
-
-class LocalisationMiddleware(object):
-
-    def process_request(self, request):
-
-        # request.path = '/news/'
-        # request.path_info = '/news/'
-        # request.country = 'france'
-
-        # Continue for media
-        if request.path.startswith('/media/') \
-                or request.path.startswith('/admin/') \
-                or request.path.startswith('/social-auth/'):
-            return None
-
-        # Set a default country object
-        request.country = None
-
-        # Check to see if we have a country in the URL
-        country_match = re.match('/([a-z]{2})/|\b', request.path)
-        if country_match:
-
-            # Try and get a country from the database
-            try:
-                request.country = Country.objects.get(
-                    code__iexact=str(country_match.group(1))
-                )
-
-                request.path = request.path.replace('/{}'.format(
-                    country_match.group(1)
-                ), '')
-                request.path_info = request.path
-
-            except Country.DoesNotExist:
-                pass
-
-    def process_response(self, request, response):
-
-        # Continue for media
-        if request.path.startswith('/media/') \
-           or request.path.startswith('/admin/') \
-           or request.path.startswith('/social-auth/'):
-            return response
-
-        # If we don't have a country at this point, we need to do some ip
-        # checking or assumption
-        if request.country is None:
-
-            # Get the Geo location of the requests IP
-            geo_ip = GeoIP()
-            country_geo_ip = geo_ip.country(get_client_ip(request))
-
-            if country_geo_ip['country_code']:
-                try:
-                    request.country = Country.objects.get(
-                        code__iexact=country_geo_ip['country_code']
-                    )
-                except Country.DoesNotExist:
-                    pass
-
-            # Try and get the default
-            if request.country is None:
-                try:
-                    request.country = Country.objects.get(default=True)
-                except Country.DoesNotExist:
-                    pass
-
-            if request.country:
-                return redirect('/{}{}'.format(
-                    request.country.code.lower(),
-                    request.path
-                ))
-
         return response

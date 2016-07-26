@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django import template
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.html import escape
 
 from cms.apps.pages.models import Page
@@ -12,9 +13,8 @@ register = template.Library()
 
 
 # Navigation.
-
 @register.inclusion_tag("pages/navigation.html", takes_context=True)
-def navigation(context, pages, section=None):
+def navigation(context, pages, full_tree=False, include_pages=True):
     """
     Renders a navigation list for the given pages.
 
@@ -23,40 +23,66 @@ def navigation(context, pages, section=None):
     You can also specify an alias for the navigation, at which point it will be set in the
     context rather than rendered.
     """
-    request = context["request"]
-    # Compile the entries.
 
+    request = context["request"]
+
+    # Compile the entries.
     def page_entry(page):
-        # Do nothing if the page is to be hidden from not logged in users
-        if page.hide_from_anonymous and not request.user.is_authenticated():
+
+        if page['page'].content is None:
             return
 
-        url = page.get_absolute_url()
+        # Do nothing if the page is to be hidden from not logged in users
+        if page['page'].content.hide_from_anonymous and not request.user.is_authenticated():
+            return
+
+        # Do nothing if the page is set to offline
+        if not page['page'].content.is_online:
+            return
+
+        # Do nothing if the page is removed from navigation
+        if not page['page'].content.in_navigation:
+            return
+
+        url = page['page'].content.get_absolute_url()
+
+        children = []
+
+        for child in page['children']:
+            entry = page_entry(child)
+
+            if entry:
+                children.append(entry)
 
         return {
             "url": url,
-            "page": page,
-            "title": str(page),
-            "here": request.path.startswith(url),
-            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
+            "title": page['page'].content.title,
+            "children": children,
         }
 
-    # All the applicable nav items
-    entries = [page_entry(x) for x in pages if page_entry(x) is not None]
+    # Check for nav cache
+    nav_cache = cache.get('page_nav_{}'.format(
+        request.language
+    ))
 
-    # Add the section.
-    if section:
-        section_entry = page_entry(section)
-        section_entry["here"] = context["pages"].current == section_entry["page"]
-        entries = [section_entry] + list(entries)
+    if nav_cache:
+        entries = nav_cache
+    else:
+        entries = []
+        for page in request.pages.tree()[0]['children']:
+            entry = page_entry(page)
+            if entry:
+                entries.append(entry)
+
+        cache.set('page_nav_{}'.format(
+            request.language
+        ), entries)
 
     # Render the template.
-    context.update({
+    return {
         "request": request,
         "navigation": entries,
-    })
-
-    return context
+    }
 
 
 @register.assignment_tag(takes_context=True)
@@ -115,7 +141,7 @@ def meta_description(context, description=None):
         request = context["request"]
         page = request.pages.current
         if page:
-            description = page.meta_description
+            description = page.content.meta_description
 
     return escape(description or "")
 
@@ -153,11 +179,11 @@ def meta_robots(context, index=None, follow=None, archive=None):
 
     if page:
         if index is None:
-            index = page.robots_index
+            index = page.content.robots_index
         if follow is None:
-            follow = page.robots_follow
+            follow = page.content.robots_follow
         if archive is None:
-            archive = page.robots_archive
+            archive = page.content.robots_archive
 
     # Final override, set to True.
     if index is None:
@@ -209,10 +235,10 @@ def og_title(context, title=None):
         page = request.pages.current
 
         if page:
-            title = page.og_title
+            title = page.content.og_title
 
         if not title:
-            title = context.get('title') or (page and page.title) or (page and page.browser_title)
+            title = context.get('title') or (page and page.content.title) or (page and page.content.browser_title)
 
     return escape(title or '')
 
@@ -227,7 +253,7 @@ def og_description(context, description=None):
         page = request.pages.current
 
         if page:
-            description = page.og_description
+            description = page.content.og_description
 
     return escape(description or '')
 
@@ -239,12 +265,12 @@ def og_image(context, image=None):
     if image is None:
         image_obj = context.get('og_image')
 
-    if image_obj is None:
-        request = context['request']
-        page = request.pages.current
+    # if image_obj is None:
+    #     request = context['request']
+    #     page = request.pages.current
 
-        if page:
-            image_obj = page.og_image
+    #     if page:
+    #         image_obj = page.content.og_image
 
     if image_obj:
         image = '{}{}'.format(
@@ -387,8 +413,8 @@ def title(context, browser_title=None):
     homepage = request.pages.homepage
     # Render the title template.
     return {
-        "title": browser_title or context.get("title") or (page and page.browser_title) or (page and page.title) or "",
-        "site_title": (homepage and homepage.browser_title) or (homepage and homepage.title) or ""
+        "title": browser_title or context.get("title") or (page and page.content.browser_title) or (page and page.content.title) or "",
+        "site_title": (homepage and homepage.content.title) or ""
     }
 
 

@@ -4,10 +4,12 @@ from __future__ import unicode_literals
 from django.db import models
 from django.shortcuts import render
 from django.utils.encoding import python_2_unicode_compatible
+from exclusivebooleanfield.fields import ExclusiveBooleanField
 
 from cms import externals
 from cms.apps.media.models import ImageRefField
-from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
+from cms.models.managers import (OnlineBaseManager, PageBaseManager,
+                                 PublishedBaseManager, SearchMetaBaseManager)
 
 
 class PublishedBase(models.Model):
@@ -33,13 +35,15 @@ class OnlineBase(PublishedBase):
 
     objects = OnlineBaseManager()
 
-    is_online = models.BooleanField(
-        "online",
-        default=True,
+    is_online = ExclusiveBooleanField(
+        verbose_name="online",
         help_text=(
             "Uncheck this box to remove the page from the public website. "
             "Logged-in admin users will still be able to view this page by clicking the 'view on site' button."
         ),
+        on=('page_id', 'language'),
+        default=False,
+        db_index=True,
     )
 
     class Meta:
@@ -249,7 +253,7 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
 
     def get_description(self, obj):
         """Returns the meta description."""
-        return obj.meta_description
+        return obj.content.meta_description
 
     def get_live_queryset(self):
         """Selects only live models."""
@@ -319,4 +323,164 @@ class PageBaseSearchAdapter(SearchMetaBaseSearchAdapter):
 
     def get_title(self, obj):
         """Returns the title of the page."""
-        return obj.title
+        return obj.content.title
+
+
+class SeoBase(models.Model):
+
+    browser_title = models.CharField(
+        max_length=1000,
+        blank=True,
+        help_text=(
+            "The heading to use in the user's web browser. "
+            "Leave blank to use the page title. "
+            "Search engines pay particular attention to this attribute."
+        )
+    )
+
+    meta_description = models.TextField(
+        "description",
+        blank=True,
+        help_text="A brief description of the contents of this page.",
+    )
+
+    sitemap_priority = models.FloatField(
+        "priority",
+        choices=(
+            (1.0, "Very high"),
+            (0.8, "High"),
+            (0.5, "Medium"),
+            (0.3, "Low"),
+            (0.0, "Very low"),
+        ),
+        default=None,
+        blank=True,
+        null=True,
+        help_text=(
+            "The relative importance of this content on your site. Search engines use this "
+            "as a hint when ranking the pages within your site."
+        ),
+    )
+
+    sitemap_changefreq = models.IntegerField(
+        "change frequency",
+        choices=(
+            (1, "Always"),
+            (2, "Hourly"),
+            (3, "Daily"),
+            (4, "Weekly"),
+            (5, "Monthly"),
+            (6, "Yearly"),
+            (7, "Never")
+        ),
+        default=None,
+        blank=True,
+        null=True,
+        help_text=(
+            "How frequently you expect this content to be updated. "
+            "Search engines use this as a hint when scanning your site for updates."
+        ),
+    )
+
+    robots_index = models.BooleanField(
+        "allow indexing",
+        default=True,
+        help_text=(
+            "Uncheck to prevent search engines from indexing this page. "
+            "Do this only if the page contains information which you do not wish "
+            "to show up in search results."
+        ),
+    )
+
+    robots_follow = models.BooleanField(
+        "follow links",
+        default=True,
+        help_text=(
+            "Uncheck to prevent search engines from following any links they find in this page. "
+            "Do this only if the page contains links to other sites that you do not wish to "
+            "publicise."
+        ),
+    )
+
+    robots_archive = models.BooleanField(
+        "allow archiving",
+        default=True,
+        help_text=(
+            "Uncheck this to prevent search engines from archiving this page. "
+            "Do this this only if the page is likely to change on a very regular basis. "
+        ),
+    )
+
+    # Open Graph fields
+    og_title = models.CharField(
+        verbose_name='title',
+        blank=True,
+        max_length=100,
+        help_text='Title that will appear on Facebook posts. This is limited to 100 characters, '
+                  'but Facebook will truncate the title to 88 characters.'
+    )
+
+    og_description = models.TextField(
+        verbose_name='description',
+        blank=True,
+        max_length=300,
+        help_text='Description that will appear on Facebook posts. It is limited to 300 '
+                  'characters, but it is recommended that you do not use anything over 200.'
+    )
+
+    og_image = ImageRefField(
+        verbose_name='image',
+        blank=True,
+        null=True,
+        help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
+                  'stand out thumbnail. Using an image smaller than 400x209 will give you a '
+                  'small thumbnail and will splits posts into 2 columns. '
+                  'If you have text on the image make sure it is centered.'
+    )
+
+    # Twitter card fields
+    twitter_card = models.IntegerField(
+        verbose_name='card',
+        choices=[
+            (0, 'Summary'),
+            (1, 'Photo'),
+            (2, 'Video'),
+            (3, 'Product'),
+            (4, 'App'),
+            (5, 'Gallery'),
+            (6, 'Large Summary'),
+        ],
+        blank=True,
+        null=True,
+        default=None,
+        help_text='The type of content on the page. Most of the time "Summary" will suffice. '
+                  'Before you can benefit from any of these fields make sure to go to '
+                  'https://dev.twitter.com/docs/cards/validation/validator and get approved.'
+    )
+
+    twitter_title = models.CharField(
+        verbose_name='title',
+        blank=True,
+        max_length=70,
+        help_text='The title that appears on the Twitter card, it is limited to 70 characters.'
+    )
+
+    twitter_description = models.TextField(
+        verbose_name='description',
+        blank=True,
+        max_length=200,
+        help_text='Description that will appear on Twitter cards. It is limited '
+                  'to 200 characters. This does\'nt effect SEO, so focus on copy '
+                  'that complements the tweet and title rather than on keywords.'
+    )
+
+    twitter_image = ImageRefField(
+        verbose_name='image',
+        blank=True,
+        null=True,
+        help_text='The minimum size it needs to be is 280x150. If you want to use a larger image'
+                  'make sure the card type is set to "Large Summary".'
+    )
+
+    class Meta:
+        abstract = True

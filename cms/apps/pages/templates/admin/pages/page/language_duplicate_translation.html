@@ -2,7 +2,7 @@
 
 {% load suit_tags %}
 
-{% block title %}Duplicate page | {{ 'ADMIN_NAME'|suit_conf }}{% endblock %}
+{% block title %}Duplicate translation | {{ 'ADMIN_NAME'|suit_conf }}{% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
@@ -14,9 +14,9 @@
     {% csrf_token %}
 
     <div class="alert alert-block alert-info">
-      <h4 class="alert-heading">Duplicate page?</h4>
+      <h4 class="alert-heading">Duplicate translation?</h4>
       <p>
-        Are you sure you want to duplicate the page "{{ page }}"?
+        Are you sure you want to duplicate the translation "{{ content_object }}"?
       </p>
 
       <br>

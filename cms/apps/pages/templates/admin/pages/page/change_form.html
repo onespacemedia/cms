@@ -220,7 +220,57 @@
 
         </div>
 
-        {% block after_related_objects %}{% endblock %}
+        {% block after_related_objects %}
+            {# Content things #}
+              {% if content_objects %}
+              <div class="toolbar-content">
+                <div class="object-tools">
+                  <a href="{% url 'admin:pages_page_add' %}?page={{ original.pk }}" class="btn btn-success">
+                    <i class="icon-plus-sign icon-white"></i>&nbsp;
+                    Add content
+                  </a>
+                  <a href="{% url 'admin:pages_page_duplicate' %}?page={{ original.pk }}" class="btn btn-info">
+                    <i class="icon-repeat icon-white"></i>&nbsp;
+                    Duplicate page
+                  </a>
+                </div>
+              </div>
+
+              {% regroup content_objects by get_language_display as classifiers %}
+              {% for classifier in classifiers %}
+
+                  <div class="results">
+                      <table id="result_list" class="table table-striped table-bordered table-hover table-condensed">
+                          <thead>
+                              <tr>
+                                  <th scope="col"><div class="text"><span>Title</span></div></th>
+                                  <th scope="col"><div class="text"><span>Language</span></div></th>
+                                  <th scope="col"><div class="text"><span>Published</span></div></th>
+                                  <th scope="col"><div class="text"><span>Last modified</span></div></th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                          {% for content_object in classifier.list %}
+                              <tr>
+                                  <td>
+                                      <a href="{{ content_object.get_change_url }}">{{ content_object.title }}</a>
+                                  </td>
+
+                                  <td>{{ content_object.get_language_display }}</td>
+
+                                  <td>
+                                      <img src="/static/admin/img/icon-{{ content_object.is_online|yesno }}.gif" alt="{{ content_object.is_online }}">
+                                  </td>
+
+                                  <td>{{ content_object.last_modified }}</td>
+                              </tr>
+                          {% endfor %}
+                          </tbody>
+                      </table>
+                  </div>
+              {% endfor %}
+          {% endif %}
+        {% endblock %}
 
         {# render suit_form_includes at last position #}
         {% include 'suit/includes/change_form_includes.html' with position='bottom' %}

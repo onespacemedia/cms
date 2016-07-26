@@ -1,0 +1,38 @@
+{% extends "admin/change_form.html" %}
+
+{% load i18n admin_static admin_modify suit_tags admin_urls %}
+
+{% block object-tools-items %}
+  <li>
+    {% if django_version < 1.9 %}
+      <a href="history/" class="historylink">
+    {% else %}
+      {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+      <a href="{% add_preserved_filters history_url %}" class="historylink">
+    {% endif %}
+    <i class="icon-time icon-alpha75"></i>{% trans "History" %}</a>
+  </li>
+  {% if has_absolute_url %}
+    <li>
+      <a href="{{ original.get_absolute_url }}" class="viewsitelink"><i class="icon-eye-open icon-alpha75"></i>{% trans "View on site" %}</a>
+    </li>
+  {% endif %}
+
+  {% if has_add_permission %}
+    <li>
+      {% if django_version < 1.9 %}
+        <a href="../add/">
+      {% else %}
+        <a href="{% url opts|admin_urlname:'add' %}">
+      {% endif %}
+      <i class="icon-plus-sign icon-alpha75"></i>{% blocktrans with opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+      </a>
+    </li>
+    {# {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a>#}
+  {% endif %}
+
+  <li>
+    <a href="{% url opts|admin_urlname:'duplicate' %}?content_object={{ original.pk }}" class="viewsitelink"><i class="icon-repeat icon-alpha75"></i>Duplicate</a>
+  </li>
+
+{% endblock %}
