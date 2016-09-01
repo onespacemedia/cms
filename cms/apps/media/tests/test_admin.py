@@ -146,7 +146,7 @@ class TestFileAdminBase(TestCase):
     def test_fileadminbase_get_preview(self):
         self.assertEqual(
             self.file_admin.get_preview(self.obj_1),
-            '<img cms:permalink="/r/{}-{}/" src="media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
+            '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
                 ContentType.objects.get_for_model(File).pk,
                 self.obj_1.pk
             )
@@ -176,7 +176,7 @@ class TestFileAdminBase(TestCase):
         # print obj.file
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
