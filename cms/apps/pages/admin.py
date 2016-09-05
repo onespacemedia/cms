@@ -177,6 +177,9 @@ class PageAdmin(PageBaseAdmin):
 
     def get_page_content_cls(self, request, obj=None):
         """Retrieves the page content type slug."""
+        if obj and not hasattr(request, '_admin_change_obj'):
+            request._admin_change_obj = obj
+            
         if PAGE_TYPE_PARAMETER in request.GET:
             return ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()
         if obj and obj.content_type:
