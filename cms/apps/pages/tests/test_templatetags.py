@@ -8,10 +8,10 @@ from cms.apps.media.models import File
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Page, Country
-from ..templatetags.pages import (get_navigation, page_url, breadcrumbs, header,
-                                  country_code, og_image, absolute_domain_url,
-                                  twitter_image, twitter_card, twitter_title,
-                                  twitter_description)
+from ..templatetags.pages import (navigation_entries, page_url, breadcrumbs, header,
+                                  country_code, get_og_image, absolute_domain_url,
+                                  get_twitter_image, get_twitter_card, get_twitter_title,
+                                  get_twitter_description)
 from .... import externals
 
 import random
@@ -98,12 +98,12 @@ class TestTemplatetags(TestCase):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
 
-    def test_get_navigation(self):
+    def test_navigation_entries(self):
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
         request.pages = RequestPageManager(request)
 
-        navigation = get_navigation({'request': request}, request.pages.current.navigation)
+        navigation = navigation_entries({'request': request}, request.pages.current.navigation)
 
         self.assertListEqual(navigation, [
             {
@@ -134,7 +134,7 @@ class TestTemplatetags(TestCase):
         # Section page isn't visible to non logged in users
         request.user = MockUser(authenticated=False)
 
-        navigation = get_navigation({'request': request}, request.pages.current.navigation)
+        navigation = navigation_entries({'request': request}, request.pages.current.navigation)
 
         self.assertListEqual(navigation, [])
 
@@ -212,17 +212,17 @@ class TestTemplatetags(TestCase):
         context = {}
         context['request'] = request
 
-        self.assertEqual(twitter_card(context), '')
-        self.assertEqual(twitter_title(context), 'Homepage')
-        self.assertEqual(twitter_description(context), '')
+        self.assertEqual(get_twitter_card(context), '')
+        self.assertEqual(get_twitter_title(context), 'Homepage')
+        self.assertEqual(get_twitter_description(context), '')
 
         context['twitter_card'] = 1
         context['twitter_title'] = 'Title'
         context['twitter_description'] = 'Description'
 
-        self.assertEqual(twitter_card(context), 'photo')
-        self.assertEqual(twitter_title(context), 'Title')
-        self.assertEqual(twitter_description(context), 'Description')
+        self.assertEqual(get_twitter_card(context), 'photo')
+        self.assertEqual(get_twitter_title(context), 'Title')
+        self.assertEqual(get_twitter_description(context), 'Description')
 
     def test_image_obj(self):
         request = self.factory.get('/')
@@ -233,19 +233,19 @@ class TestTemplatetags(TestCase):
         context['request'] = request
         context['og_image'] = context['twitter_image'] = self.obj_1
 
-        self.assertEqual(og_image(context), '{}{}'.format(
+        self.assertEqual(get_og_image(context), '{}{}'.format(
             absolute_domain_url(context),
             self.obj_1.get_absolute_url()
         ))
 
-        self.assertEqual(twitter_image(context), '{}{}'.format(
+        self.assertEqual(get_twitter_image(context), '{}{}'.format(
             absolute_domain_url(context),
             self.obj_1.get_absolute_url()
         ))
 
         context['twitter_image'] = None
 
-        self.assertEqual(twitter_image(context), '{}{}'.format(
+        self.assertEqual(get_twitter_image(context), '{}{}'.format(
             absolute_domain_url(context),
             self.obj_1.get_absolute_url()
         ))
