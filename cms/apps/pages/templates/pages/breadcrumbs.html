@@ -1,7 +1,19 @@
-{% for breadcrumb in breadcrumbs %}
-    {% if not breadcrumb.last %}
-        <a title="{{breadcrumb.title}}" href="{{breadcrumb.url}}">{{breadcrumb.short_title}}</a> &rsaquo;
-    {% else %}
-        {{breadcrumb.short_title}}
-    {% endif %}
-{% endfor %}
+<div class="bdc-Breadcrumb">
+  <div class="bdc-Inner">
+    <div class="bdc-Items" itemscope itemtype="http://schema.org/BreadcrumbList">
+      {% for breadcrumb in breadcrumbs %}
+      <div class="bdc-Item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+        {% if not breadcrumb.last %}
+        <a class="bdc-Item_Action" href="{{ breadcrumb.url }}" itemprop="item">
+          <span itemprop="name">{{ breadcrumb.short_title }}</span>
+        </a>
+        {% else %}
+          <span itemprop="name">{{ breadcrumb.short_title }}</span>
+        {% endif %}
+
+        <meta itemprop="position" content="{{ forloop.counter }}" />
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
