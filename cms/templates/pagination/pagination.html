@@ -1,7 +1,7 @@
-{% if page_obj.has_other_pages %}
+{% if page_obj.has_other_pages() %}
   <nav class="pagination">
     Page:
-    {% for page_num in paginator.page_range|slice(10) %}
+    {% for page_num in paginator.page_range[:10] %}
       {% if page_num == page_obj.number %}
         <strong>{{ page_num }}</strong>
       {% else %}
@@ -11,21 +11,21 @@
 
     {% if page_obj.number > 10 %}
       ... <strong>{{ page_obj.number }}</strong>
-      {% if page_obj.has_next %}
-        <a href="{{ get_pagination_url(page_obj.next_page_number) }}">
-          {{ page_obj.next_page_number }}
+      {% if page_obj.has_next() %}
+        <a href="{{ get_pagination_url(page_obj.next_page_number()) }}">
+          {{ page_obj.next_page_number() }}
         </a>
       {% endif %}
     {% endif %}
 
-    {% if page_obj.has_previous %}
-      <a rel="prev" href="{{ get_pagination_url(page_obj.previous_page_number) }}">
+    {% if page_obj.has_previous() %}
+      <a rel="prev" href="{{ get_pagination_url(page_obj.previous_page_number()) }}">
         &laquo; Previous
       </a>
     {% endif %}
 
-    {% if page_obj.has_next %}
-      <a rel="next" href="{{ get_pagination_url(page_obj.next_page_number) }}">
+    {% if page_obj.has_next() %}
+      <a rel="next" href="{{ get_pagination_url(page_obj.next_page_number()) }}">
         Next &raquo;
       </a>
     {% endif %}
