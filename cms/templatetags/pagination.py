@@ -33,7 +33,7 @@ def paginate(context, queryset, per_page=10, key="page"):
 @library.global_function
 @library.render_with('pagination/pagination.html')
 @jinja2.contextfunction
-def pagination(context, page_obj, pagination_key=None):
+def render_pagination(context, page_obj, pagination_key=None):
     """Renders the pagination for the given page of items."""
     return {
         "request": context["request"],

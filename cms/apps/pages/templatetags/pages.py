@@ -58,7 +58,7 @@ def navigation_entries(context, pages, section=None, is_json=False):
 @library.global_function
 @library.render_with('pages/navigation.html')
 @jinja2.contextfunction
-def navigation(context, pages, section=None):
+def render_navigation(context, pages, section=None):
     """
     Renders a navigation list for the given pages.
 
@@ -385,7 +385,7 @@ def get_twitter_image(context, image=None):
 @library.global_function
 @library.render_with('pages/title.html')
 @jinja2.contextfunction
-def get_title(context, browser_title=None):
+def render_title(context, browser_title=None):
     """
     Renders the title of the current page::
 
@@ -415,7 +415,7 @@ def get_title(context, browser_title=None):
 @library.global_function
 @library.render_with('pages/breadcrumbs.html')
 @jinja2.contextfunction
-def breadcrumbs(context, page=None, extended=False):
+def render_breadcrumbs(context, page=None, extended=False):
     """
     Renders the breadcrumbs trail for the current page::
 
