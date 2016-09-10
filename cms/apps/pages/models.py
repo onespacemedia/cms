@@ -23,7 +23,7 @@ class PageManager(OnlineBaseManager):
     def select_published(self, queryset, page_alias=None):
         """Selects only published pages."""
         queryset = super(PageManager, self).select_published(queryset)
-        now = timezone.now()
+        now = timezone.now().replace(second=0, microsecond=0)
         # Perform local filtering.
         queryset = queryset.filter(
             Q(publication_date=None) | Q(publication_date__lte=now))

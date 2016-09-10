@@ -179,11 +179,10 @@ def meta_robots(context, index=None, follow=None, archive=None):
 def absolute_domain_url(context):
     request = context['request']
 
-    https = 's' if request.is_secure() else ''
-
-    return 'http{}://{}'.format(
-        https,
-        settings.SITE_DOMAIN
+    return 'http{}://{}{}'.format(
+        's' if request.is_secure() else '',
+        'www.' if settings.PREPEND_WWW else '',
+        settings.SITE_DOMAIN,
     )
 
 

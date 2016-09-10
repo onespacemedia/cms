@@ -2,6 +2,7 @@
 
 from django.shortcuts import render
 from django.views import generic
+from django.views.decorators.cache import cache_page
 
 
 def handler500(request):
@@ -48,3 +49,13 @@ class SearchMetaDetailView(SearchMetaDetailMixin, generic.DetailView):
 class PageDetailView(PageDetailMixin, generic.DetailView):
 
     """A simple page detail view."""
+
+
+class CacheMixin(object):
+    cache_timeout = 60
+
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def dispatch(self, *args, **kwargs):
+        return cache_page(self.get_cache_timeout())(super(CacheMixin, self).dispatch)(*args, **kwargs)
