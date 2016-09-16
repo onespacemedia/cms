@@ -68,7 +68,7 @@ def render_navigation(context, pages, section=None):
     context rather than rendered.
     """
     return {
-        "navigation": navigation_entries(context, pages, section),
+        "navigation": _navigation_entries(context, pages, section),
     }
 
 
