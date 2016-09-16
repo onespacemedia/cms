@@ -15,7 +15,7 @@ register = template.Library()
 
 
 # Navigation.
-def navigation_entries(context, pages, section=None, is_json=False):
+def _navigation_entries(context, pages, section=None, is_json=False):
     request = context["request"]
     # Compile the entries.
 
