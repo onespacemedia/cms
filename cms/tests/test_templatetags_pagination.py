@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.test import RequestFactory, TestCase
 
-from ..templatetags.pagination import paginate, pagination, pagination_url
+from ..templatetags.pagination import paginate, render_pagination, get_pagination_url
 
 
 class Object(object):
@@ -24,7 +24,7 @@ class PaginationTest(TestCase):
 
     def test_pagination(self):
         obj = Object()
-        pagination_response = pagination({'request': self.request}, obj)
+        pagination_response = render_pagination({'request': self.request}, obj)
 
         self.assertDictEqual(pagination_response, {
             'paginator': None,
@@ -34,5 +34,5 @@ class PaginationTest(TestCase):
         })
 
     def test_pagination_url(self):
-        self.assertEqual(pagination_url({'request': self.request}, 1), '/')
-        self.assertEqual(pagination_url({'request': self.request}, 2), '/?page=2')
+        self.assertEqual(get_pagination_url({'request': self.request}, 1), '/')
+        self.assertEqual(get_pagination_url({'request': self.request}, 2), '/?page=2')

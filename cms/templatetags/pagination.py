@@ -1,19 +1,20 @@
 """Template tags for rendering pagination."""
 from __future__ import unicode_literals
 
-from django import template
+import jinja2
+
 from django.core.paginator import Paginator, InvalidPage
 from django.http import Http404
 from django.utils.html import escape
+from django_jinja import library
 
 
-register = template.Library()
-
-
-@register.assignment_tag(takes_context=True)
+@library.global_function
+@jinja2.contextfunction
 def paginate(context, queryset, per_page=10, key="page"):
     """Paginates the given queryset as sets it in the context as a variable."""
     request = context["request"]
+
     # Parse the page number.
     try:
         page_number = int(request.GET[key])
@@ -25,11 +26,14 @@ def paginate(context, queryset, per_page=10, key="page"):
     except InvalidPage:
         raise Http404("There are no items on page {}.".format(page_number))
     page._pagination_key = key
+
     return page
 
 
-@register.inclusion_tag("pagination/pagination.html", takes_context=True)
-def pagination(context, page_obj, pagination_key=None):
+@library.global_function
+@library.render_with('pagination/pagination.html')
+@jinja2.contextfunction
+def render_pagination(context, page_obj, pagination_key=None):
     """Renders the pagination for the given page of items."""
     return {
         "request": context["request"],
@@ -39,8 +43,9 @@ def pagination(context, page_obj, pagination_key=None):
     }
 
 
-@register.simple_tag(takes_context=True)
-def pagination_url(context, page_number):
+@library.global_function
+@jinja2.contextfunction
+def get_pagination_url(context, page_number):
     """Renders the URL for the given page number."""
     request = context["request"]
     url = request.path

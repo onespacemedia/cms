@@ -1,22 +1,21 @@
 """Permalink generation template tags."""
+import jinja2
 
-
-from django import template
 from django.utils.html import escape
 
 from cms import permalinks
+from django_jinja import library
 
 
-register = template.Library()
-
-
-@register.filter
+@library.filter
 def permalink(model):
     """Returns a permalink for the given model."""
     return permalinks.create(model)
 
 
-@register.simple_tag(takes_context=True)
-def permalink_absolute(context, model):
+@library.global_function
+@jinja2.contextfunction
+def get_permalink_absolute(context, model):
     request = context["request"]
+
     return escape(request.build_absolute_uri(permalinks.create(model)))
