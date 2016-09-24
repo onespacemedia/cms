@@ -7,22 +7,15 @@ from django.utils.html import escape
 
 from cms.apps.pages.models import Page
 from cms.models import SearchMetaBase
+from django_jinja import library
+
+import jinja2
 
 register = template.Library()
 
 
 # Navigation.
-
-@register.inclusion_tag("pages/navigation.html", takes_context=True)
-def navigation(context, pages, section=None):
-    """
-    Renders a navigation list for the given pages.
-
-    The pages should all be a subclass of PageBase, and possess a get_absolute_url() method.
-
-    You can also specify an alias for the navigation, at which point it will be set in the
-    context rather than rendered.
-    """
+def _navigation_entries(context, pages, section=None, is_json=False):
     request = context["request"]
     # Compile the entries.
 
@@ -33,13 +26,22 @@ def navigation(context, pages, section=None):
 
         url = page.get_absolute_url()
 
-        return {
-            "url": url,
-            "page": page,
-            "title": str(page),
-            "here": request.path.startswith(url),
-            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
-        }
+        if is_json:
+            return {
+                "url": url,
+                "title": str(page),
+                "here": request.path.startswith(url),
+                "children": [page_entry(x) for x in page.navigation if
+                             page is not request.pages.homepage]
+            }
+        else:
+            return {
+                "url": url,
+                "page": page,
+                "title": str(page),
+                "here": request.path.startswith(url),
+                "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
+            }
 
     # All the applicable nav items
     entries = [page_entry(x) for x in pages if page_entry(x) is not None]
@@ -50,24 +52,29 @@ def navigation(context, pages, section=None):
         section_entry["here"] = context["pages"].current == section_entry["page"]
         entries = [section_entry] + list(entries)
 
-    # Render the template.
-    context.update({
-        "request": request,
-        "navigation": entries,
-    })
-
-    return context
+    return entries
 
 
-@register.assignment_tag(takes_context=True)
-def get_navigation(context, pages, section=None):
-    """Returns a navigation list for the given pages."""
-    return navigation(context, pages, section)["navigation"]
+@library.global_function
+@library.render_with('pages/navigation.html')
+@jinja2.contextfunction
+def render_navigation(context, pages, section=None):
+    """
+    Renders a navigation list for the given pages.
+
+    The pages should all be a subclass of PageBase, and possess a get_absolute_url() method.
+
+    You can also specify an alias for the navigation, at which point it will be set in the
+    context rather than rendered.
+    """
+    return {
+        "navigation": _navigation_entries(context, pages, section),
+    }
 
 
 # Page linking.
-@register.simple_tag
-def page_url(page, view_func=None, *args, **kwargs):
+@library.global_function
+def get_page_url(page, view_func=None, *args, **kwargs):
     """Renders the URL of the given view func in the given page."""
     url = None
     if isinstance(page, int):
@@ -89,9 +96,9 @@ def page_url(page, view_func=None, *args, **kwargs):
 
 
 # Page widgets.
-
-@register.simple_tag(takes_context=True)
-def meta_description(context, description=None):
+@library.global_function
+@jinja2.contextfunction
+def get_meta_description(context, description=None):
     """
     Renders the content of the meta description tag for the current page::
 
@@ -111,17 +118,21 @@ def meta_description(context, description=None):
     """
     if description is None:
         description = context.get("meta_description")
+
+    # TODO: Check in the context for objects for every templatetag like this
     if description is None:
         request = context["request"]
         page = request.pages.current
+
         if page:
             description = page.meta_description
 
     return escape(description or "")
 
 
-@register.simple_tag(takes_context=True)
-def meta_robots(context, index=None, follow=None, archive=None):
+@library.global_function
+@jinja2.contextfunction
+def get_meta_robots(context, index=None, follow=None, archive=None):
     """
     Renders the content of the meta robots tag for the current page::
 
@@ -186,8 +197,9 @@ def absolute_domain_url(context):
     )
 
 
-@register.simple_tag(takes_context=True)
-def canonical_url(context):
+@library.global_function
+@jinja2.contextfunction
+def get_canonical_url(context):
     request = context['request']
 
     url = '{}{}'.format(
@@ -198,8 +210,9 @@ def canonical_url(context):
     return escape(url)
 
 
-@register.simple_tag(takes_context=True)
-def og_title(context, title=None):
+@library.global_function
+@jinja2.contextfunction
+def get_og_title(context, title=None):
     if title is None:
         title = context.get('og_title')
 
@@ -216,8 +229,9 @@ def og_title(context, title=None):
     return escape(title or '')
 
 
-@register.simple_tag(takes_context=True)
-def og_description(context, description=None):
+@library.global_function
+@jinja2.contextfunction
+def get_og_description(context, description=None):
     if description is None:
         description = context.get('og_description')
 
@@ -231,8 +245,9 @@ def og_description(context, description=None):
     return escape(description or '')
 
 
-@register.simple_tag(takes_context=True)
-def og_image(context, image=None):
+@library.global_function
+@jinja2.contextfunction
+def get_og_image(context, image=None):
     image_obj = None
 
     if image is None:
@@ -254,8 +269,9 @@ def og_image(context, image=None):
     return escape(image or '')
 
 
-@register.simple_tag(takes_context=True)
-def twitter_card(context, card=None):
+@library.global_function
+@jinja2.contextfunction
+def get_twitter_card(context, card=None):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
 
     # Load from context if exists
@@ -279,8 +295,9 @@ def twitter_card(context, card=None):
     return escape(card or '')
 
 
-@register.simple_tag(takes_context=True)
-def twitter_title(context, title=None):
+@library.global_function
+@jinja2.contextfunction
+def get_twitter_title(context, title=None):
 
     # Load from context if exists
     if not title:
@@ -299,14 +316,15 @@ def twitter_title(context, title=None):
 
         # If everything fails, fallback to OG tag title
         if not title:
-            title = og_title(context)
+            title = get_og_title(context)
 
     # Return title, or an empty string if nothing is working
     return escape(title or '')
 
 
-@register.simple_tag(takes_context=True)
-def twitter_description(context, description=None):
+@library.global_function
+@jinja2.contextfunction
+def get_twitter_description(context, description=None):
     # Load from context if exists
     if not description:
         description = context.get('twitter_description')
@@ -324,14 +342,15 @@ def twitter_description(context, description=None):
 
         # If everything fails, fallback to OG tag title
         if not description:
-            description = og_description(context)
+            description = get_og_description(context)
 
     # Return description, or an empty string if nothing is working
     return escape(description or '')
 
 
-@register.simple_tag(takes_context=True)
-def twitter_image(context, image=None):
+@library.global_function
+@jinja2.contextfunction
+def get_twitter_image(context, image=None):
     # Load from context if exists
     if not image:
         image = context.get('twitter_image')
@@ -350,7 +369,7 @@ def twitter_image(context, image=None):
 
         # If everything fails, fallback to OG tag title
         if not image:
-            image = og_image(context)
+            image = get_og_image(context)
 
     # If its a file object, load the URL manually
     if type(image).__name__ == 'File' and hasattr(request, "META"):
@@ -363,8 +382,10 @@ def twitter_image(context, image=None):
     return escape(image or '')
 
 
-@register.inclusion_tag("pages/title.html", takes_context=True)
-def title(context, browser_title=None):
+@library.global_function
+@library.render_with('pages/title.html')
+@jinja2.contextfunction
+def render_title(context, browser_title=None):
     """
     Renders the title of the current page::
 
@@ -391,8 +412,10 @@ def title(context, browser_title=None):
     }
 
 
-@register.inclusion_tag("pages/breadcrumbs.html", takes_context=True)
-def breadcrumbs(context, page=None, extended=False):
+@library.global_function
+@library.render_with('pages/breadcrumbs.html')
+@jinja2.contextfunction
+def render_breadcrumbs(context, page=None, extended=False):
     """
     Renders the breadcrumbs trail for the current page::
 
@@ -425,36 +448,12 @@ def breadcrumbs(context, page=None, extended=False):
     }
 
 
-@register.inclusion_tag("pages/header.html", takes_context=True)
-def header(context, page_header=None):
-    """
-    Renders the header for the current page::
-
-        {% header %}
-
-    You can override the page header by providing a 'header' or 'title' context
-    variable. If both are present, then 'header' overrides 'title'::
-
-        {% with "foo" as header %}
-            {% header %}
-        {% endwith %}
-
-    You can also provide the header as an argument to this tag::
-
-        {% header "foo" %}
-
-    """
-    request = context["request"]
-    page_header = page_header or context.get("header") or context.get("title") or request.pages.current.title
-    return {
-        "header": page_header,
-    }
-
-
-@register.simple_tag(takes_context=True)
-def country_code(context):
+@library.global_function
+@jinja2.contextfunction
+def get_country_code(context):
     if hasattr(context.request, 'country') and context.request.country:
         return '/{}'.format(
             context.request.country.code.lower()
         )
+
     return ''

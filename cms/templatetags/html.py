@@ -1,16 +1,13 @@
 """Template tags used for processing HTML."""
 
-from django import template
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
+from django_jinja import library
 
 from cms.html import process as process_html
 
 
-register = template.Library()
-
-
-@register.filter(is_safe=True)
+@library.filter
 @stringfilter
 def html(text):
     """
@@ -26,7 +23,7 @@ def html(text):
     return mark_safe(text)
 
 
-@register.filter(is_safe=True)
+@library.filter
 @stringfilter
 def truncate_paragraphs(text, number):
     """Truncates to the end of the given number of paragraphs in the given text."""
