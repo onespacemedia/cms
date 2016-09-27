@@ -1,6 +1,7 @@
 """Template tags used to render pages."""
 from __future__ import unicode_literals
 
+from cms.templatetags.html import truncate_paragraphs
 from django import template
 from django.conf import settings
 from django.utils.html import escape
@@ -10,6 +11,7 @@ from cms.models import SearchMetaBase
 from django_jinja import library
 
 import jinja2
+from jinja2.filters import do_striptags
 
 register = template.Library()
 
@@ -213,10 +215,16 @@ def get_canonical_url(context):
 @library.global_function
 @jinja2.contextfunction
 def get_og_title(context, title=None):
-    if title is None:
+    if not title:
+        obj = context.get('object', None)
+
+        if obj:
+            title = obj.og_title or obj.title
+
+    if not title:
         title = context.get('og_title')
 
-    if title is None or title == '':
+    if not title or title == '':
         request = context['request']
         page = request.pages.current
 
@@ -232,10 +240,18 @@ def get_og_title(context, title=None):
 @library.global_function
 @jinja2.contextfunction
 def get_og_description(context, description=None):
-    if description is None:
+    if not description:
         description = context.get('og_description')
 
-    if description is None:
+    if not description:
+        obj = context.get('object', None)
+
+        if obj:
+            field = getattr(obj, 'description', None) or getattr(obj, 'summary', None)
+
+            description = do_striptags(truncate_paragraphs(field, 1)) if field else None
+
+    if not description:
         request = context['request']
         page = request.pages.current
 
@@ -250,10 +266,18 @@ def get_og_description(context, description=None):
 def get_og_image(context, image=None):
     image_obj = None
 
-    if image is None:
+    if not image:
         image_obj = context.get('og_image')
 
-    if image_obj is None:
+    if not image and not image_obj:
+        obj = context.get('object')
+
+        if obj:
+            field = getattr(obj, 'image', None) or getattr(obj, 'photo', None) or getattr(obj, 'logo', None)
+
+            image_obj = field if field else None
+
+    if not image_obj:
         request = context['request']
         page = request.pages.current
 
@@ -280,7 +304,6 @@ def get_twitter_card(context, card=None):
 
     # If we are still None, look at page content
     if not card:
-
         # Get current page from request
         request = context['request']
         current_page = request.pages.current
@@ -292,20 +315,25 @@ def get_twitter_card(context, card=None):
     if card or card == 0:
         card = str(choices[card]).lower()
 
-    return escape(card or '')
+    return escape(card or str(choices[0]).lower())
 
 
 @library.global_function
 @jinja2.contextfunction
 def get_twitter_title(context, title=None):
-
     # Load from context if exists
     if not title:
         title = context.get('twitter_title')
 
+    # Check the object if we still have nothing
+    if not title:
+        obj = context.get('object', None)
+
+        if obj:
+            title = obj.twitter_title or obj.title
+
     # If we are still None, look at page content
     if not title:
-
         # Get current page from request
         request = context['request']
         current_page = request.pages.current
@@ -329,9 +357,17 @@ def get_twitter_description(context, description=None):
     if not description:
         description = context.get('twitter_description')
 
+    # Check the object if we still have nothing
+    if not description:
+        obj = context.get('object', None)
+
+        if obj:
+            field = getattr(obj, 'description', None) or getattr(obj, 'summary', None)
+
+            description = do_striptags(truncate_paragraphs(field, 1)) if field else None
+
     # If we are still None, look at page content
     if not description:
-
         # Get current page from request
         request = context['request']
         current_page = request.pages.current
@@ -351,16 +387,26 @@ def get_twitter_description(context, description=None):
 @library.global_function
 @jinja2.contextfunction
 def get_twitter_image(context, image=None):
+    image_obj = None
+
     # Load from context if exists
     if not image:
         image = context.get('twitter_image')
+
+    # Check the object if we still have nothing
+    if not image and not image_obj:
+        obj = context.get('object')
+
+        if obj:
+            field = getattr(obj, 'image', None) or getattr(obj, 'photo', None) or getattr(obj, 'logo', None)
+
+            image_obj = field if field else None
 
     # Get current page from request
     request = context['request']
 
     # If we are still None, look at page content
-    if not image:
-
+    if not image and not image_obj:
         current_page = request.pages.current
         homepage = request.pages.homepage
 
