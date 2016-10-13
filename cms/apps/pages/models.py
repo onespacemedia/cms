@@ -238,20 +238,20 @@ class Page(PageBase):
     def _excise_branch(self):
         """Excises this whole branch from the tree."""
         branch_width = self._branch_width
-        Page.objects.filter(left__gte=self.left).update(
+        Page.objects.filter(left__gte=self.left, is_content_object=False).update(
             left=F("left") - branch_width,
         )
-        Page.objects.filter(right__gte=self.left).update(
+        Page.objects.filter(right__gte=self.left, is_content_object=False).update(
             right=F("right") - branch_width,
         )
 
     def _insert_branch(self):
         """Inserts this whole branch into the tree."""
         branch_width = self._branch_width
-        Page.objects.filter(left__gte=self.left).update(
+        Page.objects.filter(left__gte=self.left, is_content_object=False).update(
             left=F("left") + branch_width,
         )
-        Page.objects.filter(right__gte=self.left).update(
+        Page.objects.filter(right__gte=self.left, is_content_object=False).update(
             right=F("right") + branch_width,
         )
 
@@ -302,7 +302,8 @@ class Page(PageBase):
                     if branch_width > 2:
                         Page.objects.filter(
                             left__gt=self.left,
-                            right__lt=self.right
+                            right__lt=self.right,
+                            is_content_object=False
                         ).update(
                             left=F("left") * -1,
                             right=F("right") * -1,
@@ -323,7 +324,8 @@ class Page(PageBase):
                         child_offset = self.left - old_left
                         Page.objects.filter(
                             left__lt=-old_left,
-                            right__gt=-old_right
+                            right__gt=-old_right,
+                            is_content_object=False
                         ).update(
                             left=(F("left") - child_offset) * -1,
                             right=(F("right") - child_offset) * -1,
