@@ -88,7 +88,6 @@ INSTALLED_APPS = (
     "cms.core",
     "cms.apps.historylinks",
     "cms.apps.pages",
-    "cms.apps.media",
 )
 
 PAGE_BACKEND = "cms.apps.pages.backend.PageBackend"
