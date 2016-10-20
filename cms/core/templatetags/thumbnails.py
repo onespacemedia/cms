@@ -59,10 +59,12 @@ def thumbnail(parser, token):
         if alias:
             context[alias] = thumbnail_obj
             return ""
-        return u'<img src="{src}" width="{width}" height="{height}" alt=""/>'.format(
+        return u'<img src="{src}" width="{width}" height="{height}" alt="{alt}" title="{attribution}"/>'.format(
             src = escape(thumbnail_obj.url),
             width = thumbnail_obj.width,
             height = thumbnail_obj.height,
+            alt = thumbnail_obj.alt_text,
+            attribution = thumbnail.obj.attribution,
         )
     return PatternNode(parser, token, handler, ("{image} {width} {height} [method] as [alias]",
                                                 "{image} {width} {height} as [alias]",
