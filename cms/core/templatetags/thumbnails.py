@@ -63,8 +63,8 @@ def thumbnail(parser, token):
             src = escape(thumbnail_obj.url),
             width = thumbnail_obj.width,
             height = thumbnail_obj.height,
-            alt = thumbnail_obj.alt_text,
-            attribution = thumbnail.obj.attribution,
+            alt = image.alt_text,
+            attribution = image.attribution,
         )
     return PatternNode(parser, token, handler, ("{image} {width} {height} [method] as [alias]",
                                                 "{image} {width} {height} as [alias]",
