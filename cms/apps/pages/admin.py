@@ -201,6 +201,21 @@ class PageAdmin(SortableMPTTModelAdmin):
         for key in nav_cache_keys:
             cache.delete(key)
 
+        page_content_cache_keys = [
+            'page_{}_{}_content'.format(obj.pk, language[0])
+            for language in DEFAULT_LANGUAGES
+            ]
+        for key in page_content_cache_keys:
+            cache.delete(key)
+
+        cache.delete('page_{}_content'.format(
+            obj.pk
+        ))
+
+        cache.delete('page_{}_children'.format(
+            obj.pk
+        ))
+
     # Permissions.
     def has_add_content_permission(self, request, model):
         """Checks whether the given user can edit the given content model."""

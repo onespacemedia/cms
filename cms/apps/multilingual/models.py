@@ -34,6 +34,11 @@ class MultilingualObject(models.Model):
         if language is None:
             language = DEFAULT_LANGUAGE
 
+        # Check to see if we have a temp language override set
+        if hasattr(request, 'temp_language'):
+            language = request.temp_language
+            del request.temp_language
+
         # Check to see if object has a translation for the current language
         try:
 

@@ -167,12 +167,20 @@ class RequestPageManager(object):
         return tree
 
     def children(self, page):
-        return {
-            'page': page,
-            'children': [
+
+        children = cache.get('page_{}_children'.format(
+            page.pk
+        ))
+
+        if not children:
+            children = [
                 self.children(page=child)
                 for child in page.get_children()
             ]
+
+        return {
+            'page': page,
+            'children': children
         }
 
 

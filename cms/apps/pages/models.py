@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
+from django.core.cache import cache
 
 from cms import externals, sitemaps
 from cms.models import PageBase, PageBaseSearchAdapter
@@ -12,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.text import mark_safe
@@ -82,32 +84,73 @@ class Page(MPTTModel):
         request = get_current_request()
         language = getattr(request, 'language', DEFAULT_LANGUAGE)
 
+        # If we have no language, use default
         if language is None:
             language = DEFAULT_LANGUAGE
 
+        # Check to see if we have a temp language override set
         if hasattr(request, 'temp_language'):
             language = request.temp_language
             del request.temp_language
 
+        # Create django cache key
         cache_key = 'page_{}_{}_content'.format(
             self.pk,
-            language,
+            language
         )
 
-        if hasattr(request, cache_key):
-            return getattr(request, cache_key)
+        # Get content object from cache
+        object = cache.get(cache_key)
+        if object:
+            return object
 
-        # Get the content for this page.
-        for model in get_registered_content():
-            objects = model.objects.filter(
-                page_id=self.pk,
-                language=language,
-            )
+        # Store all objects in cache to speed up query
+        objects_cache_key = 'page_{}_content'.format(
+            self.pk
+        )
 
-            if objects:
-                if request:
-                    setattr(request, cache_key, objects[0])
-                return objects[0]
+        objects = cache.get(objects_cache_key)
+
+        if not objects:
+
+            objects = []
+
+            # Get the content for this page.
+            for model in get_registered_content():
+                query_objects = model.objects.filter(
+                    page_id=self.pk
+                )
+
+                for object in query_objects:
+                    objects.append(object)
+
+            cache.set('page_{}_content'.format(
+                self.pk
+            ), objects)
+
+        # Loop the objects and try to return one that matches the current language,
+        # otherwise, use default or fail
+        for object in objects:
+            cache.set('page_{}_{}_content'.format(
+                self.pk,
+                object.language
+            ), object)
+
+        request_language_content = cache.get('page_{}_{}_content'.format(
+            self.pk,
+            language
+        ))
+
+        if request_language_content:
+            return request_language_content
+
+        default_language_content = cache.get('page_{}_{}_content'.format(
+            self.pk,
+            DEFAULT_LANGUAGE
+        ))
+
+        if default_language_content:
+            return default_language_content
 
         return None
 
