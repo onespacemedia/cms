@@ -1,10 +1,11 @@
 """Views used by the pages app."""
 
+from cms.views import CacheMixin
 from django.contrib.contenttypes.models import ContentType
 from django.views.generic import TemplateView
 
 
-class ContentIndexView(TemplateView):
+class ContentIndexView(CacheMixin, TemplateView):
 
     """Displays the index page for a page."""
 
