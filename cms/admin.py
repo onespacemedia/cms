@@ -179,6 +179,23 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         for key in nav_cache_keys:
             cache.delete(key)
 
+        page_id = obj.page.pk
+
+        page_content_cache_keys = [
+            'page_{}_{}_content'.format(page_id, language[0])
+            for language in DEFAULT_LANGUAGES
+            ]
+        for key in page_content_cache_keys:
+            cache.delete(key)
+
+        cache.delete('page_{}_content'.format(
+            page_id
+        ))
+
+        cache.delete('page_{}_children'.format(
+            page_id
+        ))
+
 
     def duplicate_view(self, request, *args, **kwargs):
 
