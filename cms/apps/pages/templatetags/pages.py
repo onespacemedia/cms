@@ -11,6 +11,7 @@ from cms.models import SearchMetaBase
 from django_jinja import library
 
 import jinja2
+import six
 from jinja2.filters import do_striptags
 
 register = template.Library()
@@ -31,7 +32,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
         if is_json:
             return {
                 "url": url,
-                "title": str(page),
+                "title": six.text_type(page),
                 "here": request.path.startswith(url),
                 "children": [page_entry(x) for x in page.navigation if
                              page is not request.pages.homepage]
@@ -40,7 +41,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
             return {
                 "url": url,
                 "page": page,
-                "title": str(page),
+                "title": six.text_type(page),
                 "here": request.path.startswith(url),
                 "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
             }
