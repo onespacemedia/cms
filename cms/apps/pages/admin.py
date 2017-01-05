@@ -218,6 +218,41 @@ class PageAdmin(SortableMPTTModelAdmin):
             page_id
         ))
 
+    def delete_model(self, request, obj):
+
+        # Invalidate page cache
+        tree_cache_keys = [
+            'page_tree_{}'.format(language[0])
+            for language in DEFAULT_LANGUAGES
+            ]
+        nav_cache_keys = [
+            'page_nav_{}'.format(language[0])
+            for language in DEFAULT_LANGUAGES
+            ]
+        for key in tree_cache_keys:
+            cache.delete(key)
+        for key in nav_cache_keys:
+            cache.delete(key)
+
+        page_id = obj.pk
+
+        page_content_cache_keys = [
+            'page_{}_{}_content'.format(page_id, language[0])
+            for language in DEFAULT_LANGUAGES
+            ]
+        for key in page_content_cache_keys:
+            cache.delete(key)
+
+        cache.delete('page_{}_content'.format(
+            page_id
+        ))
+
+        cache.delete('page_{}_children'.format(
+            page_id
+        ))
+
+        obj.delete()
+
     # Permissions.
     def has_add_content_permission(self, request, model):
         """Checks whether the given user can edit the given content model."""

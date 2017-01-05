@@ -7,6 +7,7 @@ from django.core.cache import cache
 from django.core import urlresolvers
 from django.core.handlers.base import BaseHandler
 from django.http import Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
 from django.utils.functional import cached_property
@@ -199,7 +200,7 @@ class PageMiddleware(object):
 
         if not request.language:
             # Redirect to the default language.
-            return redirect('/{}{}'.format(DEFAULT_LANGUAGE, request.path), permanent=False)
+            return HttpResponseRedirect('/{}{}'.format(DEFAULT_LANGUAGE, request.path))
 
         # Get the current page.
         page = request.pages.current

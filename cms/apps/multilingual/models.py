@@ -37,26 +37,26 @@ class MultilingualObject(models.Model):
         # Check to see if we have a temp language override set
         if hasattr(request, 'temp_language'):
             language = request.temp_language
-            del request.temp_language
 
-        # Check to see if object has a translation for the current language
-        try:
+        translation_filter = {}
 
-            translation_filter = {
-                'language': language
-            }
+        if not hasattr(request, 'user') or not request.user.is_superuser or request.GET.get('preview', None) is None:
+            translation_filter['published'] = True
 
-            if not hasattr(request, 'user') or not request.user.is_superuser or request.GET.get('preview', None) is None:
-                translation_filter['published'] = True
+        translation_queryset = self.translation_objects().filter().order_by('-version')
 
-            translation_queryset = self.translation_objects().filter(
-                **translation_filter
-            ).order_by('-version')
+        content_objects = {
+            content_obj.language: content_obj
+            for content_obj in translation_queryset
+        }
 
-            return translation_queryset.first()
+        if language in content_objects:
+            return content_objects[language]
 
-        except self.translation_object.DoesNotExist:
-            return None
+        if DEFAULT_LANGUAGE in content_objects:
+            return content_objects[DEFAULT_LANGUAGE]
+
+        return None
 
     class Meta:
         abstract = True
