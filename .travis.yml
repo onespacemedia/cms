@@ -25,6 +25,7 @@ install:
   - pip uninstall onespacemedia-cms -y
   - pip install -e .[testing]
   - cd example-project
+  - . ~/.nvm/nvm.sh
   - npm run build
   - cd -
 script: coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms
