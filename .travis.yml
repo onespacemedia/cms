@@ -17,7 +17,7 @@ addons:
     - libgeoip-dev
     - nodejs
 before_install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 6
 install:
   - pip install cookiecutter==1.3.0
   - cookiecutter https://github.com/onespacemedia/project-template.git --checkout feature/build-fixes --no-input --config-file .cookiecutter.yml
