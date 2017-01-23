@@ -13,27 +13,39 @@ DEPENDENCIES = [
     'requests',
 ]
 
-if platform.python_implementation() == "PyPy":
-    DEPENDENCIES.append("psycopg2cffi")
+if platform.python_implementation() == 'PyPy':
+    DEPENDENCIES.append('psycopg2cffi')
 else:
-    DEPENDENCIES.append("psycopg2")
+    DEPENDENCIES.append('psycopg2')
 
 
 setup(
-    name="onespacemedia-cms",
-    version=".".join(str(n) for n in VERSION),
-    url="https://github.com/onespacemedia/cms",
-    author="Daniel Samuels",
-    author_email="daniel@onespacemedia.com",
-    license="BSD",
+    name='onespacemedia-cms',
+    version='.'.join(str(n) for n in VERSION),
+    url='https://github.com/onespacemedia/cms',
+    author='Daniel Samuels',
+    author_email='daniel@onespacemedia.com',
+    license='BSD',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     description='CMS used by Onespacemedia',
     install_requires=DEPENDENCIES,
     extras_require={
-        'usertools':  ["django-usertools"],
-        'testing':  ["mock", "coverage", "coveralls", "codecov", "cookiecutter"],
+        'usertools': ['django-usertools'],
+        'testing': [
+            'pytest',
+            'pytest-cov',
+            'pytest-django',
+            'pytest-xdist',
+            # Project template
+            'Pillow',
+            'django-jinja==2.2.1',
+            'django-reversion==1.8.7',
+            'django-watson==1.1.9',
+            # / Project template
+            'mock',
+        ],
         'geoip': ['geoip']
     },
     classifiers=[

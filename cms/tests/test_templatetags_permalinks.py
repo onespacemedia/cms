@@ -5,21 +5,21 @@ from django.test import RequestFactory, TestCase
 from ..templatetags.permalinks import permalink, get_permalink_absolute
 
 
-class TestModel(models.Model):
+class TestPermalinksModel(models.Model):
     pass
 
 
 class PermalinkTest(TestCase):
 
     def setUp(self):
-        self.obj = TestModel.objects.create()
+        self.obj = TestPermalinksModel.objects.create()
         factory = RequestFactory()
         self.request = factory.get('/')
 
     def test_permalink(self):
 
         self.assertEqual(permalink(self.obj), '/r/{}-{}/'.format(
-            ContentType.objects.get_for_model(TestModel).pk,
+            ContentType.objects.get_for_model(TestPermalinksModel).pk,
             self.obj.pk
         ))
 
@@ -29,6 +29,6 @@ class PermalinkTest(TestCase):
         }
 
         self.assertEqual(get_permalink_absolute(context, self.obj), 'http://testserver/r/{}-{}/'.format(
-            ContentType.objects.get_for_model(TestModel).pk,
+            ContentType.objects.get_for_model(TestPermalinksModel).pk,
             self.obj.pk
         ))

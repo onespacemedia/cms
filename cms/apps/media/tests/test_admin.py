@@ -1,21 +1,21 @@
 from __future__ import unicode_literals
 
+import base64
+import json
+import random
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
-from django.test import TestCase, LiveServerTestCase, RequestFactory
+from django.test import LiveServerTestCase, RequestFactory, TestCase
 from django.utils import six
 from django.utils.timezone import now
 
 from ..admin import FileAdminBase, VideoAdmin
 from ..models import File, Label, Video
-
-import base64
-import json
-import random
 
 
 class BrokenFile(object):
@@ -248,7 +248,7 @@ class TestFileAdminBase(TestCase):
         self.request.user.has_perm = lambda x: True
 
         data = self.file_admin.redactor_data(self.request, file_type='images')
-        self.assertEqual(len(data.content), 258)
+        self.assertTrue(len(data.content) > 250)
 
     def test_fileadminbase_redactor_upload(self):
         self.request.user = MockSuperUser()
