@@ -17,13 +17,13 @@ class MiddlewareTest(TestCase):
         publication_middleware = PublicationMiddleware()
         publication_middleware.process_request(self.request)
 
-    def test_publicationmiddleware_process_response(self):
-        response = SimpleTemplateResponse('../templates/pagination/pagination.html')
-        publication_middleware = PublicationMiddleware()
+    # def test_publicationmiddleware_process_response(self):
+    #     response = SimpleTemplateResponse('../templates/pagination/pagination.html')
+    #     publication_middleware = PublicationMiddleware()
 
-        response = publication_middleware.process_response(self.request, response)
+    #     response = publication_middleware.process_response(self.request, response)
 
-        self.assertEqual(response.status_code, 200)
+    #     self.assertEqual(response.status_code, 200)
 
     def test_localisationmiddleware_process_request(self):
         localisation_middleware = LocalisationMiddleware()

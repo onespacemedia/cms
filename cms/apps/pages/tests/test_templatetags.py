@@ -8,8 +8,8 @@ from cms.apps.media.models import File
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Page, Country
-from ..templatetags.pages import (navigation_entries, page_url, breadcrumbs, header,
-                                  country_code, get_og_image, absolute_domain_url,
+from ..templatetags.pages import (_navigation_entries, get_page_url, render_breadcrumbs,
+                                  get_country_code, get_og_image, absolute_domain_url,
                                   get_twitter_image, get_twitter_card, get_twitter_title,
                                   get_twitter_description)
 from .... import externals
@@ -103,7 +103,7 @@ class TestTemplatetags(TestCase):
         request.user = MockUser(authenticated=True)
         request.pages = RequestPageManager(request)
 
-        navigation = navigation_entries({'request': request}, request.pages.current.navigation)
+        navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 
         self.assertListEqual(navigation, [
             {
@@ -134,37 +134,37 @@ class TestTemplatetags(TestCase):
         # Section page isn't visible to non logged in users
         request.user = MockUser(authenticated=False)
 
-        navigation = navigation_entries({'request': request}, request.pages.current.navigation)
+        navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 
         self.assertListEqual(navigation, [])
 
     def test_page_url(self):
-        self.assertEqual(page_url(self.homepage), '/')
-        self.assertEqual(page_url(self.homepage.pk), '/')
-        self.assertEqual(page_url(-1), '#')
-        self.assertEqual(page_url(None), '#')
+        self.assertEqual(get_page_url(self.homepage), '/')
+        self.assertEqual(get_page_url(self.homepage.pk), '/')
+        self.assertEqual(get_page_url(-1), '#')
+        self.assertEqual(get_page_url(None), '#')
         self.assertEqual(
-            page_url(self.homepage.pk, 'detail', slug='homepage'),
+            get_page_url(self.homepage.pk, 'detail', slug='homepage'),
             '/homepage/'
         )
 
-    def test_breadcrumbs(self):
+    def test_render_breadcrumbs(self):
         class Object(object):
             current = None
 
         self.request.pages = Object()
 
-        output = breadcrumbs({'request': self.request}, extended=True)
+        output = render_breadcrumbs({'request': self.request}, extended=True)
         self.assertDictEqual(output, {
-            'breadcrumbs': []
+            'render_breadcrumbs': []
         })
 
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
         request.pages = RequestPageManager(request)
-        output = breadcrumbs({'request': request})
+        output = render_breadcrumbs({'request': request})
         self.assertDictEqual(output, {
-            'breadcrumbs': [
+            'render_breadcrumbs': [
                 {
                     "short_title": 'Homepage',
                     "title": 'Homepage',
@@ -187,13 +187,13 @@ class TestTemplatetags(TestCase):
             'header': 'Homepage'
         })
 
-    def test_country_code(self):
+    def test_get_country_code(self):
         class Context(object):
             pass
 
         context = Context()
         context.request = self.request
-        self.assertEqual(country_code(context), '')
+        self.assertEqual(get_country_code(context), '')
 
         country = Country.objects.create(
             code='GB',
@@ -202,7 +202,7 @@ class TestTemplatetags(TestCase):
         context = Context()
         context.request = self.request
         context.request.country = country
-        self.assertEqual(country_code(context), '/gb')
+        self.assertEqual(get_country_code(context), '/gb')
 
     def test_open_graph_tags(self):
         request = self.factory.get('/')

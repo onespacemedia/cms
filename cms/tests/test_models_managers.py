@@ -24,6 +24,7 @@ class TestFields(TestCase):
             self.homepage = Page.objects.create(
                 title="Homepage",
                 slug='homepage',
+                parent=None,
                 content_type=content_type,
                 publication_date=self.date + timedelta(days=10),
             )
