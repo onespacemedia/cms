@@ -45,6 +45,7 @@ setup(
             'django-watson==1.1.9',
             # / Project template
             'mock',
+            'geoip',
         ],
         'geoip': ['geoip']
     },
