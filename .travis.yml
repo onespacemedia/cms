@@ -11,7 +11,7 @@ matrix:
   allow_failures:
   - python: "pypy"
   - python: "pypy3"
-# dist: trusty
+dist: trusty
 sudo: false
 addons:
   apt:
