@@ -28,7 +28,10 @@ class PermalinkTest(TestCase):
             'request': self.request
         }
 
-        self.assertEqual(get_permalink_absolute(context, self.obj), 'http://testserver/r/{}-{}/'.format(
-            ContentType.objects.get_for_model(TestPermalinksModel).pk,
-            self.obj.pk
-        ))
+        self.assertEqual(
+            get_permalink_absolute(context, self.obj),
+            'http://testserver/r/{}-{}/'.format(
+                ContentType.objects.get_for_model(TestPermalinksModel).pk,
+                self.obj.pk
+            )
+        )
