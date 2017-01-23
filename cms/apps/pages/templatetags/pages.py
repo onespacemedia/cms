@@ -397,6 +397,9 @@ def get_twitter_image(context, image=None):
     if not image:
         image = context.get('twitter_image')
 
+    if image:
+        image_obj = image
+
     # Check the object if we still have nothing
     if not image and not image_obj:
         obj = context.get('object')
