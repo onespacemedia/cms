@@ -312,24 +312,22 @@ class Page(PageBase):
                     old_left = self.left
                     old_right = self.right
                     # Put self into the tree.
-                    if self.parent_id:
-                        parent_right = existing_pages[self.parent_id]["right"]
-                        if parent_right > self.right:
-                            parent_right -= self._branch_width
-                        self.left = parent_right
-                        self.right = self.left + branch_width - 1
-                        self._insert_branch()
-
-                        # Put all children back into the tree.
-                        if branch_width > 2:
-                            child_offset = self.left - old_left
-                            Page.objects.filter(
-                                left__lt=-old_left,
-                                right__gt=-old_right
-                            ).update(
-                                left=(F("left") - child_offset) * -1,
-                                right=(F("right") - child_offset) * -1,
-                            )
+                    parent_right = existing_pages[self.parent_id]["right"]
+                    if parent_right > self.right:
+                        parent_right -= self._branch_width
+                    self.left = parent_right
+                    self.right = self.left + branch_width - 1
+                    self._insert_branch()
+                    # Put all children back into the tree.
+                    if branch_width > 2:
+                        child_offset = self.left - old_left
+                        Page.objects.filter(
+                            left__lt=-old_left,
+                            right__gt=-old_right
+                        ).update(
+                            left=(F("left") - child_offset) * -1,
+                            right=(F("right") - child_offset) * -1,
+                        )
 
         # Now actually save it!
         super(Page, self).save(*args, **kwargs)
