@@ -173,7 +173,6 @@ class TestFileAdminBase(TestCase):
             file='media/not/a/real.png'
         )
 
-        # print obj.file
         preview = self.file_admin.get_preview(obj)
 
         self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
