@@ -1,14 +1,14 @@
 """Models used by the static media management application."""
 from __future__ import unicode_literals
 
-from PIL import Image
+import os
 
-from django.db import models
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-
-import os
+from PIL import Image
 
 
 @python_2_unicode_compatible
@@ -77,6 +77,27 @@ class File(models.Model):
 
     class Meta:
         ordering = ("title",)
+
+    def save(self, *args, **kwargs):
+        super(File, self).save(*args, **kwargs)
+
+        # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
+        if self.file:
+            _, extension = os.path.splitext(self.file.name)
+            extension = extension.lower()[1:]
+
+            if extension in ['png', 'jpg', 'jpeg']:
+                from tinypng.api import shrink_file
+
+                try:
+                    shrink_file(
+                        self.file.path,
+                        api_key='dytEZkQkwRyxF2_R_qYKr_bPdltbpRPj',
+                        out_filepath=self.file.path,
+                    )
+                # If the minification doesn't happen, that's ok.
+                except:
+                    pass
 
     def is_image(self):
         from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON

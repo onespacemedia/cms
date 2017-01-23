@@ -11,6 +11,7 @@ DEPENDENCIES = [
     'Pillow',
     'sorl-thumbnail',
     'requests',
+    'tinypng',
 ]
 
 if platform.python_implementation() == "PyPy":
