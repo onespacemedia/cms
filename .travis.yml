@@ -12,6 +12,9 @@ matrix:
 dist: trusty
 sudo: false
 addons:
+  apt:
+    packages:
+    - libgeoip-dev
 install:
   - pip install -e .[testing]
 script: pytest -n auto
