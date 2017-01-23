@@ -42,11 +42,15 @@ def pytest_configure():
             'django.contrib.admin',
             'django.contrib.auth',
             'django.contrib.contenttypes',
+            'django.contrib.sitemaps',
 
             # CMS apps
             'cms.apps.links',
             'cms.apps.media',
             'cms.apps.pages',
+
+            # Tests which contain custom models.
+            'cms.tests',
 
             # Third party apps
             'sorl.thumbnail',
@@ -59,6 +63,7 @@ def pytest_configure():
             {
                 'BACKEND': 'django_jinja.backend.Jinja2',
                 'DIRS': [
+                    os.path.join('cms', 'templates'),
                     os.path.join('cms', 'tests', 'templates'),
                 ],
                 'APP_DIRS': True,
@@ -108,6 +113,6 @@ def pytest_configure():
                     ]
                 }
             }
-        ]
-
+        ],
+        GEOIP_PATH=os.path.join('cms', 'tests', 'geoip'),
     )
