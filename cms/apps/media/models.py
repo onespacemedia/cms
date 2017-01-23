@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import os
 
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.db import models
