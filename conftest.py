@@ -1,5 +1,6 @@
 import os
 import random
+import sys
 
 import pytest
 from django.conf import settings
@@ -40,8 +41,10 @@ def pytest_configure():
         DATABASES={
             'default': {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': '',
-                'USER': '',
+                'NAME': 'py_{}'.format(sys.version_info[0]),
+                'TEST': {
+                    'NAME': 'py_{}'.format(sys.version_info[0]),
+                }
             }
         },
         STATIC_URL='/static/',
