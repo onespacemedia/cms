@@ -1,6 +1,9 @@
-from django.conf import settings
-import pytest
 import os
+import random
+
+import pytest
+from django.conf import settings
+from django.db import connection
 
 
 # The CMS tests use test-only models, which won't be loaded if we only load
@@ -22,6 +25,13 @@ class DisableMigrations(object):
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass
+
+
+@pytest.fixture(scope='session')
+def django_db_setup(django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        cur = connection.cursor()
+        cur.execute('ALTER SEQUENCE pages_page_id_seq RESTART WITH %s;', [random.randint(10000, 20000)])
 
 
 def pytest_configure():
