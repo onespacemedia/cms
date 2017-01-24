@@ -15,13 +15,14 @@ class TestPageContentForManagers(ContentBase):
 
 class TestFields(TestCase):
 
-    def _create_objects(self):
+    def test_publicationmanager_select_published(self):
         with externals.watson.context_manager("update_index")():
             content_type = ContentType.objects.get_for_model(TestPageContentForManagers)
 
             self.date = now()
 
             self.homepage = Page.objects.create(
+                pk=None,
                 title="Homepage",
                 slug='homepage',
                 parent=None,
@@ -32,9 +33,6 @@ class TestFields(TestCase):
             TestPageContentForManagers.objects.create(
                 page=self.homepage,
             )
-
-    def test_publicationmanager_select_published(self):
-        self._create_objects()
 
         with publication_manager.select_published(True):
             self.assertEqual(Page.objects.count(), 0)
