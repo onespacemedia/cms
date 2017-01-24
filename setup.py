@@ -44,6 +44,7 @@ setup(
             'django-reversion==1.8.7',
             'django-watson==1.1.9',
             # / Project template
+            'coveralls',
             'mock',
             'geoip',
         ],
