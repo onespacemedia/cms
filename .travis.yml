@@ -19,7 +19,7 @@ addons:
     - libgeoip-dev
 install:
   - pip install -e .[testing]
-script: pytest -x auto --create-db
+script: pytest -n auto --create-db
 notifications:
   slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
   email: false
