@@ -18,7 +18,14 @@ class MiddlewareTest(TestCase):
         publication_middleware.process_request(self.request)
 
     def test_publicationmiddleware_process_response(self):
-        response = SimpleTemplateResponse('pagination/pagination.html')
+        class Context(dict):
+            pass
+
+        context = Context()
+        context['page_obj'] = Context()
+        context['page_obj'].has_other_pages = lambda: False
+
+        response = SimpleTemplateResponse('pagination/pagination.html', context)
         publication_middleware = PublicationMiddleware()
 
         response = publication_middleware.process_response(self.request, response)
@@ -68,7 +75,14 @@ class MiddlewareTest(TestCase):
         self.assertEqual(self.request.country, obj)
 
     def test_localisationmiddleware_process_response(self):
-        response = SimpleTemplateResponse('../templates/pagination/pagination.html')
+        class Context(dict):
+            pass
+
+        context = Context()
+        context['page_obj'] = Context()
+        context['page_obj'].has_other_pages = lambda: False
+
+        response = SimpleTemplateResponse('pagination/pagination.html', context)
         localisation_middleware = LocalisationMiddleware()
 
         self.request = self.factory.get('/media/')
