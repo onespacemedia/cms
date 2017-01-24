@@ -1,18 +1,20 @@
+from datetime import timedelta
+
+import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import now
 
 from .. import externals
-from ..models.managers import publication_manager
 from ..apps.pages.models import ContentBase, Page
-
-from datetime import timedelta
+from ..models.managers import publication_manager
 
 
 class TestPageContentForManagers(ContentBase):
     pass
 
 
+@pytest.mark.django_db(transaction=True)
 class TestFields(TestCase):
 
     def test_publicationmanager_select_published(self):
@@ -22,7 +24,6 @@ class TestFields(TestCase):
             self.date = now()
 
             self.homepage = Page.objects.create(
-                pk=None,
                 title="Homepage",
                 slug='homepage',
                 parent=None,
