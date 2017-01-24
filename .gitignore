@@ -17,3 +17,4 @@ docs/_static
 cache
 uploads
 .coverage
+htmlcov
