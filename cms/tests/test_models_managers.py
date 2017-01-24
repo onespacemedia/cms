@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.test import TestCase
 from django.utils.timezone import now
 
@@ -23,6 +24,11 @@ class TestFields(TestCase):
             content_type = ContentType.objects.get_for_model(TestPageContentForManagers)
 
             self.date = now()
+
+            with connection.cursor() as cursor:
+                cursor.execute('TRUNCATE {} CASCADE'.format(Page._meta.db_table))
+
+            print Page.objects.count()
 
             self.homepage = Page.objects.create(
                 pk=random.randint(100, 200000),
