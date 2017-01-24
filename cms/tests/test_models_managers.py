@@ -1,3 +1,4 @@
+import random
 from datetime import timedelta
 
 import pytest
@@ -24,6 +25,7 @@ class TestFields(TestCase):
             self.date = now()
 
             self.homepage = Page.objects.create(
+                pk=random.randint(100, 200000),
                 title="Homepage",
                 slug='homepage',
                 parent=None,

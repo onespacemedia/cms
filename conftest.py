@@ -32,7 +32,7 @@ def enable_db_access_for_all_tests(db):
 def django_db_setup(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         cur = connection.cursor()
-        cur.execute('ALTER SEQUENCE pages_page_id_seq RESTART WITH %s;', [random.randint(10000, 20000)])
+        cur.execute('ALTER SEQUENCE pages_page_id_seq RESTART WITH %s;', [random.randint(100, 200000)])
 
 
 def pytest_configure():
