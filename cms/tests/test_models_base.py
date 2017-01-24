@@ -54,15 +54,22 @@ class ModelsBaseTest(TestCase):
             'twitter_image': None
         })
 
-    # def test_searchmetabase_render(self):
-    #     factory = RequestFactory()
-    #     request = factory.get('/')
-    #     request.pages = []
+    def test_searchmetabase_render(self):
+        factory = RequestFactory()
+        request = factory.get('/')
+        request.pages = []
 
-    #     obj = TestSearchMetaBaseModel.objects.create()
-    #     response = obj.render(request, '../templates/pagination/pagination.html')
+        class Context(dict):
+            pass
 
-    #     self.assertEqual(response.status_code, 200)
+        context = Context()
+        context['page_obj'] = Context()
+        context['page_obj'].has_other_pages = lambda: False
+
+        obj = TestSearchMetaBaseModel.objects.create()
+        response = obj.render(request, 'pagination/pagination.html', context)
+
+        self.assertEqual(response.status_code, 200)
 
     def test_searchmetabasesearchadapter_get_live_queryset(self):
         search_adapter = SearchMetaBaseSearchAdapter(TestSearchMetaBaseModel)
