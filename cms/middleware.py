@@ -78,16 +78,14 @@ class LocalisationMiddleware(object):
         request.country = None
 
         # Check to see if we have a country in the URL
-        country_match = re.match('/([a-z]{2})/|\b', request.path)
+        country_match = re.match('^/([a-z]{2})/|\b', request.path)
         if country_match:
 
             # Try and get a country from the database
             try:
                 request.country = Country.objects.get(code=str(country_match.group(1)).upper())
 
-                request.path = request.path.replace('/{}'.format(
-                    country_match.group(1)
-                ), '')
+                request.path = request.path[len(country_match.group(1)) + 1:]
                 request.path_info = request.path
 
             except Country.DoesNotExist:
