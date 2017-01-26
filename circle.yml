@@ -1,0 +1,19 @@
+machine:
+  node:
+    version: 5.1
+
+dependencies:
+  override:
+    - sudo apt-get install libgeoip-dev
+    - pip install cookiecutter==1.3.0
+    - cookiecutter https://github.com/onespacemedia/project-template.git --checkout feature/build-fixes --no-input --config-file .cookiecutter.yml
+    - pip install -q "Django>=1.8,<1.9"
+    - pip uninstall onespacemedia-cms -y
+    - pip install -e .[testing]
+    - cd example-project
+    - npm run build
+    - cd -
+
+test:
+  override:
+    - coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms

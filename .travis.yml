@@ -9,6 +9,7 @@ python:
 matrix:
   allow_failures:
     - python: "pypy"
+dist: trusty
 sudo: false
 addons:
   apt:
@@ -16,14 +17,15 @@ addons:
     - libgeoip-dev
     - nodejs
 before_install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 5.1
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 6
 install:
   - pip install cookiecutter==1.3.0
-  - cookiecutter https://github.com/onespacemedia/project-template.git --checkout develop --no-input --config-file .cookiecutter.yml
-  - pip install -q "Django>=1.8,<1.9"
+  - cookiecutter https://github.com/onespacemedia/project-template.git --checkout feature/build-fixes --no-input --config-file .cookiecutter.yml
+  - . example-project/.venv/bin/activate
   - pip uninstall onespacemedia-cms -y
   - pip install -e .[testing]
   - cd example-project
+  - . ~/.nvm/nvm.sh
   - npm run build
   - cd -
 script: coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms
