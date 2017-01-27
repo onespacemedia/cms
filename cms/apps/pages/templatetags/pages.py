@@ -311,7 +311,10 @@ def get_twitter_card(context, card=None):
         homepage = request.pages.homepage
 
         # Use either the current page twitter card, or the homepage twitter card
-        card = current_page.twitter_card or homepage.twitter_card
+        if current_page and current_page.twitter_card:
+            card = current_page.twitter_card
+        elif homepage and homepage.twitter_card:
+            card = homepage.twitter_card
 
     if card or card == 0:
         card = str(choices[card]).lower()
@@ -393,6 +396,9 @@ def get_twitter_image(context, image=None):
     # Load from context if exists
     if not image:
         image = context.get('twitter_image')
+
+    if image:
+        image_obj = image
 
     # Check the object if we still have nothing
     if not image and not image_obj:

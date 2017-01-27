@@ -24,14 +24,19 @@ class PaginationTest(TestCase):
 
     def test_pagination(self):
         obj = Object()
+        obj.has_other_pages = lambda: False
         pagination_response = render_pagination({'request': self.request}, obj)
 
-        self.assertDictEqual(pagination_response, {
-            'paginator': None,
-            'pagination_key': 'page',
-            'page_obj': obj,
-            'request': self.request,
-        })
+        self.assertTrue(len(pagination_response) == 0)
+
+        obj.has_other_pages = lambda: True
+        obj.has_previous = lambda: False
+        obj.has_next = lambda: False
+        obj.paginator = Object()
+        obj.paginator.page_range = []
+        pagination_response = render_pagination({'request': self.request}, obj)
+
+        self.assertTrue(len(pagination_response) > 0)
 
     def test_pagination_url(self):
         self.assertEqual(get_pagination_url({'request': self.request}, 1), '/')

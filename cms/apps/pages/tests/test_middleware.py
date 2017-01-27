@@ -267,6 +267,7 @@ class TestPageMiddleware(TestCase):
         request = self.factory.get('/foo/')
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, response)
+
         self.assertEqual(processed_response.status_code, 200)
         self.assertEqual(processed_response.template_name, (
             'pages/testmiddlewarepage.html',

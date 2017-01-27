@@ -1,14 +1,17 @@
 """Tests for the pages app."""
+from datetime import timedelta
 
+from cms.externals import External
+from django.contrib.contenttypes.models import ContentType
+from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
-from django.core.management import call_command
-from django.contrib.contenttypes.models import ContentType
-from cms.externals import External
+from django.utils.timezone import now
 
-from ..models import filter_indexable_pages, ContentBase, Page, PageSearchAdapter, PageSitemap
 from .... import externals
 from ....models.managers import publication_manager
+from ..models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
+                      filter_indexable_pages)
 
 
 class TestPageContent(ContentBase):
@@ -198,6 +201,30 @@ class TestPage(TestCase):
 
         # Add back reversion
         externals.reversion = External("reversion")
+
+    def test_publication(self):
+        self.homepage.publication_date = now() + timedelta(days=10)
+        self.homepage.save()
+
+        self.section.publication_date = now() + timedelta(days=10)
+        self.section.save()
+
+        self.subsection.publication_date = now() + timedelta(days=10)
+        self.subsection.save()
+
+        self.subsubsection.publication_date = now() + timedelta(days=10)
+        self.subsubsection.save()
+
+        with publication_manager.select_published(True):
+            self.assertEqual(Page.objects.count(), 0)
+
+        with publication_manager.select_published(False):
+            self.assertEqual(Page.objects.count(), 4)
+
+        # We need to generate an exception within the published block.
+        with self.assertRaises(TypeError), \
+                publication_manager.select_published(True):
+            assert 1 / 'a'
 
 
 class TestSectionPage(TestCase):
