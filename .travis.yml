@@ -21,7 +21,10 @@ install:
   - pip install -e .[testing]
 script: pytest --cov=cms -n auto --create-db
 notifications:
-  slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
+  slack: 
+    rooms: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt#builds
+    on_success: change
+    on_failure: always
   email: false
 after_success:
   - coveralls
