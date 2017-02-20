@@ -14,3 +14,7 @@ Thumbs.db
 .venv
 docs/_build
 docs/_static
+cache
+uploads
+.coverage
+htmlcov

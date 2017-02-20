@@ -1,9 +1,8 @@
+from cms.tests.models import TestModerationAdminModel
 from django.contrib.admin.sites import AdminSite
-from django.db import models
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 
 from ..admin import ModerationAdminBase
-from ..models import ModerationBase
 
 
 class MockSuperUser(object):
@@ -14,17 +13,6 @@ class MockSuperUser(object):
 
     def has_perm(self, perm):
         return self.permission
-
-
-class TestModerationAdminModel(ModerationBase):
-
-    choice = models.CharField(
-        max_length=1,
-        choices=[
-            (1, 'Foo'),
-            (2, 'Bar'),
-        ]
-    )
 
 
 class TestModerationAdmin(TestCase):

@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import TestCase
 from django.utils.encoding import python_2_unicode_compatible
@@ -37,7 +36,7 @@ class PermalinksTest(TestCase):
             resolve('/admin/')
 
         original_urlconf = urlresolvers.get_urlconf()
-        with self.assertRaises(ImproperlyConfigured):
+        with self.assertRaises(PermalinkError):
             urlresolvers.set_urlconf('cms.tests.urls')
             resolve('/r/')
 
