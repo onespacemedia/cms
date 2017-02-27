@@ -12,6 +12,7 @@ from functools import cmp_to_key
 import json
 from copy import deepcopy
 
+import six
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth import get_permission_codename
@@ -53,7 +54,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
     def lookups(self, request, model):
         lookups = []
         content_types = ContentType.objects.get_for_models(*get_registered_content())
-        for key, value in content_types.iteritems():
+        for key, value in six.iteritems(content_types):
             lookups.append((value.id, capfirst(key._meta.verbose_name)))
         lookups.sort(key=lambda item: item[1])
         return lookups
