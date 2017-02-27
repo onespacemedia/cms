@@ -875,7 +875,12 @@ class TestPageAdmin(TestCase):
         parameters = {'page_type': content_type_id}
         filterer = PageContentTypeFilter(request, parameters, Page, self.page_admin)
         queryset = filterer.queryset(request, Page.objects.all())
-        self.assertEqual(queryset.count(), Page.objects.filter(content_type_id=content_type_id).count())
+        self.assertEqual(
+            queryset.count(),
+            Page.objects.filter(
+                content_type_id=content_type_id
+            ).count()
+        )
         # The above will not be sufficient - we need to ensure that it is not
         # the same as the unfiltered queryset, not merely that the filtered
         # length is correct.
