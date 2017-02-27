@@ -552,7 +552,7 @@ class TestPageAdmin(TestCase):
 
         NEW_MIDDLEWARE_CLASSES = [
             'cms.middleware.LocalisationMiddleware',
-        ] + settings.MIDDLEWARE_CLASSES
+        ] + list(settings.MIDDLEWARE_CLASSES)
 
         with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
             request = self._build_request()
