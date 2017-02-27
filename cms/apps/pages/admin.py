@@ -25,6 +25,7 @@ from django.db import transaction, models
 from django.db.models import F, Q
 from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.utils import six
 from django import forms
@@ -34,21 +35,41 @@ from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
 
 
-
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"
 PAGE_FROM_SITEMAP_VALUE = "sitemap"
 
 
-# The GET parameter used to indicate content type.
+# The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = "type"
 
 
+class PageContentTypeFilter(admin.SimpleListFilter):
+    """Enables filtering of pages by their content type."""
+    title = "page type"
+
+    parameter_name = "page_type"
+
+    def lookups(self, request, model):
+        lookups = []
+        content_types = ContentType.objects.get_for_models(*get_registered_content())
+        for key, value in content_types.iteritems():
+            lookups.append((value.id, capfirst(key._meta.verbose_name)))
+        lookups.sort(key=lambda item: item[1])
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(content_type_id=int(self.value()))
+        return queryset
+
+
 class PageAdmin(PageBaseAdmin):
+    """Admin settings for Page models."""
 
     list_display = ("__str__", "is_online",)
 
-    """Admin settings for Page models."""
+    list_filter = [PageContentTypeFilter]
 
     new_fieldsets = [
         (None, {
@@ -179,7 +200,7 @@ class PageAdmin(PageBaseAdmin):
         """Retrieves the page content type slug."""
         if obj and not hasattr(request, '_admin_change_obj'):
             request._admin_change_obj = obj
-            
+
         if PAGE_TYPE_PARAMETER in request.GET:
             return ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()
         if obj and obj.content_type:

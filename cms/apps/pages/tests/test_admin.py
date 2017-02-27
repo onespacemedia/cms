@@ -11,8 +11,10 @@ from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.test import TestCase, RequestFactory
 from django.utils import six
+from django.utils.text import slugify
 
-from ..admin import PageAdmin, PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER
+from ..admin import (PageAdmin, PageContentTypeFilter, PAGE_FROM_KEY,
+                     PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER)
 from ..models import get_registered_content, ContentBase, Page, CountryGroup, \
     Country
 from .... import externals
@@ -115,6 +117,19 @@ class TestPageAdmin(TestCase):
             request.GET['type'] = page_type
 
         return request
+
+    def _make_page(self, title, content_type):
+            ''' Little helper to create a page whose parent is the homepage. '''
+            content_page = Page.objects.create(
+                title=title,
+                slug=slugify(title),
+                parent=self.homepage,
+                content_type=content_type,
+            )
+
+            content_type.model_class().objects.create(
+                page=content_page,
+            )
 
     def test_pageadmin_get_object(self):
         factory = RequestFactory()
@@ -535,9 +550,9 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
-        NEW_MIDDLEWARE_CLASSES = (
+        NEW_MIDDLEWARE_CLASSES = [
             'cms.middleware.LocalisationMiddleware',
-        ) + settings.MIDDLEWARE_CLASSES
+        ] + settings.MIDDLEWARE_CLASSES
 
         with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
             request = self._build_request()
@@ -835,3 +850,55 @@ class TestPageAdmin(TestCase):
             inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
 
             self.assertEquals(inline_page_clone.inlinemodel_set.count(), 1)
+
+    def test_pagecontenttypefilter_queryset(self):
+        # Ensures that the queryset returned by filtering is correct.
+        request = self._build_request()
+
+        # Add some pages with different content types.
+        with externals.watson.context_manager("update_index")():
+            content_type = ContentType.objects.get_for_model(PageContent)
+            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
+
+            self._make_page('Food', content_type)
+            self._make_page('Barred', content_type)
+            self._make_page('Bazooka', content_type_2)
+
+        # Test with no filters. Should be the same as Page.objects.all().
+        filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
+        queryset = filterer.queryset(request, Page.objects.all())
+        self.assertEqual(queryset.count(), Page.objects.all().count())
+
+        # Test with a content type filter. It should return a subset of the
+        # pages.
+        content_type_id = ContentType.objects.get_for_model(PageContent).id
+        parameters = {'page_type': content_type_id}
+        filterer = PageContentTypeFilter(request, parameters, Page, self.page_admin)
+        queryset = filterer.queryset(request, Page.objects.all())
+        self.assertEqual(queryset.count(), Page.objects.filter(content_type_id=content_type_id).count())
+        # The above will not be sufficient - we need to ensure that it is not
+        # the same as the unfiltered queryset, not merely that the filtered
+        # length is correct.
+        self.assertNotEqual(queryset.count(), Page.objects.all().count())
+
+    def test_pagecontenttypefilter_lookups(self):
+        # Add some pages with different content types.
+        with externals.watson.context_manager("update_index")():
+            content_type = ContentType.objects.get_for_model(PageContent)
+            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
+
+            self._make_page('John', content_type)
+            self._make_page('Paul', content_type)
+            self._make_page('Ringo', content_type_2)
+        request = self._build_request()
+        filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
+        lookups = filterer.lookups(request, Page.objects.all())
+        # Make sure that something has been returned...
+        self.assertTrue(len(lookups) > 0)
+
+        # ...and that they are of the correct content type.
+        self.assertTrue(len(lookups) == len(get_registered_content()))
+
+        # Ensure that the lookup names have been ordered.
+        lookup_names = [lookup[1] for lookup in lookups]
+        self.assertEqual(lookup_names, sorted(lookup_names))
