@@ -311,9 +311,10 @@ def get_twitter_card(context, card=None):
         homepage = request.pages.homepage
 
         # Use either the current page twitter card, or the homepage twitter card
-        if current_page and current_page.twitter_card:
+        if current_page:
             card = current_page.twitter_card
-        elif homepage and homepage.twitter_card:
+
+        if not card and homepage:
             card = homepage.twitter_card
 
     if card or card == 0:
@@ -344,7 +345,11 @@ def get_twitter_title(context, title=None):
         homepage = request.pages.homepage
 
         # Use either the current page twitter title, or the homepage twitter title
-        title = current_page.twitter_title or homepage.twitter_title
+        if current_page:
+            title = current_page.twitter_title
+
+        if not title and homepage:
+            title = homepage.twitter_title
 
         # If everything fails, fallback to OG tag title
         if not title:
@@ -378,7 +383,11 @@ def get_twitter_description(context, description=None):
         homepage = request.pages.homepage
 
         # Use either the current page twitter description, or the homepage twitter description
-        description = current_page.twitter_description or homepage.twitter_description
+        if current_page:
+            description = current_page.twitter_description
+
+        if not description and homepage:
+            description = homepage.twitter_description
 
         # If everything fails, fallback to OG tag title
         if not description:
@@ -396,9 +405,6 @@ def get_twitter_image(context, image=None):
     # Load from context if exists
     if not image:
         image = context.get('twitter_image')
-
-    if image:
-        image_obj = image
 
     # Check the object if we still have nothing
     if not image and not image_obj:
@@ -418,7 +424,11 @@ def get_twitter_image(context, image=None):
         homepage = request.pages.homepage
 
         # Use either the current page twitter image, or the homepage twitter image
-        image = current_page.twitter_image or homepage.twitter_image
+        if current_page:
+            image = current_page.twitter_image
+
+        if not image and homepage:
+            image = homepage.twitter_image
 
         # If everything fails, fallback to OG tag title
         if not image:
