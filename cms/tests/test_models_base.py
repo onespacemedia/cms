@@ -59,8 +59,15 @@ class ModelsBaseTest(TestCase):
         request = factory.get('/')
         request.pages = []
 
+        class Context(dict):
+            pass
+
+        context = Context()
+        context['page_obj'] = Context()
+        context['page_obj'].has_other_pages = lambda: False
+
         obj = TestSearchMetaBaseModel.objects.create()
-        response = obj.render(request, '../templates/pagination/pagination.html')
+        response = obj.render(request, 'pagination/pagination.html', context)
 
         self.assertEqual(response.status_code, 200)
 

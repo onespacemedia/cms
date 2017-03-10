@@ -6,30 +6,25 @@ python:
 - "2.7"
 - "3.5"
 - "pypy"
+- "pypy3"
 matrix:
   allow_failures:
-    - python: "pypy"
+  - python: "pypy"
+  - python: "pypy3"
+dist: trusty
 sudo: false
 addons:
   apt:
     packages:
     - libgeoip-dev
-    - nodejs
-before_install:
-  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install 5.1
 install:
-  - pip install cookiecutter==1.3.0
-  - cookiecutter https://github.com/onespacemedia/project-template.git --checkout develop --no-input --config-file .cookiecutter.yml
-  - pip install -q "Django>=1.8,<1.9"
-  - pip uninstall onespacemedia-cms -y
   - pip install -e .[testing]
-  - cd example-project
-  - npm run build
-  - cd -
-script: coverage run --source=cms --omit='*migrations*' example-project/manage.py test cms
+script: pytest --cov=cms -n auto --create-db
 notifications:
-  slack: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt
+  slack: 
+    rooms: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt#builds
+    on_success: change
+    on_failure: always
   email: false
 after_success:
   - coveralls
-  - codecov
