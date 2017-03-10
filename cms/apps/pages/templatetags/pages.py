@@ -286,12 +286,18 @@ def get_og_image(context, image=None):
             image_obj = page.og_image
 
     if image_obj:
-        image = '{}{}'.format(
+        return '{}{}'.format(
             absolute_domain_url(context),
             image_obj.get_absolute_url()
         )
 
-    return escape(image or '')
+    if image:
+        return '{}{}'.format(
+            absolute_domain_url(context),
+            image.get_absolute_url()
+        )
+
+    return None
 
 
 @library.global_function
@@ -407,7 +413,7 @@ def get_twitter_image(context, image=None):
         image = context.get('twitter_image')
 
     # Check the object if we still have nothing
-    if not image and not image_obj:
+    if not image:
         obj = context.get('object')
 
         if obj:
@@ -432,17 +438,23 @@ def get_twitter_image(context, image=None):
 
         # If everything fails, fallback to OG tag title
         if not image:
-            image = get_og_image(context)
+            return get_og_image(context)
 
     # If its a file object, load the URL manually
     if image_obj:
-        image = '{}{}'.format(
+        return '{}{}'.format(
             absolute_domain_url(context),
             image_obj.get_absolute_url()
         )
 
+    if image:
+        return '{}{}'.format(
+            absolute_domain_url(context),
+            image.get_absolute_url()
+        )
+
     # Return image, or an empty string if nothing is working
-    return escape(image or '')
+    return None
 
 
 @library.global_function
