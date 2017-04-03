@@ -7,10 +7,15 @@ from setuptools import setup, find_packages
 
 
 DEPENDENCIES = [
-    'django>=1.8,<1.9',
+    'django==1.11rc1',
     'Pillow',
     'sorl-thumbnail',
     'requests',
+    'django-suit',
+    'django-watson==1.3.0',
+    'django-reversion==2.0.8',
+    'Jinja2==2.8',
+    'django-jinja==2.2.1'
 ]
 
 if platform.python_implementation() == 'PyPy':
@@ -38,11 +43,6 @@ setup(
             'pytest-cov',
             'pytest-django',
             'pytest-xdist',
-            # Project template
-            'Pillow',
-            'django-jinja==2.2.1',
-            'django-reversion==1.8.7',
-            'django-watson==1.1.9',
             # / Project template
             'coveralls',
             'mock',
