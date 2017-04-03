@@ -19,7 +19,7 @@ from django.contrib.auth import get_permission_codename
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, models
@@ -496,12 +496,11 @@ class PageAdmin(PageBaseAdmin):
     def get_urls(self):
         """Adds in some custom admin URLs."""
         admin_view = self.admin_site.admin_view
-        return patterns(
-            "",
+        return [
             url("^sitemap.json$", admin_view(self.sitemap_json_view), name="pages_page_sitemap_json"),
             url("^move-page/$", admin_view(self.move_page_view), name="pages_page_move_page"),
             url("^(?P<page>\d+)/duplicate/$", admin_view(self.duplicate_for_country_group), name="pages_page_duplicate_page"),
-        ) + super(PageAdmin, self).get_urls()
+        ] + super(PageAdmin, self).get_urls()
 
     @debug.print_exc
     def sitemap_json_view(self, request):
