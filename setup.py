@@ -7,14 +7,16 @@ from setuptools import setup, find_packages
 
 
 DEPENDENCIES = [
-    'django==1.11rc1',
+    'requests',
     'Pillow',
     'sorl-thumbnail',
-    'requests',
+    'Jinja2==2.8',
+
+    'django==1.11rc1',
+    'django-historylinks',
     'django-suit',
     'django-watson==1.3.0',
     'django-reversion==2.0.8',
-    'Jinja2==2.8',
     'django-jinja==2.2.1'
 ]
 

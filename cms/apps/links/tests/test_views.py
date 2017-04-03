@@ -1,16 +1,16 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase
+from watson.search import update_index
 
-from .... import externals
-from ...pages.models import Page
 from ..models import Link
 from ..views import index
+from ...pages.models import Page
 
 
 class TestLinks(TestCase):
 
     def test_index_redirect(self):
-        with externals.watson.context_manager("update_index")():
+        with update_index():
             page = Page.objects.create(
                 title="Homepage",
                 content_type=ContentType.objects.get_for_model(Link),

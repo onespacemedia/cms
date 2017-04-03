@@ -2,16 +2,17 @@
 from __future__ import unicode_literals
 
 from django.apps import apps
-
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.db import models, connection, transaction
 from django.db.models import Q, F
+from django.utils import timezone
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.functional import cached_property
-from django.utils import timezone
+from historylinks import shortcuts as historylinks
+from reversion.models import Version
 
-from cms import sitemaps, externals
+from cms import sitemaps
 from cms.models import PageBase, OnlineBaseManager, PageBaseSearchAdapter
 from cms.models.managers import publication_manager
 
@@ -352,15 +353,13 @@ class Page(PageBase):
         self._excise_branch()
 
     def last_modified(self):
-        if externals.reversion:
-            import reversion
-            versions = reversion.get_for_object(self)
-            if versions.count() > 0:
-                latest_version = versions[:1][0]
-                return "{} by {}".format(
-                    latest_version.revision.date_created.strftime("%Y-%m-%d %H:%M:%S"),
-                    latest_version.revision.user
-                )
+        versions = Version.objects.get_for_object(self)
+        if versions.count() > 0:
+            latest_version = versions[:1][0]
+            return "{} by {}".format(
+                latest_version.revision.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+                latest_version.revision.user
+            )
         return "-"
 
 
@@ -369,7 +368,7 @@ class Page(PageBase):
         ordering = ("left",)
 
 
-externals.historylinks("register", Page)
+historylinks.register(Page)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
@@ -417,9 +416,6 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         qs = filter_indexable_pages(qs)
         # All done!
         return qs
-
-
-externals.watson("register", Page, adapter_cls=PageSearchAdapter)
 
 
 # Base content class.

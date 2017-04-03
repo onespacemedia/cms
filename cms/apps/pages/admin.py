@@ -30,8 +30,9 @@ from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.utils import six
 from django import forms
+from watson.search import update_index
 
-from cms import debug, externals
+from cms import debug
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
 
@@ -123,14 +124,13 @@ class PageAdmin(PageBaseAdmin):
 
     def _register_page_inline(self, model):
         """Registeres the given page inline with reversion."""
-        if externals.reversion:
-            self._autoregister(model, follow=["page"])
-            adapter = self.revision_manager.get_adapter(Page)
-            try:
-                adapter.follow = tuple(adapter.follow) + (model._meta.get_field("page").related.get_accessor_name(),)
-                adapter.follow = tuple(name for name in adapter.follow if name != '+')
-            except:
-                pass
+        self._reversion_autoregister(model, follow=["page"])
+        # adapter = self.revision_manager.get_adapter(Page)
+        # try:
+        #     adapter.follow = tuple(adapter.follow) + (model._meta.get_field("page").related.get_accessor_name(),)
+        #     adapter.follow = tuple(name for name in adapter.follow if name != '+')
+        # except:
+        #     pass
 
     def __init__(self, *args, **kwargs):
         """Initialzies the PageAdmin."""
@@ -143,8 +143,7 @@ class PageAdmin(PageBaseAdmin):
         for content_cls in get_registered_content():
             self._register_page_inline(content_cls)
 
-        if externals.reversion:
-            self.list_display = ("__str__", "last_modified", "is_online",)
+        self.list_display = ("__str__", "last_modified", "is_online",)
 
     def register_content_inline(self, content_cls, inline_admin):
         """Registers an inline model with the page admin."""
@@ -639,7 +638,7 @@ class PageAdmin(PageBaseAdmin):
 
         if request.method == 'POST':
 
-            with externals.watson.context_manager("update_index")():
+            with update_index():
                 page = deepcopy(original_page)
                 page.pk = None
                 page.is_content_object = True

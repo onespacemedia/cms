@@ -1,15 +1,15 @@
 """Base classes for the CMS admin interface."""
-
 from django.contrib import admin
-from django.contrib.auth.models import User
 from django.contrib.admin.sites import NotRegistered
+from django.contrib.auth.models import User
+from reversion.admin import VersionAdmin
+from watson.admin import SearchAdmin
 
 try:
     from usertools.admin import UserAdmin
 except ImportError:
     from django.contrib.auth.admin import UserAdmin
 
-from cms import externals
 from cms.models.base import SearchMetaBaseSearchAdapter, PageBaseSearchAdapter
 from cms.forms import CMSAdminPasswordChangeForm
 
@@ -49,13 +49,13 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
     unpublish_selected.short_description = "Take selected %(verbose_name_plural)s offline"
 
 
-class SearchMetaBaseAdmin(OnlineBaseAdmin):
+class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
 
     """Base admin class for SearchMetaBase models."""
 
     adapter_cls = SearchMetaBaseSearchAdapter
 
-    list_display = ("__str__", "is_online",)
+    list_display = ("__str__", "is_online", 'get_date_modified', )
 
     SEO_FIELDS = ("Search engine optimization", {
         "fields": ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
@@ -71,16 +71,6 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
         "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
         "classes": ("collapse",)
     })
-
-
-if externals.reversion:
-    class SearchMetaBaseAdmin(SearchMetaBaseAdmin, externals.reversion["admin.VersionMetaAdmin"]):
-        list_display = SearchMetaBaseAdmin.list_display + ("get_date_modified",)
-
-
-if externals.watson:
-    class SearchMetaBaseAdmin(SearchMetaBaseAdmin, externals.watson["admin.SearchAdmin"]):
-        pass
 
 
 class PageBaseAdmin(SearchMetaBaseAdmin):
