@@ -94,24 +94,23 @@ class FileAdminBase(admin.ModelAdmin):
 
     """Admin settings for File models."""
 
-    fieldsets = (
+    change_list_template = 'admin/media/file/change_list.html'
+    fieldsets = [
         (None, {
-            "fields": ("title", "file",),
-        },),
-        ("Media management", {
-            "fields": ("attribution", "copyright", "alt_text", "labels",),
-        },),
-    )
-
-    list_filter = ("labels",)
-
-    search_fields = ("title",)
-
-    list_display = ("get_preview", "get_title", "get_size",)
-
-    change_list_template = "admin/media/file/change_list.html"
-
-    filter_horizontal = ("labels",)
+            'fields': ["title", "file"],
+        }),
+        ('Media management', {
+            'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
+        }),
+        ('Sizes', {
+            'fields': ['width', 'height'],
+        }),
+    ]
+    filter_horizontal = ['labels']
+    list_display = ['get_preview', 'get_title', 'get_size']
+    list_filter = ['labels']
+    readonly_fields = ['width', 'height']
+    search_fields = ['title']
 
     def to_field_allowed(self, request, to_field):
         """
