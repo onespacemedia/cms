@@ -102,14 +102,10 @@ class FileAdminBase(admin.ModelAdmin):
         ('Media management', {
             'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
         }),
-        ('Sizes', {
-            'fields': ['width', 'height'],
-        }),
     ]
     filter_horizontal = ['labels']
     list_display = ['get_preview', 'get_title', 'get_size']
     list_filter = ['labels']
-    readonly_fields = ['width', 'height']
     search_fields = ['title']
 
     def to_field_allowed(self, request, to_field):

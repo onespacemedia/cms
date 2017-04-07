@@ -80,6 +80,11 @@ class TestFile(TestCase):
             file=SimpleUploadedFile(self.name_3, base64.b64decode(base64_string), content_type="image/gif")
         )
 
+        self.obj_4 = File.objects.create(
+            title="Foo",
+            file="abc123",
+        )
+
     def tearDown(self):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
@@ -104,14 +109,16 @@ class TestFile(TestCase):
         self.assertFalse(self.obj_2.is_image())
 
     def test_file_width(self):
-        self.assertEqual(self.obj_1.width(), 0)
-        self.assertEqual(self.obj_2.width(), 0)
-        self.assertEqual(self.obj_3.width(), 1)
+        self.assertEqual(self.obj_1.width, 0)
+        self.assertEqual(self.obj_2.width, 0)
+        self.assertEqual(self.obj_3.width, 1)
+        self.assertEqual(self.obj_4.width, 0)
 
     def test_file_height(self):
-        self.assertEqual(self.obj_1.height(), 0)
-        self.assertEqual(self.obj_2.height(), 0)
-        self.assertEqual(self.obj_3.height(), 1)
+        self.assertEqual(self.obj_1.height, 0)
+        self.assertEqual(self.obj_2.height, 0)
+        self.assertEqual(self.obj_3.height, 1)
+        self.assertEqual(self.obj_4.height, 0)
 
     def test_filereffield_formfield(self):
         obj = TestModel.objects.create(

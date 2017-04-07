@@ -18,11 +18,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='file',
             name='height',
-            field=models.CharField(max_length=255, null=True, blank=True),
+            field=models.PositiveSmallIntegerField(null=True, blank=True, default=0),
         ),
         migrations.AddField(
             model_name='file',
             name='width',
-            field=models.CharField(max_length=255, null=True, blank=True),
+            field=models.PositiveSmallIntegerField(null=True, blank=True, default=0),
         ),
     ]

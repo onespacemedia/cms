@@ -51,16 +51,16 @@ class File(models.Model):
         max_length=250,
     )
 
-    width = models.CharField(
-        max_length=255,
+    width = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
+        default=0,
     )
 
-    height = models.CharField(
-        max_length=255,
+    height = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
+        default=0,
     )
 
     attribution = models.CharField(
@@ -95,10 +95,13 @@ class File(models.Model):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super(File, self).save(force_insert, force_update, using, update_fields)
 
-        self.width = self.get_width()
-        self.height = self.get_height()
+        if self.is_image():
+            dimensions = self.get_dimensions()
 
-        super(File, self).save(force_insert, force_update, using, update_fields)
+            if dimensions:
+                self.width, self.height = dimensions
+
+                super(File, self).save(force_insert, force_update, using, update_fields)
 
     def is_image(self):
         from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON
@@ -108,27 +111,15 @@ class File(models.Model):
         icon = FILE_ICONS.get(extension, UNKNOWN_FILE_ICON)
         return icon == IMAGE_FILE_ICON
 
-    def get_width(self):
-        if self.is_image():
-            with open(self.file.path, 'rb') as f:
-                try:
-                    image = Image.open(f)
-                    image.verify()
-                except IOError:
-                    return 0
-            return image.size[0]
-        return 0
+    def get_dimensions(self):
+        with open(self.file.path, 'rb') as f:
+            try:
+                image = Image.open(f)
+                image.verify()
+            except IOError:
+                return
 
-    def get_height(self):
-        if self.is_image():
-            with open(self.file.path, 'rb') as f:
-                try:
-                    image = Image.open(f)
-                    image.verify()
-                except IOError:
-                    return 0
-            return image.size[1]
-        return 0
+        return image.size
 
 
 class FileRefField(models.ForeignKey):
