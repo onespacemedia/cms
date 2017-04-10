@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
-from django.test import LiveServerTestCase, RequestFactory, TestCase
+from django.test import LiveServerTestCase, RequestFactory, TestCase, TransactionTestCase
 from django.utils import six
 from django.utils.timezone import now
 
@@ -62,11 +62,13 @@ class TestVideoAdmin(TestCase):
         self.assertFalse(self.video_admin.to_field_allowed(self.request, 'foo'))
 
 
-class TestFileAdminBase(TestCase):
+class TestFileAdminBase(TransactionTestCase):
 
     def setUp(self):
         self.site = AdminSite()
         self.file_admin = FileAdminBase(File, self.site)
+
+        File.objects.all().delete()
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
@@ -89,8 +91,9 @@ class TestFileAdminBase(TestCase):
         )
 
         base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+
         self.obj_2 = File.objects.create(
-            title="Foo",
+            title="Foo 2",
             file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
         )
 
@@ -101,6 +104,9 @@ class TestFileAdminBase(TestCase):
     def tearDown(self):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
+
+        # self.obj_2.file.delete(False)
+        # self.obj_2.delete()
 
     def test_fileadminbase_to_field_allowed(self):
         self.assertTrue(self.file_admin.to_field_allowed(self.request, 'id'))
@@ -164,7 +170,7 @@ class TestFileAdminBase(TestCase):
         )
 
         self.assertIn(
-            'width="66" height="66" alt="" title="Foo"/>',
+            'width="66" height="66" alt="" title="Foo 2"/>',
             preview,
         )
 
@@ -190,6 +196,8 @@ class TestFileAdminBase(TestCase):
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
+
+        obj.delete()
 
     def test_fileadminbase_get_title(self):
         self.assertEqual(self.file_admin.get_title(self.obj_1), 'Foo')
@@ -234,7 +242,7 @@ class TestFileAdminBase(TestCase):
 
         self.assertEqual(
             json.loads(data.content.decode()),
-            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
+            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo 2"}}], "page": 1, "pages": [1]}}'.format(
                 pk1=self.obj_1.pk,
                 pk2=self.obj_2.pk,
                 content_type=ContentType.objects.get_for_model(File).pk,

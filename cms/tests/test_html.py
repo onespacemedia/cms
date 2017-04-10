@@ -59,6 +59,15 @@ class TestHTML(TestCase):
         self.image.file.delete(False)
         self.image.delete()
 
+        self.image_copyright.file.delete(False)
+        self.image_copyright.delete()
+
+        self.image_attribution.file.delete(False)
+        self.image_attribution.delete()
+
+        self.invalid_jpeg.file.delete(False)
+        self.invalid_jpeg.delete()
+
     def test_process(self):
         string = ''
         self.assertEqual(process(string), string)
@@ -117,5 +126,5 @@ class TestHTML(TestCase):
 
         re_tag = re.compile(r"<(img|ab)(\s+.*?)(/?)>", re.IGNORECASE)
         with mock.patch('cms.html.RE_TAG', new=re_tag), \
-             self.assertRaises(AssertionError):
+                self.assertRaises(AssertionError):
             process('<ab />')
