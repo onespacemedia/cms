@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils import six
 from django.utils.timezone import now
 
@@ -43,7 +43,7 @@ class TestLabel(TestCase):
         self.assertEqual(obj.__str__(), "Foo")
 
 
-class TestFile(TestCase):
+class TestFile(TransactionTestCase):
 
     def setUp(self):
         # An invalid JPEG
@@ -95,6 +95,9 @@ class TestFile(TestCase):
         self.obj_3.file.delete(False)
         self.obj_3.delete()
 
+        self.obj_4.file.delete(False)
+        self.obj_4.delete()
+
     def test_file_get_absolute_url(self):
         self.assertEqual(self.obj_1.get_absolute_url(), '/media/uploads/files/{}'.format(
             self.name_1
@@ -141,7 +144,7 @@ class TestFile(TestCase):
         self.assertEqual(field.rel.to, 'media.File')
 
 
-class TestVideo(TestCase):
+class TestVideo(TransactionTestCase):
 
     def setUp(self):
         # An invalid JPEG
@@ -155,6 +158,10 @@ class TestVideo(TestCase):
             file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
         )
 
+    def tearDown(self):
+        self.obj_1.file.delete(False)
+        self.obj_1.delete()
+
     def test_videofilereffield_init(self):
         obj = TestModel.objects.create(
             video_file=self.obj_1
@@ -164,6 +171,8 @@ class TestVideo(TestCase):
             obj._meta.get_field('video_file').get_limit_choices_to(),
             {'file__iregex': '\\.(webm|mp4|m4v)$'}
         )
+
+        obj.delete()
 
     def test_videoreffield_init(self):
         video = Video.objects.create(
@@ -188,6 +197,9 @@ class TestVideo(TestCase):
         self.assertEqual(widget.admin_site, admin.site)
         self.assertIsNone(widget.db)
 
+        obj.delete()
+        video.delete()
+
     def test_video_unicode(self):
         video = Video.objects.create(
             title='Foo',
@@ -195,3 +207,5 @@ class TestVideo(TestCase):
         )
 
         self.assertEqual(video.__str__(), 'Foo')
+
+        video.delete()
