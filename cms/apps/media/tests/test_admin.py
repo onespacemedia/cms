@@ -65,7 +65,6 @@ class TestVideoAdmin(TestCase):
 class TestFileAdminBase(TransactionTestCase):
 
     def setUp(self):
-        print 'setUp'
         self.site = AdminSite()
         self.file_admin = FileAdminBase(File, self.site)
 
