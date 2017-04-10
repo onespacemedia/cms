@@ -91,9 +91,11 @@ class TestFileAdminBase(TransactionTestCase):
             random.randint(0, six.MAXSIZE)
         )
 
+        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+
         self.obj_2 = File.objects.create(
             title="Foo 2",
-            file=SimpleUploadedFile(self.name_2, b"data", content_type="image/gif")
+            file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
         )
 
         self.label = Label.objects.create(

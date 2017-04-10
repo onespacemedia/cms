@@ -94,14 +94,13 @@ class File(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super(File, self).save(force_insert, force_update, using, update_fields)
-
         if self.is_image():
             dimensions = self.get_dimensions()
 
             if dimensions:
                 self.width, self.height = dimensions
+                super(File, self).save(False, True, using=using, update_fields=update_fields)
 
-                super(File, self).save(force_insert, force_update, using, update_fields)
 
     def is_image(self):
         from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON
