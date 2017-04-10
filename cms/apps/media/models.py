@@ -112,14 +112,17 @@ class File(models.Model):
         return icon == IMAGE_FILE_ICON
 
     def get_dimensions(self):
-        with open(self.file.path, 'rb') as f:
-            try:
-                image = Image.open(f)
-                image.verify()
-            except IOError:
-                return
+        try:
+            with open(self.file.path, 'rb') as f:
+                try:
+                    image = Image.open(f)
+                    image.verify()
+                except IOError:
+                    return
 
-        return image.size
+            return image.size
+        except IOError:
+            return 0
 
 
 class FileRefField(models.ForeignKey):

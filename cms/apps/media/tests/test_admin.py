@@ -91,12 +91,9 @@ class TestFileAdminBase(TransactionTestCase):
             random.randint(0, six.MAXSIZE)
         )
 
-        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-
         self.obj_2 = File.objects.create(
-            pk=random.randint(0, 99999999),
             title="Foo 2",
-            file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
+            file=SimpleUploadedFile(self.name_2, b"data", content_type="image/gif")
         )
 
         self.label = Label.objects.create(
@@ -172,7 +169,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
 
         self.assertIn(
-            'width="66" height="66" alt="" title="Foo"/>',
+            'width="66" height="66" alt="" title="Foo 2"/>',
             preview,
         )
 
@@ -244,7 +241,7 @@ class TestFileAdminBase(TransactionTestCase):
 
         self.assertEqual(
             json.loads(data.content.decode()),
-            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo"}}], "page": 1, "pages": [1]}}'.format(
+            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo 2"}}], "page": 1, "pages": [1]}}'.format(
                 pk1=self.obj_1.pk,
                 pk2=self.obj_2.pk,
                 content_type=ContentType.objects.get_for_model(File).pk,
