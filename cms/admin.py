@@ -23,7 +23,7 @@ from cms.forms import CMSAdminPasswordChangeForm
 
 # Field collections - used instead of full fieldsets to allow for custom field settings
 SECURITY_FIELDS = ("requires_authentication",)
-PUBLICATION_FIELDS = ("publication_date", "expiry_date", "is_online",)
+PUBLICATION_FIELDS = ("publication_date", "expiry_date", "is_online", "hide_from_search",)
 PUBLICATION_FIELDS_SIMPLE = ("is_online",)
 NAVIGATION_FIELDS = ("short_title", "in_navigation", "hide_from_anonymous",)
 SEO_FIELDS = ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index",

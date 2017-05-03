@@ -30,6 +30,16 @@ class PageSearchAdapter(SearchAdapter):
 
         return ""
 
+    def get_live_queryset(self):
+        """Selects only live models."""
+        qs = self.model.objects.all()
+        return qs.exclude(
+            pk__in=[
+                page.id for page in qs
+                if page.content and page.content.hide_from_search
+            ]
+        )
+
 
 class PagesAppConfig(AppConfig):
     name = 'cms.apps.pages'

@@ -378,6 +378,10 @@ class ContentBase(PageBase):
                   "navigation.",
     )
 
+    hide_from_search = models.BooleanField(
+        default=False,
+    )
+
     requires_authentication = models.BooleanField(
         default=False,
         help_text="Visitors will need to be logged in to see this page"
