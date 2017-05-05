@@ -251,8 +251,9 @@ def absolute_domain_url(context):
 def canonical_url(context):
     request = context['request']
 
-    url = '{}{}'.format(
+    url = '{}/{}{}'.format(
         absolute_domain_url(context),
+        request.language,
         request.path
     )
 
