@@ -166,10 +166,8 @@ class Page(MPTTModel):
         """The sub-navigation of this page."""
         return self.get_children()
 
-    def languages(self):
-        # TODO: Change this.
-        output = []
-
+    @cached_property
+    def content_objects(self):
         # Are there any content objects in this language?
         content_objects = []
 
@@ -179,6 +177,14 @@ class Page(MPTTModel):
                 is_online=True,
             )
             content_objects.extend(objects)
+
+        return content_objects
+
+    def languages(self):
+        # TODO: Change this.
+        output = []
+
+        content_objects = self.content_objects
 
         if len(content_objects) > 0:
             for content_object in content_objects:

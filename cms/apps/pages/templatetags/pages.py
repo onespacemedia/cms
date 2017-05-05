@@ -257,8 +257,24 @@ def canonical_url(context):
         request.path
     )
 
-    return escape(url)
+    return escape(url)   
 
+@register.simple_tag(takes_context=True)
+def language_tags(context):
+    request = context['request']
+    links = ""
+    for content_object in request.pages.current.content_objects:
+        url = '{}/{}{}'.format(
+            absolute_domain_url(context),
+            content_object.language,
+            request.path
+            )
+        links = links + '<link rel="alternate" href="{}" hreflang="{}">\n'.format(
+            url,
+            content_object.language 
+        )
+
+    return links
 
 @register.simple_tag(takes_context=True)
 def og_title(context, title=None):
