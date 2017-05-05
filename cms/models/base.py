@@ -55,11 +55,9 @@ class OnlineBaseSearchAdapter(PublishedBaseSearchAdapter):
     """Base search adapter for OnlineBase derivatives."""
 
 
-class SearchMetaBase(OnlineBase):
+class SearchMetaBaseMixin(models.Model):
 
     """Base model for models used to generate a standalone HTML page."""
-
-    objects = SearchMetaBaseManager()
 
     # SEO fields.
 
@@ -243,6 +241,13 @@ class SearchMetaBase(OnlineBase):
         page_context.update(context or {})
         return render(request, template, page_context, **kwargs)
 
+    class Meta:
+        abstract = True
+
+
+class SearchMetaBase(SearchMetaBaseMixin, OnlineBase):
+    objects = SearchMetaBaseManager()
+    
     class Meta:
         abstract = True
 

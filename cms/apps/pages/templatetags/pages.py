@@ -135,6 +135,23 @@ def meta_description(context, description=None):
         {% meta_description "foo" %}
 
     """
+
+    # Check if object in context
+    if 'object' in context:
+
+        # Check if object has a content method
+        if hasattr(context['object'], 'content'):
+
+            # Call content method to produce content object
+            content = context['object'].content()
+
+            # Make sure meta description exists on our new content object
+            if hasattr(content, 'meta_description'):
+
+                # Return escaped description
+                return escape(content.meta_description)
+
+
     if description is None:
         description = context.get("meta_description")
     if description is None:
@@ -174,6 +191,23 @@ def meta_robots(context, index=None, follow=None, archive=None):
     if archive is None:
         archive = context.get("robots_archive")
 
+    # Check if object in context
+    if 'object' in context:
+
+        # Check if object has a content method
+        if hasattr(context['object'], 'content'):
+
+            # Call content method to produce content object
+            content = context['object'].content()
+
+            # Make sure meta robots exist on our new content object
+            if index is None and hasattr(content, 'robots_index'):
+                index = content.robots_index
+            if follow is None and hasattr(content, 'robots_follow'):
+                follow = content.robots_follow
+            if archive is None and hasattr(content, 'robots_archive'):
+                archive = content.robots_archive
+                
     # Try to get the values from the current page.
     page = context['pages'].current
 
