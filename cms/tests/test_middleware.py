@@ -1,3 +1,5 @@
+import os
+
 from django.template.response import SimpleTemplateResponse
 from django.test import TestCase, RequestFactory
 
@@ -85,8 +87,10 @@ class MiddlewareTest(TestCase):
         response = SimpleTemplateResponse('pagination/pagination.html', context)
         localisation_middleware = LocalisationMiddleware()
 
+        geoip_dat_file = '{}/geoip/GeoIP.dat'.format(os.path.dirname(os.path.realpath(__file__)))
+
         self.request = self.factory.get('/media/')
-        processed_response = localisation_middleware.process_response(self.request, response)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
         self.assertEqual(processed_response, response)
         self.assertEqual(processed_response.status_code, 200)
 
@@ -98,7 +102,7 @@ class MiddlewareTest(TestCase):
         self.request = self.factory.get('/')
 
         localisation_middleware.process_request(self.request)
-        processed_response = localisation_middleware.process_response(self.request, response)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
         self.assertEqual(processed_response, response)
 
         self.assertIsNone(self.request.country)
@@ -108,7 +112,7 @@ class MiddlewareTest(TestCase):
         self.request = self.factory.get('/')
         self.request.META['REMOTE_ADDR'] = '212.58.246.103'
         localisation_middleware.process_request(self.request)
-        processed_response = localisation_middleware.process_response(self.request, response)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
 
         self.assertEqual(processed_response.status_code, 302)
         self.assertNotEqual(processed_response, response)
@@ -118,7 +122,7 @@ class MiddlewareTest(TestCase):
         self.request = self.factory.get('/')
         self.request.META['HTTP_X_FORWARDED_FOR'] = '212.58.246.103'
         localisation_middleware.process_request(self.request)
-        processed_response = localisation_middleware.process_response(self.request, response)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
 
         self.assertEqual(processed_response.status_code, 302)
         self.assertNotEqual(processed_response, response)
@@ -128,7 +132,7 @@ class MiddlewareTest(TestCase):
         self.request = self.factory.get('/')
         self.request.META['REMOTE_ADDR'] = '2.15.255.255'
         localisation_middleware.process_request(self.request)
-        processed_response = localisation_middleware.process_response(self.request, response)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
 
         self.assertEqual(processed_response.status_code, 200)
         self.assertEqual(processed_response, response)

@@ -95,7 +95,7 @@ class LocalisationMiddleware(object):
             except Country.DoesNotExist:
                 pass
 
-    def process_response(self, request, response):
+    def process_response(self, request, response, geoip_path=None):
 
         # Continue for media
         if request.path.startswith('/media/') \
@@ -108,7 +108,7 @@ class LocalisationMiddleware(object):
         if request.country is None:
 
             # Get the Geo location of the requests IP
-            geo_ip = GeoIP()
+            geo_ip = GeoIP(path=geoip_path)
             country_geo_ip = geo_ip.country(get_client_ip(request))
 
             if country_geo_ip['country_code']:
