@@ -222,7 +222,7 @@ class TestTemplatetags(TestCase):
         self.assertEqual(get_page_url(None), '#')
         self.assertEqual(
             get_page_url(self.homepage.pk, 'detail', slug='homepage'),
-            '//homepage/'
+            '/homepage/'
         )
 
     def test_render_breadcrumbs(self):

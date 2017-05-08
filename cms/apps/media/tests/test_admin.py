@@ -186,7 +186,7 @@ class TestFileAdminBase(TestCase):
         )
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/static/media/img/text-x-generic-template.png" width="66" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="66" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
