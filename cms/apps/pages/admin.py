@@ -169,7 +169,7 @@ class PageAdmin(PageBaseAdmin):
 
     def get_revision_instances(self, request, object):
         """Returns all the instances to be used in this object's revision."""
-        instances = super(PageAdmin, self).get_revision_instances(request, object)
+        instances = [object]
         # Add the content object.
         instances.append(object.content)
         # Add all the content inlines.
@@ -186,10 +186,10 @@ class PageAdmin(PageBaseAdmin):
         Returns a dictionary of data to set in the admin form in order to revert
         to the given revision.
         """
-        data = super(PageAdmin, self).get_revision_form_data(request, obj, version)
+        data = version.field_dict
         content_version = version.revision.version_set.all().get(
             content_type=obj.content_type_id,
-            object_id_int=obj.pk,
+            object_id=obj.pk,
         )
         data.update(content_version.field_dict)
         return data

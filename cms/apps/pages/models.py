@@ -208,8 +208,7 @@ class Page(PageBase):
             view_func,
             args=args,
             kwargs=kwargs,
-            urlconf=urlconf,
-            prefix=""
+            urlconf=urlconf
         )
 
     # Standard model methods.

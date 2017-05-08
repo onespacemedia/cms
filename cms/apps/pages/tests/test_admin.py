@@ -1,4 +1,8 @@
 from copy import deepcopy
+
+import reversion
+from reversion.models import Version
+from watson import search
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
@@ -17,7 +21,6 @@ from ..admin import (PageAdmin, PageContentTypeFilter, PAGE_FROM_KEY,
                      PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER)
 from ..models import get_registered_content, ContentBase, Page, CountryGroup, \
     Country
-from .... import externals
 
 import json
 import os
@@ -83,11 +86,13 @@ def get_inline_instances_1_4_x(self, request):
 
 class TestPageAdmin(TestCase):
 
+    maxDiff = None
+
     def setUp(self):
         self.site = AdminSite()
         self.page_admin = PageAdmin(Page, self.site)
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContent)
 
             self.homepage = Page.objects.create(
@@ -108,7 +113,9 @@ class TestPageAdmin(TestCase):
         request.GET = QueryDict('', mutable=True)
         request.POST = QueryDict('', mutable=True)
         request.COOKIES = {}
-        request.META = {}
+        request.META = {
+            'SCRIPT_NAME': ''
+        }
         request.method = method
         request.path = '/'
         request.resolver_match = False
@@ -201,13 +208,13 @@ class TestPageAdmin(TestCase):
         )
 
         # Create an initial revision.
-        with externals.reversion.create_revision():
+        with reversion.create_revision():
             self.homepage.content.save()
 
-        versions = externals.reversion.get_for_object(self.homepage.content)
+        versions = Version.objects.get_for_object(self.homepage.content)
 
         data = self.page_admin.get_revision_form_data(request, self.homepage, versions[0])
-        self.assertDictEqual(data, {'page': self.homepage.pk})
+        self.assertDictEqual(data, {'page_id': self.homepage.pk})
 
     def test_pageadmin_get_page_content_cls(self):
         request = self._build_request(
@@ -234,7 +241,7 @@ class TestPageAdmin(TestCase):
             page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
         )
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
@@ -316,7 +323,7 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(self.page_admin.get_all_children(self.homepage), [])
 
         # Add a child page.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
@@ -358,7 +365,7 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
 
         # Test a page with a content model with fields.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
@@ -564,10 +571,10 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
 
         # Create an initial revision.
-        with externals.reversion.create_revision():
+        with reversion.create_revision():
             self.homepage.content.save()
 
-        versions = externals.reversion.get_for_object(self.homepage.content)
+        versions = Version.objects.get_for_object(self.homepage.content)
 
         response = self.page_admin.revision_view(request, str(self.homepage.pk), (versions[0].pk))
         self.assertEqual(response.status_code, 200)
@@ -640,13 +647,13 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
         response = self.page_admin.sitemap_json_view(request)
 
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
 
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
         # Add a child page.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
@@ -662,13 +669,13 @@ class TestPageAdmin(TestCase):
 
         request.pages.homepage = Page.objects.get(slug='homepage')
         response = self.page_admin.sitemap_json_view(request)
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
         request.pages.homepage = None
         response = self.page_admin.sitemap_json_view(request)
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
@@ -698,7 +705,7 @@ class TestPageAdmin(TestCase):
         sys.stderr = self.orig_stderr
 
         # Add some child pages.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContent)
 
             content_page_1 = Page.objects.create(
@@ -821,7 +828,7 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
         self.assertEquals(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
 
             content_type_2 = ContentType.objects.get_for_model(
                 PageContentWithFields)
@@ -856,7 +863,7 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
 
         # Add some pages with different content types.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContent)
             content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 
@@ -888,7 +895,7 @@ class TestPageAdmin(TestCase):
 
     def test_pagecontenttypefilter_lookups(self):
         # Add some pages with different content types.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(PageContent)
             content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 

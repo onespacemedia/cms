@@ -8,7 +8,7 @@ from django.test import Client, RequestFactory, TestCase
 from django.utils import six
 from django.utils.timezone import now
 
-from .... import externals
+from watson import search
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Country, Page
 from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
@@ -50,7 +50,7 @@ class TestTemplatetags(TestCase):
             file=SimpleUploadedFile(self.name_1, base64.b64decode(base64_string), content_type="image/gif")
         )
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestTemplatetagPage)
 
             self.homepage = Page.objects.create(
@@ -222,7 +222,7 @@ class TestTemplatetags(TestCase):
         self.assertEqual(get_page_url(None), '#')
         self.assertEqual(
             get_page_url(self.homepage.pk, 'detail', slug='homepage'),
-            '/homepage/'
+            '//homepage/'
         )
 
     def test_render_breadcrumbs(self):

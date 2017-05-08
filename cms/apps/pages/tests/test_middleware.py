@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 
 from ..middleware import RequestPageManager, PageMiddleware
 from ..models import ContentBase, Page, CountryGroup, Country
-from .... import externals
+from watson import search
 
 
 class TestMiddlewarePage(ContentBase):
@@ -16,7 +16,7 @@ class TestMiddlewarePageURLs(ContentBase):
 
 
 def _generate_pages(self):
-    with externals.watson.context_manager("update_index")():
+    with search.update_index():
         content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
 
         self.homepage = Page.objects.create(
@@ -212,7 +212,7 @@ class TestRequestPageManager(TestCase):
         )
 
         # Create an alternate version of the page with the country.
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
 
             alternate_page = Page.objects.create(
@@ -289,7 +289,7 @@ class TestPageMiddleware(TestCase):
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response.status_code, 404)
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
 
             self.content_url = Page.objects.create(
@@ -308,7 +308,7 @@ class TestPageMiddleware(TestCase):
         processed_response = middleware.process_response(request, HttpResponseNotFound())
         self.assertEqual(processed_response.status_code, 500)
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
 
             self.content_url = Page.objects.create(
