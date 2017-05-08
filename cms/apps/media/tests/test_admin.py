@@ -14,7 +14,7 @@ from django.test import LiveServerTestCase, RequestFactory, TestCase
 from django.utils import six
 from django.utils.timezone import now
 
-from ..admin import FileAdminBase, VideoAdmin
+from ..admin import FileAdmin, VideoAdmin
 from ..models import File, Label, Video
 
 
@@ -66,7 +66,7 @@ class TestFileAdminBase(TestCase):
 
     def setUp(self):
         self.site = AdminSite()
-        self.file_admin = FileAdminBase(File, self.site)
+        self.file_admin = FileAdmin(File, self.site)
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
@@ -186,7 +186,7 @@ class TestFileAdminBase(TestCase):
         )
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="66" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/static/media/img/text-x-generic-template.png" width="66" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
@@ -303,7 +303,7 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
     def setUp(self):
         self.site = AdminSite()
-        self.file_admin = FileAdminBase(File, self.site)
+        self.file_admin = FileAdmin(File, self.site)
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')

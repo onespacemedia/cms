@@ -60,34 +60,34 @@ class TestSitemaps(TestCase):
             register(SitemapModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-sitemapmodel'].__bases__[0],
+            registered_sitemaps['cms-sitemapmodel'].__bases__[0],
             BaseSitemap
         )
 
         register(SearchMetaBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-searchmetabasemodel'].__bases__[0],
+            registered_sitemaps['cms-searchmetabasemodel'].__bases__[0],
             SearchMetaBaseSitemap
         )
 
         register(OnlineBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-onlinebasemodel'].__bases__[0],
+            registered_sitemaps['cms-onlinebasemodel'].__bases__[0],
             OnlineBaseSitemap
         )
 
         register(PublishedBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-publishedbasemodel'].__bases__[0],
+            registered_sitemaps['cms-publishedbasemodel'].__bases__[0],
             PublishedBaseSitemap
         )
 
         register(PageBaseModel2)
 
         self.assertEqual(
-            registered_sitemaps['tests-pagebasemodel2'].__bases__[0],
+            registered_sitemaps['cms-pagebasemodel2'].__bases__[0],
             PageBaseSitemap
         )

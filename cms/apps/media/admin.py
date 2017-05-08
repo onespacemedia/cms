@@ -302,7 +302,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         # Create files usable by the CMS
         json_data = {
             'page': page,
-            'pages': paginator.page_range,
+            'pages': list(paginator.page_range),
         }
 
         if file_type == 'files':

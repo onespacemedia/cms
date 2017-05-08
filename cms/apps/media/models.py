@@ -197,7 +197,7 @@ class VideoRefField(models.ForeignKey):
     """A foreign key to a File, constrained to only select image files."""
 
     def __init__(self, **kwargs):
-        kwargs["to"] = Video
+        kwargs["to"] = 'media.Video'
         kwargs.setdefault("related_name", "+")
         kwargs.setdefault("on_delete", models.PROTECT)
         super(VideoRefField, self).__init__(**kwargs)

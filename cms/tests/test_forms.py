@@ -44,13 +44,13 @@ class TestForms(TestCase):
 
         self.assertEqual(
             rendered,
-            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" name="foo" rows="10">\r\nbar</textarea>'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {}))))
+            '<textarea name="foo" rows="10" cols="40" data-wysiwyg-settings="{}" class="wysiwyg">\nbar</textarea>'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {}))))
         )
 
         rendered = widget.render('foo', 'bar', attrs={'id': 'foo'})
 
         self.assertIn(
-            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" id="foo" name="foo" rows="10">'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))),
+            '<textarea name="foo" class="wysiwyg" rows="10" cols="40" data-wysiwyg-settings="{}" id="foo">'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))),
             rendered,
         )
 
