@@ -108,11 +108,11 @@ class TestPage(TestCase):
             'slug': self.homepage.slug
         })
 
-        self.assertEqual(url, '//homepage/')
+        self.assertEqual(url, '/homepage/')
 
         url = self.homepage.reverse('index')
 
-        self.assertEqual(url, '//')
+        self.assertEqual(url, '/')
 
     def test_filter_indexable_pages(self):
         pages = Page.objects.all()
