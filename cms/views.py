@@ -1,7 +1,9 @@
 """Views used by the CMS."""
 
+from django.conf import settings
 from django.shortcuts import render
 from django.views import generic
+from django.views.decorators.cache import cache_page
 
 
 def handler500(request):
@@ -48,3 +50,22 @@ class SearchMetaDetailView(SearchMetaDetailMixin, generic.DetailView):
 class PageDetailView(PageDetailMixin, generic.DetailView):
 
     """A simple page detail view."""
+
+
+class CacheMixin(object):
+    cache_timeout = 60
+
+    def get_cache_timeout(self):
+        return self.cache_timeout
+
+    def dispatch(self, *args, **kwargs):
+        response = super(CacheMixin, self).dispatch(*args, **kwargs)
+
+        if getattr(settings, 'CMS_CACHE_PAGES', False):
+            return response
+
+        # Don't cache pages for logged-in users.
+        if hasattr(self.request, 'user') and self.request.user.is_authenticated():
+            return response
+
+        return cache_page(self.get_cache_timeout())(response)
