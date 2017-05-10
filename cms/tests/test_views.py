@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase
 from django.views import generic
-from six import text_type
+from six import binary_type
 
 from ..views import SearchMetaDetailMixin, TextTemplateView, CacheMixin
 
@@ -45,4 +45,4 @@ class TestViews(TestCase):
             with self.settings(CMS_CACHE_PAGES=do_caching):
                 request = self.factory.get('/')
                 response = test_view.dispatch(request)
-                self.assertEqual(response.content, text_type('foo'))
+                self.assertEqual(response.content, binary_type('foo'))
