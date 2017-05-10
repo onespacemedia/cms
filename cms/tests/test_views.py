@@ -1,6 +1,6 @@
-from django.test import TestCase
-from django.views import generic
 from django.http import HttpResponse
+from django.test import RequestFactory, TestCase
+from django.views import generic
 
 from ..views import SearchMetaDetailMixin, TextTemplateView, CacheMixin
 
@@ -11,6 +11,8 @@ class CacheTestView(CacheMixin, generic.View):
 
 
 class TestViews(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
 
     def test_texttemplateview_render_to_response(self):
         view = TextTemplateView()
@@ -36,9 +38,10 @@ class TestViews(TestCase):
     def test_cachemixin(self):
         test_view = CacheTestView()
 
-        self.assertEqual(test_view.get_cache_timeout(), view.cache_timeout)
+        self.assertEqual(test_view.get_cache_timeout(), test_view.cache_timeout)
 
         for do_caching in [True, False]:
             with self.settings(CMS_CACHE_PAGES=do_caching):
-                response = view.render_to_response()
+                request = self.factory.get('/')
+                response = test_view.dispatch(request)
                 self.assertEqual(response.content, 'foo')
