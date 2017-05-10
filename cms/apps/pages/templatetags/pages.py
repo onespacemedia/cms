@@ -220,7 +220,7 @@ def get_og_title(context, title=None):
         obj = context.get('object', None)
 
         if obj:
-            title = obj.og_title or obj.title
+            title = getattr(obj, 'og_title', None) or getattr(obj, 'title', None)
 
     if not title:
         title = context.get('og_title')
@@ -341,7 +341,7 @@ def get_twitter_title(context, title=None):
         obj = context.get('object', None)
 
         if obj:
-            title = obj.twitter_title or obj.title
+            title = getattr(obj, 'twitter_title', None) or getattr(obj, 'title', None)
 
     # If we are still None, look at page content
     if not title:
