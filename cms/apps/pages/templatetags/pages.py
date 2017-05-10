@@ -207,7 +207,7 @@ def meta_robots(context, index=None, follow=None, archive=None):
                 follow = content.robots_follow
             if archive is None and hasattr(content, 'robots_archive'):
                 archive = content.robots_archive
-                
+
     # Try to get the values from the current page.
     page = context['pages'].current
 
@@ -241,9 +241,10 @@ def absolute_domain_url(context):
 
     https = 's' if request.is_secure() else ''
 
-    return 'http{}://{}'.format(
-        https,
-        settings.SITE_DOMAIN
+    return 'http{}://{}{}'.format(
+        's' if request.is_secure() else '',
+        'www.' if settings.PREPEND_WWW else '',
+        settings.SITE_DOMAIN,
     )
 
 
@@ -257,7 +258,8 @@ def canonical_url(context):
         request.path
     )
 
-    return escape(url)   
+    return escape(url)
+
 
 @register.simple_tag(takes_context=True)
 def language_tags(context):
@@ -271,10 +273,11 @@ def language_tags(context):
             )
         links = links + '<link rel="alternate" href="{}" hreflang="{}">\n'.format(
             url,
-            content_object.language 
+            content_object.language
         )
 
     return links
+
 
 @register.simple_tag(takes_context=True)
 def og_title(context, title=None):
