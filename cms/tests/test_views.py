@@ -1,7 +1,13 @@
 from django.test import TestCase
 from django.views import generic
+from django.http import HttpResponse
 
-from ..views import SearchMetaDetailMixin, TextTemplateView
+from ..views import SearchMetaDetailMixin, TextTemplateView, CacheMixin
+
+
+class CacheTestView(CacheMixin, generic.View):
+    def dispatch(self, request, *args, **kwargs):
+        return HttpResponse('foo')
 
 
 class TestViews(TestCase):
@@ -17,7 +23,6 @@ class TestViews(TestCase):
         self.assertEqual(rendered.status_code, 200)
 
     def test_searchmetadetailmixin_get_context_data(self):
-
         class TestClass(SearchMetaDetailMixin, generic.DetailView):
             class Obj:
                 def get_context_data(self):
@@ -27,3 +32,13 @@ class TestViews(TestCase):
         context = TestClass().get_context_data()
         self.assertIn('foo', context)
         self.assertEqual(context['foo'], 'bar')
+
+    def test_cachemixin(self):
+        test_view = CacheTestView()
+
+        self.assertEqual(test_view.get_cache_timeout(), view.cache_timeout)
+
+        for do_caching in [True, False]:
+            with self.settings(CMS_CACHE_PAGES=do_caching):
+                response = view.render_to_response()
+                self.assertEqual(response.content, 'foo')
