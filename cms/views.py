@@ -59,13 +59,13 @@ class CacheMixin(object):
         return self.cache_timeout
 
     def dispatch(self, *args, **kwargs):
-        response = super(CacheMixin, self).dispatch(*args, **kwargs)
+        dispatch = super(CacheMixin, self).dispatch
 
         if getattr(settings, 'CMS_CACHE_PAGES', False):
-            return response
+            return dispatch(*args, **kwargs)
 
         # Don't cache pages for logged-in users.
         if hasattr(self.request, 'user') and self.request.user.is_authenticated():
-            return response
+            return dispatch(*args, **kwargs)
 
-        return cache_page(self.get_cache_timeout())(response)
+        return cache_page(self.get_cache_timeout())(dispatch)(*args, **kwargs)
