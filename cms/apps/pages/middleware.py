@@ -198,9 +198,12 @@ class PageMiddleware(object):
         if response.status_code != 404:
             return response
 
-        if not request.language:
+        # Get the cookie lang
+        cookie_lang = request.COOKIES.get('language', None)
+
+        if not request.language or (cookie_lang and cookie_lang != request.language):
             # Redirect to the default language.
-            return HttpResponseRedirect('/{}{}'.format(DEFAULT_LANGUAGE, request.path))
+            return HttpResponseRedirect('/{}{}'.format(cookie_lang if cookie_lang else DEFAULT_LANGUAGE, request.path))
 
         # Get the current page.
         page = request.pages.current
