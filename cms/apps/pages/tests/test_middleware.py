@@ -4,15 +4,8 @@ from django.test import RequestFactory, TestCase
 from watson import search
 
 from ..middleware import PageMiddleware, RequestPageManager
-from ..models import ContentBase, Country, CountryGroup, Page
-
-
-class TestMiddlewarePage(ContentBase):
-    pass
-
-
-class TestMiddlewarePageURLs(ContentBase):
-    urlconf = 'cms.apps.pages.tests.urls'
+from ..models import Country, CountryGroup, Page
+from .models import TestMiddlewarePage, TestMiddlewarePageURLs
 
 
 def _generate_pages(self):
