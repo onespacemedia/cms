@@ -1,4 +1,5 @@
 import os
+import platform
 import random
 import sys
 
@@ -17,6 +18,11 @@ def django_db_setup(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         cur = connection.cursor()
         cur.execute('ALTER SEQUENCE pages_page_id_seq RESTART WITH %s;', [random.randint(100, 200000)])
+
+
+if platform.python_implementation() == 'PyPy':
+    from psycopg2cffi import compat  # pylint: disable=import-error
+    compat.register()
 
 
 def pytest_configure():
