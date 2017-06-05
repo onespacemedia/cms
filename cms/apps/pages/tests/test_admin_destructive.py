@@ -12,7 +12,7 @@ class TestArticleAdminBase(TestCase):
     def test_article_admin(self):
         NEW_MIDDLEWARE_CLASSES = (
             'cms.middleware.LocalisationMiddleware',
-        ) + settings.MIDDLEWARE_CLASSES
+        ) + tuple(settings.MIDDLEWARE_CLASSES)
 
         self.assertNotIn(Country, admin.site._registry)
         self.assertNotIn(CountryGroup, admin.site._registry)

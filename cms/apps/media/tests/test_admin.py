@@ -44,7 +44,8 @@ class MockSuperUser(object):
     is_active = True
     is_staff = True
 
-    def has_perm(self, perm):
+    @staticmethod
+    def has_perm(perm):
         return True
 
 
