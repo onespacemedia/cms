@@ -47,6 +47,7 @@ def pytest_configure():
 
             # Tests which contain custom models.
             'cms.tests',
+            'cms.plugins.moderation.tests',
 
             # Third party apps
             'sorl.thumbnail',
