@@ -19,10 +19,11 @@ from django.utils.text import Truncator
 
 from sorl.thumbnail import get_thumbnail
 from cms import permalinks, externals
+from cms.apps.media.forms import VideoAdminForm
 from cms.apps.media.models import Label, File, Video
 
-import requests
 import json
+import requests
 
 
 class LabelAdmin(admin.ModelAdmin):
@@ -38,24 +39,20 @@ admin.site.register(Label, LabelAdmin)
 
 
 class VideoAdmin(admin.ModelAdmin):
-
-    def to_field_allowed(self, request, to_field):
-        """
-        This is a workaround for issue #552 which will raise a security
-        exception in the media select popup with django 1.6.6.
-        According to the release notes, this should be fixed by the
-        yet (2014-09-22) unreleased 1.6.8, 1.5.11, 1.7.1.
-
-        Details: https://code.djangoproject.com/ticket/23329#comment:11
-        """
-
-        if to_field == 'id':
-            return True
-
-        return super(VideoAdmin, self).to_field_allowed(request, to_field)
+    form = VideoAdminForm
+    fieldsets = [
+        ('', {
+            'fields': ['title', 'image'],
+        }),
+        ('External video', {
+            'fields': ['external_url'],
+        }),
+        ('Local video', {
+            'fields': ['high_resolution_mp4', 'low_resolution_mp4', 'webm'],
+        }),
+    ]
 
 admin.site.register(Video, VideoAdmin)
-
 
 # Different types of file.
 AUDIO_FILE_ICON = static("media/img/audio-x-generic.png")
@@ -112,21 +109,6 @@ class FileAdminBase(admin.ModelAdmin):
     change_list_template = "admin/media/file/change_list.html"
 
     filter_horizontal = ("labels",)
-
-    def to_field_allowed(self, request, to_field):
-        """
-        This is a workaround for issue #552 which will raise a security
-        exception in the media select popup with django 1.6.6.
-        According to the release notes, this should be fixed by the
-        yet (2014-09-22) unreleased 1.6.8, 1.5.11, 1.7.1.
-
-        Details: https://code.djangoproject.com/ticket/23329#comment:11
-        """
-
-        if to_field == 'id':
-            return True
-
-        return super(FileAdminBase, self).to_field_allowed(request, to_field)
 
     # Custom actions.
 

@@ -166,6 +166,20 @@ class Video(models.Model):
         null=True,
     )
 
+    external_url = models.URLField(
+        "external URL",
+        blank=True,
+        null=True,
+        help_text="Use this for externally-hosted videos, e.g. YouTube.",
+    )
+
+    # Never shown in the admin - this is auto-generated.
+    iframe_url = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+    )
+
     high_resolution_mp4 = VideoFileRefField(
         verbose_name="high resolution MP4",
         blank=True,
@@ -194,7 +208,7 @@ class Video(models.Model):
 
 class VideoRefField(models.ForeignKey):
 
-    """A foreign key to a File, constrained to only select image files."""
+    """A foreign key to a File, constrained to only select video files."""
 
     def __init__(self, **kwargs):
         kwargs["to"] = Video

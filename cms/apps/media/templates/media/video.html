@@ -1,0 +1,29 @@
+<div class="vid-Video">
+  {% if video.external_url and video.iframe_url %}
+    {% block video_iframe %}
+      <iframe class="vid-Video_Embed vid-Video_Embed-iframe" src="{{ video.iframe_url }}"></iframe>
+    {% endblock %}
+  {% else %}
+    {% block video_local %}
+      <video class="vid-Video_Embed vid-Video_Embed-local">
+        {% if prefer_high_resolution %}
+          {% if video.high_resolution_mp4 %}
+            <source src="{{ video.high_resolution_mp4.file.url }}" type="video/mp4">
+          {% elif video.low_resolution_mp4 %}
+            <source src="{{ video.low_resolution_mp4.file.url }}" type="video/mp4">
+          {% endif %}
+        {% else %}
+          {% if video.low_resolution_mp4 %}
+            <source src="{{ video.low_resolution_mp4.file.url }}" type="video/mp4">
+          {% elif video.low_resolution_mp4 %}
+            <source src="{{ video.high_resolution_mp4.file.url }}" type="video/mp4">
+          {% endif %}
+        {% endif %}
+
+        {% if video.webm %}
+          <source src="{{ video.webm.file.url }}" type="video/webm">
+        {% endif %}
+      </video>
+    {% endblock %}
+  {% endif %}
+</div>
