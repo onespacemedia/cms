@@ -5,13 +5,11 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils.html import escape
 from django.utils import six
-
+from django.utils.html import escape
 from sorl.thumbnail import get_thumbnail
 
 from cms import permalinks
-
 
 RE_TAG = re.compile(r"<(img|a)(\s+.*?)(/?)>", re.IGNORECASE)
 

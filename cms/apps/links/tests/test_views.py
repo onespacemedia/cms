@@ -2,9 +2,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase
 from watson.search import update_index
 
+from ...pages.models import Page
 from ..models import Link
 from ..views import index
-from ...pages.models import Page
 
 
 class TestLinks(TestCase):

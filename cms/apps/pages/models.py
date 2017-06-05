@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
-from django.db import models, connection, transaction
-from django.db.models import Q, F
+from django.db import connection, models, transaction
+from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.functional import cached_property
@@ -13,7 +13,7 @@ from historylinks import shortcuts as historylinks
 from reversion.models import Version
 
 from cms import sitemaps
-from cms.models import PageBase, OnlineBaseManager, PageBaseSearchAdapter
+from cms.models import OnlineBaseManager, PageBase, PageBaseSearchAdapter
 from cms.models.managers import publication_manager
 
 
@@ -208,7 +208,7 @@ class Page(PageBase):
             view_func,
             args=args,
             kwargs=kwargs,
-            urlconf=urlconf
+            urlconf=urlconf,
         )
 
     # Standard model methods.

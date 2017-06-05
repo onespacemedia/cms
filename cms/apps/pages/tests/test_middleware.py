@@ -1,10 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound
-from django.test import TestCase, RequestFactory
-
-from ..middleware import RequestPageManager, PageMiddleware
-from ..models import ContentBase, Page, CountryGroup, Country
+from django.test import RequestFactory, TestCase
 from watson import search
+
+from ..middleware import PageMiddleware, RequestPageManager
+from ..models import ContentBase, Country, CountryGroup, Page
 
 
 class TestMiddlewarePage(ContentBase):

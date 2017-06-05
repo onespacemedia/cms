@@ -1,14 +1,15 @@
+import sys
+
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 
 # `cms.admin` is import here and later on to test the NotRegistered exception.
 import cms.admin
+
 from ..admin import OnlineBaseAdmin
 from ..models import OnlineBase
-
-import sys
 
 
 class OnlineBaseAdminTestModel(OnlineBase):

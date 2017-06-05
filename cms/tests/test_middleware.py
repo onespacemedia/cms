@@ -1,12 +1,10 @@
 import os
 
 from django.template.response import SimpleTemplateResponse
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 
 from ..apps.pages.models import Country
-
-
-from ..middleware import PublicationMiddleware, LocalisationMiddleware
+from ..middleware import LocalisationMiddleware, PublicationMiddleware
 
 
 class MiddlewareTest(TestCase):

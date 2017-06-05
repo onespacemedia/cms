@@ -1,17 +1,17 @@
+import os
+import sys
+import unittest
+
 from django.test import TestCase
 from django.utils import six
 
-from ..debug import print_exc, print_current_exc
-
-import os
+from ..debug import print_current_exc, print_exc
 
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
 
-import sys
-import unittest
 
 
 class TestDebug(TestCase):

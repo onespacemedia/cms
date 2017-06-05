@@ -8,7 +8,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from watson.search import SearchAdapter
 
 from cms.apps.media.models import ImageRefField
-from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
+from cms.models.managers import (OnlineBaseManager, PageBaseManager,
+                                 PublishedBaseManager, SearchMetaBaseManager)
 
 
 class PublishedBase(models.Model):

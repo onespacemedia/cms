@@ -1,14 +1,15 @@
 import base64
 import random
 
-from cms.apps.media.models import File
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, RequestFactory, TestCase
 from django.utils import six
 from django.utils.timezone import now
-
 from watson import search
+
+from cms.apps.media.models import File
+
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Country, Page
 from ..templatetags.pages import (_navigation_entries, absolute_domain_url,

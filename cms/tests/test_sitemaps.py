@@ -1,10 +1,11 @@
 from django.db import models
 from django.test import TestCase
 
-from ..models import SearchMetaBase, OnlineBase, PublishedBase, PageBase
-from ..sitemaps import (BaseSitemap, SearchMetaBaseSitemap, OnlineBaseSitemap,
-                        PublishedBaseSitemap, SitemapRegistrationError,
-                        PageBaseSitemap, register, registered_sitemaps)
+from ..models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
+from ..sitemaps import (BaseSitemap, OnlineBaseSitemap, PageBaseSitemap,
+                        PublishedBaseSitemap, SearchMetaBaseSitemap,
+                        SitemapRegistrationError, register,
+                        registered_sitemaps)
 
 
 class SitemapModel(models.Model):

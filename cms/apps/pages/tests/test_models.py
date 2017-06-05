@@ -1,15 +1,14 @@
 """Tests for the pages app."""
 from datetime import timedelta
 
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
 from django.utils.timezone import now
-
 from reversion import create_revision
 from watson import search
+
 from ....models.managers import publication_manager
 from ..models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
                       filter_indexable_pages)

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from cms.forms import HtmlWidget
-from cms.models.fields import resolve_link, HtmlField, LinkResolutionError
+from cms.models.fields import HtmlField, LinkResolutionError, resolve_link
 
 
 class TestFields(TestCase):

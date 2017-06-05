@@ -1,14 +1,13 @@
 """Models used by the static media management application."""
 from __future__ import unicode_literals
 
-from PIL import Image
+import os
 
-from django.db import models
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-
-import os
+from PIL import Image
 
 
 @python_2_unicode_compatible

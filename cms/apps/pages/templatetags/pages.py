@@ -1,18 +1,17 @@
 """Template tags used to render pages."""
 from __future__ import unicode_literals
 
-from cms.templatetags.html import truncate_paragraphs
+import jinja2
+import six
 from django import template
 from django.conf import settings
 from django.utils.html import escape
+from django_jinja import library
+from jinja2.filters import do_striptags
 
 from cms.apps.pages.models import Page
 from cms.models import SearchMetaBase
-from django_jinja import library
-
-import jinja2
-import six
-from jinja2.filters import do_striptags
+from cms.templatetags.html import truncate_paragraphs
 
 register = template.Library()
 

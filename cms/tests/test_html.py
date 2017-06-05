@@ -4,12 +4,12 @@ import base64
 import random
 import re
 
+import mock
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.utils import six
 from django.utils.timezone import now
-import mock
 
 from ..apps.media.models import File
 from ..html import process

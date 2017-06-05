@@ -1,31 +1,30 @@
 """Admin settings for the static media management application."""
 from __future__ import unicode_literals
 
+import json
 import os
 from functools import partial
 
-from django.core.files import File as DjangoFile
-from django.core.files.temp import NamedTemporaryFile
-from django.core.paginator import Paginator
+import requests
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, Http404
-from django.shortcuts import render, get_object_or_404
+from django.core.files import File as DjangoFile
+from django.core.files.temp import NamedTemporaryFile
+from django.core.paginator import Paginator
+from django.http import (Http404, HttpResponse, HttpResponseForbidden,
+                         HttpResponseNotAllowed)
+from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
-
 from sorl.thumbnail import get_thumbnail
 from watson.admin import SearchAdmin
 
 from cms import permalinks
-from cms.apps.media.models import Label, File, Video
-
-import requests
-import json
+from cms.apps.media.models import File, Label, Video
 
 
 class LabelAdmin(admin.ModelAdmin):

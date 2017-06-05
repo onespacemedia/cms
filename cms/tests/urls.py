@@ -1,8 +1,6 @@
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 from django.contrib import admin
-
 from django.contrib.contenttypes.views import shortcut
-
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),

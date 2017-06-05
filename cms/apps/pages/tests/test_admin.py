@@ -1,30 +1,30 @@
+import json
+import os
+import sys
 from copy import deepcopy
 
 import reversion
-from reversion.models import Version
-from watson import search
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
-from django.contrib.admin.widgets import FilteredSelectMultiple, RelatedFieldWidgetWrapper
+from django.contrib.admin.widgets import (FilteredSelectMultiple,
+                                          RelatedFieldWidgetWrapper)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 from django.utils import six
 from django.utils.text import slugify
+from reversion.models import Version
+from watson import search
 
-from ..admin import (PageAdmin, PageContentTypeFilter, PAGE_FROM_KEY,
-                     PAGE_FROM_SITEMAP_VALUE, PAGE_TYPE_PARAMETER)
-from ..models import get_registered_content, ContentBase, Page, CountryGroup, \
-    Country
-
-import json
-import os
-import sys
+from ..admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
+                     PAGE_TYPE_PARAMETER, PageAdmin, PageContentTypeFilter)
+from ..models import (ContentBase, Country, CountryGroup, Page,
+                      get_registered_content)
 
 
 # Test models

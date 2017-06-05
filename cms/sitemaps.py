@@ -2,8 +2,7 @@
 
 from django.contrib.sitemaps import Sitemap
 
-from cms.models import PublishedBase, OnlineBase, SearchMetaBase, PageBase
-
+from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 
 # A dictionary of registered sitemap classes.
 registered_sitemaps = {}

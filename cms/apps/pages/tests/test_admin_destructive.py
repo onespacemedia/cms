@@ -1,10 +1,10 @@
+import sys
+
 from django.conf import settings
 from django.contrib import admin
 from django.test import TestCase
 
 from ..models import Country, CountryGroup, Page
-
-import sys
 
 
 class TestArticleAdminBase(TestCase):

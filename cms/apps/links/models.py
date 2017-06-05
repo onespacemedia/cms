@@ -2,8 +2,8 @@
 
 from django.db import models
 
-from cms.models import LinkField
 from cms.apps.pages.models import ContentBase
+from cms.models import LinkField
 
 
 class Link(ContentBase):

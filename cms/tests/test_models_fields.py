@@ -2,7 +2,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.test import TestCase
 
-from ..models.fields import resolve_link, link_validator, LinkResolutionError, LinkField
+from ..models.fields import (LinkField, LinkResolutionError, link_validator,
+                             resolve_link)
 
 
 class TestFieldsModel(models.Model):

@@ -8,34 +8,35 @@ standard implementation.
 
 from __future__ import unicode_literals, with_statement
 
-from functools import cmp_to_key
 import json
 from copy import deepcopy
+from functools import cmp_to_key
 
 import six
+from django import forms
 from django.conf import settings
+from django.conf.urls import url
 from django.contrib import admin, messages
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.urlresolvers import reverse
-from django.conf.urls import url
-from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.contrib.contenttypes.models import ContentType
-from django.db import transaction, models
+from django.db import models, transaction
 from django.db.models import F, Q
-from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseForbidden
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import (Http404, HttpResponse, HttpResponseForbidden,
+                         HttpResponseRedirect)
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.utils import six
-from django import forms
 from watson.search import update_index
 
 from cms import debug
 from cms.admin import PageBaseAdmin
-from cms.apps.pages.models import Page, get_registered_content, PageSearchAdapter, Country, CountryGroup
-
+from cms.apps.pages.models import (Country, CountryGroup, Page,
+                                   PageSearchAdapter, get_registered_content)
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"

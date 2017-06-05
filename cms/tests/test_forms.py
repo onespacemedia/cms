@@ -1,10 +1,12 @@
 import json
+
 from django.conf import settings
 from django.test import TestCase
-from django.utils.html import format_html, conditional_escape
+from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 
-from ..forms import CMSPasswordChangeForm, CMSAdminPasswordChangeForm, HtmlWidget, password_validation
+from ..forms import (CMSAdminPasswordChangeForm, CMSPasswordChangeForm,
+                     HtmlWidget, password_validation)
 
 
 class MockSuperUser(object):

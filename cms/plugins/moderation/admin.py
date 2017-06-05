@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from .models import APPROVED, STATUS_CHOICES
 
-
 MODERATION_FIELDS = ("Moderation controls", {
     "fields": ['status']
 })

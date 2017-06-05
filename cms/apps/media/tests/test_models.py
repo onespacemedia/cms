@@ -1,3 +1,6 @@
+import base64
+import random
+
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -6,10 +9,8 @@ from django.test import TestCase
 from django.utils import six
 from django.utils.timezone import now
 
-from ..models import File, FileRefField, Label, Video, VideoFileRefField, VideoRefField
-
-import base64
-import random
+from ..models import (File, FileRefField, Label, Video, VideoFileRefField,
+                      VideoRefField)
 
 
 class TestModel(models.Model):

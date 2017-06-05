@@ -3,12 +3,12 @@
 import re
 
 from django.conf import settings
+from django.contrib.gis.geoip import GeoIP
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
-from django.contrib.gis.geoip import GeoIP
 
 from cms.apps.pages.models import Country
-from cms.models import publication_manager, PublicationManagementError
+from cms.models import PublicationManagementError, publication_manager
 
 
 def get_client_ip(request):

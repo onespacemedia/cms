@@ -1,4 +1,5 @@
 from django.db import models
+
 from cms.plugins.moderation.models import ModerationBase
 
 

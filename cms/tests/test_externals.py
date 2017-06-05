@@ -1,10 +1,10 @@
+import unittest
+from types import FunctionType
+
 from django.test import TestCase
 from django.utils import six
 
 from ..externals import External
-
-from types import FunctionType
-import unittest
 
 
 class TestExternals(TestCase):

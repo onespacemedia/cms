@@ -5,13 +5,14 @@ from django.contrib.auth.models import User
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
+from cms.forms import CMSAdminPasswordChangeForm
+from cms.models.base import PageBaseSearchAdapter, SearchMetaBaseSearchAdapter
+
 try:
     from usertools.admin import UserAdmin
 except ImportError:
     from django.contrib.auth.admin import UserAdmin
 
-from cms.models.base import SearchMetaBaseSearchAdapter, PageBaseSearchAdapter
-from cms.forms import CMSAdminPasswordChangeForm
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):

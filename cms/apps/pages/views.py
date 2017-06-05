@@ -1,8 +1,9 @@
 """Views used by the pages app."""
 
-from cms.views import CacheMixin
 from django.contrib.contenttypes.models import ContentType
 from django.views.generic import TemplateView
+
+from cms.views import CacheMixin
 
 
 class ContentIndexView(CacheMixin, TemplateView):
