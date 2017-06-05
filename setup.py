@@ -12,11 +12,11 @@ DEPENDENCIES = [
     'sorl-thumbnail',
     'Jinja2==2.8',
 
-    'django==1.11rc1',
+    'django>=1.11,<1.12',
     'django-historylinks',
     'django-suit',
-    'django-watson==1.3.0',
-    'django-reversion==2.0.8',
+    'django-watson',
+    'django-reversion',
     'django-jinja==2.2.1'
 ]
 
