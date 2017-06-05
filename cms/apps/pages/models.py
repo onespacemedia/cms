@@ -204,7 +204,7 @@ class Page(PageBase):
             self.content_type_id
         ).model_class().urlconf
 
-        return self.get_absolute_url() + urlresolvers.reverse(
+        return self.get_absolute_url().rstrip('/') + urlresolvers.reverse(
             view_func,
             args=args,
             kwargs=kwargs,
