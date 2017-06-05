@@ -201,8 +201,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                         icon,
                         obj.title
                     )
-        else:
-            icon = staticfiles_storage.url(icon)
 
         return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
             permalink,
