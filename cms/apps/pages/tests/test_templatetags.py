@@ -38,6 +38,8 @@ class TestTemplatetags(TestCase):
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
 
+        File.objects.all().delete()
+
         # A valid GIF.
         self.name_1 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
