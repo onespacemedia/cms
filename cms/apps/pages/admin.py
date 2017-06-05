@@ -53,7 +53,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
 
     parameter_name = "page_type"
 
-    def lookups(self, request, model):
+    def lookups(self, request, model_admin):
         lookups = []
         content_types = ContentType.objects.get_for_models(*get_registered_content())
         for key, value in six.iteritems(content_types):
@@ -167,22 +167,22 @@ class PageAdmin(PageBaseAdmin):
         return inline_instances
 
     # Reversion
-
-    def get_revision_instances(self, request, object):
+    def get_revision_instances(self, request, obj):
         """Returns all the instances to be used in this object's revision."""
-        instances = [object]
+        instances = [obj]
         # Add the content object.
-        instances.append(object.content)
+        instances.append(obj.content)
         # Add all the content inlines.
         for _, inline in self.content_inlines:
             # pass
             try:
-                instances.extend(inline.model._default_manager.filter(page=object))
+                instances.extend(inline.model._default_manager.filter(page=obj))
             except:
                 pass
         return instances
 
-    def get_revision_form_data(self, request, obj, version):
+    @staticmethod
+    def get_revision_form_data(request, obj, version):
         """
         Returns a dictionary of data to set in the admin form in order to revert
         to the given revision.
@@ -196,8 +196,8 @@ class PageAdmin(PageBaseAdmin):
         return data
 
     # Plugable content types.
-
-    def get_page_content_cls(self, request, obj=None):
+    @staticmethod
+    def get_page_content_cls(request, obj=None):
         """Retrieves the page content type slug."""
         if obj and not hasattr(request, '_admin_change_obj'):
             request._admin_change_obj = obj
@@ -344,8 +344,8 @@ class PageAdmin(PageBaseAdmin):
         obj.content = content_obj
 
     # Permissions.
-
-    def has_add_content_permission(self, request, model):
+    @staticmethod
+    def has_add_content_permission(request, model):
         """Checks whether the given user can edit the given content model."""
         opts = model._meta
         return request.user.has_perm("{0}.{1}".format(opts.app_label, get_permission_codename('add', opts)))
@@ -386,7 +386,6 @@ class PageAdmin(PageBaseAdmin):
         return True
 
     # Custom views.
-
     def patch_response_location(self, request, response):
         """Perpetuates the 'from' key in all redirect responses."""
         if isinstance(response, HttpResponseRedirect):
@@ -394,15 +393,15 @@ class PageAdmin(PageBaseAdmin):
                 response["Location"] += "?%s=%s" % (PAGE_FROM_KEY, request.GET[PAGE_FROM_KEY])
         return response
 
-    def changelist_view(self, request, *args, **kwargs):
+    def changelist_view(self, request, extra_context=None):
         """Redirects to the sitemap, if appropriate."""
         if PAGE_FROM_KEY in request.GET:
             redirect_slug = request.GET[PAGE_FROM_KEY]
             if redirect_slug == PAGE_FROM_SITEMAP_VALUE:
                 return redirect("admin:index")
-        return super(PageAdmin, self).changelist_view(request, *args, **kwargs)
+        return super(PageAdmin, self).changelist_view(request, extra_context)
 
-    def change_view(self, request, object_id, *args, **kwargs):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
         """Uses only the correct inlines for the page."""
         # HACK: Add the current page to the request to pass to the get_inline_instances() method.
         page = get_object_or_404(self.model, id=object_id)
@@ -427,17 +426,17 @@ class PageAdmin(PageBaseAdmin):
             extra_context['display_language_options'] = True
 
         # Call the change view.
-        return super(PageAdmin, self).change_view(request, object_id, extra_context=extra_context, *args, **kwargs)
+        return super(PageAdmin, self).change_view(request, object_id, form_url=form_url, extra_context=extra_context)
 
-    def revision_view(self, request, object_id, *args, **kwargs):
+    def revision_view(self, request, object_id, version_id, extra_context=None):
         """Load up the correct content inlines."""
         # HACK: Add the current page to the request to pass to the get_inline_instances() method.
         page = get_object_or_404(self.model, id=object_id)
         request._admin_change_obj = page
         # Call the change view.
-        return super(PageAdmin, self).revision_view(request, object_id, *args, **kwargs)
+        return super(PageAdmin, self).revision_view(request, object_id, version_id, extra_context)
 
-    def add_view(self, request, *args, **kwargs):
+    def add_view(self, request, form_url='', extra_context=None):
         """Ensures that a valid content type is chosen."""
         if PAGE_TYPE_PARAMETER not in request.GET:
             # Generate the available content items.
@@ -455,17 +454,17 @@ class PageAdmin(PageBaseAdmin):
                     get_params = request.GET.copy()
                     get_params[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(content_type).id
                     query_string = get_params.urlencode()
-                    url = request.path + "?" + query_string
+                    content_url = request.path + "?" + query_string
                     content_type_context = {
                         "name": content_type._meta.verbose_name,
                         "icon": staticfiles_storage.url(content_type.icon),
-                        "url": url,
+                        "url": content_url,
                         "classifier": content_type.classifier
                     }
                     content_types.append(content_type_context)
             # Shortcut for when there is a single content type.
             if len(content_types) == 1:
-                return redirect(content_types[0]["url"])
+                return redirect(content_types[0]['content_url'])
             # Render the select page template.
             context = {
                 "title": "Select page type",
@@ -476,30 +475,30 @@ class PageAdmin(PageBaseAdmin):
         else:
             if not self.has_add_content_permission(request, ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()):
                 raise PermissionDenied("You are not allowed to add pages of that content type.")
-        return super(PageAdmin, self).add_view(request, *args, **kwargs)
+        return super(PageAdmin, self).add_view(request, form_url, extra_context)
 
-    def response_add(self, request, *args, **kwargs):
+    def response_add(self, request, obj, post_url_continue=None):
         """Redirects to the sitemap if appropriate."""
-        response = super(PageAdmin, self).response_add(request, *args, **kwargs)
+        response = super(PageAdmin, self).response_add(request, obj, post_url_continue)
         return self.patch_response_location(request, response)
 
-    def response_change(self, request, *args, **kwargs):
+    def response_change(self, request, obj):
         """Redirects to the sitemap if appropriate."""
-        response = super(PageAdmin, self).response_change(request, *args, **kwargs)
+        response = super(PageAdmin, self).response_change(request, obj)
         return self.patch_response_location(request, response)
 
-    def delete_view(self, request, *args, **kwargs):
+    def delete_view(self, request, object_id, extra_context=None):
         """Redirects to the sitemap if appropriate."""
-        response = super(PageAdmin, self).delete_view(request, *args, **kwargs)
+        response = super(PageAdmin, self).delete_view(request, object_id, extra_context)
         return self.patch_response_location(request, response)
 
     def get_urls(self):
         """Adds in some custom admin URLs."""
         admin_view = self.admin_site.admin_view
         return [
-            url("^sitemap.json$", admin_view(self.sitemap_json_view), name="pages_page_sitemap_json"),
-            url("^move-page/$", admin_view(self.move_page_view), name="pages_page_move_page"),
-            url("^(?P<page>\d+)/duplicate/$", admin_view(self.duplicate_for_country_group), name="pages_page_duplicate_page"),
+            url(r"^sitemap.json$", admin_view(self.sitemap_json_view), name="pages_page_sitemap_json"),
+            url(r"^move-page/$", admin_view(self.move_page_view), name="pages_page_move_page"),
+            url(r"^(?P<page>\d+)/duplicate/$", admin_view(self.duplicate_for_country_group), name="pages_page_duplicate_page"),
         ] + super(PageAdmin, self).get_urls()
 
     @debug.print_exc
@@ -632,7 +631,8 @@ class PageAdmin(PageBaseAdmin):
         # Report back.
         return HttpResponse("Page #%s was moved %s." % (page["id"], direction))
 
-    def duplicate_for_country_group(self, request, *args, **kwargs):
+    @staticmethod
+    def duplicate_for_country_group(request, *args, **kwargs):
         # Get the current page
         original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
         original_content = original_page.content

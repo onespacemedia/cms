@@ -1,6 +1,7 @@
 import json
 import re
-import string
+# https://www.logilab.org/ticket/2481
+import string  # pylint: disable=deprecated-module
 
 from django import forms
 from django.conf import settings
@@ -14,12 +15,7 @@ from cms import debug
 
 
 class HtmlWidget(forms.Textarea):
-
     """A textarea that is converted into a Redactor editor."""
-
-    def __init__(self, *args, **kwargs):
-        """Initializes the HtmlWidget."""
-        super(HtmlWidget, self).__init__(*args, **kwargs)
 
     @debug.print_exc
     def get_media(self):
@@ -38,7 +34,7 @@ class HtmlWidget(forms.Textarea):
         doc="The media used by the widget.",
     )
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         """Renders the widget."""
 
         # Add on the JS initializer.

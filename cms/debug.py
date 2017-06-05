@@ -22,8 +22,7 @@ def print_exc(func):
                 traceback.print_exc()
                 raise
         return wrapper
-    else:
-        return func
+    return func
 
 
 def print_current_exc():

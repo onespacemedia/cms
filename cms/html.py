@@ -48,7 +48,7 @@ def process(text):
 
         if tagname == "a":
             # Process hyperlinks.
-            get_obj("href")
+            obj = get_obj("href")
         elif tagname == "img":
             # Process images.
             obj = get_obj("src")
@@ -95,6 +95,6 @@ def process(text):
             assert False
 
         # Regenerate the html tag.
-        attrs = " ".join("%s=%s" % (key, value) for key, value in sorted(six.iteritems(attrs)))
-        return "<%s %s%s>" % (tagname, attrs, match.group(3))
+        attrs_str = " ".join("%s=%s" % (key, value) for key, value in sorted(six.iteritems(attrs)))
+        return "<%s %s%s>" % (tagname, attrs_str, match.group(3))
     return RE_TAG.sub(sub_tag, text)

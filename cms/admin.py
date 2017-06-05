@@ -11,7 +11,7 @@ from cms.models.base import PageBaseSearchAdapter, SearchMetaBaseSearchAdapter
 try:
     from usertools.admin import UserAdmin
 except ImportError:
-    from django.contrib.auth.admin import UserAdmin
+    from django.contrib.auth.admin import UserAdmin  # pylint: disable=ungrouped-imports
 
 
 

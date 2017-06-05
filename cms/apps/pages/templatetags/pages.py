@@ -36,14 +36,13 @@ def _navigation_entries(context, pages, section=None, is_json=False):
                 "children": [page_entry(x) for x in page.navigation if
                              page is not request.pages.homepage]
             }
-        else:
-            return {
-                "url": url,
-                "page": page,
-                "title": six.text_type(page),
-                "here": request.path.startswith(url),
-                "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
-            }
+        return {
+            "url": url,
+            "page": page,
+            "title": six.text_type(page),
+            "here": request.path.startswith(url),
+            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
+        }
 
     # All the applicable nav items
     entries = [page_entry(x) for x in pages if page_entry(x) is not None]

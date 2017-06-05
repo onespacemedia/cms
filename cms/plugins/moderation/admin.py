@@ -24,7 +24,7 @@ class ModerationAdminBase(admin.ModelAdmin):
 
             # Check if the user has permission to approve this model's objects.
             if not request.user.has_perm('{}.can_approve'.format(db_field.model._meta.app_label)):
-                choices_list = [x for x in STATUS_CHOICES if not x[0] == APPROVED]
+                choices_list = [x for x in STATUS_CHOICES if x[0] != APPROVED]
 
             kwargs['choices'] = choices_list
 

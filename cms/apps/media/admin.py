@@ -9,7 +9,6 @@ import requests
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
@@ -131,13 +130,13 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     def add_label_action(self, request, queryset, label):
         """Adds the label on the given queryset."""
-        for file in queryset:
-            file.labels.add(label)
+        for obj in queryset:
+            obj.labels.add(label)
 
     def remove_label_action(self, request, queryset, label):
         """Removes the label on the given queryset."""
-        for file in queryset:
-            file.labels.remove(label)
+        for obj in queryset:
+            obj.labels.remove(label)
 
     def get_actions(self, request):
         """Generates the actions for assigning categories."""
@@ -218,13 +217,13 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     # Custom view logic.
 
-    def response_add(self, request, obj, *args, **kwargs):
+    def response_add(self, request, obj, post_url_continue=None):
         """Returns the response for a successful add action."""
         if "_tinymce" in request.GET:
             context = {"permalink": permalinks.create(obj),
                        "title": obj.title}
             return render(request, "admin/media/file/filebrowser_add_success.html", context)
-        return super(FileAdmin, self).response_add(request, obj, *args, **kwargs)
+        return super(FileAdmin, self).response_add(request, obj, post_url_continue=post_url_continue)
 
     def changelist_view(self, request, extra_context=None):
         """Renders the change list."""
@@ -259,18 +258,18 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         if request.method != 'POST':
             return HttpResponseNotAllowed(['POST'])
 
-        url = request.POST.get('url', None)
+        image_url = request.POST.get('url', None)
 
-        if not url:
+        if not image_url:
             raise Http404("No URL supplied.")
 
         # Pull down the remote image and save it as a temporary file.
         img_temp = NamedTemporaryFile()
-        img_temp.write(requests.get(url).content)
+        img_temp.write(requests.get(image_url).content)
         img_temp.flush()
 
         obj = get_object_or_404(File, pk=object_id)
-        obj.file.save(url.split('/')[-1], DjangoFile(img_temp))
+        obj.file.save(image_url.split('/')[-1], DjangoFile(img_temp))
 
         messages.success(request, 'The file "{}" was changed successfully. You may edit it again below.'.format(
             obj.__str__()
@@ -332,7 +331,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         ]
 
         try:
-
             if file_type == 'image':
                 if request.FILES.getlist('file')[0].content_type not in image_content_types:
                     raise Exception()
@@ -347,12 +345,10 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 return HttpResponse(json.dumps({
                     'filelink': permalinks.create(new_file)
                 }))
-            else:
-                return HttpResponse(json.dumps({
-                    'filelink': permalinks.create(new_file),
-                    'filename': request.FILES.getlist('file')[0].name,
-                }))
-
+            return HttpResponse(json.dumps({
+                'filelink': permalinks.create(new_file),
+                'filename': request.FILES.getlist('file')[0].name,
+            }))
         except:
             return HttpResponse('')
 

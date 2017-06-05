@@ -27,3 +27,6 @@ class Link(ContentBase):
         help_text="Open the page in a new window.",
         default=False,
     )
+
+    def __unicode__(self):
+        return self.page.title
