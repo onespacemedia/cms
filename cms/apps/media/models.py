@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 
 import os
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
+
+from tinypng.api import shrink_file
 
 
 @python_2_unicode_compatible
@@ -34,8 +37,10 @@ class File(models.Model):
 
     """A static file."""
 
-    title = models.CharField(max_length=200,
-                             help_text="The title will be used as the default rollover text when this media is embedded in a web page.")
+    title = models.CharField(
+        max_length=200,
+        help_text="The title will be used as the default rollover text when this media is embedded in a web page.",
+    )
 
     labels = models.ManyToManyField(
         Label,
@@ -81,21 +86,19 @@ class File(models.Model):
         super(File, self).save(*args, **kwargs)
 
         # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
-        if self.file:
+        if self.file and settings.TINYPNG_API_KEY:
             _, extension = os.path.splitext(self.file.name)
             extension = extension.lower()[1:]
 
             if extension in ['png', 'jpg', 'jpeg']:
-                from tinypng.api import shrink_file
-
                 try:
                     shrink_file(
                         self.file.path,
-                        api_key='dytEZkQkwRyxF2_R_qYKr_bPdltbpRPj',
+                        api_key=settings.TINYPNG_API_KEY,
                         out_filepath=self.file.path,
                     )
                 # If the minification doesn't happen, that's ok.
-                except:
+                except:  # pylint: disable=bare-except
                     pass
 
     def is_image(self):
