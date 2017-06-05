@@ -108,7 +108,7 @@ class File(models.Model):
         super(File, self).save(*args, **kwargs)
 
         # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
-        if self.file and settings.TINYPNG_API_KEY:
+        if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
             _, extension = os.path.splitext(self.file.name)
             extension = extension.lower()[1:]
 
