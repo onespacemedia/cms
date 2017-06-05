@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase
 from django.views import generic
-from six import binary_type
+from six import text_type
 
 from ..views import SearchMetaDetailMixin, TextTemplateView, CacheMixin
 
