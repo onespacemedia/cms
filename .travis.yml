@@ -5,8 +5,7 @@ cache:
 python:
 - "2.7"
 - "3.5"
-- "pypy"
-- "pypy3"
+- "pypy-5.7.1"
 matrix:
   allow_failures:
   - python: "pypy"

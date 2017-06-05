@@ -44,15 +44,19 @@ class TestForms(TestCase):
         widget = HtmlWidget()
         rendered = widget.render('foo', 'bar')
 
-        self.assertEqual(
+        self.assertInHTML(
             rendered,
-            '<textarea name="foo" rows="10" cols="40" data-wysiwyg-settings="{}" class="wysiwyg">\nbar</textarea>'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {}))))
+            '<textarea name="foo" rows="10" cols="40" data-wysiwyg-settings="{}" class="wysiwyg">\nbar</textarea>'.format(
+                conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))
+            ),
         )
 
         rendered = widget.render('foo', 'bar', attrs={'id': 'foo'})
 
-        self.assertIn(
-            '<textarea name="foo" class="wysiwyg" rows="10" cols="40" data-wysiwyg-settings="{}" id="foo">'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))),
+        self.assertInHTML(
+            '<textarea name="foo" class="wysiwyg" rows="10" cols="40" data-wysiwyg-settings="{}" id="foo">\nbar</textarea>'.format(
+                conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))
+            ),
             rendered,
         )
 
