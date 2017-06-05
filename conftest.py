@@ -7,22 +7,6 @@ from django.conf import settings
 from django.db import connection
 
 
-# The CMS tests use test-only models, which won't be loaded if we only load
-# our real migration files, so point to a nonexistent one, which will make
-# the test runner fall back to 'syncdb' behavior.
-
-# Note: This will not catch a situation where a developer commits model
-# changes without the migration files.
-
-class DisableMigrations(object):
-
-    def __contains__(self, item):
-        return True
-
-    def __getitem__(self, item):
-        return 'notmigrations'
-
-
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass
@@ -49,7 +33,6 @@ def pytest_configure():
         },
         STATIC_URL='/static/',
         MEDIA_URL='/media/',
-        MIGRATION_MODULES=DisableMigrations(),
         INSTALLED_APPS=[
             # Django apps
             'django.contrib.admin',

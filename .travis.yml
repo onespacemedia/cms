@@ -19,9 +19,9 @@ addons:
     - libgeoip-dev
 install:
   - pip install -e .[testing]
-script: pytest --cov=cms -n auto --create-db
+script: pytest --cov=cms -n auto --create-db --nomigrations
 notifications:
-  slack: 
+  slack:
     rooms: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt#builds
     on_success: change
     on_failure: always
