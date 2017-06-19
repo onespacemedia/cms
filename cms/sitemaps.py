@@ -40,9 +40,7 @@ class SearchMetaBaseSitemap(OnlineBaseSitemap):
 
     def items(self):
         """Only lists items that are marked as indexable."""
-        return super(SearchMetaBaseSitemap, self).items().filter(
-            robots_index=True,
-        )
+        return super(SearchMetaBaseSitemap, self).items()
 
     def changefreq(self, obj):
         """Returns the change frequency of the given page."""

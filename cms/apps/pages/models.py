@@ -299,9 +299,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         return qs
 
 
-
 # Base content class.
-
 def get_registered_content():
     """Returns a list of all registered content objects."""
     return [
@@ -315,15 +313,11 @@ def filter_indexable_pages(queryset):
     Filters the given queryset of pages to only contain ones that should be
     indexed by search engines.
     """
-    return queryset.filter(
-        robots_index=True,
-        content_type__in=[
-            ContentType.objects.get_for_model(content_model)
-            for content_model
-            in get_registered_content()
-            if content_model.robots_index
-        ]
-    )
+    return [
+        page.content
+        for page in Page.objects.all()
+        if page.content and page.content.robots_index
+    ]
 
 
 @python_2_unicode_compatible
