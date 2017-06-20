@@ -40,6 +40,7 @@ class HtmlWidget(forms.Textarea):
         # Add on the JS initializer.
         attrs = attrs or {}
         attrs['class'] = "wysiwyg"
+	attrs['required'] = False
         attrs['data-wysiwyg-settings'] = json.dumps(
             getattr(settings, 'WYSIWYG_OPTIONS', {})
         )
