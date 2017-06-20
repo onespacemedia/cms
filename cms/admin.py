@@ -56,7 +56,7 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
 
     adapter_cls = SearchMetaBaseSearchAdapter
 
-    list_display = ("__str__", "is_online", 'get_date_modified', )
+    list_display = ("__str__", "is_online",)
 
     SEO_FIELDS = ("Search engine optimization", {
         "fields": ("browser_title", "meta_description", "sitemap_priority", "sitemap_changefreq", "robots_index", "robots_follow", "robots_archive",),
