@@ -143,7 +143,10 @@ def meta_description(context, description=None):
         if hasattr(context['object'], 'content'):
 
             # Call content method to produce content object
-            content = context['object'].content()
+            try:
+                content = context['object'].content()
+            except TypeError:
+                content = context['object']
 
             # Make sure meta description exists on our new content object
             if hasattr(content, 'meta_description'):
@@ -198,7 +201,10 @@ def meta_robots(context, index=None, follow=None, archive=None):
         if hasattr(context['object'], 'content'):
 
             # Call content method to produce content object
-            content = context['object'].content()
+            try:
+                content = context['object'].content()
+            except TypeError:
+                content = context['object']
 
             # Make sure meta robots exist on our new content object
             if index is None and hasattr(content, 'robots_index'):
