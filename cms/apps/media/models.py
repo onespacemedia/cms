@@ -103,9 +103,6 @@ class File(models.Model):
                 self.width, self.height = dimensions
                 super(File, self).save(False, True, using=using, update_fields=update_fields)
 
-    def save(self, *args, **kwargs):
-        super(File, self).save(*args, **kwargs)
-
         # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
         if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
             _, extension = os.path.splitext(self.file.name)
