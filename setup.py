@@ -17,7 +17,7 @@ DEPENDENCIES = [
     'django-suit',
     'django-watson',
     'django-reversion',
-    'django-jinja==2.2.1'
+    'django-jinja==2.2.1',
     'tinypng',
 ]
 
