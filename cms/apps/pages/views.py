@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 from cms.views import CacheMixin
 
 
-class ContentIndexView(CacheMixin, TemplateView):
+class ContentIndexView(TemplateView):
 
     """Displays the index page for a page."""
 

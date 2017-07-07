@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 
 import os
 
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
+
+from tinypng.api import shrink_file
 
 
 @python_2_unicode_compatible
@@ -34,18 +37,32 @@ class File(models.Model):
 
     """A static file."""
 
-    title = models.CharField(max_length=200,
-                             help_text="The title will be used as the default rollover text when this media is embedded in a web page.")
+    title = models.CharField(
+        max_length=200,
+        help_text="The title will be used as the default rollover text when this media is embedded in a web page.",
+    )
 
     labels = models.ManyToManyField(
         Label,
         blank=True,
-        help_text="Labels are used to help organise your media. They are not visible to users on your website.",
+        help_text='Labels are used to help organise your media. They are not visible to users on your website.',
     )
 
     file = models.FileField(
-        upload_to="uploads/files",
+        upload_to='uploads/files',
         max_length=250,
+    )
+
+    width = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        default=0,
+    )
+
+    height = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        default=0,
     )
 
     attribution = models.CharField(
@@ -75,7 +92,35 @@ class File(models.Model):
         return self.title
 
     class Meta:
-        ordering = ("title",)
+        ordering = ['title']
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        super(File, self).save(force_insert, force_update, using, update_fields)
+        if self.is_image():
+            dimensions = self.get_dimensions()
+
+            if dimensions:
+                self.width, self.height = dimensions
+                super(File, self).save(False, True, using=using, update_fields=update_fields)
+
+    def save(self, *args, **kwargs):
+        super(File, self).save(*args, **kwargs)
+
+        # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
+        if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
+            _, extension = os.path.splitext(self.file.name)
+            extension = extension.lower()[1:]
+
+            if extension in ['png', 'jpg', 'jpeg']:
+                try:
+                    shrink_file(
+                        self.file.path,
+                        api_key=settings.TINYPNG_API_KEY,
+                        out_filepath=self.file.path,
+                    )
+                # If the minification doesn't happen, that's ok.
+                except:  # pylint: disable=bare-except
+                    pass
 
     def is_image(self):
         from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON
@@ -85,27 +130,18 @@ class File(models.Model):
         icon = FILE_ICONS.get(extension, UNKNOWN_FILE_ICON)
         return icon == IMAGE_FILE_ICON
 
-    def width(self):
-        if self.is_image():
-            with open(self.file.path, "rb") as f:
+    def get_dimensions(self):
+        try:
+            with open(self.file.path, 'rb') as f:
                 try:
                     image = Image.open(f)
                     image.verify()
                 except IOError:
-                    return 0
-            return image.size[0]
-        return 0
+                    return
 
-    def height(self):
-        if self.is_image():
-            with open(self.file.path, "rb") as f:
-                try:
-                    image = Image.open(f)
-                    image.verify()
-                except IOError:
-                    return 0
-            return image.size[1]
-        return 0
+            return image.size
+        except IOError:
+            return 0
 
 
 class FileRefField(models.ForeignKey):

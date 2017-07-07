@@ -18,6 +18,7 @@ DEPENDENCIES = [
     'django-watson',
     'django-reversion',
     'django-jinja==2.2.1'
+    'tinypng',
 ]
 
 if platform.python_implementation() == 'PyPy':
