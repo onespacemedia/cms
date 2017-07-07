@@ -1,5 +1,3 @@
-"""Views used by the pages app."""
-
 from django.contrib.contenttypes.models import ContentType
 from django.views.generic import TemplateView
 

@@ -1,10 +1,9 @@
 """Permalink generation template tags."""
 import jinja2
-
 from django.utils.html import escape
+from django_jinja import library
 
 from cms import permalinks
-from django_jinja import library
 
 
 @library.filter

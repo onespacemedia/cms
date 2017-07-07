@@ -6,7 +6,7 @@ from django.db import models
 from django.test import TestCase
 from django.utils.encoding import python_2_unicode_compatible
 
-from ..permalinks import expand, resolve, PermalinkError
+from ..permalinks import PermalinkError, expand, resolve
 
 
 @python_2_unicode_compatible

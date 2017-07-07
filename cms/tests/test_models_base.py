@@ -1,8 +1,10 @@
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 
-from ..models.base import (PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter,
-                           SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter,
-                           PageBase, PublishedBase, SearchMetaBase)
+from ..models.base import \
+    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
+from ..models.base import \
+    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+from ..models.base import PageBase, PublishedBase, SearchMetaBase
 
 
 # Test models.

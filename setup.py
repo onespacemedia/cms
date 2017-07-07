@@ -1,16 +1,24 @@
 #!/usr/bin/env python
 # coding: utf-8
+import platform
+
+from setuptools import find_packages, setup
+
 from cms import VERSION
 
-import platform
-from setuptools import setup, find_packages
-
-
 DEPENDENCIES = [
-    'django>=1.8,<1.9',
+    'requests',
     'Pillow',
     'sorl-thumbnail',
-    'requests',
+    'Jinja2==2.8',
+
+    'django>=1.11,<1.12',
+    'django-historylinks',
+    'django-suit',
+    'django-watson',
+    'django-reversion',
+    'django-jinja==2.2.1',
+    'tinypng',
 ]
 
 if platform.python_implementation() == 'PyPy':
@@ -38,11 +46,6 @@ setup(
             'pytest-cov',
             'pytest-django',
             'pytest-xdist',
-            # Project template
-            'Pillow',
-            'django-jinja==2.2.1',
-            'django-reversion==1.8.7',
-            'django-watson==1.1.9',
             # / Project template
             'coveralls',
             'mock',
@@ -52,14 +55,12 @@ setup(
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Framework :: Django :: 1.7',
-        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 )

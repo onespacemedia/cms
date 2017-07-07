@@ -1,14 +1,15 @@
 import base64
 import random
 
-from cms.apps.media.models import File
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, RequestFactory, TestCase
 from django.utils import six
 from django.utils.timezone import now
+from watson import search
 
-from .... import externals
+from cms.apps.media.models import File
+
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Country, Page
 from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
@@ -52,7 +53,7 @@ class TestTemplatetags(TestCase):
             file=SimpleUploadedFile(self.name_1, base64.b64decode(base64_string), content_type="image/gif")
         )
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestTemplatetagPage)
 
             self.homepage = Page.objects.create(

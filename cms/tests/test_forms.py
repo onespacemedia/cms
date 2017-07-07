@@ -1,10 +1,12 @@
 import json
+
 from django.conf import settings
 from django.test import TestCase
-from django.utils.html import format_html, conditional_escape
+from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 
-from ..forms import CMSPasswordChangeForm, CMSAdminPasswordChangeForm, HtmlWidget, password_validation
+from ..forms import (CMSAdminPasswordChangeForm, CMSPasswordChangeForm,
+                     HtmlWidget, password_validation)
 
 
 class MockSuperUser(object):
@@ -42,15 +44,19 @@ class TestForms(TestCase):
         widget = HtmlWidget()
         rendered = widget.render('foo', 'bar')
 
-        self.assertEqual(
+        self.assertInHTML(
             rendered,
-            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" name="foo" rows="10">\r\nbar</textarea>'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {}))))
+            '<textarea name="foo" rows="10" cols="40" data-wysiwyg-settings="{}" class="wysiwyg">\nbar</textarea>'.format(
+                conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))
+            ),
         )
 
         rendered = widget.render('foo', 'bar', attrs={'id': 'foo'})
 
-        self.assertIn(
-            '<textarea class="wysiwyg" cols="40" data-wysiwyg-settings="{}" id="foo" name="foo" rows="10">'.format(conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))),
+        self.assertInHTML(
+            '<textarea name="foo" class="wysiwyg" rows="10" cols="40" data-wysiwyg-settings="{}" id="foo">\nbar</textarea>'.format(
+                conditional_escape(json.dumps(getattr(settings, 'WYSIWYG_OPTIONS', {})))
+            ),
             rendered,
         )
 

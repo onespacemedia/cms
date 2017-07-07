@@ -1,14 +1,16 @@
 """Models used by the static media management application."""
 from __future__ import unicode_literals
 
-from PIL import Image
+import os
 
-from django.db import models
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from PIL import Image
 
-import os
+from tinypng.api import shrink_file
 
 
 @python_2_unicode_compatible
@@ -37,7 +39,7 @@ class File(models.Model):
 
     title = models.CharField(
         max_length=200,
-        help_text='The title will be used as the default rollover text when this media is embedded in a web page.'
+        help_text="The title will be used as the default rollover text when this media is embedded in a web page.",
     )
 
     labels = models.ManyToManyField(
@@ -101,6 +103,21 @@ class File(models.Model):
                 self.width, self.height = dimensions
                 super(File, self).save(False, True, using=using, update_fields=update_fields)
 
+        # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
+        if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
+            _, extension = os.path.splitext(self.file.name)
+            extension = extension.lower()[1:]
+
+            if extension in ['png', 'jpg', 'jpeg']:
+                try:
+                    shrink_file(
+                        self.file.path,
+                        api_key=settings.TINYPNG_API_KEY,
+                        out_filepath=self.file.path,
+                    )
+                # If the minification doesn't happen, that's ok.
+                except:  # pylint: disable=bare-except
+                    pass
 
     def is_image(self):
         from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON
@@ -212,7 +229,7 @@ class VideoRefField(models.ForeignKey):
     """A foreign key to a File, constrained to only select image files."""
 
     def __init__(self, **kwargs):
-        kwargs["to"] = Video
+        kwargs["to"] = 'media.Video'
         kwargs.setdefault("related_name", "+")
         kwargs.setdefault("on_delete", models.PROTECT)
         super(VideoRefField, self).__init__(**kwargs)

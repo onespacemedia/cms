@@ -2,8 +2,8 @@
 
 from django.db import models
 
-from cms.models import LinkField
 from cms.apps.pages.models import ContentBase
+from cms.models import LinkField
 
 
 class Link(ContentBase):
@@ -27,3 +27,6 @@ class Link(ContentBase):
         help_text="Open the page in a new window.",
         default=False,
     )
+
+    def __unicode__(self):
+        return self.page.title

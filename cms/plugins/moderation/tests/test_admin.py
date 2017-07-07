@@ -1,6 +1,7 @@
-from cms.tests.models import TestModerationAdminModel
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase
+
+from cms.tests.models import TestModerationAdminModel
 
 from ..admin import ModerationAdminBase
 
