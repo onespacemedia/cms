@@ -1,10 +1,10 @@
+import sys
+
 from django.conf import settings
 from django.contrib import admin
 from django.test import TestCase
 
 from ..models import Country, CountryGroup, Page
-
-import sys
 
 
 class TestArticleAdminBase(TestCase):
@@ -12,7 +12,7 @@ class TestArticleAdminBase(TestCase):
     def test_article_admin(self):
         NEW_MIDDLEWARE_CLASSES = (
             'cms.middleware.LocalisationMiddleware',
-        ) + settings.MIDDLEWARE_CLASSES
+        ) + tuple(settings.MIDDLEWARE_CLASSES)
 
         self.assertNotIn(Country, admin.site._registry)
         self.assertNotIn(CountryGroup, admin.site._registry)

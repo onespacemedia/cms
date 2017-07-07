@@ -11,7 +11,6 @@ from django.contrib.contenttypes.views import shortcut
 from django.core import urlresolvers
 from django.core.exceptions import ImproperlyConfigured
 
-
 __all__ = ("PermalinkError", "create", "resolve", "expand",)
 
 

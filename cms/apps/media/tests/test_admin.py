@@ -14,7 +14,7 @@ from django.test import LiveServerTestCase, RequestFactory, TestCase, Transactio
 from django.utils import six
 from django.utils.timezone import now
 
-from ..admin import FileAdminBase, VideoAdmin
+from ..admin import FileAdmin, VideoAdmin
 from ..models import File, Label, Video
 
 
@@ -44,7 +44,8 @@ class MockSuperUser(object):
     is_active = True
     is_staff = True
 
-    def has_perm(self, perm):
+    @staticmethod
+    def has_perm(perm):
         return True
 
 
@@ -66,7 +67,7 @@ class TestFileAdminBase(TransactionTestCase):
 
     def setUp(self):
         self.site = AdminSite()
-        self.file_admin = FileAdminBase(File, self.site)
+        self.file_admin = FileAdmin(File, self.site)
 
         File.objects.all().delete()
 
@@ -311,7 +312,7 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
     def setUp(self):
         self.site = AdminSite()
-        self.file_admin = FileAdminBase(File, self.site)
+        self.file_admin = FileAdmin(File, self.site)
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')

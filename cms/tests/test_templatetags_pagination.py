@@ -1,7 +1,8 @@
 from django.http import Http404
 from django.test import RequestFactory, TestCase
 
-from ..templatetags.pagination import paginate, render_pagination, get_pagination_url
+from ..templatetags.pagination import (get_pagination_url, paginate,
+                                       render_pagination)
 
 
 class Object(object):

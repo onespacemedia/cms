@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
+import platform
+
+from setuptools import find_packages, setup
+
 from cms import VERSION
 
-import platform
-from setuptools import setup, find_packages
-
-
 DEPENDENCIES = [
-    'django>=1.8,<1.9',
+    'requests',
     'Pillow',
     'sorl-thumbnail',
-    'requests',
+    'Jinja2==2.8',
+
+    'django>=1.11,<1.12',
+    'django-historylinks',
+    'django-suit',
+    'django-watson',
+    'django-reversion',
+    'django-jinja==2.2.1',
     'tinypng',
 ]
 
@@ -39,11 +46,6 @@ setup(
             'pytest-cov',
             'pytest-django',
             'pytest-xdist',
-            # Project template
-            'Pillow',
-            'django-jinja==2.2.1',
-            'django-reversion==1.8.7',
-            'django-watson==1.1.9',
             # / Project template
             'coveralls',
             'mock',

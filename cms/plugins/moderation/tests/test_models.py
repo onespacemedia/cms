@@ -1,11 +1,7 @@
 from django.test import TestCase
 
-from ..models import ModerationBase
 from ....models import publication_manager
-
-
-class TestModerationModelsModel(ModerationBase):
-    pass
+from .models import TestModerationModelsModel
 
 
 class TestModerationModels(TestCase):

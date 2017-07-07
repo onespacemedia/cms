@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.http import Http404
 
 
@@ -7,8 +7,7 @@ def view(request, *args, **kwargs):
         raise Http404
     return None
 
-urlpatterns = patterns(
-    "",
+urlpatterns = [
     url("^$", view, name="index"),
     url("^(?P<slug>[^/]+)/$", view, name="detail"),
-)
+]

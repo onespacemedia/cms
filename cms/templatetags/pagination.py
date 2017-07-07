@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 
 import jinja2
-
-from django.core.paginator import Paginator, InvalidPage
+from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
 from django.utils.html import escape
 from django_jinja import library

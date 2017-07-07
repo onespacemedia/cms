@@ -5,10 +5,11 @@ import six
 from django.db import models
 from django.shortcuts import render
 from django.utils.encoding import python_2_unicode_compatible
+from watson.search import SearchAdapter
 
-from cms import externals
 from cms.apps.media.models import ImageRefField
-from cms.models.managers import OnlineBaseManager, PublishedBaseManager, SearchMetaBaseManager, PageBaseManager
+from cms.models.managers import (OnlineBaseManager, PageBaseManager,
+                                 PublishedBaseManager, SearchMetaBaseManager)
 
 
 class PublishedBase(models.Model):
@@ -21,7 +22,7 @@ class PublishedBase(models.Model):
         abstract = True
 
 
-class PublishedBaseSearchAdapter(externals.watson.SearchAdapter):
+class PublishedBaseSearchAdapter(SearchAdapter):
 
     """Base search adapter for PublishedBase derivatives."""
 

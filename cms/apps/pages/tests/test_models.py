@@ -1,14 +1,14 @@
 """Tests for the pages app."""
 from datetime import timedelta
 
-from cms.externals import External
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
 from django.utils.timezone import now
+from reversion import create_revision
+from watson import search
 
-from .... import externals
 from ....models.managers import publication_manager
 from ..models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
                       filter_indexable_pages)
@@ -37,7 +37,7 @@ class TestPage(TestCase):
     def setUp(self):
         call_command('installwatson')
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestPageContent)
 
             self.homepage = Page.objects.create(
@@ -144,18 +144,18 @@ class TestPage(TestCase):
         self.assertEqual(self.subsubsection.content.__str__(), 'Subsubsection')
 
     def test_pagesearchadapter_get_live_queryset(self):
-        self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 1)
+        self.assertEqual(len(search.search("Homepage", models=(Page,))), 1)
 
         with publication_manager.select_published(True):
-            self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 1)
+            self.assertEqual(len(search.search("Homepage", models=(Page,))), 1)
 
             self.homepage.is_online = False
             self.homepage.save()
 
-            self.assertEqual(len(externals.watson.search("Homepage", models=(Page,))), 0)
+            self.assertEqual(len(search.search("Homepage", models=(Page,))), 0)
 
     def test_page_get_absolute_url(self):
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             Page.objects.all().delete()
 
             content_type = ContentType.objects.get_for_model(TestPageContent)
@@ -187,20 +187,11 @@ class TestPage(TestCase):
         self.assertEquals(self.homepage.last_modified(), '-')
 
         # Create an initial revision.
-        with externals.reversion.create_revision():
+        with create_revision():
             self.homepage.save()
 
         # We have reversion and a version in the db, last_modified should not be empty
         self.assertNotEquals(self.homepage.last_modified(), '-')
-
-        # Remove reversion
-        externals.reversion = None
-
-        # We have no reversion
-        self.assertEquals(self.homepage.last_modified(), '-')
-
-        # Add back reversion
-        externals.reversion = External("reversion")
 
     def test_publication(self):
         self.homepage.publication_date = now() + timedelta(days=10)
@@ -230,7 +221,7 @@ class TestPage(TestCase):
 class TestSectionPage(TestCase):
 
     def setUp(self):
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestPageContentWithSections)
 
             self.homepage = Page.objects.create(
@@ -335,7 +326,7 @@ class TestPageComplex(TestCase):
                 for child in page['children']:
                     _add_page(child, page_obj)
 
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             _add_page(structure)
             self._rebuild_page_dict()
 
@@ -395,7 +386,7 @@ class TestPageComplex(TestCase):
         self.assertEqual(self.pages['Tree_3___Page_5'].right, 15)
 
     def test_page_save__create_with_sides(self):
-        with externals.watson.context_manager("update_index")():
+        with search.update_index():
             content_type = ContentType.objects.get_for_model(TestPageContent)
 
             # Create a page with a manual left and right defined.

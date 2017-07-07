@@ -1,24 +1,21 @@
+import json
+import re
+# https://www.logilab.org/ticket/2481
+import string  # pylint: disable=deprecated-module
+
 from django import forms
 from django.conf import settings
-from django.contrib.auth.forms import PasswordChangeForm, AdminPasswordChangeForm
+from django.contrib.auth.forms import (AdminPasswordChangeForm,
+                                       PasswordChangeForm)
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 
 from cms import debug
 
-import json
-import re
-import string
-
 
 class HtmlWidget(forms.Textarea):
-
     """A textarea that is converted into a Redactor editor."""
-
-    def __init__(self, *args, **kwargs):
-        """Initializes the HtmlWidget."""
-        super(HtmlWidget, self).__init__(*args, **kwargs)
 
     @debug.print_exc
     def get_media(self):
@@ -37,12 +34,13 @@ class HtmlWidget(forms.Textarea):
         doc="The media used by the widget.",
     )
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         """Renders the widget."""
 
         # Add on the JS initializer.
         attrs = attrs or {}
         attrs['class'] = "wysiwyg"
+        attrs['required'] = False
         attrs['data-wysiwyg-settings'] = json.dumps(
             getattr(settings, 'WYSIWYG_OPTIONS', {})
         )
