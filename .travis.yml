@@ -2,15 +2,34 @@ language: python
 cache:
   directories:
     - $HOME/.cache/pip
-python:
-- "2.7"
-- "3.5"
-- "pypy-5.4.1"
-- "pypy3.3-5.2-alpha1"
+env:
+ - CMD=pytest
+ - CMD=pypy -m pytest
+# pypy -m pip install pytest
+# python:
+# - "2.7"
+# - "3.5"
+# - "pypy-5.4.1"
+# - "pypy3.3-5.2-alpha1"
 matrix:
+  include:
+  # CPython
+  - python: "2.7"
+    env: CMD=pytest
+  - python: "3.5"
+    env: CMD=pytest
+  - python: "3.6"
+    env: CMD=pytest
+
+  # PyPy
+  - python: "pypy-5.4.1"
+    env: CMD=pypy -m pytest
+  - python: "pypy3.3-5.2-alpha1"
+    env: CMD=pypy -m pytest
   allow_failures:
   - python: "pypy-5.4.1"
   - python: "pypy3.3-5.2-alpha1"
+  fast_finish: true
 dist: trusty
 sudo: false
 addons:
@@ -19,7 +38,7 @@ addons:
     - libgeoip-dev
 install:
   - pip install -e .[testing]
-script: pytest --cov=cms -n auto --create-db --nomigrations
+script: bash -c '$CMD --cov=cms -n auto --create-db --nomigrations'
 notifications:
   slack:
     rooms: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt#builds
