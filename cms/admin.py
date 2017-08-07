@@ -14,12 +14,8 @@ except ImportError:
     from django.contrib.auth.admin import UserAdmin  # pylint: disable=ungrouped-imports
 
 
-
 class PublishedBaseAdmin(admin.ModelAdmin):
-
-    """Base admin class for published models."""
-
-    change_form_template = "admin/cms/publishedmodel/change_form.html"
+    pass
 
 
 class OnlineBaseAdmin(PublishedBaseAdmin):

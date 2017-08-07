@@ -137,7 +137,7 @@ class PageAdmin(PageBaseAdmin):
         """Initialzies the PageAdmin."""
         super(PageAdmin, self).__init__(*args, **kwargs)
         # Patch the admin class's index template.
-        self.admin_site.index_template = "admin/pages/dashboard.html"
+        # self.admin_site.index_template = "admin/pages/dashboard.html"
         # Prepare to register some content inlines.
         self.content_inlines = []
         # Register all page inlines.
