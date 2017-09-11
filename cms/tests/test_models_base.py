@@ -1,9 +1,5 @@
 from django.test import RequestFactory, TestCase
 
-from ..models.base import \
-    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from ..models.base import \
-    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
 from ..models.base import PageBase, PublishedBase, SearchMetaBase
 
 
@@ -20,23 +16,7 @@ class PageBaseModel(PageBase):
     pass
 
 
-# Test search adapters.
-class PublishedBaseSearchAdapter(CMSPublishedBaseSearchAdapter):
-    pass
-
-
-class SearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
-    pass
-
-
 class ModelsBaseTest(TestCase):
-
-    def test_publishedbasesearchadapter_get_live_queryset(self):
-        search_adapter = PublishedBaseSearchAdapter(TestPublishedBaseModel)
-        self.assertEqual(search_adapter.get_live_queryset().count(), 0)
-
-        TestPublishedBaseModel.objects.create()
-        self.assertEqual(search_adapter.get_live_queryset().count(), 1)
 
     def test_searchmetabase_get_context_data(self):
         obj = TestSearchMetaBaseModel.objects.create()
@@ -72,13 +52,6 @@ class ModelsBaseTest(TestCase):
         response = obj.render(request, 'pagination/pagination.html', context)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_searchmetabasesearchadapter_get_live_queryset(self):
-        search_adapter = SearchMetaBaseSearchAdapter(TestSearchMetaBaseModel)
-        self.assertEqual(search_adapter.get_live_queryset().count(), 0)
-
-        TestSearchMetaBaseModel.objects.create()
-        self.assertEqual(search_adapter.get_live_queryset().count(), 1)
 
     def test_pagebasemodel_get_context_data(self):
         obj = PageBaseModel.objects.create()

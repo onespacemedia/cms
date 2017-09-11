@@ -2,20 +2,16 @@
 from datetime import timedelta
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.management import call_command
 from django.db import models
 from django.test import TestCase
 from django.utils.timezone import now
 from reversion import create_revision
-from watson import search
 
 from ....models.managers import publication_manager
-from ..models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
-                      filter_indexable_pages)
+from ..models import ContentBase, Page, PageSitemap, filter_indexable_pages
 
 
 class TestPageContent(ContentBase):
-
     urlconf = 'cms.apps.pages.tests.urls'
 
 
@@ -24,7 +20,6 @@ class TestPageContentWithSections(ContentBase):
 
 
 class Section(models.Model):
-
     page = models.ForeignKey(Page)
 
     title = models.CharField(
@@ -33,52 +28,48 @@ class Section(models.Model):
 
 
 class TestPage(TestCase):
-
     def setUp(self):
-        call_command('installwatson')
+        content_type = ContentType.objects.get_for_model(TestPageContent)
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+        self.homepage = Page.objects.create(
+            title="Homepage",
+            slug='homepage',
+            content_type=content_type,
+        )
 
-            self.homepage = Page.objects.create(
-                title="Homepage",
-                slug='homepage',
-                content_type=content_type,
-            )
+        TestPageContent.objects.create(
+            page=self.homepage,
+        )
 
-            TestPageContent.objects.create(
-                page=self.homepage,
-            )
+        self.section = Page.objects.create(
+            parent=self.homepage,
+            title="Section",
+            content_type=content_type,
+        )
 
-            self.section = Page.objects.create(
-                parent=self.homepage,
-                title="Section",
-                content_type=content_type,
-            )
+        TestPageContent.objects.create(
+            page=self.section,
+        )
 
-            TestPageContent.objects.create(
-                page=self.section,
-            )
+        self.subsection = Page.objects.create(
+            parent=self.section,
+            title="Subsection",
+            content_type=content_type,
+        )
 
-            self.subsection = Page.objects.create(
-                parent=self.section,
-                title="Subsection",
-                content_type=content_type,
-            )
+        TestPageContent.objects.create(
+            page=self.subsection,
+        )
 
-            TestPageContent.objects.create(
-                page=self.subsection,
-            )
+        self.subsubsection = Page.objects.create(
+            parent=self.subsection,
+            title="Subsubsection",
+            content_type=content_type,
+        )
 
-            self.subsubsection = Page.objects.create(
-                parent=self.subsection,
-                title="Subsubsection",
-                content_type=content_type,
-            )
-
-            TestPageContent.objects.create(
-                page=self.subsubsection,
-            )
+        TestPageContent.objects.create(
+            page=self.subsubsection,
+        )
 
     def testChildPrefetching(self):
         # Make sure that prefetching works to two levels deep.
@@ -143,36 +134,24 @@ class TestPage(TestCase):
         self.assertEqual(self.subsection.content.__str__(), 'Subsection')
         self.assertEqual(self.subsubsection.content.__str__(), 'Subsubsection')
 
-    def test_pagesearchadapter_get_live_queryset(self):
-        self.assertEqual(len(search.search("Homepage", models=(Page,))), 1)
-
-        with publication_manager.select_published(True):
-            self.assertEqual(len(search.search("Homepage", models=(Page,))), 1)
-
-            self.homepage.is_online = False
-            self.homepage.save()
-
-            self.assertEqual(len(search.search("Homepage", models=(Page,))), 0)
-
     def test_page_get_absolute_url(self):
-        with search.update_index():
-            Page.objects.all().delete()
+        Page.objects.all().delete()
 
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+        content_type = ContentType.objects.get_for_model(TestPageContent)
 
-            new_page = Page(
-                content_type=content_type,
-                parent=None,
-                left=None,
-                right=None,
-            )
-            self.assertIsNone(new_page.cached_url)
-            new_page.save()
-            self.assertEqual(new_page.cached_url, '/')
+        new_page = Page(
+            content_type=content_type,
+            parent=None,
+            left=None,
+            right=None,
+        )
+        self.assertIsNone(new_page.cached_url)
+        new_page.save()
+        self.assertEqual(new_page.cached_url, '/')
 
-            TestPageContent.objects.create(
-                page=new_page,
-            )
+        TestPageContent.objects.create(
+            page=new_page,
+        )
 
         self.assertEqual(new_page.get_absolute_url(), '/')
         self.assertEqual(new_page.get_absolute_url(True), '/')
@@ -182,7 +161,6 @@ class TestPage(TestCase):
         self.assertEqual(new_page.get_absolute_url(), '/')
 
     def test_last_modified(self):
-
         # We have no versions
         self.assertEquals(self.homepage.last_modified(), '-')
 
@@ -214,35 +192,26 @@ class TestPage(TestCase):
 
         # We need to generate an exception within the published block.
         with self.assertRaises(TypeError), \
-                publication_manager.select_published(True):
+             publication_manager.select_published(True):
             assert 1 / 'a'
 
 
 class TestSectionPage(TestCase):
-
     def setUp(self):
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContentWithSections)
+        content_type = ContentType.objects.get_for_model(TestPageContentWithSections)
 
-            self.homepage = Page.objects.create(
-                title="Homepage",
-                slug='homepage',
-                content_type=content_type,
-            )
+        self.homepage = Page.objects.create(
+            title="Homepage",
+            slug='homepage',
+            content_type=content_type,
+        )
 
-            TestPageContentWithSections.objects.create(
-                page=self.homepage,
-            )
-
-    def test_pagesearchadapter_get_content(self):
-        search_adapter = PageSearchAdapter(Page)
-
-        content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, "      homepage Homepage  / ")
+        TestPageContentWithSections.objects.create(
+            page=self.homepage,
+        )
 
 
 class TestPageComplex(TestCase):
-
     """
     Page structure:
 
@@ -326,9 +295,8 @@ class TestPageComplex(TestCase):
                 for child in page['children']:
                     _add_page(child, page_obj)
 
-        with search.update_index():
-            _add_page(structure)
-            self._rebuild_page_dict()
+        _add_page(structure)
+        self._rebuild_page_dict()
 
     def _rebuild_page_dict(self):
         self.pages = {}
@@ -386,23 +354,22 @@ class TestPageComplex(TestCase):
         self.assertEqual(self.pages['Tree_3___Page_5'].right, 15)
 
     def test_page_save__create_with_sides(self):
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+        content_type = ContentType.objects.get_for_model(TestPageContent)
 
-            # Create a page with a manual left and right defined.
-            page_obj = Page.objects.create(
-                title='Foo',
-                content_type=content_type,
-                parent=self.pages['Tree_1___Page_1'],
-                left=7,
-                right=8,
-            )
+        # Create a page with a manual left and right defined.
+        page_obj = Page.objects.create(
+            title='Foo',
+            content_type=content_type,
+            parent=self.pages['Tree_1___Page_1'],
+            left=7,
+            right=8,
+        )
 
-            TestPageContent.objects.create(
-                page=page_obj,
-            )
+        TestPageContent.objects.create(
+            page=page_obj,
+        )
 
-            self.assertEqual(page_obj.title, 'Foo')
+        self.assertEqual(page_obj.title, 'Foo')
 
     def test_page_save__move_branch_left(self):
         self.assertEqual(self.pages['Homepage'].left, 1)

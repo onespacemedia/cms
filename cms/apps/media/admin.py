@@ -20,7 +20,6 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
 from sorl.thumbnail import get_thumbnail
-from watson.admin import SearchAdmin
 
 from cms import permalinks
 from cms.apps.media.models import File, Label, Video
@@ -89,7 +88,7 @@ FILE_ICONS = {
 }
 
 
-class FileAdmin(VersionAdmin, SearchAdmin):
+class FileAdmin(VersionAdmin):
     """Admin settings for File models."""
 
     change_list_template = 'admin/media/file/change_list.html'

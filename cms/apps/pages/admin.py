@@ -13,6 +13,10 @@ from copy import deepcopy
 from functools import cmp_to_key
 
 import six
+from cms import debug
+from cms.admin import PageBaseAdmin
+from cms.apps.pages.models import (Country, CountryGroup, Page,
+                                   get_registered_content)
 from django import forms
 from django.conf import settings
 from django.conf.urls import url
@@ -31,12 +35,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.utils import six
-from watson.search import update_index
-
-from cms import debug
-from cms.admin import PageBaseAdmin
-from cms.apps.pages.models import (Country, CountryGroup, Page,
-                                   PageSearchAdapter, get_registered_content)
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = "from"
@@ -104,8 +102,6 @@ class PageAdmin(PageBaseAdmin):
     for k, v in enumerate(new_fieldsets):
         if k not in removed_fieldsets:
             fieldsets.append(v)
-
-    search_adapter_cls = PageSearchAdapter
 
     change_form_template = 'admin/pages/page/change_form.html'
 
@@ -639,38 +635,26 @@ class PageAdmin(PageBaseAdmin):
 
         if request.method == 'POST':
 
-            with update_index():
-                page = deepcopy(original_page)
-                page.pk = None
-                page.is_content_object = True
-                page.owner = original_page
-                page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
-                page.save()
+            page = deepcopy(original_page)
+            page.pk = None
+            page.is_content_object = True
+            page.owner = original_page
+            page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
+            page.save()
 
-                content = deepcopy(original_content)
-                content.pk = None
-                content.page = page
-                content.save()
+            content = deepcopy(original_content)
+            content.pk = None
+            content.page = page
+            content.save()
 
-                # for field in original_page._meta.get_fields_with_model():
-                #
-                #     if RelatedField in inspect.getmro(field[0].__class__):
-                #         print field
-                #
-                # for attr in dir(original_page):
-                #     if attr.endswith('_set'):
-                #         print attr
-
-                # links = [rel.get_accessor_name() for rel in original_page._meta.get_all_related_objects()]
-
-                for link in dir(original_page):
-                    if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == "RelatedManager" and link not in ['child_set', 'owner_set', 'link_to_page']:
-                        objects = getattr(original_page, link).all()
-                        for page_object in objects:
-                            new_object = deepcopy(page_object)
-                            new_object.pk = None
-                            new_object.page = page
-                            new_object.save()
+            for link in dir(original_page):
+                if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == "RelatedManager" and link not in ['child_set', 'owner_set', 'link_to_page']:
+                    objects = getattr(original_page, link).all()
+                    for page_object in objects:
+                        new_object = deepcopy(page_object)
+                        new_object.pk = None
+                        new_object.page = page
+                        new_object.save()
 
             return redirect('/admin/pages/page/{}'.format(page.pk))
 

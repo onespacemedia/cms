@@ -13,8 +13,7 @@ from historylinks import shortcuts as historylinks
 from reversion.models import Version
 
 from cms import sitemaps
-from cms.models import OnlineBaseManager, PageBase, PageBaseSearchAdapter
-from cms.models.managers import publication_manager
+from cms.models import OnlineBaseManager, PageBase
 
 
 class PageManager(OnlineBaseManager):
@@ -382,40 +381,6 @@ class PageSitemap(sitemaps.PageBaseSitemap):
 
 
 sitemaps.register(Page, sitemap_cls=PageSitemap)
-
-
-class PageSearchAdapter(PageBaseSearchAdapter):
-
-    """Search adapter for Page models."""
-
-    def get_content(self, obj):
-        """Returns the search text for the page."""
-        content_obj = obj.content
-
-        return u" ".join((
-            super(PageSearchAdapter, self).get_content(obj),
-            self.prepare_content(u" ".join(
-                force_text(self._resolve_field(content_obj, field_name))
-                for field_name in (
-                    field.name for field
-                    in content_obj._meta.fields
-                    if isinstance(field, (models.CharField, models.TextField))
-                )
-            ))
-        ))
-
-    def get_live_queryset(self):
-        """Selects the live page queryset."""
-        # HACK: Prevents a table name collision in the Django queryset manager.
-        with publication_manager.select_published(False):
-            qs = Page._base_manager.all()
-        if publication_manager.select_published_active():
-            qs = Page.objects.select_published(qs, page_alias="U0")
-        # Filter out unindexable pages.
-        qs = filter_indexable_pages(qs)
-        # All done!
-        return qs
-
 
 # Base content class.
 

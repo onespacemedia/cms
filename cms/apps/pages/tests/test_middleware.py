@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, TestCase
-from watson import search
 
 from ..middleware import PageMiddleware, RequestPageManager
 from ..models import Country, CountryGroup, Page
@@ -9,82 +8,81 @@ from .models import TestMiddlewarePage, TestMiddlewarePageURLs
 
 
 def _generate_pages(self):
-    with search.update_index():
-        content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
+    content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
 
-        self.homepage = Page.objects.create(
-            title="Homepage",
-            slug='homepage',
-            content_type=content_type,
-        )
+    self.homepage = Page.objects.create(
+        title="Homepage",
+        slug='homepage',
+        content_type=content_type,
+    )
 
-        TestMiddlewarePage.objects.create(
-            page=self.homepage,
-        )
+    TestMiddlewarePage.objects.create(
+        page=self.homepage,
+    )
 
-        self.page_1 = Page.objects.create(
-            title='Foo',
-            slug='foo',
-            parent=self.homepage,
-            content_type=content_type,
-        )
+    self.page_1 = Page.objects.create(
+        title='Foo',
+        slug='foo',
+        parent=self.homepage,
+        content_type=content_type,
+    )
 
-        TestMiddlewarePage.objects.create(
-            page=self.page_1,
-        )
+    TestMiddlewarePage.objects.create(
+        page=self.page_1,
+    )
 
-        self.page_2 = Page.objects.create(
-            title='Bar',
-            slug='bar',
-            parent=self.page_1,
-            content_type=content_type,
-        )
+    self.page_2 = Page.objects.create(
+        title='Bar',
+        slug='bar',
+        parent=self.page_1,
+        content_type=content_type,
+    )
 
-        TestMiddlewarePage.objects.create(
-            page=self.page_2,
-        )
+    TestMiddlewarePage.objects.create(
+        page=self.page_2,
+    )
 
-        self.country_group = CountryGroup.objects.create(
-            name="United States of America"
-        )
+    self.country_group = CountryGroup.objects.create(
+        name="United States of America"
+    )
 
-        self.country = Country.objects.create(
-            name="United States of America",
-            code="US",
-            group=self.country_group
-        )
+    self.country = Country.objects.create(
+        name="United States of America",
+        code="US",
+        group=self.country_group
+    )
 
-        self.country_gb = Country.objects.create(
-            name="United Kingdom",
-            code="GB"
-        )
+    self.country_gb = Country.objects.create(
+        name="United Kingdom",
+        code="GB"
+    )
 
-        self.homepage_alt = Page.objects.create(
-            title="Homepage",
-            slug='homepage',
-            owner=self.homepage,
-            is_content_object=True,
-            country_group=self.country_group,
-            content_type=content_type,
-            left=0,
-            right=0,
-        )
+    self.homepage_alt = Page.objects.create(
+        title="Homepage",
+        slug='homepage',
+        owner=self.homepage,
+        is_content_object=True,
+        country_group=self.country_group,
+        content_type=content_type,
+        left=0,
+        right=0,
+    )
 
-        TestMiddlewarePage.objects.create(
-            page=self.homepage_alt,
-        )
+    TestMiddlewarePage.objects.create(
+        page=self.homepage_alt,
+    )
 
-        self.auth_page = Page.objects.create(
-            title='Auth Page',
-            slug='auth',
-            parent=self.homepage,
-            content_type=content_type,
-            requires_authentication=True,
-        )
+    self.auth_page = Page.objects.create(
+        title='Auth Page',
+        slug='auth',
+        parent=self.homepage,
+        content_type=content_type,
+        requires_authentication=True,
+    )
 
-        TestMiddlewarePage.objects.create(
-            page=self.auth_page,
-        )
+    TestMiddlewarePage.objects.create(
+        page=self.auth_page,
+    )
 
 
 class TestRequestPageManager(TestCase):
@@ -205,21 +203,20 @@ class TestRequestPageManager(TestCase):
         )
 
         # Create an alternate version of the page with the country.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
+        content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
 
-            alternate_page = Page.objects.create(
-                is_content_object=True,
-                owner=self.homepage,
-                country_group=group2,
-                left=self.homepage.left,
-                right=self.homepage.right,
-                content_type=content_type,
-            )
+        alternate_page = Page.objects.create(
+            is_content_object=True,
+            owner=self.homepage,
+            country_group=group2,
+            left=self.homepage.left,
+            right=self.homepage.right,
+            content_type=content_type,
+        )
 
-            TestMiddlewarePage.objects.create(
-                page=alternate_page,
-            )
+        TestMiddlewarePage.objects.create(
+            page=alternate_page,
+        )
 
         self.request = self.factory.get('/')
         self.request.country = country2
@@ -282,38 +279,36 @@ class TestPageMiddleware(TestCase):
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response.status_code, 404)
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
+        content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
 
-            self.content_url = Page.objects.create(
-                title="Foo",
-                slug='urls',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        self.content_url = Page.objects.create(
+            title="Foo",
+            slug='urls',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            TestMiddlewarePageURLs.objects.create(
-                page=self.content_url,
-            )
+        TestMiddlewarePageURLs.objects.create(
+            page=self.content_url,
+        )
 
         request = self.factory.get('/urls/')
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, HttpResponseNotFound())
         self.assertEqual(processed_response.status_code, 500)
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
+        content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
 
-            self.content_url = Page.objects.create(
-                title="Foo",
-                slug='raise404',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        self.content_url = Page.objects.create(
+            title="Foo",
+            slug='raise404',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            TestMiddlewarePageURLs.objects.create(
-                page=self.content_url,
-            )
+        TestMiddlewarePageURLs.objects.create(
+            page=self.content_url,
+        )
 
         request = self.factory.get('/raise404/')
         request.pages = RequestPageManager(request)

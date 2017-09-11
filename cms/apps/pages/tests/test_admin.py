@@ -19,7 +19,6 @@ from django.test import RequestFactory, TestCase
 from django.utils import six
 from django.utils.text import slugify
 from reversion.models import Version
-from watson import search
 
 from ..admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
                      PAGE_TYPE_PARAMETER, PageAdmin, PageContentTypeFilter)
@@ -92,18 +91,17 @@ class TestPageAdmin(TestCase):
         self.site = AdminSite()
         self.page_admin = PageAdmin(Page, self.site)
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
+        content_type = ContentType.objects.get_for_model(PageContent)
 
-            self.homepage = Page.objects.create(
-                title="Homepage",
-                slug='homepage',
-                content_type=content_type,
-            )
+        self.homepage = Page.objects.create(
+            title="Homepage",
+            slug='homepage',
+            content_type=content_type,
+        )
 
-            PageContent.objects.create(
-                page=self.homepage,
-            )
+        PageContent.objects.create(
+            page=self.homepage,
+        )
 
     def _build_request(self, page_type=None, method="GET"):
         request = MockRequest()
@@ -241,19 +239,18 @@ class TestPageAdmin(TestCase):
             page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
         )
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
+        content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        self.content_page = Page.objects.create(
+            title="Content page",
+            slug='content_page',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
+        PageContentWithFields.objects.create(
+            page=self.content_page,
+        )
 
         pagecontent_fields = [
             (None, {
@@ -323,19 +320,18 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(self.page_admin.get_all_children(self.homepage), [])
 
         # Add a child page.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
+        content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        self.content_page = Page.objects.create(
+            title="Content page",
+            slug='content_page',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
+        PageContentWithFields.objects.create(
+            page=self.content_page,
+        )
 
         # The `children` attribute is cached as long as we use the original
         # reference, so get the Page again.
@@ -365,19 +361,18 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
 
         # Test a page with a content model with fields.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
+        content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        self.content_page = Page.objects.create(
+            title="Content page",
+            slug='content_page',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
+        PageContentWithFields.objects.create(
+            page=self.content_page,
+        )
 
         form = self.page_admin.get_form(request, obj=self.content_page)
 
@@ -653,19 +648,18 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
         # Add a child page.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
+        content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        self.content_page = Page.objects.create(
+            title="Content page",
+            slug='content_page',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
+        PageContentWithFields.objects.create(
+            page=self.content_page,
+        )
 
         request.pages.homepage = Page.objects.get(slug='homepage')
         response = self.page_admin.sitemap_json_view(request)
@@ -705,43 +699,42 @@ class TestPageAdmin(TestCase):
         sys.stderr = self.orig_stderr
 
         # Add some child pages.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
+        content_type = ContentType.objects.get_for_model(PageContent)
 
-            content_page_1 = Page.objects.create(
-                title="Foo",
-                slug='foo',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        content_page_1 = Page.objects.create(
+            title="Foo",
+            slug='foo',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            PageContent.objects.create(
-                page=content_page_1,
-            )
+        PageContent.objects.create(
+            page=content_page_1,
+        )
 
-            # Create an alternative page.
-            alternative_page = Page.objects.create(
-                is_content_object=True,
-                owner=content_page_1,
-                left=content_page_1.left,
-                right=content_page_1.right,
-                content_type=content_type,
-            )
+        # Create an alternative page.
+        alternative_page = Page.objects.create(
+            is_content_object=True,
+            owner=content_page_1,
+            left=content_page_1.left,
+            right=content_page_1.right,
+            content_type=content_type,
+        )
 
-            PageContent.objects.create(
-                page=alternative_page,
-            )
+        PageContent.objects.create(
+            page=alternative_page,
+        )
 
-            content_page_2 = Page.objects.create(
-                title="Bar",
-                slug='bar',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+        content_page_2 = Page.objects.create(
+            title="Bar",
+            slug='bar',
+            parent=self.homepage,
+            content_type=content_type,
+        )
 
-            PageContent.objects.create(
-                page=content_page_2,
-            )
+        PageContent.objects.create(
+            page=content_page_2,
+        )
 
         self.homepage = Page.objects.get(pk=self.homepage.pk)
         content_page_1 = Page.objects.get(pk=content_page_1.pk)
@@ -828,48 +821,45 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
         self.assertEquals(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)
 
-        with search.update_index():
+        content_type_2 = ContentType.objects.get_for_model(
+            PageContentWithFields)
 
-            content_type_2 = ContentType.objects.get_for_model(
-                PageContentWithFields)
+        inline_page = Page.objects.create(
+            parent=self.homepage,
+            title="Inline page",
+            content_type=content_type_2,
+        )
 
-            inline_page = Page.objects.create(
-                parent=self.homepage,
-                title="Inline page",
-                content_type=content_type_2,
-            )
+        PageContentWithFields.objects.create(
+            page=inline_page,
+        )
 
-            PageContentWithFields.objects.create(
-                page=inline_page,
-            )
+        inline_model = InlineModel.objects.create(
+            page=inline_page,
+        )
 
-            inline_model = InlineModel.objects.create(
-                page=inline_page,
-            )
+        request = self._build_request(method='POST')
+        request.POST = dict(
+            country_group=self.country_group.pk
+        )
+        response = self.page_admin.duplicate_for_country_group(request, page=inline_page.pk)
+        self.assertEquals(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
 
-            request = self._build_request(method='POST')
-            request.POST = dict(
-                country_group=self.country_group.pk
-            )
-            response = self.page_admin.duplicate_for_country_group(request, page=inline_page.pk)
-            self.assertEquals(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
+        inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
 
-            inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
-
-            self.assertEquals(inline_page_clone.inlinemodel_set.count(), 1)
+        self.assertEquals(inline_page_clone.inlinemodel_set.count(), 1)
 
     def test_pagecontenttypefilter_queryset(self):
         # Ensures that the queryset returned by filtering is correct.
         request = self._build_request()
 
         # Add some pages with different content types.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
+        content_type = ContentType.objects.get_for_model(PageContent)
+        content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self._make_page('Food', content_type)
-            self._make_page('Barred', content_type)
-            self._make_page('Bazooka', content_type_2)
+        self._make_page('Food', content_type)
+        self._make_page('Barred', content_type)
+        self._make_page('Bazooka', content_type_2)
 
         # Test with no filters. Should be the same as Page.objects.all().
         filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
@@ -895,13 +885,12 @@ class TestPageAdmin(TestCase):
 
     def test_pagecontenttypefilter_lookups(self):
         # Add some pages with different content types.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
+        content_type = ContentType.objects.get_for_model(PageContent)
+        content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self._make_page('John', content_type)
-            self._make_page('Paul', content_type)
-            self._make_page('Ringo', content_type_2)
+        self._make_page('John', content_type)
+        self._make_page('Paul', content_type)
+        self._make_page('Ringo', content_type_2)
         request = self._build_request()
         filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
         lookups = filterer.lookups(request, Page.objects.all())

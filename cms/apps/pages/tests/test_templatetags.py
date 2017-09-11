@@ -6,7 +6,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, RequestFactory, TestCase
 from django.utils import six
 from django.utils.timezone import now
-from watson import search
 
 from cms.apps.media.models import File
 
@@ -53,52 +52,51 @@ class TestTemplatetags(TestCase):
             file=SimpleUploadedFile(self.name_1, base64.b64decode(base64_string), content_type="image/gif")
         )
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestTemplatetagPage)
+        content_type = ContentType.objects.get_for_model(TestTemplatetagPage)
 
-            self.homepage = Page.objects.create(
-                title="Homepage",
-                slug='homepage',
-                content_type=content_type,
-            )
+        self.homepage = Page.objects.create(
+            title="Homepage",
+            slug='homepage',
+            content_type=content_type,
+        )
 
-            TestTemplatetagPage.objects.create(
-                page=self.homepage,
-            )
+        TestTemplatetagPage.objects.create(
+            page=self.homepage,
+        )
 
-            self.section = Page.objects.create(
-                parent=self.homepage,
-                title="Section",
-                slug='section',
-                content_type=content_type,
-                hide_from_anonymous=True
-            )
+        self.section = Page.objects.create(
+            parent=self.homepage,
+            title="Section",
+            slug='section',
+            content_type=content_type,
+            hide_from_anonymous=True
+        )
 
-            TestTemplatetagPage.objects.create(
-                page=self.section,
-            )
+        TestTemplatetagPage.objects.create(
+            page=self.section,
+        )
 
-            self.subsection = Page.objects.create(
-                parent=self.section,
-                title="Subsection",
-                slug='subsection',
-                content_type=content_type,
-            )
+        self.subsection = Page.objects.create(
+            parent=self.section,
+            title="Subsection",
+            slug='subsection',
+            content_type=content_type,
+        )
 
-            TestTemplatetagPage.objects.create(
-                page=self.subsection,
-            )
+        TestTemplatetagPage.objects.create(
+            page=self.subsection,
+        )
 
-            self.subsubsection = Page.objects.create(
-                parent=self.subsection,
-                title="Subsubsection",
-                slug='subsubsection',
-                content_type=content_type,
-            )
+        self.subsubsection = Page.objects.create(
+            parent=self.subsection,
+            title="Subsubsection",
+            slug='subsubsection',
+            content_type=content_type,
+        )
 
-            TestTemplatetagPage.objects.create(
-                page=self.subsubsection,
-            )
+        TestTemplatetagPage.objects.create(
+            page=self.subsubsection,
+        )
 
     def tearDown(self):
         self.obj_1.file.delete(False)

@@ -5,7 +5,6 @@ import six
 from django.db import models
 from django.shortcuts import render
 from django.utils.encoding import python_2_unicode_compatible
-from watson.search import SearchAdapter
 
 from cms.apps.media.models import ImageRefField
 from cms.models.managers import (OnlineBaseManager, PageBaseManager,
@@ -20,15 +19,6 @@ class PublishedBase(models.Model):
 
     class Meta:
         abstract = True
-
-
-class PublishedBaseSearchAdapter(SearchAdapter):
-
-    """Base search adapter for PublishedBase derivatives."""
-
-    def get_live_queryset(self):
-        """Selects only live models."""
-        return self.model.objects.all()
 
 
 class OnlineBase(PublishedBase):
@@ -46,11 +36,6 @@ class OnlineBase(PublishedBase):
 
     class Meta:
         abstract = True
-
-
-class OnlineBaseSearchAdapter(PublishedBaseSearchAdapter):
-
-    """Base search adapter for OnlineBase derivatives."""
 
 
 class SearchMetaBase(OnlineBase):
@@ -245,21 +230,6 @@ class SearchMetaBase(OnlineBase):
         abstract = True
 
 
-class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
-
-    """Search adapter for SearchMetaBase derivatives."""
-
-    def get_description(self, obj):
-        """Returns the meta description."""
-        return obj.meta_description
-
-    def get_live_queryset(self):
-        """Selects only live models."""
-        return super(SearchMetaBaseSearchAdapter, self).get_live_queryset().filter(
-            robots_index=True,
-        )
-
-
 @python_2_unicode_compatible
 class PageBase(SearchMetaBase):
 
@@ -313,12 +283,3 @@ class PageBase(SearchMetaBase):
 
     class Meta:
         abstract = True
-
-
-class PageBaseSearchAdapter(SearchMetaBaseSearchAdapter):
-
-    """Search adapter for PageBase derivatives."""
-
-    def get_title(self, obj):
-        """Returns the title of the page."""
-        return obj.title
