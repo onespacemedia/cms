@@ -437,6 +437,8 @@ class PageAdmin(PageBaseAdmin):
         return super(PageAdmin, self).revision_view(request, object_id, version_id, extra_context)
 
     def add_view(self, request, form_url='', extra_context=None):
+        print(self, request)
+
         """Ensures that a valid content type is chosen."""
         if PAGE_TYPE_PARAMETER not in request.GET:
             # Generate the available content items.
@@ -450,6 +452,7 @@ class PageAdmin(PageBaseAdmin):
             content_types = []
             for content_type in content_items:
                 if self.has_add_content_permission(request, content_type):
+                    print(content_type)
                     # If we get this far, then we have permisison to add a page of this type.
                     get_params = request.GET.copy()
                     get_params[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(content_type).id
