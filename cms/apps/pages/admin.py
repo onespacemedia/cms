@@ -208,7 +208,7 @@ class PageAdmin(PageBaseAdmin):
         if obj and hasattr(obj, 'content_type') and obj.content_type:
             return obj.content_type.model_class()
 
-        if request._admin_change_obj and hasattr(request._admin_change_obj, 'content_type'):
+        if hasattr(request, '_admin_change_obj') and hasattr(request._admin_change_obj, 'content_type'):
             return request._admin_change_obj.content_type.model_class()
 
         raise Http404("You must specify a page content type.")
