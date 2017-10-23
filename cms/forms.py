@@ -42,6 +42,7 @@ class HtmlWidget(forms.Textarea):
         attrs['class'] = "wysiwyg"
         attrs['required'] = False
         wysiwyg_settings = {
+            'branding': False,
             'codemirror': {
                 'indentOnInit': True,
                 'fullscreen': False,
