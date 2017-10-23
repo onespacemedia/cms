@@ -18,7 +18,7 @@ function activate_tinymce(element){
     }
 
     // Merge global settings with base
-    $.extend(settings, $(element).data('wysiwyg-settings'))
+    django.jQuery.extend(settings, $(element).data('wysiwyg-settings'))
 
     // Init editor
     tinymce.init(settings);
