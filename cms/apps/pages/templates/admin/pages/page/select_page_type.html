@@ -1,16 +1,7 @@
 {% extends "admin/base_site.html" %}
-
 {% load thumbnail %}
 
-
-{% block extrahead %}
-    {{block.super}}
-    <link rel="stylesheet" href="{{ STATIC_URL }}pages/css/cms.pages.css"/>
-{% endblock %}
-
-
 {% block bodyclass %}page-content-types{% endblock %}
-
 
 {% block breadcrumbs %}
     <div class="breadcrumbs">
@@ -21,23 +12,16 @@
     </div>
 {% endblock %}
 
-
 {% block content %}
-
     {% if content_types %}
-
         <p>Select a type of page from the choices below.</p>
 
         {% regroup content_types by classifier as classifiers %}
-
         {% for classifier in classifiers %}
-
             <h3 class="classifier">{{classifier.grouper|capfirst}}</h3>
-
             <ul class="content-types">
                 {% for content_type in classifier.list %}
                     <li>
-
                         <a href="{{ content_type.url }}">
                             <img src="{{ content_type.icon }}" alt="" class="content-type-icon"/>
                             <span class="content-type-name">{{ content_type.name|capfirst }}</span>
@@ -45,14 +29,9 @@
                     </li>
                 {% endfor %}
             </ul>
-
         {% endfor %}
-
     {% else %}
-
         <p>You do not have permission to create any type of page.</p>
-
     {% endif %}
-
 {% endblock %}
 

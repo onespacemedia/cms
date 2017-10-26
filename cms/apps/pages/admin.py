@@ -136,8 +136,6 @@ class PageAdmin(PageBaseAdmin):
     def __init__(self, *args, **kwargs):
         """Initialzies the PageAdmin."""
         super(PageAdmin, self).__init__(*args, **kwargs)
-        # Patch the admin class's index template.
-        self.admin_site.index_template = "admin/pages/dashboard.html"
         # Prepare to register some content inlines.
         self.content_inlines = []
         # Register all page inlines.
@@ -471,10 +469,11 @@ class PageAdmin(PageBaseAdmin):
             if len(content_types) == 1:
                 return redirect(content_types[0]['url'])
             # Render the select page template.
-            context = {
-                "title": "Select page type",
-                "content_types": content_types
-            }
+            context = dict(
+                self.admin_site.each_context(request),
+                title="Select page type",
+                content_types=content_types
+            )
 
             return render(request, "admin/pages/page/select_page_type.html", context)
         else:

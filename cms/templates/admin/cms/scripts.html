@@ -1,4 +1,8 @@
-<script src="{{STATIC_URL}}admin/js/jquery.js"></script>
-    <script src="{{STATIC_URL}}admin/js/jquery.init.js"></script>
-    <script src="{{STATIC_URL}}cms/js/jquery.cms.js"></script>
-    <script src="{{STATIC_URL}}pages/js/jquery.cms.pages.js"></script>
+{% if settings.DEBUG %}
+<script src="{{STATIC_URL}}admin/js/vendor/jquery/jquery.js"></script>
+{% else %}
+<script src="{{STATIC_URL}}admin/js/vendor/jquery/jquery.min.js"></script>
+{% endif %}
+<script src="{{STATIC_URL}}admin/js/jquery.init.js"></script>
+<script src="{{STATIC_URL}}cms/js/jquery.cms.js"></script>
+<script src="{{STATIC_URL}}pages/js/jquery.cms.pages.js"></script>
