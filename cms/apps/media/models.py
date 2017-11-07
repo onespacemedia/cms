@@ -69,6 +69,7 @@ class File(models.Model):
         max_length=1000,
         blank=True,
         null=True,
+        verbose_name="caption"
     )
 
     copyright = models.CharField(
@@ -81,6 +82,7 @@ class File(models.Model):
         max_length=200,
         blank=True,
         null=True,
+        help_text="Text used for screen readers"
     )
 
     def get_absolute_url(self):
