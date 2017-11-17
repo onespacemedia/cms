@@ -1,7 +1,9 @@
 django.jQuery(function($){
-    $('.wysiwyg:visible').each(function(){
-        activate_tinymce(this)
-    });
+    setTimeout(() => {
+        $('.wysiwyg:visible').each(function(){
+            activate_tinymce(this)
+        });
+    }, 250)
 
     Suit.after_inline.register('init_wysiwyg', function(inline_prefix, row){
         $('.wysiwyg:visible', row).each(function(){
