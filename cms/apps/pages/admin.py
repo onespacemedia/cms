@@ -294,7 +294,7 @@ class PageAdmin(PageBaseAdmin):
             invalid_parents.add(obj.id)
         else:
             invalid_parents = frozenset()
-        homepage = request.pages.homepage
+        homepage = Page.objects.filter(parent=None).first()
 
         if homepage:
             parent_choices = []
@@ -510,7 +510,8 @@ class PageAdmin(PageBaseAdmin):
     def sitemap_json_view(self, request):
         """Returns a JSON data structure describing the sitemap."""
         # Get the homepage.
-        homepage = request.pages.homepage
+        homepage = Page.objects.filter(parent=None).first()
+
         # Compile the initial data.
         data = {
             "canAdd": self.has_add_permission(request),
