@@ -10,8 +10,8 @@ from watson import search
 
 from cms.apps.media.models import File
 
-from ..middleware import RequestPageManager
 from ..models import ContentBase, Country, Page
+from ..views import Struct
 from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
                                   get_country_code, get_meta_description,
                                   get_meta_robots, get_og_image, get_page_url,
@@ -100,6 +100,11 @@ class TestTemplatetags(TestCase):
                 page=self.subsubsection,
             )
 
+        self.homepage.refresh_from_db()
+        self.section.refresh_from_db()
+        self.subsection.refresh_from_db()
+        self.subsubsection.refresh_from_db()
+
     def tearDown(self):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
@@ -107,7 +112,11 @@ class TestTemplatetags(TestCase):
     def test_navigation_entries(self):
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 
@@ -210,7 +219,11 @@ class TestTemplatetags(TestCase):
     def test_render_navigation(self):
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         navigation = render_navigation({
             'request': request
@@ -239,7 +252,11 @@ class TestTemplatetags(TestCase):
 
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
         output = render_breadcrumbs({'request': request})
         self.assertTrue(len(output) > 0)
 
@@ -263,7 +280,11 @@ class TestTemplatetags(TestCase):
     def test_open_graph_tags(self):
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         context = {}
         context['request'] = request
@@ -283,7 +304,11 @@ class TestTemplatetags(TestCase):
     def test_image_obj(self):
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         context = {}
         context['request'] = request
@@ -308,7 +333,11 @@ class TestTemplatetags(TestCase):
 
     def test_get_meta_description(self):
         request = self.factory.get('/')
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         self.assertEqual(get_meta_description({}, description='Check 1'), 'Check 1')
 
@@ -321,7 +350,11 @@ class TestTemplatetags(TestCase):
 
     def test_get_meta_robots(self):
         request = self.factory.get('/')
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         self.assertEqual(get_meta_robots({
             'pages': request.pages,
@@ -340,16 +373,25 @@ class TestTemplatetags(TestCase):
         self.homepage.save()
 
         request = self.factory.get('/')
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         self.assertEqual(get_meta_robots({
             'pages': request.pages,
         }), 'NOINDEX, NOFOLLOW, NOARCHIVE')
 
         self.homepage.delete()
+        self.homepage = None
 
         request = self.factory.get('/')
-        request.pages = RequestPageManager(request)
+        request.pages = Struct(**{
+            'current': self.homepage,
+            'homepage': self.homepage,
+            'breadcrumbs': [self.homepage],
+        })
 
         self.assertEqual(get_meta_robots({
             'pages': request.pages,
