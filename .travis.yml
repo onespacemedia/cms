@@ -22,7 +22,7 @@ dist: trusty
 sudo: false
 install:
 - pip install -e .[testing]
-script: bash -c '$CMD --cov=cms -n auto --create-db --nomigrations'
+script: bash -c '$CMD --cov=cms --create-db --nomigrations'
 notifications:
   slack:
     rooms: onespacemedia:NufeDxb1m4D0UkuQh1O0m9qt#builds

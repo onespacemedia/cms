@@ -45,7 +45,6 @@ setup(
             'pytest',
             'pytest-cov',
             'pytest-django',
-            'pytest-xdist',
             # / Project template
             'coveralls',
             'mock',
