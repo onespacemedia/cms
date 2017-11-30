@@ -351,6 +351,15 @@ class Page(PageBase):
         # Update the entire tree.
         self._excise_branch()
 
+    @cached_property
+    def last_modified_date(self):
+        versions = Version.objects.get_for_object(self)
+        if versions.count() > 0:
+            latest_version = versions[:1][0]
+            return int(latest_version.revision.date_created.strftime('%s'))
+
+        return None
+
     def last_modified(self):
         versions = Version.objects.get_for_object(self)
         if versions.count() > 0:
