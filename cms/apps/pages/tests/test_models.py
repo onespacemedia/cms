@@ -93,12 +93,8 @@ class TestPage(TestCase):
             subsection = homepage.navigation[0].navigation[0]
         self.assertEqual(subsection.title, "Subsection")
 
-        # Make sure that, beyond this, it doesn't go  pathalogical.
+        # Make sure that, beyond this, it doesn't go pathalogical.
         with self.assertNumQueries(1):
-            subsubsection = subsection.children[0]
-        self.assertEqual(subsubsection.title, "Subsubsection")
-
-        with self.assertNumQueries(0):
             subsubsection = subsection.children[0]
         self.assertEqual(subsubsection.title, "Subsubsection")
 
