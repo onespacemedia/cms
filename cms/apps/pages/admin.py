@@ -109,9 +109,6 @@ class PageAdmin(PageBaseAdmin):
 
     change_form_template = 'admin/pages/page/change_form.html'
 
-    def get_queryset(self, request):
-        return super(PageAdmin, self).get_queryset(request).filter(is_content_object=False)
-
     def get_object(self, request, object_id, from_field=None):
         queryset = super(PageAdmin, self).get_queryset(request)
         model = queryset.model

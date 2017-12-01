@@ -30,7 +30,10 @@ class Struct(object):
         self.__dict__.update(entries)
 
 
-def get_page(page, breadcrumbs, path_components):
+PAGE_FIELDS = ['id', 'title', 'content_type_id', 'requires_authentication']
+
+
+def get_page(page, breadcrumbs, path_components, auth_required):
     content_cls = ContentType.objects.get_for_id(page.content_type_id).model_class()
 
     if path_components:
@@ -38,25 +41,27 @@ def get_page(page, breadcrumbs, path_components):
         remaining_components = path_components[1:]
 
         try:
-            subpage = page.child_set.get(slug=child_slug)
+            subpage = page.children.only(*PAGE_FIELDS).get(slug=child_slug)
         except Page.DoesNotExist:
             if content_cls.urlconf == 'cms.apps.pages.urls':
                 raise Http404
 
-            return page, path_components
+            return page, path_components, auth_required
 
         breadcrumbs.append(subpage)
-        return get_page(subpage, breadcrumbs, remaining_components)
 
-    return page, path_components
+        auth_required = not auth_required and subpage.auth_required
+        return get_page(subpage, breadcrumbs, remaining_components, auth_required)
+
+    return page, path_components, auth_required
 
 
 def page_detail(request, path):
     path_components = [component for component in path.split('/') if component]
-    homepage = Page.objects.get(parent=None)
+    homepage = Page.objects.only(*PAGE_FIELDS).get(parent_id=None)
     breadcrumbs = [homepage]
 
-    page, path_components = get_page(homepage, breadcrumbs, path_components)
+    page, path_components, auth_required = get_page(homepage, breadcrumbs, path_components, homepage.requires_authentication)
     content_cls = ContentType.objects.get_for_id(page.content_type_id).model_class()
 
     # Try to resolve the page using the ContentBase urlconf
@@ -71,7 +76,7 @@ def page_detail(request, path):
         'breadcrumbs': breadcrumbs,
     })
 
-    if page.auth_required() and not request.user.is_authenticated():
+    if auth_required and not request.user.is_authenticated():
         return redirect_to_login(path)
 
     return func(request, *args, **kwargs)

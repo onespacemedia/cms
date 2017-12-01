@@ -96,7 +96,7 @@ class Page(PageBase):
     )
 
     is_content_object = models.BooleanField(
-        default=False
+        default=False,
     )
 
     country_group = models.ForeignKey(
@@ -115,21 +115,17 @@ class Page(PageBase):
     @cached_property
     def children(self):
         """The child pages for this page."""
-        children = []
-        if self.right - self.left > 1:  # Optimization - don't fetch children
-            #  we know aren't there!
-            for child in self.child_set.filter(is_content_object=False):
-                child.parent = self
-                children.append(child)
-        return children
+        if self.right - self.left > 1:  # Check if this is a leaf node.
+            return self.child_set.all()
 
-    @property
+        return Page.objects.none()
+
+    @cached_property
     def navigation(self):
         """The sub-navigation of this page."""
-        return [child for child in self.children if child.in_navigation]
+        return self.children.filter(in_navigation=True)
 
     # Publication fields.
-
     publication_date = models.DateTimeField(
         blank=True,
         null=True,
@@ -181,7 +177,7 @@ class Page(PageBase):
     )
 
     def auth_required(self):
-        if self.requires_authentication or not self.parent:
+        if self.requires_authentication or not self.parent_id:
             return self.requires_authentication
         return self.parent.auth_required()
 
@@ -230,7 +226,6 @@ class Page(PageBase):
         return url
 
     # Tree management.
-
     @property
     def _branch_width(self):
         return self.right - self.left + 1
