@@ -58,7 +58,7 @@ def get_page(page, breadcrumbs, path_components, auth_required):
 
 def page_detail(request, path):
     path_components = [component for component in path.split('/') if component]
-    homepage = Page.objects.only(*PAGE_FIELDS).get(parent_id=None)
+    homepage = Page.objects.get_homepage()
     breadcrumbs = [homepage]
 
     page, path_components, auth_required = get_page(homepage, breadcrumbs, path_components, homepage.requires_authentication)

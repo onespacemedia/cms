@@ -66,8 +66,16 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         """Returns the site homepage."""
-        return self.prefetch_related("child_set__child_set").get(parent=None,
-                                                                 is_content_object=False)
+        return self.prefetch_related("child_set__child_set").only(
+            'id',
+            'title',
+            'left',
+            'right',
+            'content_type_id',
+            'requires_authentication'
+        ).filter(
+            parent=None,
+        ).first()
 
 
 class Page(PageBase):
