@@ -76,7 +76,7 @@ def page_detail(request, path):
         'breadcrumbs': breadcrumbs,
     })
 
-    if auth_required and not request.user.is_authenticated():
+    if auth_required and not request.user.is_authenticated:
         return redirect_to_login(path)
 
     return func(request, *args, **kwargs)
