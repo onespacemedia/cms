@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 
 DEPENDENCIES = [
-    'django',
+    'django==1.8.12',
     'Pillow',
     'sorl-thumbnail',
     'requests',
