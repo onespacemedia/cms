@@ -601,6 +601,8 @@ class PageAdmin(PageBaseAdmin):
                 right=F('owner__right'),
             )
 
+        # TODO: We need to update all of the other language versions left/right too!
+
         # Report back.
         return HttpResponse("Page #%s was moved %s." % (page["id"], direction))
 
