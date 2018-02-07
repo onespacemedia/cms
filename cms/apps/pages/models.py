@@ -187,8 +187,7 @@ class Page(PageBase):
     @cached_property
     def content(self):
         """The associated content model for this page."""
-        content_cls = ContentType.objects.get_for_id(
-            self.content_type_id).model_class()
+        content_cls = self.content_type.model_class()
         content = content_cls._default_manager.get(page=self)
         content.page = self
         return content
