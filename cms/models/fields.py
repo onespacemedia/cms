@@ -9,8 +9,6 @@ except:
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from cms.forms import HtmlWidget
-
 
 class HtmlField(models.TextField):
 
@@ -18,6 +16,8 @@ class HtmlField(models.TextField):
 
     def formfield(self, **kwargs):
         """Returns a HtmlWidget."""
+        from cms.forms import HtmlWidget
+
         kwargs["widget"] = HtmlWidget
         return super(HtmlField, self).formfield(**kwargs)
 
