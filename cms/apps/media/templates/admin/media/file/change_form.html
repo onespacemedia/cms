@@ -14,13 +14,12 @@
     {% if original.is_image %}
     <div id="navcontainer" class="box">
         <div id="image_container">
-            <img id="image" src="{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}" />
+            <img id="image" src="{{ original.get_absolute_url }}" />
 
             <div id="paper">&nbsp;</div>
         </div>
 
-        {# We use parent folder paths to get around not being able to pass a arg to `build_absolute_url` #}
-        <a href="{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}" target="_blank" id="preview_url">Full size preview</a>
+        <a href="{{ original.get_absolute_url }}" target="_blank" id="preview_url">Full size preview</a>
     </div>
     {% endif %}
 

@@ -41,9 +41,23 @@ class HtmlWidget(forms.Textarea):
         attrs = attrs or {}
         attrs['class'] = "wysiwyg"
         attrs['required'] = False
-        attrs['data-wysiwyg-settings'] = json.dumps(
-            getattr(settings, 'WYSIWYG_OPTIONS', {})
-        )
+        wysiwyg_settings = {
+            'branding': False,
+            'codemirror': {
+                'indentOnInit': True,
+                'fullscreen': False,
+                'path': 'codemirror',
+                'config': {
+                    'lineNumbers': True,
+                    'lineWrapping': True
+                },
+                'width': 800,
+                'height': 600,
+                'saveCursorPosition': True
+            }
+        }
+        wysiwyg_settings.update(getattr(settings, 'WYSIWYG_OPTIONS', {}))
+        attrs['data-wysiwyg-settings'] = json.dumps(wysiwyg_settings)
 
         # Get the standard widget.
         html = super(HtmlWidget, self).render(name, value, attrs)

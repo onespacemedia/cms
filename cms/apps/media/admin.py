@@ -102,9 +102,26 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
-    list_display = ['get_preview', 'get_title', 'get_size']
+    list_display = ['get_number', 'get_preview', 'get_title', 'get_alt_text', 'get_size']
+    list_display_links = list_display
     list_filter = ['labels']
     search_fields = ['title']
+    ordering = ['pk']
+
+
+    def get_number(self, obj):
+        return obj.pk
+
+    get_number.admin_order_field = 'pk'
+    get_number.short_description = "number"
+
+    def get_alt_text(self, obj):
+        if not obj.alt_text:
+            return ''
+
+        return obj.alt_text
+
+    get_alt_text.short_description = "Alt text"
 
     def to_field_allowed(self, request, to_field):
         """
@@ -207,7 +224,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     def get_title(self, obj):
         """Returns a truncated title of the object."""
         return Truncator(obj.title).words(8)
-
+    get_title.admin_order_field = 'title'
     get_title.short_description = "title"
 
     # Custom view logic.

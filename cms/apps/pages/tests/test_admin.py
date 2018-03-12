@@ -230,9 +230,6 @@ class TestPageAdmin(TestCase):
 
         self.assertEqual(self.page_admin.get_page_content_cls(request2, self.homepage), PageContent)
 
-        with self.assertRaises(AttributeError):
-            self.page_admin.get_page_content_cls(request2, self.homepage.content)
-
     def test_pageadmin_get_fieldsets(self):
         request = self._build_request(
             page_type=ContentType.objects.get_for_model(PageContent).pk

@@ -204,8 +204,13 @@ class PageAdmin(PageBaseAdmin):
 
         if PAGE_TYPE_PARAMETER in request.GET:
             return ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()
-        if obj and obj.content_type:
+
+        if obj and hasattr(obj, 'content_type') and obj.content_type:
             return obj.content_type.model_class()
+
+        if hasattr(request, '_admin_change_obj') and hasattr(request._admin_change_obj, 'content_type'):
+            return request._admin_change_obj.content_type.model_class()
+
         raise Http404("You must specify a page content type.")
 
     def get_fieldsets(self, request, obj=None):
