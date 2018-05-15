@@ -1,77 +1,20 @@
 """Template tags used to render pages."""
 from __future__ import unicode_literals
 
+import time
+
 import jinja2
 import six
+from cms.apps.pages.models import Page
+from cms.models import SearchMetaBase
+from cms.templatetags.html import truncate_paragraphs
 from django import template
 from django.conf import settings
 from django.utils.html import escape
 from django_jinja import library
 from jinja2.filters import do_striptags
 
-from cms.apps.pages.models import Page
-from cms.models import SearchMetaBase
-from cms.templatetags.html import truncate_paragraphs
-
 register = template.Library()
-
-
-# Navigation.
-def _navigation_entries(context, pages, section=None, is_json=False):
-    request = context["request"]
-    # Compile the entries.
-
-    def page_entry(page):
-        # Do nothing if the page is to be hidden from not logged in users
-        if page.hide_from_anonymous and not request.user.is_authenticated():
-            return
-
-        url = page.get_absolute_url()
-
-        if is_json:
-            return {
-                "url": url,
-                "title": six.text_type(page),
-                "here": request.path.startswith(url),
-                "children": [page_entry(x) for x in page.navigation if
-                             page is not request.pages.homepage]
-            }
-        return {
-            "url": url,
-            "page": page,
-            "title": six.text_type(page),
-            "here": request.path.startswith(url),
-            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
-        }
-
-    # All the applicable nav items
-    entries = [page_entry(x) for x in pages if page_entry(x) is not None]
-
-    # Add the section.
-    if section:
-        section_entry = page_entry(section)
-        section_entry["here"] = context["pages"].current == section_entry["page"]
-        entries = [section_entry] + list(entries)
-
-    return entries
-
-
-@library.global_function
-@library.render_with('pages/navigation.html')
-@jinja2.contextfunction
-def render_navigation(context, pages, section=None):
-    """
-    Renders a navigation list for the given pages.
-
-    The pages should all be a subclass of PageBase, and possess a get_absolute_url() method.
-
-    You can also specify an alias for the navigation, at which point it will be set in the
-    context rather than rendered.
-    """
-    return {
-        "navigation": _navigation_entries(context, pages, section),
-    }
-
 
 # Page linking.
 @library.global_function

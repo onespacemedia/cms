@@ -397,7 +397,7 @@ class TestPageAdmin(TestCase):
         # No homepage.
         self.assertEqual(form.base_fields['parent'].choices, [(self.homepage.pk, 'Homepage')])
 
-        request.pages.homepage = None
+        Page.objects.all().delete()
         form = self.page_admin.get_form(request, obj=self.content_page)
 
         self.assertListEqual(form.base_fields['parent'].choices, [('', '---------')])
@@ -670,7 +670,7 @@ class TestPageAdmin(TestCase):
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
 
-        request.pages.homepage = None
+        Page.objects.all().delete()
         response = self.page_admin.sitemap_json_view(request)
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))

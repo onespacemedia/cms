@@ -66,8 +66,16 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         """Returns the site homepage."""
-        return self.prefetch_related("child_set__child_set").get(parent=None,
-                                                                 is_content_object=False)
+        return self.prefetch_related("child_set__child_set").only(
+            'id',
+            'title',
+            'left',
+            'right',
+            'content_type_id',
+            'requires_authentication'
+        ).filter(
+            parent=None,
+        ).first()
 
 
 class Page(PageBase):
@@ -96,7 +104,7 @@ class Page(PageBase):
     )
 
     is_content_object = models.BooleanField(
-        default=False
+        default=False,
     )
 
     country_group = models.ForeignKey(
@@ -115,21 +123,17 @@ class Page(PageBase):
     @cached_property
     def children(self):
         """The child pages for this page."""
-        children = []
-        if self.right - self.left > 1:  # Optimization - don't fetch children
-            #  we know aren't there!
-            for child in self.child_set.filter(is_content_object=False):
-                child.parent = self
-                children.append(child)
-        return children
+        if self.right - self.left > 1:  # Check if this is a leaf node.
+            return self.child_set.all()
 
-    @property
+        return Page.objects.none()
+
+    @cached_property
     def navigation(self):
         """The sub-navigation of this page."""
-        return [child for child in self.children if child.in_navigation]
+        return self.children.filter(in_navigation=True)
 
     # Publication fields.
-
     publication_date = models.DateTimeField(
         blank=True,
         null=True,
@@ -181,7 +185,7 @@ class Page(PageBase):
     )
 
     def auth_required(self):
-        if self.requires_authentication or not self.parent:
+        if self.requires_authentication or not self.parent_id:
             return self.requires_authentication
         return self.parent.auth_required()
 
@@ -230,7 +234,6 @@ class Page(PageBase):
         return url
 
     # Tree management.
-
     @property
     def _branch_width(self):
         return self.right - self.left + 1
@@ -350,6 +353,15 @@ class Page(PageBase):
         super(Page, self).delete(*args, **kwargs)
         # Update the entire tree.
         self._excise_branch()
+
+    @cached_property
+    def last_modified_date(self):
+        versions = Version.objects.get_for_object(self)
+        if versions.count() > 0:
+            latest_version = versions[:1][0]
+            return int(latest_version.revision.date_created.strftime('%s'))
+
+        return None
 
     def last_modified(self):
         versions = Version.objects.get_for_object(self)

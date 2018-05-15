@@ -109,9 +109,6 @@ class PageAdmin(PageBaseAdmin):
 
     change_form_template = 'admin/pages/page/change_form.html'
 
-    def get_queryset(self, request):
-        return super(PageAdmin, self).get_queryset(request).filter(is_content_object=False)
-
     def get_object(self, request, object_id, from_field=None):
         queryset = super(PageAdmin, self).get_queryset(request)
         model = queryset.model
@@ -294,7 +291,7 @@ class PageAdmin(PageBaseAdmin):
             invalid_parents.add(obj.id)
         else:
             invalid_parents = frozenset()
-        homepage = request.pages.homepage
+        homepage = Page.objects.get_homepage()
 
         if homepage:
             parent_choices = []
@@ -510,7 +507,8 @@ class PageAdmin(PageBaseAdmin):
     def sitemap_json_view(self, request):
         """Returns a JSON data structure describing the sitemap."""
         # Get the homepage.
-        homepage = request.pages.homepage
+        homepage = Page.objects.get_homepage()
+
         # Compile the initial data.
         data = {
             "canAdd": self.has_add_permission(request),
