@@ -19,9 +19,9 @@ matrix:
   - python: pypy3.3-5.2-alpha1
   fast_finish: true
 dist: trusty
-sudo: false
+sudo: true
 before_install:
-- apt-get install libgeoip-dev -y
+- sudo apt-get install libgeoip-dev -y
 install:
 - pip install -e .[testing]
 script: bash -c '$CMD --cov=cms -n auto --create-db --nomigrations'
