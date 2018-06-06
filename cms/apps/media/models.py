@@ -175,7 +175,7 @@ class ImageRefField(FileRefField):
 
 
 VIDEO_FILTER = {
-    "file__iregex": r"\.(webm|mp4|m4v)$"
+    "file__iregex": r"\.(mp4|m4v)$"
 }
 
 
@@ -210,12 +210,6 @@ class Video(models.Model):
         verbose_name="low resolution MP4",
         blank=True,
         null=True
-    )
-
-    webm = VideoFileRefField(
-        verbose_name="WebM",
-        blank=True,
-        null=True,
     )
 
     def __str__(self):
