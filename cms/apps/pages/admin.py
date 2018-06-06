@@ -72,6 +72,8 @@ class PageAdmin(PageBaseAdmin):
 
     list_display = ("__str__", "is_online",)
 
+    list_editable = ("is_online",)
+
     list_filter = [PageContentTypeFilter]
 
     new_fieldsets = [
