@@ -42,7 +42,7 @@ setup(
     extras_require={
         'usertools': ['django-usertools'],
         'testing': [
-            'pytest',
+            'pytest>=3.6',
             'pytest-cov',
             'pytest-django',
             'pytest-xdist',
