@@ -12,6 +12,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
@@ -373,43 +374,35 @@ class Video(models.Model):
         '''
         if self.external_video:
             if self.external_video_service == 'youtube':
-                return '<iframe class="vid-Video" frameborder="0" allowfullscreen="1" allow="autoplay; ' \
-                       'encrypted-media" title="YouTube video player" ' \
-                       'src="{}?autoplay={}&amp;controls={}&amp;loop={}&amp;mute={}{}"></iframe>'.format(
-                    self.external_video_iframe_url,
-                    int(autoplay),
-                    int(controls),
-                    int(loop),
-                    int(mute),
-                    ('&amp;' + '&amp;'.join('{}={}'.format(parameter,youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
-                )
+                return render_to_string('videos/youtube.html', {
+                    'src': self.external_video_iframe_url,
+                    'autoplay': int(autoplay),
+                    'controls': int(controls),
+                    'loop': int(loop),
+                    'muted': int(mute),
+                    'extra_parameters': ('&amp;' + '&amp;'.join('{}={}'.format(parameter,youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
+                })
             elif self.external_video_service == 'vimeo':
-                return '<iframe class="vid-Video" frameborder="0" title="Vimeo video player" allowfullscreen ' \
-                       'src="{}?autoplay={}&amp;background={}&amp;loop={}&amp;muted={}"></iframe>'.format(
-                    self.external_video_iframe_url,
-                    int(autoplay),
-                    int(controls),
-                    int(loop),
-                    int(mute),
-                )
+                return render_to_string('videos/vimeo.html', {
+                    'src': self.external_video_iframe_url,
+                    'autoplay': int(autoplay),
+                    'controls': int(controls),
+                    'loop': int(loop),
+                    'muted': int(mute),
+                })
             else:
-                return '<iframe class="vid-Video" frameborder="0" allowfullscreen="1" title="Video player" ' \
-                       'allowfullscreen src="{}"></iframe>'.format(
-                    self.external_video_iframe_url,
-                )
+                return render_to_string('videos/default.html', {
+                    'src': self.external_video_iframe_url,
+                })
         elif self.high_resolution_mp4 or self.low_resolution_mp4:
-            return '<video preload="{}" {}{}{}{} class="vid-Video">' \
-                   '<source src="{}" type="video/mp4" media="all and (max-width:480px)">' \
-                   '<source src="{}" type="video/mp4">' \
-                   '</video>'.format(
-                'auto' if autoplay else 'metadata',
-                ' autoplay' if autoplay else '',
-                ' controls' if controls else '',
-                ' loop' if loop else '',
-                ' muted' if mute else '',
-                self.low_resolution_mp4.file.url if self.low_resolution_mp4 else self.high_resolution_mp4.file.url,
-                self.high_resolution_mp4.file.url if self.high_resolution_mp4 else self.low_resolution_mp4.file.url,
-            )
+            return render_to_string('videos/vimeo.html', {
+                'preload': 'auto' if autoplay else 'metadata',
+                'autoplay': ' autoplay' if autoplay else '',
+                'controls': ' controls' if controls else '',
+                'loop': ' loop' if loop else '',
+                'muted': ' muted' if mute else '',
+                'src': self.high_resolution_mp4.file.url if self.high_resolution_mp4 else self.low_resolution_mp4.file.url,
+            })
 
     class Meta:
         ordering = ("title",)
