@@ -369,7 +369,7 @@ class Video(models.Model):
 
         return super().clean()
 
-    def embed_html(self, loop=False, autoplay=False, controls=False, mute=False, youtube_parameters=None, width=640, height=360):
+    def embed_html(self, loop=False, autoplay=False, controls=False, mute=False, youtube_parameters=None):
         '''
         Returns the HTML code for embedding the video.
         Expects youtube_parameters as a dictionary in the form {parameter:value}
@@ -378,10 +378,8 @@ class Video(models.Model):
         if self.external_video:
             if self.external_video_service == 'youtube':
                 return '<iframe class="vid-Video" frameborder="0" allowfullscreen="1" allow="autoplay; ' \
-                       'encrypted-media" title="YouTube video player"{}{} ' \
+                       'encrypted-media" title="YouTube video player" ' \
                        'src="{}?autoplay={}&amp;controls={}&amp;loop={}&amp;mute={}{}"></iframe>'.format(
-                    ' width="{}"'.format(width) if width else '',
-                    ' height="{}"'.format(height) if height else '',
                     self.external_video_iframe_url,
                     int(autoplay),
                     int(controls),
@@ -390,16 +388,18 @@ class Video(models.Model):
                     ('&amp;' + '&amp;'.join('{}={}'.format(parameter,youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
                 )
             elif self.external_video_service == 'vimeo':
-                return '<iframe class="vid-Video" frameborder="0" allowfullscreen="1" title="Vimeo video player" ' \
-                       'width="{}" height="{}" allowfullscreen ' \
+                return '<iframe class="vid-Video" frameborder="0" title="Vimeo video player" allowfullscreen ' \
                        'src="{}?autoplay={}&amp;background={}&amp;loop={}&amp;muted={}"></iframe>'.format(
-                    width,
-                    height,
                     self.external_video_iframe_url,
                     int(autoplay),
                     int(controls),
                     int(loop),
                     int(mute),
+                )
+            else:
+                return '<iframe class="vid-Video" frameborder="0" allowfullscreen="1" title="Video player" ' \
+                       'allowfullscreen src="{}"></iframe>'.format(
+                    self.external_video_iframe_url,
                 )
         elif self.high_resolution_mp4 or self.low_resolution_mp4:
             return '<video preload="{}" {}{}{}{} class="vid-Video">' \
