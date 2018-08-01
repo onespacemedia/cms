@@ -12,7 +12,7 @@ DEPENDENCIES = [
     'sorl-thumbnail',
     'Jinja2==2.8',
 
-    'beautifulsoup4'
+    'beautifulsoup4',
     'django>=1.11,<1.12',
     'django-historylinks',
     'django-suit',
