@@ -207,7 +207,6 @@ def get_oembed_info_url(url):
         soup = BeautifulSoup(text, 'html.parser')
     except:  # pylint:disable=bare-except
         # Either requests failed, or it looked nothing like HTML.
-        logger.error('Failed to parse video page.', exc_info=True)
         return None
 
     # Video providers that support oEmbed will have something that looks like
@@ -222,7 +221,6 @@ def get_oembed_info_url(url):
         assert rel_tag.get('href')
     except:  # pylint:disable=bare-except
         # This can probably happen if a video is private or deleted.
-        logger.error('Unable to find oEmbed link.', exc_info=True)
         return None
 
     # Now, let's grab the JSON
@@ -256,12 +254,10 @@ def get_video_info(url):
         # happen here. Not just requests.exception.RequestException -
         # there's all the ones that could happen in the json library
         # too.
-        logger.error('Unable to parse oEmbed JSON.', exc_info=True)
         return None
 
     # Sanity check.
     if 'html' not in json or not json['html']:
-        logger.info('No HTML item defined in JSON.')
         return None
 
     video_id = json.get('video_id', None)
@@ -318,11 +314,11 @@ class Video(models.Model):
         null=True
     )
 
-    external_video = models.CharField(
+    external_video = models.URLField(
         max_length=255,
         blank=True,
         null=True,
-        help_text='Please provide a youtube.com or vimeo.com URL',
+        help_text='Provide a youtube.com or vimeo.com URL',
     )
 
     # Secret fields for external videos - populated from the URL when the form is saved.

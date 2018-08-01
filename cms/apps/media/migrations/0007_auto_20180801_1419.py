@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='video',
             name='external_video',
-            field=models.CharField(blank=True, help_text='Please provide a youtube.com or vimeo.com URL', max_length=255, null=True),
+            field=models.CharField(blank=True, help_text='Provide a youtube.com or vimeo.com URL', max_length=255, null=True),
         ),
         migrations.AddField(
             model_name='video',
