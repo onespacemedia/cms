@@ -417,7 +417,7 @@ class Video(models.Model):
 
 class VideoRefField(models.ForeignKey):
 
-    """A foreign key to a File, constrained to only select image files."""
+    """A foreign key to a File, constrained to only select video files."""
 
     def __init__(self, **kwargs):
         kwargs["to"] = 'media.Video'
