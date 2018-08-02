@@ -482,7 +482,7 @@ def render_title(context, browser_title=None):
     return {
         "title": browser_title or context.get("title") or (page and page.browser_title) or (page and page.title) or "",
         "site_title": (homepage and homepage.browser_title) or (homepage and homepage.title) or "",
-        "site_name": settings.SITE_NAME if settings.SITE_NAME else ''
+        "site_name": settings.SITE_NAME if settings.SITE_NAME else ""
     }
 
 
