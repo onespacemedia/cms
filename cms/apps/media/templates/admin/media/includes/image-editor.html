@@ -1,0 +1,47 @@
+<fieldset class="module aligned with-legend ">
+  <h2 class="legend">Edit</h2>
+
+  <input style="display:none;" type="text" name="changed_image" maxlength="200" id="id_changed_image">
+  <div id="image-editor-container" style="height:750px; display:flex;">
+    <div id="tui-image-editor"></div>
+  </div>
+  <style>
+    .tui-image-editor-container .tui-image-editor-main {
+      top: 0 !important;
+    }
+  </style>
+  <script>
+    var instance
+
+    document.addEventListener('DOMContentLoaded', function() {
+      {% include 'admin/media/includes/image-editor-style.js' %}
+      instance = new tui.ImageEditor(document.querySelector('#tui-image-editor'), {
+        includeUI: {
+          loadImage: {
+            path: '{{ original.get_absolute_url }}',
+            name: '{{ original.title }}'
+          },
+          menu: ['crop','rotate','flip'],
+          theme: Theme,
+          initMenu: 'filter',
+          menuBarPosition: 'bottom'
+        },
+        cssMaxWidth: 700,
+        cssMaxHeight: 500,
+        selectionStyle: {
+          cornerSize: 20,
+          rotatingPointOffset: 70
+        }
+      })
+    })
+
+    for (const button of [].slice.call(document.querySelectorAll('.save-box [type="submit"]'))) {
+      button.addEventListener('click', function() {
+        if (!instance.isEmptyUndoStack()) {
+          var dataURL = instance.toDataURL();
+          document.querySelector('#id_changed_image').value = dataURL
+        }
+      })
+    }
+  </script>
+</fieldset>

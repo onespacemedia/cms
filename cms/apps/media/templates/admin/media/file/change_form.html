@@ -10,71 +10,23 @@
     {% endif %}
 {% endblock %}
 
-{% block sidebar %}
-    {% if original.is_image %}
-    <div id="navcontainer" class="box">
-        <div id="image_container">
-            <img id="image" src="{{ original.get_absolute_url }}" />
-
-            <div id="paper">&nbsp;</div>
-        </div>
-
-        <a href="{{ original.get_absolute_url }}" target="_blank" id="preview_url">Full size preview</a>
-    </div>
-    {% endif %}
-
-{{ block.super }}
+{% block after_field_sets %}
+  {% if original.is_image %}
+    {% include 'admin/media/includes/image-editor.html' %}
+  {% endif %}
 {% endblock %}
 
 {% block extrajs %}
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
-    <!-- Load widget code -->
-    <script type="text/javascript" src="http://feather.aviary.com/imaging/v1/editor.js"></script>
-    <script type="text/javascript" src="/static/media/js/jquery.cookie.js"></script>
-
-    <!-- Instantiate the widget -->
-    <script type="text/javascript">
-
-        var featherEditor = new Aviary.Feather({
-            apiKey: '{{ settings.ADOBE_CREATIVE_SDK_CLIENT_ID }}',
-            theme: 'light',
-            displayImageSize: true,
-            onLoad: function() {
-                document.getElementById('edit-button').style.display = 'block';
-            },
-            onSave: function(imageID, newURL) {
-                document.getElementById(imageID).src = newURL;
-                document.getElementById('preview_url').href = newURL;
-
-                // POST to a URL which will GET the new URL and overwrite the saved file.
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "admin:media_file_remote" object_id=original.pk %}',
-                    data: {
-                        url: newURL,
-                    },
-                    beforeSend: function(jqXHR, settings) {
-                        jqXHR.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.log(textStatus, errorThrown);
-                    },
-                    success: function(data, textStatus, jqXHR) {
-                        // featherEditor.close();
-                        window.location.reload();
-                    }
-                });
-            }
-        });
-
-        function launchEditor(id) {
-            featherEditor.launch({
-                image: 'image',
-                url: '{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}'
-            });
-            return false;
-        }
-    </script>
+    {% if original.is_image %}
+      <!-- Instantiate the widget -->
+      <link type="text/css" rel="stylesheet" href="https://cdn.rawgit.com/nhnent/tui.color-picker/v2.0.0/dist/tui-color-picker.css">
+      <link rel="stylesheet" href="https://uicdn.toast.com/tui-image-editor/latest/tui-image-editor.css">
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.7/fabric.js"></script>
+      <script type="text/javascript" src="https://uicdn.toast.com/tui.code-snippet/v1.3.0/tui-code-snippet.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+      <script type="text/javascript" src="https://cdn.rawgit.com/nhnent/tui.component.colorpicker/1.0.2/dist/colorpicker.min.js"></script>
+      <script type="text/javascript" src="https://uicdn.toast.com/tui-image-editor/latest/tui-image-editor.js"></script>
     {% endif %}
 
     {% if is_popup %}

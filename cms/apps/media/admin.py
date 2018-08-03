@@ -23,6 +23,7 @@ from sorl.thumbnail import get_thumbnail
 from watson.admin import SearchAdmin
 
 from cms import permalinks
+from cms.apps.media.forms import ImageChangeForm
 from cms.apps.media.models import File, Label, Video
 
 
@@ -107,6 +108,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     search_fields = ['title']
     ordering = ['pk']
 
+    def get_form(self, request, obj):
+        if obj.is_image:
+            return ImageChangeForm
+        else:
+            super(FileAdmin, self).get_form(self, request, obj)
 
     def get_number(self, obj):
         return obj.pk
