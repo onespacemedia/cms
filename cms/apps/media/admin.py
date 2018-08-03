@@ -108,11 +108,10 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     search_fields = ['title']
     ordering = ['pk']
 
-    def get_form(self, request, obj):
-        if obj.is_image:
-            return ImageChangeForm
-        else:
-            super(FileAdmin, self).get_form(self, request, obj)
+    def get_form(self, request, obj=None, **kwargs):
+        if obj and obj.is_image:
+            kwargs['form'] = ImageChangeForm
+        return super(FileAdmin, self).get_form(request, obj, **kwargs)
 
     def get_number(self, obj):
         return obj.pk
