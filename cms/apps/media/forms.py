@@ -29,11 +29,11 @@ class ImageChangeForm(forms.ModelForm):
             file_name = original_file_name + '.' + format.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name=file_name)
 
-            if original.file.name.split('.')[-1] in ('jpeg', 'jpg'):
+            if original.file.name.split('.')[-1].lower in ('jpeg', 'jpg'):
                 # Remove alpha channel and compress to jpg.
                 image = Image.open(data)
                 image.load()  # required for png.split()
-                background = Image.new("RGB", image.size, (255, 255, 255))
+                background = Image.new('RGB', image.size, (255, 255, 255))
                 background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
                 new_file_name = original_file_name + '.jpg'
                 thumb_io = BytesIO()
