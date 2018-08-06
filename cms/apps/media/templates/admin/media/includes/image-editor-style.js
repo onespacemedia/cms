@@ -16,9 +16,9 @@ var Theme = {
     'downloadButton.display': 'none',
 
     // main icons
-    'menu.normalIcon.path': '/static/cms/svg/icon-b.svg',
+    'menu.normalIcon.path': '/static/cms/svg/image-editor/icon-b.svg',
     'menu.normalIcon.name': 'icon-b',
-    'menu.activeIcon.path': '/static/cms/svg/icon-a.svg',
+    'menu.activeIcon.path': '/static/cms/svg/image-editor/icon-a.svg',
     'menu.activeIcon.name': 'icon-a',
     'menu.iconSize.width': '24px',
     'menu.iconSize.height': '24px',
@@ -28,9 +28,9 @@ var Theme = {
     'submenu.partition.color': '#858585',
 
     // submenu icons
-    'submenu.normalIcon.path': '/static/cms/svg/icon-a.svg',
+    'submenu.normalIcon.path': '/static/cms/svg/image-editor/icon-a.svg',
     'submenu.normalIcon.name': 'icon-a',
-    'submenu.activeIcon.path': '/static/cms/svg/icon-c.svg',
+    'submenu.activeIcon.path': '/static/cms/svg/image-editor/icon-c.svg',
     'submenu.activeIcon.name': 'icon-c',
     'submenu.iconSize.width': '32px',
     'submenu.iconSize.height': '32px',
