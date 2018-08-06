@@ -1,4 +1,5 @@
 import base64
+import os
 
 from django.core.files.base import ContentFile
 from django import forms
@@ -24,7 +25,10 @@ class ImageChangeForm(forms.ModelForm):
             original = self.instance
             image_data = self.cleaned_data['changed_image']
             format, imgstr = image_data.split(';base64,')
-            original_file_name = original.file.name.split('/')[-1].split('.')[0].rsplit('_', 1)[0]
+            original_file_name = os.path.basename(original.file.name)
+            # rsplit on underscores to prevent the file as being saved with increasingly long names i.e
+            # file_AS8Cs2_yb93Df_r87fdc.png if it's been edited 3 times.
+            original_file_name = os.path.splitext(original_file_name)[0].rsplit('_', 1)[0]
             file_name = original_file_name + '.' + format.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name=file_name)
 
