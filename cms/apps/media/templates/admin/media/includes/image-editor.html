@@ -22,16 +22,16 @@
               path: '{{ original.get_absolute_url }}',
               name: '{{ original.title }}'
             },
-            menu: ['crop','rotate','flip'],
+            menu: {% if settings.IMAGE_EDITOR_TOOLS %}{{ settings.IMAGE_EDITOR_TOOLS }}{% else %}['crop','rotate','flip']{% endif %},
             theme: Theme,
-            initMenu: 'filter',
-            menuBarPosition: 'bottom'
+            initMenu: 'crop',
+            menuBarPosition: {% if settings.IMAGE_EDITOR_TOOLBAR_POSITION %}{{ settings.IMAGE_EDITOR_TOOLBAR_POSITION }}{% else %}'bottom'{% endif %}
           },
-          cssMaxWidth: 700,
-          cssMaxHeight: 500,
+          cssMaxWidth: {% if settings.IMAGE_EDITOR_MAX_WIDTH %}{{ settings.IMAGE_EDITOR_MAX_WIDTH }}{% else %}700{% endif %},
+          cssMaxHeight: {% if settings.IMAGE_EDITOR_MAX_HEIGHT %}{{ settings.IMAGE_EDITOR_MAX_HEIGHT }}{% else %}500{% endif %},
           selectionStyle: {
-            cornerSize: 20,
-            rotatingPointOffset: 70
+            cornerSize: {% if settings.IMAGE_EDITOR_CORNER_SIZE %}{{ settings.IMAGE_EDITOR_CORNER_SIZE }}{% else %}20{% endif %},
+            rotatingPointOffset: {% if settings.IMAGE_EDITOR_POINT_OFFSET %}{{ settings.IMAGE_EDITOR_POINT_OFFSET }}{% else %}70{% endif %}
           }
         })
       })
