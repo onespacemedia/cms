@@ -1,6 +1,5 @@
 import base64
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 from django import forms
 from io import BytesIO
@@ -22,7 +21,7 @@ class ImageChangeForm(forms.ModelForm):
     def save(self, commit=True):
         if self.cleaned_data['changed_image']:
             # get image data from canvas output and convert it into an image.
-            original = File.objects.filter(file=self.cleaned_data['file']).first()
+            original = self.instance
             image_data = self.cleaned_data['changed_image']
             format, imgstr = image_data.split(';base64,')
             original_file_name = original.file.name.split('/')[-1].split('.')[0].rsplit('_', 1)[0]
