@@ -21,30 +21,44 @@ class ImageChangeForm(forms.ModelForm):
 
     def save(self, commit=True):
         if self.cleaned_data['changed_image']:
-            # get image data from canvas output and convert it into an image.
-            original = self.instance
-            image_data = self.cleaned_data['changed_image']
-            format, imgstr = image_data.split(';base64,')
-            original_file_name = os.path.basename(original.file.name)
-            # rsplit on underscores to prevent the file as being saved with increasingly long names i.e
-            # file_AS8Cs2_yb93Df_r87fdc.png if it's been edited 3 times.
-            original_file_name = os.path.splitext(original_file_name)[0].rsplit('_', 1)[0]
-            file_name = original_file_name + '.' + format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name=file_name)
+            # Get image data from canvas and decode it; this will always be
+            # in base64-encoded PNG format:
+            # data:image/png;base64,[...image data....]
+            changed_image = self.cleaned_data['changed_image']
+            image_data = base64.b64decode(changed_image.split(';base64,')[1])
+            root_name, extension = os.path.splitext(
+                os.path.basename(self.instance.file.name)
+            )
 
-            if original.file.name.split('.')[-1].lower in ('jpeg', 'jpg'):
-                # Remove alpha channel and compress to jpg.
-                image = Image.open(data)
+            # Each time a file is saved, Django will append _XXXXX until the
+            # file name is unique. Taking the part before the first underscore
+            # will prevent files being given increasingly long names, e.g.
+            # file_AS8Cs2_yb93Df_r87fdc.jpg if it's been edited 3 times.
+            #
+            # The tradeoff is that if an image is uploaded as
+            # Flowering_Cherry_Tree.jpg, the first time it is edited it will
+            # be saved as Flowering_Cherry.jpg. This is less bad than the
+            # alternative.
+            new_file_name = '{}{}'.format(root_name.rsplit('_', 1)[0], extension)
+            content_file = ContentFile(image_data, name=new_file_name)
+
+            if extension.lower() in ('.jpeg', '.jpg'):
+                # Remove alpha channel for JPEGs - attempting to save with an
+                # alpha channel still present will throw an exception.
+                image = Image.open(content_file)
                 image.load()  # required for png.split()
                 background = Image.new('RGB', image.size, (255, 255, 255))
                 background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
-                new_file_name = original_file_name + '.jpg'
                 thumb_io = BytesIO()
+                # Each save of a JPEG results in a small amount of degradation;
+                # use quality=100 to limit this.
                 background.save(thumb_io, 'JPEG', quality=100)
 
-                self.cleaned_data['file'].save(new_file_name, content=ContentFile(thumb_io.getvalue()), save=False)
+                self.cleaned_data['file'].save(
+                    new_file_name, content=ContentFile(thumb_io.getvalue()), save=False
+                )
 
             else:
-                self.cleaned_data['file'].save(file_name, data)
+                self.cleaned_data['file'].save(new_file_name, content=content_file)
 
         return super(ImageChangeForm, self).save(commit=commit)
