@@ -2,11 +2,17 @@
 from __future__ import unicode_literals
 
 import os
+import urllib
 
+import requests
+
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
@@ -179,6 +185,103 @@ VIDEO_FILTER = {
 }
 
 
+def get_oembed_info_url(url):
+    '''A helper to get the oEmbed information URL for a video.
+
+    This special-cases YouTube videos because bot requests to video pages
+    frequently result in the IP being captcha'd out, which breaks the
+    auto-discovery mechanism. Fortunately, these IP bans do not seem to apply
+    to requests to `/oembed`.
+    '''
+    youtube_domains = ['youtu.be', 'www.youtube.com', 'youtube.com', 'm.youtube.com']
+
+    if urllib.parse.urlparse(url).netloc in youtube_domains:
+        return 'https://www.youtube.com/oembed?format=json&{}'.format(
+            urllib.parse.urlencode({'url': url})
+        )
+
+    # The "not YouTube" case - this should reliably handle everything
+    # including Vimeo.
+    try:
+        req = requests.get(url)
+        text = req.text
+        soup = BeautifulSoup(text, 'html.parser')
+    except:  # pylint:disable=bare-except
+        # Either requests failed, or it looked nothing like HTML.
+        return None
+
+    # Video providers that support oEmbed will have something that looks like
+    # this:
+    # <link rel='alternate' type='application/json+oembed' href='...'>
+    # Where the contents of 'href' tell us where to go to get JSON
+    # for an embed code.
+    try:
+        rel_tag = soup.find(attrs={
+            'type': 'application/json+oembed'
+        })
+        assert rel_tag.get('href')
+    except:  # pylint:disable=bare-except
+        # This can probably happen if a video is private or deleted.
+        return None
+
+    # Now, let's grab the JSON
+    return rel_tag.get('href')
+
+
+def get_video_info(url):
+    '''Returns video information for a given URL. Returns a dict in this form:
+
+    {
+        'embed_code': '<iframe src=...>',
+        'title': 'Title of a video',
+    }
+
+    ...or None if no information could be found.
+    '''
+
+    if not url or (not url.startswith('http://') and not url.startswith('https://')):
+        logger.info('Video URL did not start with http[s]://')
+        return
+
+    oembed_url = get_oembed_info_url(url)
+    if not oembed_url:
+        return
+
+    try:
+        req = requests.get(oembed_url)
+        json = req.json()
+    except:  # pylint:disable=bare-except
+        # Bare exception because a lot of possible errors could
+        # happen here. Not just requests.exception.RequestException -
+        # there's all the ones that could happen in the json library
+        # too.
+        return None
+
+    # Sanity check.
+    if 'html' not in json or not json['html']:
+        return None
+
+    video_id = json.get('video_id', None)
+
+    soup = BeautifulSoup(json['html'], 'html.parser')
+    src = soup.find('iframe')['src']
+    # Remove query string junk
+    if src.find('?') > -1:
+        src = src[:src.find('?')]
+
+    if not video_id:
+        str_index = src.find('embed/') + 6
+        video_id = src[str_index:]  # Youtube ids are always 11 characters long
+
+    return {
+        'embed_code': json['html'],
+        'title': json['title'],
+        'service': json['provider_name'].lower(),
+        'id': video_id,
+        'src': src,
+    }
+
+
 class VideoFileRefField(FileRefField):
 
     """A foreign key to a File, constrained to only select video files."""
@@ -212,9 +315,94 @@ class Video(models.Model):
         null=True
     )
 
+    external_video = models.URLField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text='Provide a youtube.com or vimeo.com URL',
+    )
+
+    # Secret fields for external videos - populated from the URL when the form is saved.
+    external_video_iframe_url = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    external_video_id = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True,
+    )
+
+    external_video_service = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True,
+    )
+    # End secret fields
+
     def __str__(self):
         """Returns the title of the media."""
         return self.title
+
+    def clean(self):
+        if (self.high_resolution_mp4 or self.low_resolution_mp4) and self.external_video:
+            raise ValidationError({
+                'high_resolution_mp4': "Please provide either a locally hosted file or an external file, not both."
+            })
+
+        if self.external_video:
+            info = get_video_info(self.external_video)
+            if info:
+                self.external_video_iframe_url = info['src']
+
+                if not self.external_video_iframe_url:
+
+                    raise ValidationError({
+                        'external_video': "Couldn't determine how to embed this video. Maybe the video's privacy settings disallow embedding?"
+                    })
+                self.external_video_id = info['id']
+                self.external_video_service = info['service']
+
+        return super().clean()
+
+    def embed_html(self, loop=False, autoplay=False, controls=False, mute=False, youtube_parameters=None):
+        '''
+        Returns the HTML code for embedding the video.
+        Expects youtube_parameters as a dictionary in the form {parameter:value}
+        When using, this is a function so call with {{ video.embed_html|safe }}
+        '''
+        if self.external_video:
+            if self.external_video_service == 'youtube':
+                return render_to_string('videos/youtube.html', {
+                    'src': self.external_video_iframe_url,
+                    'autoplay': int(autoplay),
+                    'controls': int(controls),
+                    'loop': int(loop),
+                    'muted': int(mute),
+                    'extra_parameters': ('&amp;' + '&amp;'.join('{}={}'.format(parameter,youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
+                })
+            elif self.external_video_service == 'vimeo':
+                return render_to_string('videos/vimeo.html', {
+                    'src': self.external_video_iframe_url,
+                    'autoplay': int(autoplay),
+                    'controls': int(controls),
+                    'loop': int(loop),
+                    'muted': int(mute),
+                })
+            else:
+                return render_to_string('videos/default.html', {
+                    'src': self.external_video_iframe_url,
+                })
+        elif self.high_resolution_mp4 or self.low_resolution_mp4:
+            return render_to_string('videos/vimeo.html', {
+                'preload': 'auto' if autoplay else 'metadata',
+                'autoplay': ' autoplay' if autoplay else '',
+                'controls': ' controls' if controls else '',
+                'loop': ' loop' if loop else '',
+                'muted': ' muted' if mute else '',
+                'src': self.high_resolution_mp4.file.url if self.high_resolution_mp4 else self.low_resolution_mp4.file.url,
+            })
 
     class Meta:
         ordering = ("title",)
@@ -222,7 +410,7 @@ class Video(models.Model):
 
 class VideoRefField(models.ForeignKey):
 
-    """A foreign key to a File, constrained to only select image files."""
+    """A foreign key to a File, constrained to only select video files."""
 
     def __init__(self, **kwargs):
         kwargs["to"] = 'media.Video'

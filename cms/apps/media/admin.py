@@ -39,6 +39,12 @@ admin.site.register(Label, LabelAdmin)
 
 
 class VideoAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None, {
+            'fields': ['title', 'image', 'high_resolution_mp4', 'low_resolution_mp4', 'external_video'],
+        }),
+    ]
+
     def to_field_allowed(self, request, to_field):
         """
         This is a workaround for issue #552 which will raise a security
