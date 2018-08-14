@@ -1,26 +1,22 @@
 django.jQuery(function($){
     setTimeout(() => {
-        $('.wysiwyg:visible').each(function(){
+        $('.wysiwyg').each(function(){
             activate_tinymce(this)
         });
     }, 250)
-
-    Suit.after_inline.register('init_wysiwyg', function(inline_prefix, row){
-        $('.wysiwyg:visible', row).each(function(){
-            activate_tinymce(this)
-        })
-    });
 })
 
 function activate_tinymce(element){
-
     // Generate base settings
     var settings = {
-      selector: "#" + $(element).attr('id')
+      selector: "#" + element.getAttribute('id')
     }
 
     // Merge global settings with base
-    django.jQuery.extend(settings, $(element).data('wysiwyg-settings'))
+    var inline_settings = JSON.parse(element.dataset.wysiwygSettings)
+    for(var key in inline_settings)
+        if(inline_settings.hasOwnProperty(key))
+            settings[key] = inline_settings[key];
 
     // Init editor
     tinymce.init(settings);

@@ -1,23 +1,13 @@
 {% extends "admin/change_form.html" %}
 {% load static %}
 
-{% block object-tools-items %}
-    {{ block.super }}
-
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
-    <li>
-        <a href="#" id="edit-button" onclick="return launchEditor();" style="display: none;"><i class="icon-edit icon-alpha75"></i>Edit file</a>
-    </li>
-    {% endif %}
-{% endblock %}
-
 {% block after_field_sets %}
   {% if original.is_image %}
     {% include 'admin/media/includes/image-editor.html' %}
   {% endif %}
 {% endblock %}
 
-{% block extrajs %}
+{% block extrahead %}
     {% if original.is_image %}
       <!-- Instantiate the widget -->
       <link type="text/css" rel="stylesheet" href="{% static 'cms/js/imgeditor/image-editor.css' %}">

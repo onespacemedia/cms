@@ -1,43 +1,14 @@
-{% extends "admin/base_site.html" %}
-{% load i18n admin_static admin_modify suit_tags admin_urls %}
+{% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify admin_urls %}
 
 {% block extrahead %}{{ block.super }}
   {% url 'admin:jsi18n' as jsi18nurl %}
   <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 
+  {# Needed for sorting section pages #}
+  <script type="text/javascript" src="{% static 'cms/js/sortable/sortables.min.js' %}"></script>
+
   {{ media }}
-
-{% endblock %}
-
-
-{% block extrajs %}
-  {{ block.super }}
-
-  {% if 'CONFIRM_UNSAVED_CHANGES'|suit_conf %}
-    <!-- Warn on leaving unsaved form -->
-    <script src="{% static 'suit/js/suit-form-confirm.js' %}"></script>
-    <script type="text/javascript">
-      confirmExitIfModified('{{ opts.module_name }}_form', '{% trans 'You have unsaved changes' %}.');
-    </script>
-  {% endif %}
-
-  {% if adminform.model_admin.suit_form_tabs %}
-    <script type="text/javascript">
-    (function ($) {
-      $(function () {
-        $('#suit_form_tabs').suit_form_tabs();
-      });
-    }(Suit.$))
-    </script>
-  {% endif %}
-
-  <script>
-    (function ($) {
-      $(function () {
-        $("#{{ opts.module_name }}_form").suit_form_debounce();
-      });
-    }(Suit.$))
-  </script>
 
 {% endblock %}
 
@@ -45,212 +16,80 @@
   {{ block.super }}
 {% endblock %}
 
-{% block content_title_value %}
-  {% trans 'Add' %} {{ opts.verbose_name }}
-{% endblock %}
+{% block object-tools %}
+  {% if change %}{% if not is_popup %}
+    <ul class="object-tools initialized">
+      {% block object-tools-items %}
+        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+        <li><a href="{% add_preserved_filters history_url %}" class="historylink"><i class="icon-time icon-alpha75"></i>{% trans "History" %}</a>
+        </li>
+        {% if has_absolute_url %}
+          <li>
+            <a href="{{ original.get_absolute_url }}?preview=1" class="viewsitelink"><i class="icon-eye-open icon-alpha75"></i>{% trans "View on site" %}</a>
+          </li>
+        {% endif %}
 
-{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+        {% if has_add_permission %}
+          <li>
+            <a href="../add/"><i class="icon-plus-sign icon-alpha75"></i>{% blocktrans with opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a></li>
+        {% endif %}
 
-{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
-
-{% if not is_popup %}
-  {% block breadcrumbs %}
-    <ul class="breadcrumb">
-      <li>
-        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-        <span class="divider">&raquo;</span>
-      </li>
-      <li>
-        <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{% firstof opts.app_config.verbose_name app_label|capfirst|escape %}</a>
-        <span class="divider">&raquo;</span>
-      </li>
-      <li>
-        {% if has_change_permission %}
-          <a href="{% url opts|admin_urlname:'changelist' %}">
-            {{ opts.verbose_name_plural|capfirst }}</a>{% else %}
-          {{ opts.verbose_name_plural|capfirst }}{% endif %}
-        <span class="divider">&raquo;</span>
-      </li>
-      <li class="active">
-        {% if add %}{% trans 'Add' %} {{ opts.verbose_name }}{% else %}{{ original|truncatewords:"18" }}{% endif %}
-      </li>
+      {% endblock %}
     </ul>
-  {% endblock %}
-{% endif %}
-
-{% block content %}
-  <div id="content-main" class="inner-two-columns">
-
-    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post"
-          id="{{ opts.module_name }}_form" class="form-horizontal">
-
-      <div class="inner-right-column">
-
-        <div class="box save-box">
-
-          {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
-
-        </div>
-
-        {% block object-tools %}
-          {% if change %}{% if not is_popup %}
-            <h4 class="italic-title">{% trans 'tools'|capfirst %}</h4>
-            <ul class="box menu-box">
-              {% block object-tools-items %}
-                <li><a href="history/" class="historylink"><i
-                    class="icon-time icon-alpha75"></i>{% trans "History" %}</a>
-                </li>
-                {% if has_absolute_url %}
-                  <li>
-                    <a href="{{ original.get_absolute_url }}?preview=1" class="viewsitelink"><i class="icon-eye-open icon-alpha75"></i>{% trans "View on site" %}</a>
-                  </li>
-                {% endif %}
-
-                {% if has_add_permission %}
-                  <li>
-                    <a href="../add/"><i class="icon-plus-sign icon-alpha75"></i>{% blocktrans with opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
-                    </a></li>
-                  {# {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a>#}
-                {% endif %}
-
-              {% endblock %}
-            </ul>
-          {% endif %}{% endif %}
-
-            {% if has_absolute_url %}
-                <h4 class="italic-title">Share</h4>
-                <ul class="box menu-box social-sharing-box">
-                    <li>
-                        <a target="_blank" href="https://www.facebook.com/sharer.php?u={% if request.is_secure %}https{% else %}http{% endif %}%3A%2F%2F{{ request.META.HTTP_HOST }}{{ original.get_absolute_url|urlencode }}">
-                            Facebook
-                        </a>
-                    </li>
-
-                    <li>
-                        <a target="_blank" href="https://twitter.com/share?url={% if request.is_secure %}https{% else %}http{% endif %}%3A%2F%2F{{ request.META.HTTP_HOST }}{{ original.get_absolute_url|urlencode }}&amp;text={{ original.title|urlencode }}">
-                            Twitter
-                        </a>
-                    </li>
-
-                    <li>
-                        <a target="_blank" href="https://www.linkedin.com/shareArticle?url={% if request.is_secure %}https{% else %}http{% endif %}%3A%2F%2F{{ request.META.HTTP_HOST }}{{ original.get_absolute_url|urlencode }}&amp;title={{ original.title|urlencode }} ">
-                            LinkedIn
-                        </a>
-                    </li>
-                </ul>
-                <script>
-                jQuery('.social-sharing-box li a').each(function() {
-                    var $ = jQuery;
-                    $(this).click(function(ev) {
-                        ev.preventDefault();
-                        var url = $(this).attr('href');
-                        window.open(url, '_blank', 'height=400,width=600,menubar=no,status=no,toolbar=no');
-                    })
-                });
-                </script>
-            {% endif %}
-
-        {% endblock %}
-
-      {% block sidebar %}{% endblock %}
-
-      </div>
-      <div class="inner-center-column">
-
-          {% if language_pages and display_language_options %}
-
-              <ul id="suit_form_tabs" class="nav nav-tabs nav-tabs-suit" data-tab-prefix="suit-tab">
-                  {% for page in language_pages %}
-                      <li class="{% if original == page %}active{% endif %}">
-                          <a href="/admin/pages/page/{{ page.pk }}">
-                              {% if page.is_content_object == False %}
-                                  Default
-                              {% else %}
-                                  {{ page.country_group }}
-                              {% endif %}
-                          </a>
-                      </li>
-                  {% endfor %}
-                  <li class="{% if original == page %}active{% endif %}">
-                      <a href="/admin/pages/page/{% if original.is_content_object %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add</a>
-                  </li>
-              </ul>
-
-          {% endif %}
-
-        {% csrf_token %}{% block form_top %}{% endblock %}
-        {% block suit_form_tabs %}
-          {% if adminform.model_admin.suit_form_tabs %}
-            <ul id="suit_form_tabs" class="nav nav-tabs nav-tabs-suit" data-tab-prefix="suit-tab">
-              {% for tab in adminform.model_admin.suit_form_tabs %}
-                <li><a href="#{{ tab.0 }}">{{ tab.1 }}</a></li>{% endfor %}
-            </ul>
-          {% endif %}
-        {% endblock %}
-        <div class="tab-content tab-content-main">
-          {% if is_popup %}
-            <input type="hidden" name="_popup" value="1"/>{% endif %}
-          {% if errors %}
-            <div class="alert alert-error">
-              {% blocktrans count counter=errors|length %}Please correct the error below.{% plural %} Please correct the errors below.{% endblocktrans %}
-              {{ adminform.form.non_field_errors }}
-            </div>
-          {% endif %}
-
-          {# render suit_form_includes at top position #}
-          {% include 'suit/includes/change_form_includes.html' with position='top' %}
-
-          {% block field_sets %}
-            {% for fieldset in adminform %}
-              {% include "admin/includes/fieldset.html" %}
-            {% endfor %}
-          {% endblock %}
-
-          {% block after_field_sets %}{% endblock %}
-
-          {# render suit_form_includes at middle position #}
-          {% include 'suit/includes/change_form_includes.html' with position='middle' %}
-
-          {% block inline_field_sets %}
-            {% for inline_admin_formset in inline_admin_formsets %}
-              {% include inline_admin_formset.opts.template %}
-            {% endfor %}
-          {% endblock %}
-
-        </div>
-
-        {% block after_related_objects %}{% endblock %}
-
-        {# render suit_form_includes at last position #}
-        {% include 'suit/includes/change_form_includes.html' with position='bottom' %}
-
-        {% block admin_change_form_document_ready %}
-            <script type="text/javascript">
-                (function($) {
-                    $(document).ready(function() {
-                        $('.add-another').click(function(e) {
-                            e.preventDefault();
-                            showAddAnotherPopup(this);
-                        });
-                        $('.related-lookup').click(function(e) {
-                            e.preventDefault();
-                            showRelatedObjectLookupPopup(this);
-                        });
-                    {% if adminform and add %}
-                        $('form#{% firstof opts.model_name opts.module_name %}_form :input[type!=button][type!=submit]:visible:enabled:first').focus()
-                    {% endif %}
-                    });
-                })(django.jQuery);
-            </script>
-        {% endblock %}
-
-        {# JavaScript for prepopulated fields #}
-        {% prepopulated_fields_js %}
-
-      </div>
-    </form>
-  </div>
+  {% endif %}{% endif %}
 {% endblock %}
 
-{# Empty centered sidebar as now we use sidebar in content block#}
-{% block sidebar_content %}{% endblock %}
+{% block footer %}
+  {% if has_absolute_url %}
+    <div class="submit-row sharing-links">
+      <h3>Share this on:</h3>
+      <input type="submit" value="Facebook" name="https://www.facebook.com/sharer.php?u={% if request.is_secure %}https{% else %}http{% endif %}%3A%2F%2F{{ request.META.HTTP_HOST }}{{ original.get_absolute_url|urlencode }}">
+
+      <input type="submit" value="Twitter" name="https://twitter.com/share?url={% if request.is_secure %}https{% else %}http{% endif %}%3A%2F%2F{{ request.META.HTTP_HOST }}{{ original.get_absolute_url|urlencode }}&amp;text={{ original.title|urlencode }}">
+
+      <input type="submit" value="LinkedIn" name="https://www.linkedin.com/shareArticle?url={% if request.is_secure %}https{% else %}http{% endif %}%3A%2F%2F{{ request.META.HTTP_HOST }}{{ original.get_absolute_url|urlencode }}&amp;title={{ original.title|urlencode }} ">
+    </div>
+    <script>
+    jQuery('.sharing-links input').each(function() {
+      var $ = jQuery;
+      $(this).click(function(ev) {
+        ev.preventDefault();
+        var url = $(this).attr('name');
+        window.open(url, '_blank', 'height=400,width=600,menubar=no,status=no,toolbar=no');
+      })
+    });
+    </script>
+    <style>
+      .sharing-links {
+        padding: 20px;
+      }
+
+      .sharing-links input {
+        cursor: pointer;
+      }
+    </style>
+  {% endif %}
+{% endblock %}
+
+{# Multilangue page support, this in normally overwritten in a template on the once in a blue moon project that needs it #}
+{#{% if language_pages and display_language_options %}#}
+{##}
+{#    <ul id="suit_form_tabs" class="nav nav-tabs nav-tabs-suit" data-tab-prefix="suit-tab">#}
+{#        {% for page in language_pages %}#}
+{#            <li class="{% if original == page %}active{% endif %}">#}
+{#                <a href="/admin/pages/page/{{ page.pk }}">#}
+{#                    {% if page.is_content_object == False %}#}
+{#                        Default#}
+{#                    {% else %}#}
+{#                        {{ page.country_group }}#}
+{#                    {% endif %}#}
+{#                </a>#}
+{#            </li>#}
+{#        {% endfor %}#}
+{#        <li class="{% if original == page %}active{% endif %}">#}
+{#            <a href="/admin/pages/page/{% if original.is_content_object %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add</a>#}
+{#        </li>#}
+{#    </ul>#}
+{##}
+{#{% endif %}#}
