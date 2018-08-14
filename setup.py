@@ -10,7 +10,7 @@ DEPENDENCIES = [
     'requests',
     'Pillow',
     'sorl-thumbnail',
-    'Jinja2==2.8',
+    'Jinja2==2.10',
 
     'beautifulsoup4',
     'django>=1.11,<1.12',
@@ -18,7 +18,7 @@ DEPENDENCIES = [
     'django-suit',
     'django-watson',
     'django-reversion',
-    'django-jinja==2.2.1',
+    'django-jinja==2.4.1',
     'tinypng',
 ]
 
