@@ -57,48 +57,65 @@ body.dashboard #sitemap-module .loading {
 
 
 /* Page content type selection page. */
-
-body.page-content-types h3.classifier {
-    clear: left;
-    padding: 5px 0px 5px 0px;
-    border-bottom: 1px #eeeeee solid;
+.cms-Classifiers_Groups {
+    margin-top: 24px;
 }
 
-body.page-content-types ul.content-types {
-    padding: 0px 0px 0px 0px;
+.cms-Classifiers_Group {
+    margin-top: 24px;
 }
 
-body.page-content-types ul.content-types li {
-    float: left;
+.cms-Classifiers_Group:first-child {
+    margin-top: 0;
+}
+
+.cms-Classifiers_Items {
+    flex-wrap: wrap;
+
+    display: flex;
+    margin: 0;
+    padding: 0;
+
     list-style: none;
-    margin: 0px 10px 10px 0px;
-
 }
 
-body.page-content-types ul.content-types a {
+.cms-Classifiers_GroupTitle {
+    margin-bottom: 24px;
+}
+
+.cms-Classifiers_Item {
+    flex-direction: column;
+
+    display: flex;
+    width: 120px;
+    margin: 0 24px 24px 0;
+
+    list-style: none;
+
+    border: 1px solid #fff;
+}
+
+.cms-Classifiers_Item:hover {
+    border: 1px solid currentColor;
+}
+
+.cms-Classifiers_ItemLink {
+    flex: 1 0 auto;
+    flex-direction: column;
+
     display: block;
-    position: relative;
-    width: 100px;
-    height: 110px;
-    border: 1px white solid;
+    padding: 12px;
 }
 
-body.page-content-types ul.content-types a:hover {
-    border: 1px #b0b0b0 solid;
+.cms-Classifiers_ItemIcon {
+    display: block;
+    width: 100%;
 }
 
-body.page-content-types img.content-type-icon {
-    position: absolute;
-    top: 15px;
-    left: 18px;
-}
+.cms-Classifiers_ItemTitle {
+    display: block;
+    margin-top: 12px;
 
-body.page-content-types span.content-type-name {
-    font-size: 120%;
-    position: absolute;
-    top: 85px;
-    left: 0px;
-    width: 100px;
     text-align: center;
 }
 
