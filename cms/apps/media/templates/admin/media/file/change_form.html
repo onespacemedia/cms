@@ -8,24 +8,19 @@
 {% endblock %}
 
 {% block extrahead %}
-    {% if original.is_image %}
-      <!-- Instantiate the widget -->
-      <link type="text/css" rel="stylesheet" href="{% static 'cms/js/imgeditor/image-editor.css' %}">
-      <script type="text/javascript" src="{% static 'cms/js/imgeditor/image-editor.js' %}"></script>
-    {% endif %}
+  {{ block.super }}
 
-    {% if is_popup %}
+  {% if original.is_image %}
+    <!-- Instantiate the image editor widget -->
+    <link type="text/css" rel="stylesheet" href="{% static 'cms/js/imgeditor/image-editor.css' %}">
+    <script type="text/javascript" src="{% static 'cms/js/imgeditor/image-editor.js' %}"></script>
+  {% endif %}
 
-        <style>
-            body {
-                background-color: #FFF;
-            }
-            .popup #suit-center {
-                width: 100%;
-                padding: 0;
-            }
-        </style>
-
-    {% endif %}
-
+  {% if is_popup %}
+    <style>
+      body {
+        background-color: #FFF;
+      }
+    </style>
+  {% endif %}
 {% endblock %}
