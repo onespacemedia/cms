@@ -51,7 +51,7 @@
                                 }
                                 if (page.canChange) {
                                     pageContainer.addClass("can-change");
-                                    pageContainer.append(page.title);
+                                    pageContainer.append('<span class="title">' + page.title + '</span>');
                                 } else {
                                     pageContainer.append('<span class="title">' + page.title + '</span>');
                                 }
