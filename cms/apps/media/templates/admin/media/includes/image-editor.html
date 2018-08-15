@@ -12,6 +12,7 @@
       document.addEventListener('DOMContentLoaded', function() {
         {% include 'admin/media/includes/image-editor-style.js' %}
         instance = new tui.ImageEditor(document.querySelector('#tui-image-editor'), {
+          usageStatistics: false,
           includeUI: {
             loadImage: {
               path: '{{ original.get_absolute_url }}',
