@@ -1,11 +1,3 @@
-django.jQuery(function($){
-    setTimeout(() => {
-        $('.wysiwyg').each(function(){
-            activate_tinymce(this)
-        });
-    }, 250)
-})
-
 function activate_tinymce(element){
     // Generate base settings
     var settings = {
