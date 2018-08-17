@@ -1,7 +1,7 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_static admin_modify admin_urls %}
 
-{% block extrahead %}{{ block.super }}
+{% block extrahead %}
   {% url 'admin:jsi18n' as jsi18nurl %}
   <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 
