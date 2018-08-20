@@ -25,33 +25,34 @@
 {% block content %}
   {% if content_types %}
 
-  <div class="cms-Classifiers">
-  <p>Select a type of page from the choices below.</p>
+    <div class="cms-Classifiers">
+      <p>Select a type of page from the choices below.</p>
 
-  {% regroup content_types by classifier as classifiers %}
+      {% regroup content_types by classifier as classifiers %}
 
-  <div class="cms-Classifiers_Groups">
+      <div class="cms-Classifiers_Groups">
 
-  {% for classifier in classifiers %}
-    <section class="cms-Classifer_Group">
-      <h2 class="cms-Classifiers_GroupTitle">{{ classifier.grouper|capfirst }}</h3>
+        {% for classifier in classifiers %}
+          <section class="cms-Classifer_Group">
+            <h2 class="cms-Classifiers_GroupTitle">{{ classifier.grouper|capfirst }}</h2>
 
-      <ul class="cms-Classifiers_Items">
-        {% for content_type in classifier.list %}
-          <li class="cms-Classifiers_Item">
-            <a class="cms-Classifiers_ItemLink" href="{{ content_type.url }}">
-              <img class="cms-Classifiers_ItemIcon" src="{{ content_type.icon }}" alt=""/>
-              <span class="cms-Classifiers_ItemTitle">{{ content_type.name|capfirst }}</span>
-            </a>
-          </li>
+            <ul class="cms-Classifiers_Items">
+              {% for content_type in classifier.list %}
+                <li class="cms-Classifiers_Item">
+                  <a class="cms-Classifiers_ItemLink" href="{{ content_type.url }}">
+                    <img class="cms-Classifiers_ItemIcon" src="{{ content_type.icon }}" alt=""/>
+                    <span class="cms-Classifiers_ItemTitle">{{ content_type.name|capfirst }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+
         {% endfor %}
-      </ul>
-    </section>
-
-  {% endfor %}
+      </div>
+    </div>
 
   {% else %}
     <p>You do not have permission to create any type of page.</p>
   {% endif %}
 {% endblock %}
-
