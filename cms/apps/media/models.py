@@ -91,6 +91,19 @@ class File(models.Model):
         help_text="Text used for screen readers"
     )
 
+    # For images to zoom in on a certain point when cropping/scaling.
+    focal_x = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+    )
+
+    focal_y = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+    )
+
     def get_absolute_url(self):
         """Generates the absolute URL of the image."""
         return self.file.url

@@ -15,9 +15,20 @@ class ImageChangeForm(forms.ModelForm):
         required=False,
     )
 
+    focal_x = forms.CharField(
+        widget=forms.HiddenInput,
+        required=False,
+    )
+
+    focal_y = forms.CharField(
+        widget=forms.HiddenInput,
+        required=False,
+    )
+
     class Meta:
         model = File
-        fields = ['changed_image', 'title', 'file', 'attribution', 'copyright', 'alt_text', 'labels']
+        fields = ['changed_image', 'title', 'file', 'attribution', 'copyright',
+                  'alt_text', 'labels', 'focal_x', 'focal_y']
 
     def save(self, commit=True):
         if self.cleaned_data['changed_image']:

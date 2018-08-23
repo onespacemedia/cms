@@ -1,0 +1,79 @@
+<fieldset class="module aligned with-legend ">
+  <h2 class="legend">Focal point</h2>
+  <div>Specifying a focal point for an image should prevent that location from being cropped.</div>
+  <div id="focal-point-clear">Clear</div>
+
+  <div id="focal-point-container" style="position: relative; width: fit-content">
+    <img id="focal-point" style="filter:{% if original.focal_y %}brightness(50%){% else %}brightness(100%){% endif %};" src="{{ original.get_absolute_url }}"/>
+    <div id="focal-point-pointer"></div>
+  </div>
+  <script>
+    (function () {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('focal-point').addEventListener('click', function (e) {
+          var pointer = document.getElementById('focal-point-pointer')
+          var image = document.getElementById('focal-point')
+
+          var imageW = image.offsetWidth;
+          var imageH = image.offsetHeight;
+
+          //Calculate FocusPoint coordinates
+          var offsetX = e.pageX - image.getBoundingClientRect().left;
+          var offsetY = e.pageY - image.getBoundingClientRect().top;
+
+          //Calculate CSS Percentages
+          var percentageX = (offsetX/imageW)*100;
+          var percentageY = (offsetY/imageH)*100;
+
+          pointer.style.left = ((offsetX - (pointer.offsetWidth/2))/imageW)*100 + '%'
+          pointer.style.top = ((offsetY - (pointer.offsetHeight/2))/imageH)*100 + '%'
+          pointer.style.display = 'block'
+          image.style.filter = 'brightness(50%)'
+
+          document.getElementById('id_focal_x').value = percentageX
+          document.getElementById('id_focal_y').value = percentageY
+        })
+        document.getElementById('focal-point-clear').addEventListener('click', function (e) {
+          document.getElementById('id_focal_x').value = ''
+          document.getElementById('id_focal_y').value = ''
+          document.getElementById('focal-point').style.filter = 'brightness(100%)'
+          document.getElementById('focal-point-pointer').style.display = 'none'
+        })
+      })
+    })()
+  </script>
+  <style>
+    #focal-point-pointer {
+      position: absolute;
+      top: {% if original.focal_y %}calc( {{ original.focal_y }}% - 5px){% else %}50%{% endif %};
+      left: {% if original.focal_x %}calc( {{ original.focal_x }}% - 5px){% else %}50%{% endif %};
+
+      display: {% if original.focal_y %}block{% else %}none{% endif %};
+      width: 10px;
+      height: 10px;
+
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: #000;
+      pointer-events: none;
+    }
+
+    #focal-point-clear {
+      background-color: #d0dbe6;
+      color: #6f7e95;
+      border-radius: 4px;
+      width: 70px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      padding: 0 10px;
+      margin: 12px 0;
+      cursor: pointer;
+      transition: background .3s;
+    }
+    #focal-point-clear:hover {
+      background-color: #639af5;
+      color: #fff;
+    }
+  </style>
+</fieldset>
