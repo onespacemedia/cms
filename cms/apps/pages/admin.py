@@ -70,7 +70,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
 class PageAdmin(PageBaseAdmin):
     """Admin settings for Page models."""
 
-    list_display = ("__str__", "is_online",)
+    list_display = ("__str__", "last_modified", "content_type", "is_online",)
 
     list_editable = ("is_online",)
 
@@ -145,8 +145,6 @@ class PageAdmin(PageBaseAdmin):
         # Register all page inlines.
         for content_cls in get_registered_content():
             self._register_page_inline(content_cls)
-
-        self.list_display = ("__str__", "last_modified", "is_online",)
 
     def register_content_inline(self, content_cls, inline_admin):
         """Registers an inline model with the page admin."""
