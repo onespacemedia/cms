@@ -104,7 +104,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             'fields': ["title", "file"],
         }),
         ('Media management', {
-            'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
+            'fields': ['attribution', 'copyright', 'alt_text', 'labels', 'focal_y', 'focal_x'],
         }),
     ]
     filter_horizontal = ['labels']
