@@ -23,7 +23,7 @@
           currentLookupButton.click()
           var checkIframe = window.setInterval(function () {
             if (document.querySelector('.related-popup iframe')) {
-              document.querySelector('.related-popup iframe').src = '/admin/media/file/add/?_to_field=id&amp;_popup=1'
+              document.querySelector('.related-popup iframe').src = currentAddButton.getAttribute('href')
               window.clearInterval(checkIframe)
             }
           }, 10)
