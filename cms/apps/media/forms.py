@@ -1,6 +1,7 @@
 import base64
 import os
 
+import magic
 from django.core.files.base import ContentFile
 from django import forms
 from io import BytesIO
@@ -8,8 +9,42 @@ from PIL import Image
 
 from cms.apps.media.models import File
 
+CHECKED_FILETYPES = {
+    'image/jpeg',
+    'image/gif',
+    'image/png',
+    'image/tiff',
+}
 
-class ImageChangeForm(forms.ModelForm):
+
+# Takes a file and compares it's claimed MIME type to one calculated by django-magic,
+# but only if it's in a list of MIME types to check.
+def mime_check(file):
+    guessed_filetype = magic.from_buffer(file.read(1024), mime=True)
+    claimed_filetype = file.content_type
+    if claimed_filetype in CHECKED_FILETYPES and not guessed_filetype == claimed_filetype:
+        return False
+    return True
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = File
+        fields = ['title', 'file', 'attribution', 'copyright', 'alt_text', 'labels']
+
+    def clean_file(self):
+        uploaded_file = self.cleaned_data['file']
+        print(type(uploaded_file))
+
+        # Catch if this is the initial creation or if the file is being changed.
+        if not self.instance or not self.instance.file == uploaded_file:
+            if not mime_check(uploaded_file):
+                raise forms.ValidationError("The filetype for this image may be incorrect. We've detected it as a "
+                                            "different format, please double check the file.")
+        return uploaded_file
+
+
+class ImageChangeForm(FileForm):
     changed_image = forms.CharField(
         widget=forms.HiddenInput,
         required=False,

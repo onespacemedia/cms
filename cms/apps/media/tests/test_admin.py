@@ -16,6 +16,7 @@ from django.utils.timezone import now
 
 from ..admin import FileAdmin, VideoAdmin
 from ..models import File, Label, Video
+from ..forms import mime_check
 
 
 class BrokenFile(object):
@@ -97,6 +98,10 @@ class TestFileAdminBase(TransactionTestCase):
             title="Foo 2",
             file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
         )
+
+        self.file_1 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
+        self.file_2 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/jpeg")
+        self.file_3 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="text/html")
 
         self.label = Label.objects.create(
             name="Foo"
@@ -306,6 +311,11 @@ class TestFileAdminBase(TransactionTestCase):
             ContentType.objects.get_for_model(File).pk,
             File.objects.all().order_by('-pk')[0].pk
         )))
+
+    def test_fileadminbase_mime_check(self):
+        self.assertEqual(mime_check(self.file_1), True)
+        self.assertEqual(mime_check(self.file_2), False)
+        self.assertEqual(mime_check(self.file_3), True)
 
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):
