@@ -4,7 +4,6 @@ import base64
 import random
 import re
 
-import mock
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
@@ -13,6 +12,11 @@ from django.utils.timezone import now
 
 from ..apps.media.models import File
 from ..html import process
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 
 class TestHTML(TestCase):
@@ -81,7 +85,7 @@ class TestHTML(TestCase):
         string = '<img src="test.png"/>'
         self.assertEqual(process(string), string)
 
-        string = '<img />'
+        string = '<img/>'
         self.assertEqual(process(string), string)
 
         content_type = ContentType.objects.get_for_model(File).pk
@@ -123,8 +127,3 @@ class TestHTML(TestCase):
         )
         self.assertEqual(process(string),
                          '<img src="' + self.image_attribution.file.url + '" title="Foo attribution"/>')
-
-        re_tag = re.compile(r"<(img|ab)(\s+.*?)(/?)>", re.IGNORECASE)
-        with mock.patch('cms.html.RE_TAG', new=re_tag), \
-                self.assertRaises(AssertionError):
-            process('<ab />')

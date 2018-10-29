@@ -1,19 +1,13 @@
 """HTML processing routines."""
 from __future__ import unicode_literals
 
-import re
-
+from bs4 import BeautifulSoup
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils import six
 from django.utils.html import escape
 from sorl.thumbnail import get_thumbnail
 
 from cms import permalinks
-
-RE_TAG = re.compile(r"<(img|a)(\s+.*?)(/?)>", re.IGNORECASE)
-
-RE_ATTR = re.compile(r"\s([\w-]+)=(\".*?\"|'.*?')", re.IGNORECASE)
 
 
 def process(text):
@@ -25,76 +19,65 @@ def process(text):
     """
     resolved_permalinks = {}
 
-    def sub_tag(match):
-        tagname = match.group(1)
-        attrs = dict(RE_ATTR.findall(match.group(2)))
-
-        def get_obj(attr_name):
-            if attr_name in attrs:
-                value = attrs[attr_name][1:-1]
-                if value not in resolved_permalinks:
-                    try:
-                        resolved_permalinks[value] = permalinks.resolve(value)
-                    except (permalinks.PermalinkError, ObjectDoesNotExist):
-                        resolved_permalinks[value] = None
-                obj = resolved_permalinks[value]
-                if obj:
-                    # Add in the URL of the obj.
-                    attrs[attr_name] = '"%s"' % escape(obj.get_absolute_url())
-                    # Add in the title of the obj.
-                    attrs.setdefault("title", '"%s"' % escape(getattr(obj, "title", str(obj))))
-                return obj
-            return None
-
-        if tagname == "a":
-            # Process hyperlinks.
-            obj = get_obj("href")
-        elif tagname == "img":
-            # Process images.
-            obj = get_obj("src")
-
-            if obj:
-                if hasattr(obj, 'attribution') or hasattr(obj, 'copyright'):
-                    attrs["title"] = ''
-
-                    if hasattr(obj, 'copyright') and obj.copyright:
-                        attrs["title"] += '&copy; {}. '.format(
-                            obj.copyright,
-                        )
-
-                    if hasattr(obj, 'attribution') and obj.attribution:
-                        attrs["title"] += obj.attribution
-
-                    if attrs["title"]:
-                        attrs["title"] = '"{}"'.format(attrs["title"])
-                    else:
-                        attrs["title"] = '"{}"'.format(obj.title)
-
+    def get_obj(element, attribute):
+        value = element.get(attribute)
+        if value:
+            if value not in resolved_permalinks:
                 try:
-                    width = int(attrs["width"][1:-1])
-                    height = int(attrs["height"][1:-1])
-                except (ValueError, KeyError, TypeError):
-                    pass
-                else:
-                    # Automagically detect a FileField.
-                    fieldname = None
-                    for field in obj._meta.fields:
-                        if isinstance(field, models.FileField):
-                            fieldname = field.name
-                    # Generate the thumbnail.
-                    if fieldname:
-                        try:
-                            thumbnail = get_thumbnail(getattr(obj, fieldname), '{}x{}'.format(width, height), quality=99, format="PNG")
-                        except IOError:
-                            pass
-                        else:
-                            attrs["src"] = '"%s"' % escape(thumbnail.url)
-                            attrs["width"] = '"%s"' % thumbnail.width
-                            attrs["height"] = '"%s"' % thumbnail.height
-        else:
-            assert False
+                    resolved_permalinks[value] = permalinks.resolve(value)
+                except (permalinks.PermalinkError, ObjectDoesNotExist):
+                    resolved_permalinks[value] = None
+            obj = resolved_permalinks[value]
+            return obj
+        return None
 
-        # Regenerate the html tag.
-        attrs_str = " ".join("%s=%s" % (key, value) for key, value in sorted(six.iteritems(attrs)))
-        return "<%s %s%s>" % (tagname, attrs_str, match.group(3))
-    return RE_TAG.sub(sub_tag, text)
+    soup = BeautifulSoup(text, 'html.parser')
+    text_anchors = soup.find_all('a')
+    text_images = soup.find_all('img')
+    for link in text_anchors:
+        obj = get_obj(link, 'href')
+        if obj:
+            link['href'] = '%s' % escape(obj.get_absolute_url())
+            link['title'] = '%s' % escape(getattr(obj, 'title', str(obj)))
+
+    for image in text_images:
+        obj = get_obj(image, 'src')
+        if obj:
+            image['src'] = '%s' % escape(obj.get_absolute_url())
+            image['title'] = '%s' % escape(getattr(obj, 'title', str(obj)))
+            if hasattr(obj, 'attribution') or hasattr(obj, 'copyright'):
+                title = ''
+
+                if hasattr(obj, 'copyright') and obj.copyright:
+                    title += '&copy; {}. '.format(obj.copyright)
+
+                if hasattr(obj, 'attribution') and obj.attribution:
+                    title += obj.attribution
+
+                if title:
+                    image['title'] = title
+
+            try:
+                width = int(image.get('width'))
+                height = int(image.get('height'))
+            except (ValueError, KeyError, TypeError):
+                pass
+            else:
+                # Automagically detect a FileField.
+                fieldname = None
+                for field in obj._meta.fields:
+                    if isinstance(field, models.FileField):
+                        fieldname = field.name
+                # Generate the thumbnail.
+                if fieldname:
+                    try:
+                        thumbnail = get_thumbnail(getattr(obj, fieldname), '{}x{}'.format(width, height), quality=99, format="PNG")
+                    except IOError:
+                        pass
+                    else:
+                        image['src'] = '%s' % escape(thumbnail.url)
+                        image['width'] = '%s' % thumbnail.width
+                        image['height'] = '%s' % thumbnail.height
+
+    return str(soup.decode(formatter=None))
+
