@@ -37,14 +37,14 @@ def process(text):
     for link in text_anchors:
         obj = get_obj(link, 'href')
         if obj:
-            link['href'] = '%s' % obj.get_absolute_url()
-            link['title'] = '%s' % getattr(obj, 'title', str(obj))
+            link['href'] = obj.get_absolute_url()
+            link['title'] = getattr(obj, 'title', str(obj))
 
     for image in text_images:
         obj = get_obj(image, 'src')
         if obj:
-            image['src'] = '%s' % obj.get_absolute_url()
-            image['title'] = '%s' % getattr(obj, 'title', str(obj))
+            image['src'] = obj.get_absolute_url()
+            image['title'] = getattr(obj, 'title', str(obj))
             if hasattr(obj, 'attribution') or hasattr(obj, 'copyright'):
                 title = ''
 
@@ -75,9 +75,9 @@ def process(text):
                     except IOError:
                         pass
                     else:
-                        image['src'] = '%s' % thumbnail.url
-                        image['width'] = '%s' % thumbnail.width
-                        image['height'] = '%s' % thumbnail.height
+                        image['src'] = thumbnail.url
+                        image['width'] = thumbnail.width
+                        image['height'] = thumbnail.height
 
     return six.text_type(soup.decode(formatter='html5'))
 
