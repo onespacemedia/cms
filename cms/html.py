@@ -1,10 +1,10 @@
 """HTML processing routines."""
 from __future__ import unicode_literals
 
+import six
 from bs4 import BeautifulSoup
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils.html import escape
 from sorl.thumbnail import get_thumbnail
 
 from cms import permalinks
@@ -37,19 +37,19 @@ def process(text):
     for link in text_anchors:
         obj = get_obj(link, 'href')
         if obj:
-            link['href'] = '%s' % escape(obj.get_absolute_url())
-            link['title'] = '%s' % escape(getattr(obj, 'title', str(obj)))
+            link['href'] = '%s' % obj.get_absolute_url()
+            link['title'] = '%s' % getattr(obj, 'title', str(obj))
 
     for image in text_images:
         obj = get_obj(image, 'src')
         if obj:
-            image['src'] = '%s' % escape(obj.get_absolute_url())
-            image['title'] = '%s' % escape(getattr(obj, 'title', str(obj)))
+            image['src'] = '%s' % obj.get_absolute_url()
+            image['title'] = '%s' % getattr(obj, 'title', str(obj))
             if hasattr(obj, 'attribution') or hasattr(obj, 'copyright'):
                 title = ''
 
                 if hasattr(obj, 'copyright') and obj.copyright:
-                    title += '&copy; {}. '.format(obj.copyright)
+                    title += six.text_type('\xa9 {}. '.format(obj.copyright))
 
                 if hasattr(obj, 'attribution') and obj.attribution:
                     title += obj.attribution
@@ -75,9 +75,9 @@ def process(text):
                     except IOError:
                         pass
                     else:
-                        image['src'] = '%s' % escape(thumbnail.url)
+                        image['src'] = '%s' % thumbnail.url
                         image['width'] = '%s' % thumbnail.width
                         image['height'] = '%s' % thumbnail.height
 
-    return str(soup.decode(formatter=None))
+    return six.text_type(soup.decode(formatter='html5'))
 

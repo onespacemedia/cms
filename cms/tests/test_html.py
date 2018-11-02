@@ -79,17 +79,17 @@ class TestHTML(TestCase):
         string = '<a href="/">Link</a>'
         self.assertEqual(process(string), string)
 
-        string = '<img src="test.png"/>'
+        string = '<img src="test.png">'
         self.assertEqual(process(string), string)
 
-        string = '<img src="test.png"/>'
+        string = '<img src="test.png">'
         self.assertEqual(process(string), string)
 
-        string = '<img/>'
+        string = '<img>'
         self.assertEqual(process(string), string)
 
         content_type = ContentType.objects.get_for_model(File).pk
-        string = '<img src="/r/{}-{}/" width="10" height="10"/>'.format(
+        string = '<img src="/r/{}-{}/" width="10" height="10">'.format(
             content_type,
             self.image.pk
         )
@@ -104,26 +104,26 @@ class TestHTML(TestCase):
             output = process(string)
 
         self.assertEqual(output,
-                         '<img height="10" src="/media/uploads/files/' + self.name + '" title="Foo" width="10"/>')
+                         '<img height="10" src="/media/uploads/files/' + self.name + '" title="Foo" width="10">')
 
         content_type = ContentType.objects.get_for_model(File).pk
-        string = '<img src="/r/{}-{}/"/>'.format(
+        string = '<img src="/r/{}-{}/">'.format(
             content_type,
             self.image.pk
         )
         self.assertEqual(process(string),
-                         '<img src="' + self.image.file.url + '" title="Foo"/>')
+                         '<img src="' + self.image.file.url + '" title="Foo">')
 
-        string = '<img src="/r/{}-{}/"/>'.format(
+        string = '<img src="/r/{}-{}/">'.format(
             content_type,
             self.image_copyright.pk
         )
         self.assertEqual(process(string),
-                         '<img src="' + self.image_copyright.file.url + '" title="&copy; Foo copyright. "/>')
+                         '<img src="' + self.image_copyright.file.url + '" title="&copy; Foo copyright. ">')
 
-        string = '<img src="/r/{}-{}/"/>'.format(
+        string = '<img src="/r/{}-{}/">'.format(
             content_type,
             self.image_attribution.pk
         )
         self.assertEqual(process(string),
-                         '<img src="' + self.image_attribution.file.url + '" title="Foo attribution"/>')
+                         '<img src="' + self.image_attribution.file.url + '" title="Foo attribution">')
