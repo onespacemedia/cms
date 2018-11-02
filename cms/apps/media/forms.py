@@ -21,6 +21,7 @@ CHECKED_FILETYPES = {
 # but only if it's in a list of MIME types to check.
 def mime_check(file):
     guessed_filetype = magic.from_buffer(file.read(1024), mime=True)
+    file.seek(0)
     claimed_filetype = file.content_type
     if claimed_filetype in CHECKED_FILETYPES and not guessed_filetype == claimed_filetype:
         return False
