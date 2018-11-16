@@ -22,6 +22,7 @@ def osm_get_media_list():
         'id': file.pk,
         'image': file.file.url,
         'title': file.title,
+        'alt_text': file.alt_text,
         'size': filesizeformat(file.file.size),
     } for file in File.objects.all()]
 
