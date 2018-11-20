@@ -1,5 +1,9 @@
 .mce-container .media-gallery-container {
+  height: 480px;
+  padding: 10px;
+
   overflow-y: scroll;
+  background: #ecf2f6;
 }
 
 .mce-container .tbl-MediaList {
@@ -26,6 +30,7 @@
 
 .mce-container .tbl-MediaList_Row {
   border-bottom: 1px solid #eee;
+  background: #fff;
 }
 
 .mce-container .tbl-MediaList_Row {
@@ -65,4 +70,48 @@
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.mce-container .upl-Upload_Button {
+  display: inline-block;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 18px;
+
+  background: #59677e;
+  color: #fff;
+  text-transform: uppercase;
+
+  border-radius: 4px;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s;
+}
+
+.mce-container .upl-Upload_Button:hover {
+  background-color: #639af5;
+}
+
+.mce-container .upl-Upload_Prompt {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  flex-direction: column;
+
+  display: none;
+  padding: 10px;
+
+  background: #ecf2f6;
+}
+
+.mce-container .upl-Upload_Prompt-active {
+  display: block;
+}
+
+.mce-container .form-row {
+  padding: 10px;
 }
