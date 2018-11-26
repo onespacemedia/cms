@@ -7,6 +7,7 @@ from setuptools import find_packages, setup
 from cms import VERSION
 
 DEPENDENCIES = [
+    'python-magic==0.4.15',
     'requests',
     'Pillow',
     'sorl-thumbnail',
