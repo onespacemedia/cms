@@ -33,13 +33,9 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
-    // Only run on pages without sections as sections.js takes care of WYSIWYG
-    // on those pages.
-    if (!document.querySelector('#contentsection_set-group')) {
-      var editors = document.querySelectorAll('.wysiwyg')
-      for (var i = 0; i < editors.length; i++) {
-        activate_tinymce(editors[i])
-      }
+    var editors = document.querySelectorAll('.wysiwyg')
+    for (var i = 0; i < editors.length; i++) {
+      activate_tinymce(editors[i])
     }
   })
 }) ();
