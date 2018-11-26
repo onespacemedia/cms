@@ -16,13 +16,16 @@ class ImageUploadView(View, LoginRequiredMixin):
             return JsonResponse({
                 'fail_message': 'You do not have permission to list images.'
             }, status=403)
-        file_list = [{
-            'id': file.pk,
-            'image': file.file.url,
-            'title': file.title,
-            'alt_text': file.alt_text,
-            'size': filesizeformat(file.file.size),
-        } for file in File.objects.filter(**IMAGE_FILTER)]
+        file_list = [
+            {
+                'id': obj.pk,
+                'image': obj.file.url,
+                'title': obj.title,
+                'alt_text': obj.alt_text,
+                'size': filesizeformat(obj.file.size),
+            }
+            for obj in File.objects.filter(**IMAGE_FILTER)
+        ]
 
         return JsonResponse(mark_safe(json.dumps(file_list)), safe=False)
 
