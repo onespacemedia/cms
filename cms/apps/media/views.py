@@ -7,7 +7,8 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from .models import IMAGE_FILTER, File
+from cms import permalinks
+from cms.apps.media.models import IMAGE_FILTER, File
 
 
 class ImageUploadView(View, LoginRequiredMixin):
@@ -19,7 +20,7 @@ class ImageUploadView(View, LoginRequiredMixin):
         file_list = [
             {
                 'id': obj.pk,
-                'image': obj.file.url,
+                'image': permalinks.create(obj),
                 'title': obj.title,
                 'alt_text': obj.alt_text,
                 'size': filesizeformat(obj.file.size),
