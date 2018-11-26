@@ -12,6 +12,10 @@ from cms.apps.media.models import File
 
 class ImageUploadView(View, LoginRequiredMixin):
     def get(self, request):
+        if not request.user.has_perm('media.change_file'):
+            return JsonResponse({
+                'fail_message': 'You do not have permission to list images.'
+            }, status=403)
         file_list = [{
             'id': file.pk,
             'image': file.file.url,
@@ -23,6 +27,11 @@ class ImageUploadView(View, LoginRequiredMixin):
         return JsonResponse(mark_safe(json.dumps(file_list)), safe=False)
 
     def post(self, request):
+        if not request.user.has_perm('media.add_file'):
+            return JsonResponse({
+                'fail_message': 'You do not have permission to upload images.'
+            }, status=403)
+
         if request.POST.get('title', False) and request.FILES['file']:
             ALLOWED_FILETYPES = {
                 'image/jpeg',

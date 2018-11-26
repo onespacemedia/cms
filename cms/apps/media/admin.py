@@ -25,6 +25,7 @@ from watson.admin import SearchAdmin
 from cms import permalinks
 from cms.apps.media.forms import ImageChangeForm
 from cms.apps.media.models import File, Label, Video
+from cms.apps.media.views import ImageUploadView
 
 
 class LabelAdmin(admin.ModelAdmin):
@@ -262,6 +263,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         new_urls = [
             url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name="media_file_remote"),
+            url(r'^tinymce-uploader/$', ImageUploadView.as_view(), name="media_file_tinymce_image_upload"),
 
             url(r'^redactor/upload/(?P<file_type>image|file)/$', self.redactor_upload,
                 name="media_file_redactor_upload"),
