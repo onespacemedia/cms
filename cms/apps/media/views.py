@@ -7,7 +7,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from cms.apps.media.models import File
+from .models import IMAGE_FILTER, File
 
 
 class ImageUploadView(View, LoginRequiredMixin):
@@ -22,7 +22,7 @@ class ImageUploadView(View, LoginRequiredMixin):
             'title': file.title,
             'alt_text': file.alt_text,
             'size': filesizeformat(file.file.size),
-        } for file in File.objects.all()]
+        } for file in File.objects.filter(**IMAGE_FILTER)]
 
         return JsonResponse(mark_safe(json.dumps(file_list)), safe=False)
 
