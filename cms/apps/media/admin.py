@@ -250,11 +250,27 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     def changelist_view(self, request, extra_context=None):
         """Renders the change list."""
-        context = {
-            "changelist_template_parent": "reversion/change_list.html",
-        }
-        if extra_context:
-            context.update(extra_context)
+        context = extra_context or {}
+
+        if not 'changelist_template_parent' in context:
+            context['changelist_template_parent'] = 'reversion/change_list.html'
+
+        return super(FileAdmin, self).changelist_view(request, context)
+
+    def media_library_changelist_view(self, request, extra_context=None):
+        '''Renders the change list, but sets 'is_popup=True' into the template
+        context to make it render the media library sans navigation, without
+        needing _popup in the URL (which causes an exception with Jet's
+        Javascript, which assumes that if _popup is in the URL that it is a
+        related item popup).'''
+        context = extra_context or {}
+
+        if not 'changelist_template_parent' in context:
+            context['changelist_template_parent'] = 'reversion/change_list.html'
+
+        context['is_popup'] = True
+        context['is_media_library_iframe'] = True
+
         return super(FileAdmin, self).changelist_view(request, context)
 
     # Create a URL route and a view for saving the Adobe SDK callback URL.
@@ -264,6 +280,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         new_urls = [
             url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name="media_file_remote"),
             url(r'^tinymce-uploader/$', ImageUploadView.as_view(), name="media_file_tinymce_image_upload"),
+            url(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
 
             url(r'^redactor/upload/(?P<file_type>image|file)/$', self.redactor_upload,
                 name="media_file_redactor_upload"),
