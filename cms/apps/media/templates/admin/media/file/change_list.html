@@ -5,8 +5,6 @@
   {{ block.super }}
 
   {% if is_media_library_iframe %}
-    {% include "admin/cms/scripts.html" %}
-
     <script>
       django.jQuery(function($) {
         // Get tinymce from parent
@@ -18,9 +16,10 @@
         }
 
         // Make the changelist links clickable and remove the original inline click listener.
-        $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
-            // Get information
-            var img = $("img", this);
+        $("div#changelist tr.row1 a, div#changelist tr.row2 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+            // Get information from the `<img>` tag in the first column.
+            var tr = $(this).closest('tr');
+            var img = $("img", tr);
             var title = img.attr("title");
             var permalink = img.attr("cms:permalink");
 
