@@ -25,7 +25,6 @@ from watson.admin import SearchAdmin
 from cms import permalinks
 from cms.apps.media.forms import ImageChangeForm
 from cms.apps.media.models import File, Label, Video
-from cms.apps.media.views import ImageUploadView
 
 
 class LabelAdmin(admin.ModelAdmin):
