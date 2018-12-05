@@ -108,7 +108,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
-    list_display = ['get_number', 'get_preview', 'get_title', 'get_alt_text', 'get_size']
+    list_display = ['get_preview', 'get_number', 'get_title', 'get_alt_text', 'get_size']
     list_display_links = list_display
     list_filter = ['labels']
     search_fields = ['title']
