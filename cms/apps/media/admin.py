@@ -278,7 +278,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         new_urls = [
             url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name="media_file_remote"),
-            url(r'^tinymce-uploader/$', ImageUploadView.as_view(), name="media_file_tinymce_image_upload"),
             url(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
 
             url(r'^redactor/upload/(?P<file_type>image|file)/$', self.redactor_upload,
