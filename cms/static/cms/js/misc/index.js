@@ -31,11 +31,4 @@
       }
     }
   });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    var editors = document.querySelectorAll('.wysiwyg')
-    for (var i = 0; i < editors.length; i++) {
-      activate_tinymce(editors[i])
-    }
-  })
 }) ();
