@@ -1,6 +1,4 @@
 """Models used by the static media management application."""
-from __future__ import unicode_literals
-
 import os
 import urllib
 
@@ -13,13 +11,11 @@ from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.loader import render_to_string
-from django.utils.encoding import python_2_unicode_compatible
 from PIL import Image
 
 from tinypng.api import shrink_file
 
 
-@python_2_unicode_compatible
 class Label(models.Model):
 
     """
@@ -38,7 +34,6 @@ class Label(models.Model):
         ordering = ("name",)
 
 
-@python_2_unicode_compatible
 class File(models.Model):
 
     """A static file."""
@@ -291,7 +286,6 @@ class VideoFileRefField(FileRefField):
         super(VideoFileRefField, self).__init__(**kwargs)
 
 
-@python_2_unicode_compatible
 class Video(models.Model):
 
     title = models.CharField(
@@ -380,7 +374,7 @@ class Video(models.Model):
                     'controls': int(controls),
                     'loop': int(loop),
                     'muted': int(mute),
-                    'extra_parameters': ('&amp;' + '&amp;'.join('{}={}'.format(parameter,youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
+                    'extra_parameters': ('&amp;' + '&amp;'.join('{}={}'.format(parameter, youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
                 })
             elif self.external_video_service == 'vimeo':
                 return render_to_string('videos/vimeo.html', {
