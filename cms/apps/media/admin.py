@@ -1,4 +1,4 @@
-"""Admin settings for the static media management application."""
+'''Admin settings for the static media management application.'''
 import os
 from functools import partial
 
@@ -25,7 +25,7 @@ from cms.apps.media.models import File, Label, Video
 
 @admin.register(Label)
 class LabelAdmin(admin.ModelAdmin):
-    """Admin settings for Label models."""
+    '''Admin settings for Label models.'''
 
     list_display = ("name",)
 
@@ -41,45 +41,45 @@ class VideoAdmin(admin.ModelAdmin):
     ]
 
 # Different types of file.
-AUDIO_FILE_ICON = static("media/img/audio-x-generic.png")
-DOCUMENT_FILE_ICON = static("media/img/x-office-document.png")
-SPREADSHEET_FILE_ICON = static("media/img/x-office-spreadsheet.png")
-TEXT_FILE_ICON = static("media/img/text-x-generic.png")
-IMAGE_FILE_ICON = static("media/img/image-x-generic.png")
-MOVIE_FILE_ICON = static("media/img/video-x-generic.png")
-UNKNOWN_FILE_ICON = static("media/img/text-x-generic-template.png")
+AUDIO_FILE_ICON = static('media/img/audio-x-generic.png')
+DOCUMENT_FILE_ICON = static('media/img/x-office-document.png')
+SPREADSHEET_FILE_ICON = static('media/img/x-office-spreadsheet.png')
+TEXT_FILE_ICON = static('media/img/text-x-generic.png')
+IMAGE_FILE_ICON = static('media/img/image-x-generic.png')
+MOVIE_FILE_ICON = static('media/img/video-x-generic.png')
+UNKNOWN_FILE_ICON = static('media/img/text-x-generic-template.png')
 
 # Different types of recognised file extensions.
 FILE_ICONS = {
-    "mp3": AUDIO_FILE_ICON,
-    "m4a": AUDIO_FILE_ICON,
-    "wav": AUDIO_FILE_ICON,
-    "doc": DOCUMENT_FILE_ICON,
-    "odt": DOCUMENT_FILE_ICON,
-    "pdf": DOCUMENT_FILE_ICON,
-    "xls": SPREADSHEET_FILE_ICON,
-    "txt": TEXT_FILE_ICON,
-    "png": IMAGE_FILE_ICON,
-    "gif": IMAGE_FILE_ICON,
-    "jpg": IMAGE_FILE_ICON,
-    "jpeg": IMAGE_FILE_ICON,
-    "swf": MOVIE_FILE_ICON,
-    "flv": MOVIE_FILE_ICON,
-    "mp4": MOVIE_FILE_ICON,
-    "mov": MOVIE_FILE_ICON,
-    "wmv": MOVIE_FILE_ICON,
+    'mp3': AUDIO_FILE_ICON,
+    'm4a': AUDIO_FILE_ICON,
+    'wav': AUDIO_FILE_ICON,
+    'doc': DOCUMENT_FILE_ICON,
+    'odt': DOCUMENT_FILE_ICON,
+    'pdf': DOCUMENT_FILE_ICON,
+    'xls': SPREADSHEET_FILE_ICON,
+    'txt': TEXT_FILE_ICON,
+    'png': IMAGE_FILE_ICON,
+    'gif': IMAGE_FILE_ICON,
+    'jpg': IMAGE_FILE_ICON,
+    'jpeg': IMAGE_FILE_ICON,
+    'swf': MOVIE_FILE_ICON,
+    'flv': MOVIE_FILE_ICON,
+    'mp4': MOVIE_FILE_ICON,
+    'mov': MOVIE_FILE_ICON,
+    'wmv': MOVIE_FILE_ICON,
     'm4v': MOVIE_FILE_ICON,
 }
 
 
 @admin.register(File)
 class FileAdmin(VersionAdmin, SearchAdmin):
-    """Admin settings for File models."""
+    '''Admin settings for File models.'''
 
     change_list_template = 'admin/media/file/change_list.html'
     fieldsets = [
         (None, {
-            'fields': ["title", "file"],
+            'fields': ['title', 'file'],
         }),
         ('Media management', {
             'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
@@ -95,7 +95,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     def get_form(self, request, obj=None, **kwargs):
         if obj and obj.is_image:
             kwargs['form'] = ImageChangeForm
-        return super(FileAdmin, self).get_form(request, obj, **kwargs)
+        return super().get_form(request, obj, **kwargs)
 
     def get_number(self, obj):
         return obj.pk
@@ -109,22 +109,22 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         return obj.alt_text
 
-    get_alt_text.short_description = "Alt text"
+    get_alt_text.short_description = 'Alt text'
 
     # Custom actions.
 
     def add_label_action(self, request, queryset, label):
-        """Adds the label on the given queryset."""
+        '''Adds the label on the given queryset.'''
         for obj in queryset:
             obj.labels.add(label)
 
     def remove_label_action(self, request, queryset, label):
-        """Removes the label on the given queryset."""
+        '''Removes the label on the given queryset.'''
         for obj in queryset:
             obj.labels.remove(label)
 
     def get_actions(self, request):
-        """Generates the actions for assigning categories."""
+        '''Generates the actions for assigning categories.'''
         if IS_POPUP_VAR in request.GET:
             return []
         opts = self.model._meta
@@ -146,7 +146,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     # Custom display routines.
     def get_size(self, obj):
-        """Returns the size of the media in a human-readable format."""
+        '''Returns the size of the media in a human-readable format.'''
         try:
             return filesizeformat(obj.file.size)
         except OSError:
@@ -155,7 +155,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     get_size.short_description = "size"
 
     def get_preview(self, obj):
-        """Generates a thumbnail of the image."""
+        '''Generates a thumbnail of the image.'''
         _, extension = os.path.splitext(obj.file.name)
         extension = extension.lower()[1:]
         icon = FILE_ICONS.get(extension, UNKNOWN_FILE_ICON)
@@ -191,11 +191,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             obj.title
         )
 
-    get_preview.short_description = "preview"
+    get_preview.short_description = 'preview'
     get_preview.allow_tags = True
 
     def get_title(self, obj):
-        """Returns a truncated title of the object."""
+        '''Returns a truncated title of the object.'''
         return Truncator(obj.title).words(8)
     get_title.admin_order_field = 'title'
     get_title.short_description = "title"
@@ -203,21 +203,21 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     # Custom view logic.
 
     def response_add(self, request, obj, post_url_continue=None):
-        """Returns the response for a successful add action."""
-        if "_tinymce" in request.GET:
-            context = {"permalink": permalinks.create(obj),
-                       "title": obj.title}
-            return render(request, "admin/media/file/filebrowser_add_success.html", context)
-        return super(FileAdmin, self).response_add(request, obj, post_url_continue=post_url_continue)
+        '''Returns the response for a successful add action.'''
+        if '_tinymce' in request.GET:
+            context = {'permalink': permalinks.create(obj),
+                       'title': obj.title}
+            return render(request, 'admin/media/file/filebrowser_add_success.html', context)
+        return super().response_add(request, obj, post_url_continue=post_url_continue)
 
     def changelist_view(self, request, extra_context=None):
-        """Renders the change list."""
+        '''Renders the change list.'''
         context = extra_context or {}
 
         if not 'changelist_template_parent' in context:
             context['changelist_template_parent'] = 'reversion/change_list.html'
 
-        return super(FileAdmin, self).changelist_view(request, context)
+        return super().changelist_view(request, context)
 
     def media_library_changelist_view(self, request, extra_context=None):
         '''Renders the change list, but sets 'is_popup=True' into the template
@@ -233,7 +233,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         context['is_popup'] = True
         context['is_media_library_iframe'] = True
 
-        return super(FileAdmin, self).changelist_view(request, context)
+        return super().changelist_view(request, context)
 
     # Create a URL route and a view for saving the Adobe SDK callback URL.
     def get_urls(self):
@@ -248,7 +248,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     def remote_view(self, request, object_id):
         if not self.has_change_permission(request):
-            return HttpResponseForbidden("You do not have permission to modify this file.")
+            return HttpResponseForbidden('You do not have permission to modify this file.')
 
         if request.method != 'POST':
             return HttpResponseNotAllowed(['POST'])
