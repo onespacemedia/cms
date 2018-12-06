@@ -23,6 +23,7 @@ from cms.apps.media.forms import ImageChangeForm
 from cms.apps.media.models import File, Label, Video
 
 
+@admin.register(Label)
 class LabelAdmin(admin.ModelAdmin):
     """Admin settings for Label models."""
 
@@ -31,17 +32,13 @@ class LabelAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
-admin.site.register(Label, LabelAdmin)
-
-
+@admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {
             'fields': ['title', 'image', 'high_resolution_mp4', 'low_resolution_mp4', 'external_video'],
         }),
     ]
-
-admin.site.register(Video, VideoAdmin)
 
 # Different types of file.
 AUDIO_FILE_ICON = static("media/img/audio-x-generic.png")
@@ -75,6 +72,7 @@ FILE_ICONS = {
 }
 
 
+@admin.register(File)
 class FileAdmin(VersionAdmin, SearchAdmin):
     """Admin settings for File models."""
 
@@ -272,6 +270,3 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             obj.__str__()
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')
-
-
-admin.site.register(File, FileAdmin)
