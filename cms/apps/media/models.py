@@ -11,9 +11,11 @@ from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.loader import render_to_string
+from django.utils.functional import cached_property
 from PIL import Image
-
 from tinypng.api import shrink_file
+
+from cms.apps.media.filetypes import get_icon, is_image
 
 
 class Label(models.Model):
@@ -122,13 +124,12 @@ class File(models.Model):
                 except:  # pylint: disable=bare-except
                     pass
 
-    def is_image(self):
-        from .admin import FILE_ICONS, IMAGE_FILE_ICON, UNKNOWN_FILE_ICON
+    @cached_property
+    def icon(self):
+        return get_icon(self.file.name)
 
-        _, extension = os.path.splitext(self.file.name)
-        extension = extension.lower()[1:]
-        icon = FILE_ICONS.get(extension, UNKNOWN_FILE_ICON)
-        return icon == IMAGE_FILE_ICON
+    def is_image(self):
+        return is_image(self.file.name)
 
     def get_dimensions(self):
         try:
