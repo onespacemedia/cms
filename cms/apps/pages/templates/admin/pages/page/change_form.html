@@ -2,45 +2,21 @@
 {% load i18n admin_static admin_modify admin_urls %}
 
 {% block extrahead %}
+  {{ block.super }}
   {% url 'admin:jsi18n' as jsi18nurl %}
   <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
-
-  {# Needed for sorting section pages #}
-  <script type="text/javascript" src="{% static 'cms/js/sortable/sortables.min.js' %}"></script>
-
-  {# Needed for fixing ForeignKeyRawIdFields  #}
-  <script type="text/javascript" src="{% static 'cms/js/misc/index.js' %}"></script>
-
-  {{ media }}
-
 {% endblock %}
 
-{% block extrastyle %}
+{% block object-tools-items %}
   {{ block.super }}
-{% endblock %}
 
-{% block object-tools %}
-  {% if change %}{% if not is_popup %}
-    <ul class="object-tools initialized">
-      {% block object-tools-items %}
-        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
-        <li><a href="{% add_preserved_filters history_url %}" class="historylink"><i class="icon-time icon-alpha75"></i>{% trans "History" %}</a>
-        </li>
-        {% if has_absolute_url %}
-          <li>
-            <a href="{{ original.get_absolute_url }}?preview=1" class="viewsitelink"><i class="icon-eye-open icon-alpha75"></i>{% trans "View on site" %}</a>
-          </li>
-        {% endif %}
-
-        {% if has_add_permission %}
-          <li>
-            <a href="../add/"><i class="icon-plus-sign icon-alpha75"></i>{% blocktrans with opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
-            </a></li>
-        {% endif %}
-
-      {% endblock %}
-    </ul>
-  {% endif %}{% endif %}
+  {% if change and has_add_permission and not is_popup %}
+    <li>
+      <a href="../add/">
+        {% blocktrans with opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+      </a>
+    </li>
+  {% endif %}
 {% endblock %}
 
 {% block footer %}
