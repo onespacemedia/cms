@@ -1,13 +1,11 @@
 """Core models used by the CMS."""
-from __future__ import unicode_literals
-
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.db import connection, models, transaction
 from django.db.models import F, Q
 from django.utils import timezone
-from django.utils.encoding import force_text, python_2_unicode_compatible
+from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from historylinks import shortcuts as historylinks
 from reversion.models import Version
@@ -443,7 +441,6 @@ def filter_indexable_pages(queryset):
     )
 
 
-@python_2_unicode_compatible
 class ContentBase(models.Model):
 
     """Base class for page content."""
