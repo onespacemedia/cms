@@ -1,4 +1,4 @@
-"""Models used by the static media management application."""
+'''Models used by the static media management application.'''
 import os
 import urllib
 
@@ -19,30 +19,30 @@ from cms.apps.media.filetypes import get_icon, is_image
 
 
 class Label(models.Model):
-
-    """
+    '''
     A notional label used to organise static media.
 
     This does not correspond to a physical label on the disk.
-    """
+    '''
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(
+        max_length=200,
+    )
 
     def __str__(self):
-        """Returns the name of the label."""
+        '''Returns the name of the label.'''
         return self.name
 
     class Meta:
-        ordering = ("name",)
+        ordering = ('name',)
 
 
 class File(models.Model):
-
-    """A static file."""
+    '''A static file.'''
 
     title = models.CharField(
         max_length=200,
-        help_text="The title will be used as the default rollover text when this media is embedded in a web page.",
+        help_text='The title will be used as the default rollover text when this media is embedded in a web page.',
     )
 
     labels = models.ManyToManyField(
@@ -72,7 +72,7 @@ class File(models.Model):
         max_length=1000,
         blank=True,
         null=True,
-        verbose_name="caption"
+        verbose_name='caption',
     )
 
     copyright = models.CharField(
@@ -85,15 +85,15 @@ class File(models.Model):
         max_length=200,
         blank=True,
         null=True,
-        help_text="Text used for screen readers"
+        help_text='Text used for screen readers',
     )
 
     def get_absolute_url(self):
-        """Generates the absolute URL of the image."""
+        '''Generates the absolute URL of the image.'''
         return self.file.url
 
     def __str__(self):
-        """Returns the title of the media."""
+        '''Returns the title of the media.'''
         return self.title
 
     class Meta:
@@ -146,43 +146,42 @@ class File(models.Model):
 
 
 class FileRefField(models.ForeignKey):
-
-    """A foreign key to a File, constrained to only select image files."""
+    '''A foreign key to a File, constrained to only select image files.'''
 
     def __init__(self, **kwargs):
-        kwargs["to"] = 'media.File'
-        kwargs.setdefault("related_name", "+")
-        kwargs.setdefault("on_delete", models.PROTECT)
+        kwargs['to'] = 'media.File'
+        kwargs.setdefault('related_name', '+')
+        kwargs.setdefault('on_delete', models.PROTECT)
         super(FileRefField, self).__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
-            "widget": ForeignKeyRawIdWidget(self.rel, admin.site),
+            'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
         }
         return super(FileRefField, self).formfield(**defaults)
 
 
 IMAGE_FILTER = {
-    "file__iregex": r"\.(png|gif|jpg|jpeg)$"
+    'file__iregex': r'\.(png|gif|jpg|jpeg)$'
 }
 
 
 class ImageRefField(FileRefField):
-
-    """A foreign key to a File, constrained to only select image files."""
+    '''A foreign key to a File, constrained to only select image files.'''
 
     def __init__(self, **kwargs):
-        kwargs["limit_choices_to"] = IMAGE_FILTER
+        kwargs['limit_choices_to'] = IMAGE_FILTER
         super(ImageRefField, self).__init__(**kwargs)
 
 
 VIDEO_FILTER = {
-    "file__iregex": r"\.(mp4|m4v)$"
+    'file__iregex': r'\.(mp4|m4v)$'
 }
 
 
 def get_oembed_info_url(url):
-    '''A helper to get the oEmbed information URL for a video.
+    '''
+    A helper to get the oEmbed information URL for a video.
 
     This special-cases YouTube videos because bot requests to video pages
     frequently result in the IP being captcha'd out, which breaks the
@@ -208,7 +207,7 @@ def get_oembed_info_url(url):
 
     # Video providers that support oEmbed will have something that looks like
     # this:
-    # <link rel='alternate' type='application/json+oembed' href='...'>
+    # <link rel="alternate" type="application/json+oembed" href="...">
     # Where the contents of 'href' tell us where to go to get JSON
     # for an embed code.
     try:
@@ -236,7 +235,6 @@ def get_video_info(url):
     '''
 
     if not url or (not url.startswith('http://') and not url.startswith('https://')):
-        logger.info('Video URL did not start with http[s]://')
         return
 
     oembed_url = get_oembed_info_url(url)
@@ -280,10 +278,10 @@ def get_video_info(url):
 
 class VideoFileRefField(FileRefField):
 
-    """A foreign key to a File, constrained to only select video files."""
+    '''A foreign key to a File, constrained to only select video files.'''
 
     def __init__(self, **kwargs):
-        kwargs["limit_choices_to"] = VIDEO_FILTER
+        kwargs['limit_choices_to'] = VIDEO_FILTER
         super(VideoFileRefField, self).__init__(**kwargs)
 
 
@@ -299,15 +297,15 @@ class Video(models.Model):
     )
 
     high_resolution_mp4 = VideoFileRefField(
-        verbose_name="high resolution MP4",
+        verbose_name='high resolution MP4',
         blank=True,
         null=True,
     )
 
     low_resolution_mp4 = VideoFileRefField(
-        verbose_name="low resolution MP4",
+        verbose_name='low resolution MP4',
         blank=True,
-        null=True
+        null=True,
     )
 
     external_video = models.URLField(
@@ -337,13 +335,13 @@ class Video(models.Model):
     # End secret fields
 
     def __str__(self):
-        """Returns the title of the media."""
+        '''Returns the title of the media.'''
         return self.title
 
     def clean(self):
         if (self.high_resolution_mp4 or self.low_resolution_mp4) and self.external_video:
             raise ValidationError({
-                'high_resolution_mp4': "Please provide either a locally hosted file or an external file, not both."
+                'high_resolution_mp4': 'Please provide either a locally hosted file or an external file, not both.'
             })
 
         if self.external_video:
@@ -352,10 +350,10 @@ class Video(models.Model):
                 self.external_video_iframe_url = info['src']
 
                 if not self.external_video_iframe_url:
-
                     raise ValidationError({
                         'external_video': "Couldn't determine how to embed this video. Maybe the video's privacy settings disallow embedding?"
                     })
+
                 self.external_video_id = info['id']
                 self.external_video_service = info['service']
 
@@ -400,21 +398,21 @@ class Video(models.Model):
             })
 
     class Meta:
-        ordering = ("title",)
+        ordering = ('title',)
 
 
 class VideoRefField(models.ForeignKey):
 
-    """A foreign key to a File, constrained to only select video files."""
+    '''A foreign key to a File, constrained to only select video files.'''
 
     def __init__(self, **kwargs):
-        kwargs["to"] = 'media.Video'
-        kwargs.setdefault("related_name", "+")
-        kwargs.setdefault("on_delete", models.PROTECT)
+        kwargs['to'] = 'media.Video'
+        kwargs.setdefault('related_name', '+')
+        kwargs.setdefault('on_delete', models.PROTECT)
         super(VideoRefField, self).__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
-            "widget": ForeignKeyRawIdWidget(self.rel, admin.site),
+            'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
         }
         return super(VideoRefField, self).formfield(**defaults)
