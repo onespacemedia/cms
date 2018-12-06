@@ -11,8 +11,6 @@ function activate_tinymce (element) {
   tinymce.init(settings);
 };
 
-
-
 (function ($) {
   window.addEventListener('load', function () {
     function activateEditors() {
