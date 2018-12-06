@@ -5,18 +5,15 @@ from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.safestring import mark_safe
 
-from cms import debug
-
 
 class HtmlWidget(forms.Textarea):
-    """A textarea that is converted into a TinyMCE editor."""
+    '''A textarea that is converted into a TinyMCE rich text editor.'''
 
-    @debug.print_exc
     def get_media(self):
-        """Returns the media used by the widget."""
+        '''Returns the media used by the widget.'''
         js = [
-            staticfiles_storage.url("cms/js/tinymce/tinymce.min.js"),
-            staticfiles_storage.url("cms/js/jquery.cms.wysiwyg.js"),
+            staticfiles_storage.url('cms/js/tinymce/tinymce.min.js'),
+            staticfiles_storage.url('cms/js/jquery.cms.wysiwyg.js'),
         ]
 
         css = {}
@@ -25,15 +22,15 @@ class HtmlWidget(forms.Textarea):
 
     media = property(
         get_media,
-        doc="The media used by the widget.",
+        doc='The media used by the widget.',
     )
 
     def render(self, name, value, attrs=None, renderer=None):
-        """Renders the widget."""
+        '''Renders the widget.'''
 
         # Add on the JS initializer.
         attrs = attrs or {}
-        attrs['class'] = "wysiwyg"
+        attrs['class'] = 'wysiwyg'
         attrs['required'] = False
         wysiwyg_settings = {
             'branding': False,
@@ -54,6 +51,6 @@ class HtmlWidget(forms.Textarea):
         attrs['data-wysiwyg-settings'] = json.dumps(wysiwyg_settings)
 
         # Get the standard widget.
-        html = super(HtmlWidget, self).render(name, value, attrs)
+        html = super().render(name, value, attrs)
 
         return mark_safe(html)
