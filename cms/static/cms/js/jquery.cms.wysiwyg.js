@@ -21,7 +21,7 @@ function activate_tinymce (element) {
       });
     }
     window.setTimeout(activateEditors, 100)
-    // Reactivate on Suit
+    // Reactivate on Jet tab change.
     window.addEventListener('hashchange', activateEditors)
   })
 })(django.jQuery);
