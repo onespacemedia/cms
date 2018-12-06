@@ -9,7 +9,7 @@ from cms import debug
 
 
 class HtmlWidget(forms.Textarea):
-    """A textarea that is converted into a Redactor editor."""
+    """A textarea that is converted into a TinyMCE editor."""
 
     @debug.print_exc
     def get_media(self):
