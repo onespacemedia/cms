@@ -1,6 +1,4 @@
 """Admin settings for the static media management application."""
-from __future__ import unicode_literals
-
 import os
 from functools import partial
 
