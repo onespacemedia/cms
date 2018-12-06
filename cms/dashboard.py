@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from jet.dashboard import modules
-from jet.dashboard.dashboard import Dashboard, AppIndexDashboard
+from jet.dashboard.dashboard import Dashboard
 
 from .dashboard_modules import SiteMap
 
