@@ -1,7 +1,6 @@
 """Admin settings for the static media management application."""
 from __future__ import unicode_literals
 
-import json
 import os
 from functools import partial
 
@@ -12,7 +11,6 @@ from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
-from django.core.paginator import Paginator
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseNotAllowed)
 from django.shortcuts import get_object_or_404, render
@@ -248,13 +246,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         new_urls = [
             url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name="media_file_remote"),
             url(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
-
-            url(r'^redactor/upload/(?P<file_type>image|file)/$', self.redactor_upload,
-                name="media_file_redactor_upload"),
-
-            url(r'^redactor/(?P<file_type>images|files)/$', self.redactor_data, name="media_file_redactor_data"),
-            url(r'^redactor/(?P<file_type>images|files)/(?P<page>\d+)/$', self.redactor_data,
-                name="media_file_redactor_data"),
         ]
 
         return new_urls + urls
@@ -283,82 +274,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             obj.__str__()
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')
-
-    def redactor_data(self, request, **kwargs):
-        if not self.has_change_permission(request):
-            return HttpResponseForbidden("You do not have permission to view these files.")
-
-        file_type = kwargs.get('file_type', 'files')
-        page = kwargs.get('page', 1)
-
-        # Make sure we serve the correct data
-        if file_type == 'files':
-            file_objects = File.objects.all()
-        elif file_type == 'images':
-            file_objects = File.objects.filter(file__regex=r'(?i)\.(png|gif|jpg|jpeg)$')
-
-        # Sort objects by title
-        file_objects = file_objects.order_by('title')
-
-        # Create paginator
-        paginator = Paginator(file_objects, 15)
-
-        # Create files usable by the CMS
-        json_data = {
-            'page': page,
-            'pages': list(paginator.page_range),
-        }
-
-        if file_type == 'files':
-            json_data['objects'] = [
-                {'title': file_object.title, 'url': permalinks.create(file_object)}
-                for file_object in paginator.page(page)
-            ]
-        elif file_type == 'images':
-            json_data['objects'] = [
-                {'title': file_object.title, 'url': permalinks.create(file_object),
-                 'thumbnail': get_thumbnail(file_object.file, '100x75', crop="center", quality=99).url}
-                for file_object in paginator.page(page)
-            ]
-
-        # Return files as ajax
-        return HttpResponse(json.dumps(json_data), content_type='application/json')
-
-    def redactor_upload(self, request, file_type):
-        if not self.has_change_permission(request):
-            return HttpResponseForbidden("You do not have permission to upload this file.")
-
-        if request.method != 'POST':
-            return HttpResponseNotAllowed(['POST'])
-
-        image_content_types = [
-            'image/gif',
-            'image/jpeg',
-            'image/png',
-            'image/bmp'
-        ]
-
-        try:
-            if file_type == 'image':
-                if request.FILES.getlist('file')[0].content_type not in image_content_types:
-                    raise Exception()
-
-            new_file = File(
-                title=request.FILES.getlist('file')[0].name,
-                file=request.FILES.getlist('file')[0]
-            )
-            new_file.save()
-
-            if file_type == 'image':
-                return HttpResponse(json.dumps({
-                    'filelink': permalinks.create(new_file)
-                }))
-            return HttpResponse(json.dumps({
-                'filelink': permalinks.create(new_file),
-                'filename': request.FILES.getlist('file')[0].name,
-            }))
-        except:
-            return HttpResponse('')
 
 
 admin.site.register(File, FileAdmin)
