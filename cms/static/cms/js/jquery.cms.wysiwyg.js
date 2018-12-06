@@ -1,27 +1,25 @@
-django.jQuery(function($){
-    setTimeout(() => {
-        $('.wysiwyg:visible').each(function(){
-            activate_tinymce(this)
-        });
-    }, 250)
+function activate_tinymce (element) {
+  // Generate base settings
+  var settings = {
+    selector: "#" + element.getAttribute('id')
+  }
 
-    Suit.after_inline.register('init_wysiwyg', function(inline_prefix, row){
-        $('.wysiwyg:visible', row).each(function(){
-            activate_tinymce(this)
-        })
-    });
-})
+  // Merge global settings with base
+  django.jQuery.extend(settings, JSON.parse(element.dataset.wysiwygSettings))
 
-function activate_tinymce(element){
+  // Init editor
+  tinymce.init(settings);
+};
 
-    // Generate base settings
-    var settings = {
-      selector: "#" + $(element).attr('id')
+(function ($) {
+  window.addEventListener('load', function () {
+    function activateEditors() {
+      $('.wysiwyg:visible').each(function (){
+          activate_tinymce(this)
+      });
     }
-
-    // Merge global settings with base
-    django.jQuery.extend(settings, $(element).data('wysiwyg-settings'))
-
-    // Init editor
-    tinymce.init(settings);
-}
+    window.setTimeout(activateEditors, 100)
+    // Reactivate on Jet tab change.
+    window.addEventListener('hashchange', activateEditors)
+  })
+})(django.jQuery);

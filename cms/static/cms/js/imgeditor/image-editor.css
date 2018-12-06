@@ -1002,3 +1002,10 @@ body > textarea {
 .tui-image-editor-container .tui-image-editor-main {
 	top: 0 !important;
 }
+.tui-image-editor-submenu-item {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+.tui-image-editor-grid-visual table {
+  background: none;
+}

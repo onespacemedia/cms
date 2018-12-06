@@ -7,6 +7,7 @@ from setuptools import find_packages, setup
 from cms import VERSION
 
 DEPENDENCIES = [
+    'python-magic==0.4.15',
     'requests',
     'Pillow',
     'sorl-thumbnail',
@@ -15,7 +16,6 @@ DEPENDENCIES = [
     'beautifulsoup4',
     'django>=1.11,<1.12',
     'django-historylinks',
-    'django-suit',
     'django-watson',
     'django-reversion',
     'django-jinja==2.4.1',

@@ -2,60 +2,47 @@
 
 
 {% block extrahead %}
-    {{block.super}}
+  {{ block.super }}
 
-    {% if is_popup %}
-        {% include "admin/cms/scripts.html" %}
+  {% if is_media_library_iframe %}
+    <script>
+      django.jQuery(function($) {
+        // Get tinymce from parent
+        var tinymce = parent.active_tinymce;
 
-        <script>
-            django.jQuery(function($) {
+        // Don't assume that the only place this will be used is in a TinyMCE.
+        if (!tinymce) {
+          return
+        }
 
-                // Get tinymce from parent
-                var tinymce = parent.active_tinymce;
+        // Make the changelist links clickable and remove the original inline click listener.
+        $("div#changelist tr.row1 a, div#changelist tr.row2 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+            // Get information from the `<img>` tag in the first column.
+            var tr = $(this).closest('tr');
+            var img = $("img", tr);
+            var title = img.attr("title");
+            var permalink = img.attr("cms:permalink");
 
-                // Make sure we have tinymce
-                if (tinymce) {
-                    // Make the changelist links clickable and remove the original inline click listener.
-                    $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+            tinymce.focus()
+            tinymce.selection.setContent(tinymce.dom.createHTML('img', {
+              src: permalink,
+              alt: title,
+              title: title,
+            }));
 
-                        // Get information
-                        var img = $("img", this);
-                        var title = img.attr("title");
-                        var permalink = img.attr("cms:permalink");
+            // Prevent default
+            event.preventDefault()
 
-                        tinymce.focus()
-                        tinymce.selection.setContent(tinymce.dom.createHTML('img', {
-                            src: permalink,
-                            alt: title,
-                            title: title,
-                        }));
-
-                        // Prevent default
-                        event.preventDefault()
-
-                        // Get the active editor open window
-                        var tinymce_popup = parent.active_tinymce_window
-                        if(tinymce_popup){
-                            tinymce_popup.close()
-                        }
-
-                    });
-                    // Made the add link flagged for tinymce.
-                    $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_tinymce=1");
-                }
-
-            });
-        </script>
-
-        <style>
-            body {
-                background-color: #FFF;
+            // Get the active editor open window
+            var tinymce_popup = parent.active_tinymce_window
+            if (tinymce_popup){
+              tinymce_popup.close()
             }
-            .popup #suit-center {
-                width: 100%;
-                padding: 0;
-            }
-        </style>
+        });
 
-    {% endif %}
+        // Made the add link flagged for tinymce.
+        $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_tinymce=1");
+      });
+    </script>
+  {% endif %}
 {% endblock %}

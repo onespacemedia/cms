@@ -1,18 +1,9 @@
 """Base classes for the CMS admin interface."""
 from django.contrib import admin
-from django.contrib.admin.sites import NotRegistered
-from django.contrib.auth.models import User
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
-from cms.forms import CMSAdminPasswordChangeForm
 from cms.models.base import PageBaseSearchAdapter, SearchMetaBaseSearchAdapter
-
-try:
-    from usertools.admin import UserAdmin
-except ImportError:
-    from django.contrib.auth.admin import UserAdmin  # pylint: disable=ungrouped-imports
-
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):
@@ -101,15 +92,3 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         SearchMetaBaseAdmin.OPENGRAPH_FIELDS,
         SearchMetaBaseAdmin.OPENGRAPH_TWITTER_FIELDS
     ]
-
-
-class CMSUserAdmin(UserAdmin):
-    change_password_form = CMSAdminPasswordChangeForm
-    invite_confirm_form = CMSAdminPasswordChangeForm
-
-try:
-    admin.site.unregister(User)
-except NotRegistered:
-    pass
-
-admin.site.register(User, CMSUserAdmin)
