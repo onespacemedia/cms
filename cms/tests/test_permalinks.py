@@ -1,15 +1,11 @@
-from __future__ import unicode_literals
-
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.db import models
 from django.test import TestCase
-from django.utils.encoding import python_2_unicode_compatible
 
 from ..permalinks import PermalinkError, expand, resolve
 
 
-@python_2_unicode_compatible
 class TestPermalinkModel(models.Model):
 
     def __str__(self):
