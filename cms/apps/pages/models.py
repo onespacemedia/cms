@@ -21,7 +21,7 @@ class PageManager(OnlineBaseManager):
 
     def select_published(self, queryset, page_alias=None):
         """Selects only published pages."""
-        queryset = super(PageManager, self).select_published(queryset)
+        queryset = super().select_published(queryset)
         now = timezone.now().replace(second=0, microsecond=0)
         # Perform local filtering.
         queryset = queryset.filter(
@@ -332,7 +332,7 @@ class Page(PageBase):
                                 )
 
         # Now actually save it!
-        super(Page, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         self.get_absolute_url(False)
 
@@ -345,7 +345,7 @@ class Page(PageBase):
         ))  #
         # Lock entire
         #  table.
-        super(Page, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
         # Update the entire tree.
         self._excise_branch()
 
@@ -376,7 +376,7 @@ class PageSitemap(sitemaps.PageBaseSitemap):
 
     def items(self):
         """Only lists items that are marked as indexable."""
-        return filter_indexable_pages(super(PageSitemap, self).items())
+        return filter_indexable_pages(super().items())
 
 
 sitemaps.register(Page, sitemap_cls=PageSitemap)
@@ -391,7 +391,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         content_obj = obj.content
 
         return ' '.join((
-            super(PageSearchAdapter, self).get_content(obj),
+            super().get_content(obj),
             self.prepare_content(' '.join(
                 force_text(self._resolve_field(content_obj, field_name))
                 for field_name in (

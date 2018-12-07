@@ -96,7 +96,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             return []
         opts = self.model._meta
         verbose_name_plural = opts.verbose_name_plural
-        actions = super(FileAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         # Add the dynamic labels.
         for label in Label.objects.all():
             # Add action.
@@ -202,7 +202,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     # Create a URL route and a view for saving the Adobe SDK callback URL.
     def get_urls(self):
-        urls = super(FileAdmin, self).get_urls()
+        urls = super().get_urls()
 
         new_urls = [
             url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name='media_file_remote'),

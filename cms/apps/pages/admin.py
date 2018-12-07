@@ -487,7 +487,7 @@ class PageAdmin(PageBaseAdmin):
 
     def delete_view(self, request, object_id, extra_context=None):
         '''Redirects to the sitemap if appropriate.'''
-        response = super(PageAdmin, self).delete_view(request, object_id, extra_context)
+        response = super().delete_view(request, object_id, extra_context)
         return self.patch_response_location(request, response)
 
     def get_urls(self):

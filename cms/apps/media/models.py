@@ -103,13 +103,13 @@ class File(models.Model):
         ordering = ['-date_added', '-pk']
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super(File, self).save(force_insert, force_update, using, update_fields)
+        super().save(force_insert, force_update, using, update_fields)
         if self.is_image():
             dimensions = self.get_dimensions()
 
             if dimensions:
                 self.width, self.height = dimensions
-                super(File, self).save(False, True, using=using, update_fields=update_fields)
+                super().save(False, True, using=using, update_fields=update_fields)
 
         # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
         if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
@@ -155,13 +155,13 @@ class FileRefField(models.ForeignKey):
         kwargs['to'] = 'media.File'
         kwargs.setdefault('related_name', '+')
         kwargs.setdefault('on_delete', models.PROTECT)
-        super(FileRefField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
             'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
         }
-        return super(FileRefField, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
 
 IMAGE_FILTER = {
@@ -174,7 +174,7 @@ class ImageRefField(FileRefField):
 
     def __init__(self, **kwargs):
         kwargs['limit_choices_to'] = IMAGE_FILTER
-        super(ImageRefField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 VIDEO_FILTER = {
@@ -285,7 +285,7 @@ class VideoFileRefField(FileRefField):
 
     def __init__(self, **kwargs):
         kwargs['limit_choices_to'] = VIDEO_FILTER
-        super(VideoFileRefField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class Video(models.Model):
@@ -412,10 +412,10 @@ class VideoRefField(models.ForeignKey):
         kwargs['to'] = 'media.Video'
         kwargs.setdefault('related_name', '+')
         kwargs.setdefault('on_delete', models.PROTECT)
-        super(VideoRefField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
             'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
         }
-        return super(VideoRefField, self).formfield(**defaults)
+        return super().formfield(**defaults)

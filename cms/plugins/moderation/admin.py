@@ -28,4 +28,4 @@ class ModerationAdminBase(admin.ModelAdmin):
 
             kwargs['choices'] = choices_list
 
-        return super(ModerationAdminBase, self).formfield_for_choice_field(db_field, request, **kwargs)
+        return super().formfield_for_choice_field(db_field, request, **kwargs)

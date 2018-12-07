@@ -61,4 +61,4 @@ class ImageChangeForm(forms.ModelForm):
             else:
                 self.cleaned_data['file'].save(new_file_name, content=content_file)
 
-        return super(ImageChangeForm, self).save(commit=commit)
+        return super().save(commit=commit)

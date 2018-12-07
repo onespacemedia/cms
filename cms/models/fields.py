@@ -15,7 +15,7 @@ class HtmlField(models.TextField):
         from cms.forms import HtmlWidget
 
         kwargs['widget'] = HtmlWidget
-        return super(HtmlField, self).formfield(**kwargs)
+        return super().formfield(**kwargs)
 
 
 class LinkResolutionError(Exception):
@@ -67,12 +67,12 @@ class LinkField(models.CharField):
     def __init__(self, *args, **kwargs):
         '''Initializes the LinkField.'''
         kwargs.setdefault('max_length', 1000)
-        super(LinkField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.validators.append(link_validator)
 
     def contribute_to_class(self, cls, name):
         '''Adds in an accessor for the resolved link.'''
-        super(LinkField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
 
         def get_XXX_resolved(self):
             link = getattr(self, name, '')

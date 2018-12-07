@@ -251,9 +251,7 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
 
     def get_live_queryset(self):
         """Selects only live models."""
-        return super(SearchMetaBaseSearchAdapter, self).get_live_queryset().filter(
-            robots_index=True,
-        )
+        return super().get_live_queryset().filter(robots_index=True)
 
 
 class PageBase(SearchMetaBase):
@@ -290,7 +288,7 @@ class PageBase(SearchMetaBase):
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""
-        context_data = super(PageBase, self).get_context_data()
+        context_data = super().get_context_data()
         context_data.update({
             "title": self.browser_title or self.title,
             "header": self.title,

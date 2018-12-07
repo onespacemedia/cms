@@ -27,7 +27,7 @@ class PublicationManager(threading.local):
 
     def __init__(self):
         """Initializes the PublicationManager."""
-        super(PublicationManager, self).__init__()
+        super().__init__()
         self._stack = []
 
     def begin(self, select_published):
@@ -83,7 +83,7 @@ class PublishedBaseManager(models.Manager):
 
     def get_queryset(self):
         """"Returns the queryset, filtered if appropriate."""
-        queryset = super(PublishedBaseManager, self).get_queryset()
+        queryset = super().get_queryset()
         if publication_manager.select_published_active():
             queryset = self.select_published(queryset)
         return queryset
@@ -97,7 +97,7 @@ class OnlineBaseManager(PublishedBaseManager):
         """
         Filters the given queryset to only include items marked as online.
         """
-        queryset = super(OnlineBaseManager, self).select_published(queryset)
+        queryset = super().select_published(queryset)
         return queryset.filter(is_online=True)
 
 

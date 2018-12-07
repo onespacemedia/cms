@@ -20,7 +20,7 @@ class TextTemplateView(generic.TemplateView):
     def render_to_response(self, context, **kwargs):
         """Dispatches the request."""
         kwargs.setdefault("content_type", self.content_type)
-        return super(TextTemplateView, self).render_to_response(context, **kwargs)
+        return super().render_to_response(context, **kwargs)
 
 
 class SearchMetaDetailMixin:
@@ -29,7 +29,7 @@ class SearchMetaDetailMixin:
 
     def get_context_data(self, **kwargs):
         """Adds in the additional search meta context data."""
-        context = super(SearchMetaDetailMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         defaults = self.object.get_context_data()
         defaults.update(context)
         return defaults
