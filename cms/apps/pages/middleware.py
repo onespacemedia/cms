@@ -1,4 +1,4 @@
-"""Custom middleware used by the pages application."""
+'''Custom middleware used by the pages application.'''
 
 import sys
 
@@ -16,10 +16,10 @@ from cms.apps.pages.models import Page
 
 class RequestPageManager:
 
-    """Handles loading page objects."""
+    '''Handles loading page objects.'''
 
     def __init__(self, request):
-        """Initializes the RequestPageManager."""
+        '''Initializes the RequestPageManager.'''
         self._request = request
         self._path = self._request.path
         self._path_info = self._request.path_info
@@ -38,7 +38,6 @@ class RequestPageManager:
         return None
 
     def alternate_page_version(self, page):
-
         try:
             # See if the page has any alternate versions for the current country
             alternate_version = Page.objects.get(
@@ -54,7 +53,7 @@ class RequestPageManager:
 
     @cached_property
     def homepage(self):
-        """Returns the site homepage."""
+        '''Returns the site homepage.'''
         try:
             return Page.objects.get_homepage()
         except Page.DoesNotExist:
@@ -62,14 +61,14 @@ class RequestPageManager:
 
     @property
     def is_homepage(self):
-        """Whether the current request is for the site homepage."""
+        '''Whether the current request is for the site homepage.'''
         return self._path == self.homepage.get_absolute_url()
 
     @cached_property
     def breadcrumbs(self):
-        """The breadcrumbs for the current request."""
+        '''The breadcrumbs for the current request.'''
         breadcrumbs = []
-        slugs = self._path_info.strip("/").split("/")
+        slugs = self._path_info.strip('/').split('/')
         slugs.reverse()
 
         def do_breadcrumbs(page):
@@ -86,7 +85,7 @@ class RequestPageManager:
 
     @property
     def section(self):
-        """The current primary level section, or None."""
+        '''The current primary level section, or None.'''
         try:
             page = self.breadcrumbs[1]
             return self.alternate_page_version(page)
@@ -95,7 +94,7 @@ class RequestPageManager:
 
     @property
     def subsection(self):
-        """The current secondary level section, or None."""
+        '''The current secondary level section, or None.'''
         try:
             page = self.breadcrumbs[2]
             return self.alternate_page_version(page)
@@ -104,7 +103,7 @@ class RequestPageManager:
 
     @property
     def current(self):
-        """The current best-matched page."""
+        '''The current best-matched page.'''
         try:
             page = self.breadcrumbs[-1]
             return self.alternate_page_version(page)
@@ -113,20 +112,20 @@ class RequestPageManager:
 
     @property
     def is_exact(self):
-        """Whether the current page exactly matches the request URL."""
+        '''Whether the current page exactly matches the request URL.'''
         return self.current.get_absolute_url() == self._path
 
 
 class PageMiddleware:
 
-    """Serves up pages when no other view is matched."""
+    '''Serves up pages when no other view is matched.'''
 
     def process_request(self, request):
-        """Annotates the request with a page manager."""
+        '''Annotates the request with a page manager.'''
         request.pages = RequestPageManager(request)
 
     def process_response(self, request, response):
-        """If the response was a 404, attempt to serve up a page."""
+        '''If the response was a 404, attempt to serve up a page.'''
         if response.status_code != 404:
             return response
         # Get the current page.
@@ -153,7 +152,7 @@ class PageMiddleware:
             except urls.Resolver404:
                 # First of all see if adding a slash will help matters.
                 if settings.APPEND_SLASH:
-                    new_path_info = path_info + "/"
+                    new_path_info = path_info + '/'
 
                     try:
                         urls.resolve(new_path_info, page.content.urlconf)
@@ -171,7 +170,7 @@ class PageMiddleware:
 
             if request:
                 if page.auth_required() and not request.user.is_authenticated():
-                    return redirect("{}?next={}".format(
+                    return redirect('{}?next={}'.format(
                         settings.LOGIN_URL,
                         request.path
                     ))

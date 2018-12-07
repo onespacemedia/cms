@@ -52,5 +52,5 @@ def get_pagination_url(context, page_number):
     else:
         params.pop(context.get('pagination_key', 'page'), None)
     if params:
-        url += "?%s" % params.urlencode()
+        url += '?{}'.format(params.urlencode())
     return escape(url)
