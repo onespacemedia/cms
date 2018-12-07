@@ -3,13 +3,14 @@
 {# While these are needed for the sitemap module, we load #}
 {# them here so they are loaded into the head of the document #}
 {% block extrahead %}
-    {{ block.super }}
-    {% include "admin/cms/scripts.html" %}
+  {{ block.super }}
+
+  {% include "admin/cms/scripts.html" %}
 {% endblock %}
 
 {# Remove the widget selector #}
 {% block breadcrumbs %}
-    {% if not is_popup %}
-        <div class="breadcrumbs"></div>
-    {% endif %}
+  {% if not is_popup %}
+    <div class="breadcrumbs"></div>
+  {% endif %}
 {% endblock %}
