@@ -500,7 +500,6 @@ class PageAdmin(PageBaseAdmin):
             url(r'^(?P<page>\d+)/duplicate/$', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate_page'),
         ] + super().get_urls()
 
-    @debug.print_exc
     def sitemap_json_view(self, request):
         '''Returns a JSON data structure describing the sitemap.'''
         # Get the homepage.
@@ -537,7 +536,6 @@ class PageAdmin(PageBaseAdmin):
         return response
 
     @transaction.atomic
-    @debug.print_exc
     def move_page_view(self, request):
         '''Moves a page up or down.'''
         # Check that the user has permission to move pages.
