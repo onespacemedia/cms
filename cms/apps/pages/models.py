@@ -1,7 +1,7 @@
 """Core models used by the CMS."""
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.core import urlresolvers
+from django import urls
 from django.db import connection, models, transaction
 from django.db.models import F, Q
 from django.utils import timezone
@@ -202,7 +202,7 @@ class Page(PageBase):
             self.content_type_id
         ).model_class().urlconf
 
-        return self.get_absolute_url().rstrip('/') + urlresolvers.reverse(
+        return self.get_absolute_url().rstrip('/') + urls.reverse(
             view_func,
             args=args,
             kwargs=kwargs,
@@ -219,7 +219,7 @@ class Page(PageBase):
         if self.parent:
             url = self.parent.get_absolute_url() + self.slug + "/"
         else:
-            url = urlresolvers.get_script_prefix()
+            url = urls.get_script_prefix()
 
         if url != self.cached_url:
             self.cached_url = url

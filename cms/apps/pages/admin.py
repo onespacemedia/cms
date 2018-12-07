@@ -18,7 +18,6 @@ from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
@@ -26,6 +25,7 @@ from django.http import (Http404, HttpResponse, HttpResponseForbidden,
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import six
 from watson.search import update_index
 

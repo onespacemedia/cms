@@ -3,7 +3,7 @@
 import sys
 
 from django.conf import settings
-from django.core import urlresolvers
+from django import urls
 from django.core.handlers.base import BaseHandler
 from django.http import Http404
 from django.shortcuts import redirect
@@ -149,15 +149,15 @@ class PageMiddleware(object):
         # Dispatch to the content.
         try:
             try:
-                callback, callback_args, callback_kwargs = urlresolvers.resolve(path_info, page.content.urlconf)
-            except urlresolvers.Resolver404:
+                callback, callback_args, callback_kwargs = urls.resolve(path_info, page.content.urlconf)
+            except urls.Resolver404:
                 # First of all see if adding a slash will help matters.
                 if settings.APPEND_SLASH:
                     new_path_info = path_info + "/"
 
                     try:
-                        urlresolvers.resolve(new_path_info, page.content.urlconf)
-                    except urlresolvers.Resolver404:
+                        urls.resolve(new_path_info, page.content.urlconf)
+                    except urls.Resolver404:
                         pass
                     else:
                         return redirect(script_name + new_path_info, permanent=True)
@@ -186,4 +186,4 @@ class PageMiddleware(object):
             # Let the normal 404 mechanisms render an error page.
             return response
         except:
-            return BaseHandler().handle_uncaught_exception(request, urlresolvers.get_resolver(None), sys.exc_info())
+            return BaseHandler().handle_uncaught_exception(request, urls.get_resolver(None), sys.exc_info())

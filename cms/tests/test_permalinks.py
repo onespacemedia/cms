@@ -1,5 +1,5 @@
+from django import urls
 from django.contrib.contenttypes.models import ContentType
-from django.core import urlresolvers
 from django.db import models
 from django.test import TestCase
 
@@ -31,12 +31,12 @@ class PermalinksTest(TestCase):
             # A valid URL, but not a permalink.
             resolve('/admin/')
 
-        original_urlconf = urlresolvers.get_urlconf()
+        original_urlconf = urls.get_urlconf()
         with self.assertRaises(PermalinkError):
-            urlresolvers.set_urlconf('cms.tests.urls')
+            urls.set_urlconf('cms.tests.urls')
             resolve('/r/')
 
-        urlresolvers.set_urlconf(original_urlconf)
+        urls.set_urlconf(original_urlconf)
 
     def test_expand(self):
         obj = TestPermalinkModel.objects.create()
