@@ -138,7 +138,7 @@ class TestFileAdminBase(TransactionTestCase):
 
     def test_fileadminbase_get_size(self):
         # Why this has to use a unicode space, I don't know..
-        self.assertEqual(self.file_admin.get_size(self.obj_1), six.text_type('4\xa0bytes'))
+        self.assertEqual(self.file_admin.get_size(self.obj_1), '4\xa0bytes')
 
         obj = File.objects.create(
             title="Foo",
