@@ -1,6 +1,4 @@
 """Template tags for rendering pagination."""
-from __future__ import unicode_literals
-
 import jinja2
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404

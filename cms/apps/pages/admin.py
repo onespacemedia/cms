@@ -5,9 +5,6 @@ This is an enhanced version of the Django admin area, providing a more
 user-friendly appearance and providing additional functionality over the
 standard implementation.
 """
-
-from __future__ import unicode_literals, with_statement
-
 import json
 from copy import deepcopy
 from functools import cmp_to_key
