@@ -11,6 +11,7 @@ from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.functional import cached_property
 from PIL import Image
 from tinypng.api import shrink_file
@@ -42,7 +43,6 @@ class File(models.Model):
 
     title = models.CharField(
         max_length=200,
-        help_text='The title will be used as the default rollover text when this media is embedded in a web page.',
     )
 
     labels = models.ManyToManyField(
@@ -72,7 +72,6 @@ class File(models.Model):
         max_length=1000,
         blank=True,
         null=True,
-        verbose_name='caption',
     )
 
     copyright = models.CharField(
@@ -85,7 +84,11 @@ class File(models.Model):
         max_length=200,
         blank=True,
         null=True,
-        help_text='Text used for screen readers',
+        help_text='This text will be used for screen readers. Leave it empty for purely decorative images.',
+    )
+
+    date_added = models.DateTimeField(
+        default=timezone.now,
     )
 
     def get_absolute_url(self):
@@ -97,7 +100,7 @@ class File(models.Model):
         return self.title
 
     class Meta:
-        ordering = ['title']
+        ordering = ['-date_added', '-pk']
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super(File, self).save(force_insert, force_update, using, update_fields)
@@ -312,7 +315,7 @@ class Video(models.Model):
         max_length=255,
         blank=True,
         null=True,
-        help_text='Provide a youtube.com or vimeo.com URL',
+        help_text='Provide a youtube.com or vimeo.com URL.',
     )
 
     # Secret fields for external videos - populated from the URL when the form is saved.
