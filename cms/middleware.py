@@ -29,7 +29,7 @@ class PublicationMiddleware(object):
         self.exclude_urls = [
             re.compile(url)
             for url in
-            getattr(settings, "PUBLICATION_MIDDLEWARE_EXCLUDE_URLS", ())
+            getattr(settings, 'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS', ())
         ]
 
     def process_request(self, request):
@@ -37,7 +37,7 @@ class PublicationMiddleware(object):
         if not any(pattern.match(request.path_info[1:]) for pattern in self.exclude_urls):
             # See if preview mode is requested.
             try:
-                preview_mode = bool(int(request.GET.get("preview", 0)))
+                preview_mode = bool(int(request.GET.get('preview', 0)))
             except ValueError:
                 preview_mode = False
             # Only allow preview mode if the user is a logged in administrator.
