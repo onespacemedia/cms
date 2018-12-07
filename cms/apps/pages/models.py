@@ -390,9 +390,9 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         """Returns the search text for the page."""
         content_obj = obj.content
 
-        return u" ".join((
+        return ' '.join((
             super(PageSearchAdapter, self).get_content(obj),
-            self.prepare_content(u" ".join(
+            self.prepare_content(' '.join(
                 force_text(self._resolve_field(content_obj, field_name))
                 for field_name in (
                     field.name for field
