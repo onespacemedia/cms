@@ -9,7 +9,6 @@ import json
 from copy import deepcopy
 from functools import cmp_to_key
 
-import six
 from django import forms
 from django.conf import settings
 from django.conf.urls import url
