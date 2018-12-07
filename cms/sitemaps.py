@@ -81,16 +81,20 @@ def register(model, sitemap_cls=None):
         ))
     # Generate the sitemap class.
     if not sitemap_cls:
-        if issubclass(model, PageBase):
-            sitemap_cls_base = PageBaseSitemap
-        elif issubclass(model, SearchMetaBase):
-            sitemap_cls_base = SearchMetaBaseSitemap
-        elif issubclass(model, OnlineBase):
-            sitemap_cls_base = OnlineBaseSitemap
-        elif issubclass(model, PublishedBase):
-            sitemap_cls_base = PublishedBaseSitemap
-        else:
-            sitemap_cls_base = BaseSitemap
+        sitemap_classes = [
+            (PageBase, PageBaseSitemap),
+            (SearchMetaBase, SearchMetaBaseSitemap),
+            (OnlineBase, OnlineBaseSitemap),
+            (PageBase, PageBaseSitemap),
+        ]
+
+        sitemap_cls_base = BaseSitemap
+
+        for model_base, map_class in sitemap_classes:
+            if issubclass(model, model_base):
+                sitemap_cls_base = map_class
+                break
+
         sitemap_cls_name = model.__name__ + 'Sitemap'
         sitemap_cls = type(sitemap_cls_name, (sitemap_cls_base,), {
             'model': model,
