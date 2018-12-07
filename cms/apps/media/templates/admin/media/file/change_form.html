@@ -23,4 +23,28 @@
       }
     </style>
   {% endif %}
+
+  {% if not original %}
+    {# Prepopulate the title with the name of the file, for new files. #}
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        var fileInput = document.querySelector('#id_file');
+        var titleInput = document.getElementById('id_title');
+        fileInput.addEventListener('change', function (event) {
+          var value = event.target.value;
+          // Don't overwrite a title.
+          if (titleInput.value || !value) {
+            return
+          }
+          // Trim to just the filename, minus path.
+          var filename = value.split(/(\\|\/)/g).pop();
+          // Trim off the file extension.
+          filename = filename.replace(/\.[^/.]+$/, '');
+          if (filename) {
+            titleInput.value = filename
+          }
+        });
+      });
+    </script>
+  {% endif %}
 {% endblock %}
