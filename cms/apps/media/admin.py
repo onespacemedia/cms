@@ -26,9 +26,9 @@ from cms.apps.media.models import File, Label, Video
 class LabelAdmin(admin.ModelAdmin):
     '''Admin settings for Label models.'''
 
-    list_display = ("name",)
+    list_display = ('name',)
 
-    search_fields = ("name",)
+    search_fields = ('name',)
 
 
 @admin.register(Video)
@@ -69,7 +69,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         return obj.pk
 
     get_number.admin_order_field = 'pk'
-    get_number.short_description = "number"
+    get_number.short_description = 'number'
 
     def get_alt_text(self, obj):
         if not obj.alt_text:
@@ -103,12 +103,12 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             # Add action.
             action_function = partial(self.__class__.add_label_action, label=label)
             action_description = 'Remove label %s from selected %s' % (label.name, verbose_name_plural)
-            action_name = action_description.lower().replace(" ", "_")
+            action_name = action_description.lower().replace(' ', '_')
             actions[action_name] = (action_function, action_name, action_description)
             # Remove action.
             action_function = partial(self.__class__.remove_label_action, label=label)
             action_description = 'Remove label %s from selected %s' % (label.name, verbose_name_plural)
-            action_name = action_description.lower().replace(" ", "_")
+            action_name = action_description.lower().replace(' ', '_')
             actions[action_name] = (action_function, action_name, action_description)
         return actions
 
@@ -118,9 +118,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         try:
             return filesizeformat(obj.file.size)
         except OSError:
-            return "0 bytes"
+            return '0 bytes'
 
-    get_size.short_description = "size"
+    get_size.short_description = 'size'
 
     def get_preview(self, obj):
         '''Generates a thumbnail of the image.'''
@@ -164,7 +164,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         '''Returns a truncated title of the object.'''
         return Truncator(obj.title).words(8)
     get_title.admin_order_field = 'title'
-    get_title.short_description = "title"
+    get_title.short_description = 'title'
 
     # Custom view logic.
 
@@ -206,7 +206,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         urls = super(FileAdmin, self).get_urls()
 
         new_urls = [
-            url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name="media_file_remote"),
+            url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name='media_file_remote'),
             url(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
         ]
 
@@ -222,7 +222,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         image_url = request.POST.get('url', None)
 
         if not image_url:
-            raise Http404("No URL supplied.")
+            raise Http404('No URL supplied.')
 
         # Pull down the remote image and save it as a temporary file.
         img_temp = NamedTemporaryFile()
