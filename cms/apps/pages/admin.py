@@ -29,7 +29,6 @@ from django.template.response import TemplateResponse
 from django.utils import six
 from watson.search import update_index
 
-from cms import debug
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Country, CountryGroup, Page,
                                    PageSearchAdapter, get_registered_content)
