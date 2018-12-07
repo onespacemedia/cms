@@ -1,1 +1,1 @@
-"""Library applications for the CMS."""
+'''Library applications for the CMS.'''

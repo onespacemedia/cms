@@ -1,1 +1,1 @@
-"""Static media management application."""
+'''Static media management application.'''
