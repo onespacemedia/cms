@@ -1,4 +1,4 @@
-"""Core models used by the CMS."""
+'''Core models used by the CMS.'''
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django import urls
@@ -17,10 +17,10 @@ from cms.models.managers import publication_manager
 
 class PageManager(OnlineBaseManager):
 
-    """Manager for Page objects."""
+    '''Manager for Page objects.'''
 
     def select_published(self, queryset, page_alias=None):
-        """Selects only published pages."""
+        '''Selects only published pages.'''
         queryset = super().select_published(queryset)
         now = timezone.now().replace(second=0, microsecond=0)
         # Perform local filtering.
@@ -29,9 +29,9 @@ class PageManager(OnlineBaseManager):
         queryset = queryset.filter(Q(expiry_date=None) | Q(expiry_date__gt=now))
         # Perform parent ordering.
         quote_name = connection.ops.quote_name
-        page_alias = page_alias or quote_name("pages_page")
+        page_alias = page_alias or quote_name('pages_page')
         queryset = queryset.extra(
-            where=("""
+            where=('''
                 NOT EXISTS (
                     SELECT *
                     FROM {pages_page} AS {ancestors}
@@ -43,18 +43,18 @@ class PageManager(OnlineBaseManager):
                             {ancestors}.{expiry_date} <= %s
                         )
                 )
-            """.format(
+            '''.format(
                 page_alias=page_alias,
                 **dict(
                     (name, quote_name(name))
                     for name in (
-                        "pages_page",
-                        "ancestors",
-                        "left",
-                        "right",
-                        "is_online",
-                        "publication_date",
-                        "expiry_date",
+                        'pages_page',
+                        'ancestors',
+                        'left',
+                        'right',
+                        'is_online',
+                        'publication_date',
+                        'expiry_date',
                     )
                 )
             ),),
@@ -63,24 +63,24 @@ class PageManager(OnlineBaseManager):
         return queryset
 
     def get_homepage(self):
-        """Returns the site homepage."""
-        return self.prefetch_related("child_set__child_set").get(parent=None,
+        '''Returns the site homepage.'''
+        return self.prefetch_related('child_set__child_set').get(parent=None,
                                                                  is_content_object=False)
 
 
 class Page(PageBase):
 
-    """A page within the site."""
+    '''A page within the site.'''
 
     objects = PageManager()
 
     # Hierarchy fields.
 
     parent = models.ForeignKey(
-        "self",
+        'self',
         blank=True,
         null=True,
-        related_name="child_set",
+        related_name='child_set',
     )
 
     left = models.IntegerField(
@@ -104,15 +104,15 @@ class Page(PageBase):
     )
 
     owner = models.ForeignKey(
-        "self",
+        'self',
         blank=True,
         null=True,
-        related_name="owner_set",
+        related_name='owner_set',
     )
 
     @cached_property
     def children(self):
-        """The child pages for this page."""
+        '''The child pages for this page.'''
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children
             #  we know aren't there!
@@ -123,7 +123,7 @@ class Page(PageBase):
 
     @property
     def navigation(self):
-        """The sub-navigation of this page."""
+        '''The sub-navigation of this page.'''
         return [child for child in self.children if child.in_navigation]
 
     # Publication fields.
@@ -132,25 +132,25 @@ class Page(PageBase):
         blank=True,
         null=True,
         db_index=True,
-        help_text="The date that this page will appear on the website.  Leave "
-                  "this blank to immediately publish this page.",
+        help_text='The date that this page will appear on the website.  Leave '
+                  'this blank to immediately publish this page.',
     )
 
     expiry_date = models.DateTimeField(
         blank=True,
         null=True,
         db_index=True,
-        help_text="The date that this page will be removed from the website.  "
-                  "Leave this blank to never expire this page.",
+        help_text='The date that this page will be removed from the website.  '
+                  'Leave this blank to never expire this page.',
     )
 
     # Navigation fields.
 
     in_navigation = models.BooleanField(
-        "add to navigation",
+        'add to navigation',
         default=True,
-        help_text="Uncheck this box to remove this content from the site "
-                  "navigation.",
+        help_text='Uncheck this box to remove this content from the site '
+                  'navigation.',
     )
 
     # Content fields.
@@ -158,7 +158,7 @@ class Page(PageBase):
     content_type = models.ForeignKey(
         ContentType,
         editable=False,
-        help_text="The type of page content.",
+        help_text='The type of page content.',
     )
 
     cached_url = models.CharField(
@@ -169,7 +169,7 @@ class Page(PageBase):
 
     requires_authentication = models.BooleanField(
         default=False,
-        help_text="Visitors will need to be logged in to see this page"
+        help_text='Visitors will need to be logged in to see this page'
     )
 
     hide_from_anonymous = models.BooleanField(
@@ -185,7 +185,7 @@ class Page(PageBase):
 
     @cached_property
     def content(self):
-        """The associated content model for this page."""
+        '''The associated content model for this page.'''
         content_cls = ContentType.objects.get_for_id(
             self.content_type_id).model_class()
         content = content_cls._default_manager.get(page=self)
@@ -193,7 +193,7 @@ class Page(PageBase):
         return content
 
     def reverse(self, view_func, args=None, kwargs=None):
-        """Performs a reverse URL lookup."""
+        '''Performs a reverse URL lookup.'''
         if args is None:
             args = ()
         if kwargs is None:
@@ -212,12 +212,12 @@ class Page(PageBase):
     # Standard model methods.
 
     def get_absolute_url(self, cached=False):
-        """Generates the absolute url of the page."""
+        '''Generates the absolute url of the page.'''
         if self.cached_url and cached:
             return self.cached_url
 
         if self.parent:
-            url = self.parent.get_absolute_url() + self.slug + "/"
+            url = self.parent.get_absolute_url() + self.slug + '/'
         else:
             url = urls.get_script_prefix()
 
@@ -234,28 +234,28 @@ class Page(PageBase):
         return self.right - self.left + 1
 
     def _excise_branch(self):
-        """Excises this whole branch from the tree."""
+        '''Excises this whole branch from the tree.'''
         branch_width = self._branch_width
         Page.objects.filter(left__gte=self.left).update(
-            left=F("left") - branch_width,
+            left=F('left') - branch_width,
         )
         Page.objects.filter(right__gte=self.left).update(
-            right=F("right") - branch_width,
+            right=F('right') - branch_width,
         )
 
     def _insert_branch(self):
-        """Inserts this whole branch into the tree."""
+        '''Inserts this whole branch into the tree.'''
         branch_width = self._branch_width
         Page.objects.filter(left__gte=self.left).update(
-            left=F("left") + branch_width,
+            left=F('left') + branch_width,
         )
         Page.objects.filter(right__gte=self.left).update(
-            right=F("right") + branch_width,
+            right=F('right') + branch_width,
         )
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        """Saves the page."""
+        '''Saves the page.'''
 
         if self.is_content_object is False:
             with connection.cursor() as cursor:
@@ -263,22 +263,22 @@ class Page(PageBase):
 
                 # Lock entire table.
                 existing_pages = dict(
-                    (page["id"], page)
+                    (page['id'], page)
                     for page
                     in Page.objects.filter(
                         is_content_object=False
                     ).select_for_update().values(
-                        "id",
-                        "parent_id",
-                        "left",
-                        "right"
+                        'id',
+                        'parent_id',
+                        'left',
+                        'right'
                     )
                 )
 
                 if self.left is None or self.right is None:
                     # This page is being inserted.
                     if existing_pages:
-                        parent_right = existing_pages[self.parent_id]["right"]
+                        parent_right = existing_pages[self.parent_id]['right']
                         # Set the model left and right.
                         self.left = parent_right
                         self.right = self.left + 1
@@ -293,7 +293,7 @@ class Page(PageBase):
                     if self.id not in existing_pages:
                         old_parent_id = -1
                     else:
-                        old_parent_id = existing_pages[self.id]["parent_id"]
+                        old_parent_id = existing_pages[self.id]['parent_id']
 
                     if old_parent_id != self.parent_id:
                         # The page has moved.
@@ -304,8 +304,8 @@ class Page(PageBase):
                                 left__gt=self.left,
                                 right__lt=self.right
                             ).update(
-                                left=F("left") * -1,
-                                right=F("right") * -1,
+                                left=F('left') * -1,
+                                right=F('right') * -1,
                             )
                         self._excise_branch()
                         # Store old left and right values.
@@ -313,7 +313,7 @@ class Page(PageBase):
                         old_right = self.right
                         # Put self into the tree.
                         if self.parent_id:
-                            parent_right = existing_pages[self.parent_id]["right"]
+                            parent_right = existing_pages[self.parent_id]['right']
                             if parent_right > self.right:
                                 parent_right -= self._branch_width
                             self.left = parent_right
@@ -327,8 +327,8 @@ class Page(PageBase):
                                     left__lt=-old_left,
                                     right__gt=-old_right
                                 ).update(
-                                    left=(F("left") - child_offset) * -1,
-                                    right=(F("right") - child_offset) * -1,
+                                    left=(F('left') - child_offset) * -1,
+                                    right=(F('right') - child_offset) * -1,
                                 )
 
         # Now actually save it!
@@ -338,10 +338,10 @@ class Page(PageBase):
 
     @transaction.atomic
     def delete(self, *args, **kwargs):
-        """Deletes the page."""
+        '''Deletes the page.'''
         list(Page.objects.all().select_for_update().values_list(
-            "left",
-            "right"
+            'left',
+            'right'
         ))  #
         # Lock entire
         #  table.
@@ -353,16 +353,16 @@ class Page(PageBase):
         versions = Version.objects.get_for_object(self)
         if versions.count() > 0:
             latest_version = versions[:1][0]
-            return "{} by {}".format(
-                latest_version.revision.date_created.strftime("%Y-%m-%d %H:%M:%S"),
+            return '{} by {}'.format(
+                latest_version.revision.date_created.strftime('%Y-%m-%d %H:%M:%S'),
                 latest_version.revision.user
             )
-        return "-"
+        return '-'
 
 
     class Meta:
-        unique_together = (("parent", "slug", "country_group"),)
-        ordering = ("left",)
+        unique_together = (('parent', 'slug', 'country_group'),)
+        ordering = ('left',)
 
 
 historylinks.register(Page)
@@ -370,12 +370,12 @@ historylinks.register(Page)
 
 class PageSitemap(sitemaps.PageBaseSitemap):
 
-    """Sitemap for page models."""
+    '''Sitemap for page models.'''
 
     model = Page
 
     def items(self):
-        """Only lists items that are marked as indexable."""
+        '''Only lists items that are marked as indexable.'''
         return filter_indexable_pages(super().items())
 
 
@@ -384,10 +384,10 @@ sitemaps.register(Page, sitemap_cls=PageSitemap)
 
 class PageSearchAdapter(PageBaseSearchAdapter):
 
-    """Search adapter for Page models."""
+    '''Search adapter for Page models.'''
 
     def get_content(self, obj):
-        """Returns the search text for the page."""
+        '''Returns the search text for the page.'''
         content_obj = obj.content
 
         return ' '.join((
@@ -403,12 +403,12 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         ))
 
     def get_live_queryset(self):
-        """Selects the live page queryset."""
+        '''Selects the live page queryset.'''
         # HACK: Prevents a table name collision in the Django queryset manager.
         with publication_manager.select_published(False):
             qs = Page._base_manager.all()
         if publication_manager.select_published_active():
-            qs = Page.objects.select_published(qs, page_alias="U0")
+            qs = Page.objects.select_published(qs, page_alias='U0')
         # Filter out unindexable pages.
         qs = filter_indexable_pages(qs)
         # All done!
@@ -418,7 +418,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
 # Base content class.
 
 def get_registered_content():
-    """Returns a list of all registered content objects."""
+    '''Returns a list of all registered content objects.'''
     return [
         model for model in apps.get_models()
         if issubclass(model, ContentBase) and not model._meta.abstract
@@ -426,10 +426,10 @@ def get_registered_content():
 
 
 def filter_indexable_pages(queryset):
-    """
+    '''
     Filters the given queryset of pages to only contain ones that should be
     indexed by search engines.
-    """
+    '''
     return queryset.filter(
         robots_index=True,
         content_type__in=[
@@ -443,16 +443,16 @@ def filter_indexable_pages(queryset):
 
 class ContentBase(models.Model):
 
-    """Base class for page content."""
+    '''Base class for page content.'''
 
     # This must be a 64 x 64 pixel image.
-    icon = "pages/img/content.png"
+    icon = 'pages/img/content.png'
 
     # The heading that the admin places this content under.
-    classifier = "content"
+    classifier = 'content'
 
     # The urlconf used to power this content's views.
-    urlconf = "cms.apps.pages.urls"
+    urlconf = 'cms.apps.pages.urls'
 
     # A fieldset definition. If blank, one will be generated.
     fieldsets = None
@@ -465,11 +465,11 @@ class ContentBase(models.Model):
         Page,
         primary_key=True,
         editable=False,
-        related_name="+",
+        related_name='+',
     )
 
     def __str__(self):
-        """Returns a unicode representation."""
+        '''Returns a unicode representation.'''
         return self.page.title
 
     class Meta:
