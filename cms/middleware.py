@@ -20,7 +20,7 @@ def get_client_ip(request):
     return ip
 
 
-class PublicationMiddleware(object):
+class PublicationMiddleware:
 
     '''Middleware that enables preview mode for admin users.'''
 
@@ -60,7 +60,7 @@ class PublicationMiddleware(object):
         return response
 
 
-class LocalisationMiddleware(object):
+class LocalisationMiddleware:
 
     def process_request(self, request):
 

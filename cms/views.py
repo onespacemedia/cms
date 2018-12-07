@@ -23,7 +23,7 @@ class TextTemplateView(generic.TemplateView):
         return super(TextTemplateView, self).render_to_response(context, **kwargs)
 
 
-class SearchMetaDetailMixin(object):
+class SearchMetaDetailMixin:
 
     """Generates the context for an search meta detail page."""
 

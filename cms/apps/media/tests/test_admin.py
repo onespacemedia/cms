@@ -15,7 +15,7 @@ from ..admin import FileAdmin, VideoAdmin
 from ..models import File, Label, Video
 
 
-class BrokenFile(object):
+class BrokenFile:
 
     """
     A special class designed to raise an IOError the second time it's `file`
@@ -36,7 +36,7 @@ class BrokenFile(object):
         self.obj = File.objects.create(**kwargs)
 
 
-class MockSuperUser(object):
+class MockSuperUser:
     pk = 1
     is_active = True
     is_staff = True

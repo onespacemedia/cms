@@ -7,7 +7,7 @@ from django.utils.html import conditional_escape
 from ..forms import HtmlWidget
 
 
-class MockSuperUser(object):
+class MockSuperUser:
 
     pk = 1
 

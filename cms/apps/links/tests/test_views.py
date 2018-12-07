@@ -24,7 +24,7 @@ class TestLinks(TestCase):
         factory = RequestFactory()
         request = factory.get('/')
 
-        class Object(object):
+        class Object:
             pass
 
         setattr(request, 'pages', Object)

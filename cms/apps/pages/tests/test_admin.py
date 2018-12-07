@@ -61,11 +61,11 @@ class InlineModelInline(admin.StackedInline):
 
 
 # Other test classes
-class MockRequest(object):
+class MockRequest:
     pass
 
 
-class MockSuperUser(object):
+class MockSuperUser:
     pk = 1
     is_active = True
     is_staff = True
@@ -154,7 +154,7 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(self.page_admin.content_inlines, [(PageContent, InlineModelInline), ])
 
     def test_get_inline_instances_1_4_x(self):
-        class Inlines(object):
+        class Inlines:
             model = PageContent
             admin_site = self.page_admin
 
@@ -421,7 +421,7 @@ class TestPageAdmin(TestCase):
         # Trigger the `content_cls.DoesNotExist` exception.
         content_cls = self.page_admin.get_page_content_cls(request, self.content_page)
 
-        class Obj(object):
+        class Obj:
 
             def __getattr__(self, name):
                 return getattr(self.page, name)

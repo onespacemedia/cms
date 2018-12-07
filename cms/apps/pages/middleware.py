@@ -14,7 +14,7 @@ from django.views.debug import technical_404_response
 from cms.apps.pages.models import Page
 
 
-class RequestPageManager(object):
+class RequestPageManager:
 
     """Handles loading page objects."""
 
@@ -117,7 +117,7 @@ class RequestPageManager(object):
         return self.current.get_absolute_url() == self._path
 
 
-class PageMiddleware(object):
+class PageMiddleware:
 
     """Serves up pages when no other view is matched."""
 
