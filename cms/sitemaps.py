@@ -85,7 +85,7 @@ def register(model, sitemap_cls=None):
             (PageBase, PageBaseSitemap),
             (SearchMetaBase, SearchMetaBaseSitemap),
             (OnlineBase, OnlineBaseSitemap),
-            (PageBase, PageBaseSitemap),
+            (PublishedBase, PublishedBaseSitemap),
         ]
 
         sitemap_cls_base = BaseSitemap
