@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import jinja2
-import six
 from django import template
 from django.conf import settings
 from django.utils.html import escape
@@ -31,7 +30,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
         if is_json:
             return {
                 "url": url,
-                "title": six.text_type(page),
+                "title": str(page),
                 "here": request.path.startswith(url),
                 "children": [page_entry(x) for x in page.navigation if
                              page is not request.pages.homepage]
@@ -39,7 +38,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
         return {
             "url": url,
             "page": page,
-            "title": six.text_type(page),
+            "title": str(page),
             "here": request.path.startswith(url),
             "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
         }

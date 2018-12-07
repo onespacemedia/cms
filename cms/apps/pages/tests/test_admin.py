@@ -773,7 +773,7 @@ class TestPageAdmin(TestCase):
         self.assertEqual(content_page_2.left, 2)
         self.assertEqual(content_page_2.right, 3)
 
-        self.assertEqual(response.content, bytes("Page #" + six.text_type(content_page_1.pk) + " was moved down.", 'utf-8'))
+        self.assertEqual(response.content, bytes("Page #" + str(content_page_1.pk) + " was moved down.", 'utf-8'))
         self.assertEqual(response.status_code, 200)
 
         request.user.has_perm = lambda x: False
