@@ -11,6 +11,7 @@ from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseNotAllowed)
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
+from django.utils.html import format_html
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
 from sorl.thumbnail import get_thumbnail
@@ -127,36 +128,27 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         if obj.is_image():
             try:
                 thumbnail = get_thumbnail(obj.file, '100x66', quality=99)
-            except IOError:
-                return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
+                return format_html(
+                    '<img cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
                     permalink,
-                    icon,
+                    thumbnail.url,
+                    thumbnail.width,
+                    thumbnail.height,
                     obj.title
                 )
-            else:
-                try:
-                    return '<img cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>'.format(
-                        permalink,
-                        thumbnail.url,
-                        thumbnail.width,
-                        thumbnail.height,
-                        obj.title
-                    )
-                except TypeError:
-                    return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
-                        permalink,
-                        icon,
-                        obj.title
-                    )
 
-        return '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>'.format(
+            # AttributeError will be raised if thumbnail returns None - the
+            # others can be raised with bad files.
+            except (IOError, TypeError, AttributeError):
+                pass
+
+        return format_html(
+            '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>',
             permalink,
             icon,
             obj.title
         )
-
     get_preview.short_description = 'preview'
-    get_preview.allow_tags = True
 
     def get_title(self, obj):
         '''Returns a truncated title of the object.'''
