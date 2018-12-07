@@ -17,7 +17,6 @@ from sorl.thumbnail import get_thumbnail
 from watson.admin import SearchAdmin
 
 from cms import permalinks
-from cms.apps.media.filetypes import get_icon
 from cms.apps.media.forms import ImageChangeForm
 from cms.apps.media.models import File, Label, Video
 
