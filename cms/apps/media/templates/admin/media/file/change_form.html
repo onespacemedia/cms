@@ -28,7 +28,7 @@
     {# Prepopulate the title with the name of the file, for new files. #}
     <script>
       window.addEventListener('DOMContentLoaded', function () {
-        var fileInput = document.querySelector('#id_file');
+        var fileInput = document.getElementById('id_file');
         var titleInput = document.getElementById('id_title');
         fileInput.addEventListener('change', function (event) {
           var value = event.target.value;
