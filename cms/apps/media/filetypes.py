@@ -29,6 +29,7 @@ FILE_ICONS = {
     'mp4': MOVIE_FILE_ICON,
     'mov': MOVIE_FILE_ICON,
     'swf': MOVIE_FILE_ICON,
+    'webm': MOVIE_FILE_ICON,
     'wmv': MOVIE_FILE_ICON,
 }
 

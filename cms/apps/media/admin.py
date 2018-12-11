@@ -122,7 +122,8 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     get_size.short_description = 'size'
 
     def get_preview(self, obj):
-        '''Generates a thumbnail of the image.'''
+        '''Generates a thumbnail of the image, falling back to an appropriate
+        icon if it is not an image file or if thumbnailing fails.'''
         icon = obj.icon
         permalink = permalinks.create(obj)
         if obj.is_image():
@@ -143,7 +144,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 pass
 
         return format_html(
-            '<img cms:permalink="{}" src="{}" width="66" height="66" alt="" title="{}"/>',
+            '<img cms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',
             permalink,
             icon,
             obj.title
