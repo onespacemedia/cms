@@ -168,7 +168,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
 
         self.assertIn(
-            'width="56" height="66" alt="" title="Foo 2"/>',
+            'width="66" height="66" alt="" title="Foo 2"/>',
             preview,
         )
 
