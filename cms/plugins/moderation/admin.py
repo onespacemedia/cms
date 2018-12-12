@@ -2,8 +2,8 @@ from django.contrib import admin
 
 from .models import APPROVED, STATUS_CHOICES
 
-MODERATION_FIELDS = ("Moderation controls", {
-    "fields": ['status']
+MODERATION_FIELDS = ('Moderation controls', {
+    'fields': ['status']
 })
 
 
@@ -14,12 +14,12 @@ class ModerationAdminBase(admin.ModelAdmin):
     list_filter = ['status']
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
-        """
+        '''
         Give people who have the permission to approve item an extra option to
         change the status to approved.
-        """
+        '''
 
-        if db_field.name == "status":
+        if db_field.name == 'status':
             choices_list = STATUS_CHOICES
 
             # Check if the user has permission to approve this model's objects.
