@@ -12,6 +12,18 @@
 
         // Don't assume that the only place this will be used is in a TinyMCE.
         if (!tinymce) {
+          $("div#changelist tr.row1 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+            // URLs of the form /admin/media/file/1/change/
+            var pk = $(this).attr("href");
+            pk = pk.split('/')
+            pk = pk[4]
+
+            // Prevent default
+            event.preventDefault()
+
+            // Inform the parent page of the selected item
+            window.parent.postMessage(pk, '*');
+          });
           return
         }
 
