@@ -21,6 +21,9 @@ class HtmlField(models.TextField):
         kwargs["widget"] = HtmlWidget
         return super(HtmlField, self).formfield(**kwargs)
 
+    def get_internal_type(self):
+        return 'HtmlField'
+
 
 class LinkResolutionError(Exception):
 
