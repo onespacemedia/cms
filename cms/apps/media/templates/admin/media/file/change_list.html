@@ -22,7 +22,7 @@
             event.preventDefault()
 
             // Inform the parent page of the selected item
-            window.parent.postMessage(pk, '*');
+            window.parent.postMessage(pk, window.location.origin);
           });
           return
         }
@@ -42,7 +42,6 @@
               title: title,
             }));
 
-            // Prevent default
             event.preventDefault()
 
             // Get the active editor open window
