@@ -32,6 +32,7 @@ def pytest_configure():
             'default': {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'NAME': 'cms',
+                'HOST': 'localhost',
                 'TEST': {
                     'NAME': 'cms',
                 }
