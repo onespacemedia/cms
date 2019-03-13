@@ -17,10 +17,13 @@ jobs:
           name: install python dependencies
           command: |
             sudo apt-get install libgeoip-dev -y
+            python3 -m venv .venv
+            . .venv/bin/activate
             pip install -e .[testing]
       - run:
           name: pytest
           command: |
+            . .venv/bin/activate
             pytest --cov=cms -n auto --create-db --nomigrations
 
 workflows:
