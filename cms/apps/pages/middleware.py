@@ -38,6 +38,9 @@ class RequestPageManager(object):
         return None
 
     def alternate_page_version(self, page):
+        # Save ourselves a DB query if we are not using localisation.
+        if not self.country:
+            return page
 
         try:
             # See if the page has any alternate versions for the current country
@@ -105,6 +108,7 @@ class RequestPageManager(object):
     @property
     def current(self):
         """The current best-matched page."""
+
         try:
             page = self.breadcrumbs[-1]
             return self.alternate_page_version(page)
