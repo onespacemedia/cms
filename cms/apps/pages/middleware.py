@@ -63,7 +63,7 @@ class RequestPageManager(object):
         except Page.DoesNotExist:
             return None
 
-    @property
+    @cached_property
     def is_homepage(self):
         """Whether the current request is for the site homepage."""
         return self._path == self.homepage.get_absolute_url()
@@ -87,7 +87,7 @@ class RequestPageManager(object):
             do_breadcrumbs(self.homepage)
         return breadcrumbs
 
-    @property
+    @cached_property
     def section(self):
         """The current primary level section, or None."""
         try:
@@ -96,7 +96,7 @@ class RequestPageManager(object):
         except IndexError:
             return None
 
-    @property
+    @cached_property
     def subsection(self):
         """The current secondary level section, or None."""
         try:
@@ -105,7 +105,7 @@ class RequestPageManager(object):
         except IndexError:
             return None
 
-    @property
+    @cached_property
     def current(self):
         """The current best-matched page."""
 
@@ -115,7 +115,7 @@ class RequestPageManager(object):
         except IndexError:
             return None
 
-    @property
+    @cached_property
     def is_exact(self):
         """Whether the current page exactly matches the request URL."""
         return self.current.get_absolute_url() == self._path
