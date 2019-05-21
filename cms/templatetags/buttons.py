@@ -12,7 +12,6 @@ def save_buttons(context):
     Displays the row of buttons for delete and save.
     """
     opts = context['opts']
-    print(opts)
     change = context['change']
     is_popup = context['is_popup']
     save_as = context['save_as']
