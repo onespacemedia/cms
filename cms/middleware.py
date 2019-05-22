@@ -1,4 +1,4 @@
-"""Custom middleware used by the pages application."""
+'''Custom middleware used by the pages application.'''
 
 import re
 
@@ -20,24 +20,24 @@ def get_client_ip(request):
     return ip
 
 
-class PublicationMiddleware(object):
+class PublicationMiddleware:
 
-    """Middleware that enables preview mode for admin users."""
+    '''Middleware that enables preview mode for admin users.'''
 
     def __init__(self):
-        """Initializes the PublicationMiddleware."""
+        '''Initializes the PublicationMiddleware.'''
         self.exclude_urls = [
             re.compile(url)
             for url in
-            getattr(settings, "PUBLICATION_MIDDLEWARE_EXCLUDE_URLS", ())
+            getattr(settings, 'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS', ())
         ]
 
     def process_request(self, request):
-        """Starts preview mode, if available."""
+        '''Starts preview mode, if available.'''
         if not any(pattern.match(request.path_info[1:]) for pattern in self.exclude_urls):
             # See if preview mode is requested.
             try:
-                preview_mode = bool(int(request.GET.get("preview", 0)))
+                preview_mode = bool(int(request.GET.get('preview', 0)))
             except ValueError:
                 preview_mode = False
             # Only allow preview mode if the user is a logged in administrator.
@@ -45,7 +45,7 @@ class PublicationMiddleware(object):
             publication_manager.begin(not preview_mode)
 
     def process_response(self, request, response):
-        """Cleans up after preview mode."""
+        '''Cleans up after preview mode.'''
         # Render the response if we're in a block of publication management.
         if publication_manager.select_published_active():
             if isinstance(response, SimpleTemplateResponse):
@@ -60,7 +60,7 @@ class PublicationMiddleware(object):
         return response
 
 
-class LocalisationMiddleware(object):
+class LocalisationMiddleware:
 
     def process_request(self, request):
 

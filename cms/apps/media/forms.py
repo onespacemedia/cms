@@ -1,6 +1,7 @@
 import base64
 import os
 
+import magic
 from django.core.files.base import ContentFile
 from django import forms
 from io import BytesIO
@@ -8,8 +9,47 @@ from PIL import Image
 
 from cms.apps.media.models import File
 
+CHECKED_FILETYPES = {
+    'image/jpeg',
+    'image/gif',
+    'image/png',
+    'image/tiff',
+}
 
-class ImageChangeForm(forms.ModelForm):
+
+def mime_check(file):
+    '''
+    Compares the MIME type implied by a image file's extension to that
+    calculated by python-magic. Returns False if they do not match, True
+    otherwise.
+    '''
+    guessed_filetype = magic.from_buffer(file.read(1024), mime=True)
+    file.seek(0)
+    claimed_filetype = file.content_type
+    if claimed_filetype in CHECKED_FILETYPES and not guessed_filetype == claimed_filetype:
+        return False
+    return True
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = File
+        fields = ['title', 'file', 'attribution', 'copyright', 'alt_text', 'labels']
+
+    def clean_file(self):
+        uploaded_file = self.cleaned_data['file']
+
+        # Catch if this is the initial creation or if the file is being changed.
+        if not self.instance or not self.instance.file == uploaded_file:
+            if not mime_check(uploaded_file):
+                raise forms.ValidationError(
+                    'The file extension for this image does not seem to match its contents. '
+                    'Make sure the file extension is correct and try again.'
+                )
+        return uploaded_file
+
+
+class ImageChangeForm(FileForm):
     changed_image = forms.CharField(
         widget=forms.HiddenInput,
         required=False,
@@ -61,4 +101,4 @@ class ImageChangeForm(forms.ModelForm):
             else:
                 self.cleaned_data['file'].save(new_file_name, content=content_file)
 
-        return super(ImageChangeForm, self).save(commit=commit)
+        return super().save(commit=commit)

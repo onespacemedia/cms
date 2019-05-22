@@ -7,6 +7,9 @@ Onespacemedia CMS
 .. image:: https://travis-ci.org/onespacemedia/cms.svg?branch=master
     :target: https://travis-ci.org/onespacemedia/cms
 
+.. image:: https://circleci.com/gh/onespacemedia/cms.svg?style=svg
+    :target: https://circleci.com/gh/onespacemedia/cms
+
 .. image:: https://coveralls.io/repos/onespacemedia/cms/badge.svg?branch=master
     :target: https://coveralls.io/r/onespacemedia/cms?branch=master
 
@@ -27,4 +30,5 @@ Resources
 * `Documentation <http://onespacemedia-cms.readthedocs.org/>`_
 * `Code <http://github.com/onespacemedia/cms>`_
 * `Travis CI <http://travis-ci.org/onespacemedia/cms>`_
+* `Circle CI <https://circleci.com/gh/onespacemedia/cms>`_
 * `Coveralls <https://coveralls.io/r/onespacemedia/cms>`_

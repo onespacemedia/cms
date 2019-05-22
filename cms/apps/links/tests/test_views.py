@@ -12,19 +12,19 @@ class TestLinks(TestCase):
     def test_index_redirect(self):
         with update_index():
             page = Page.objects.create(
-                title="Homepage",
+                title='Homepage',
                 content_type=ContentType.objects.get_for_model(Link),
             )
 
             Link.objects.create(
                 page=page,
-                link_url="http://www.example.com/",
+                link_url='http://www.example.com/',
             )
 
         factory = RequestFactory()
         request = factory.get('/')
 
-        class Object(object):
+        class Object:
             pass
 
         setattr(request, 'pages', Object)
@@ -32,4 +32,4 @@ class TestLinks(TestCase):
         view = index(request)
 
         self.assertEquals(view.status_code, 302)
-        self.assertEquals(view["Location"], "http://www.example.com/")
+        self.assertEquals(view['Location'], 'http://www.example.com/')

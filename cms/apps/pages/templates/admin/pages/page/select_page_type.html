@@ -1,11 +1,10 @@
 {% extends "admin/base_site.html" %}
 
-{% load thumbnail %}
-
+{% load static %}
 
 {% block extrahead %}
   {{ block.super }}
-  <link rel="stylesheet" href="{{ STATIC_URL }}pages/css/cms.pages.css"/>
+  <link rel="stylesheet" href="{% static 'pages/css/cms.pages.css' %}"/>
 {% endblock %}
 
 
@@ -47,7 +46,6 @@
               {% endfor %}
             </ul>
           </section>
-
         {% endfor %}
       </div>
     </div>
