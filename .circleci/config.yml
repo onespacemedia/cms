@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  test_python_3.6:
+    working_directory: ~/cms
+    docker:
+      - image: circleci/python:3.6.6-stretch-node-browsers
+        environment:
+          - DB_USER=root
+          - DB_NAME=cms
+      - image: circleci/postgres:9.6.11
+        environment:
+          - POSTGRES_USER=root
+          - POSTGRES_DB=cms
+    steps:
+      - checkout
+      - run:
+          name: Install PostgreSQL client
+          command: |
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+            sudo apt-get update
+            sudo apt-get install postgresql-client-9.6
+            sudo createuser -h localhost -s circleci
+      - run:
+          name: install python dependencies
+          command: |
+            sudo apt-get install libgeoip-dev -y
+            python3 -m venv .venv
+            . .venv/bin/activate
+            pip install -e .[testing]
+      - run:
+          name: pytest
+          command: |
+            . .venv/bin/activate
+            pytest --cov=cms -n auto --create-db --nomigrations
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test_python_3.6
