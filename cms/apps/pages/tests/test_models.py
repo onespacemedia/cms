@@ -1,4 +1,4 @@
-"""Tests for the pages app."""
+'''Tests for the pages app.'''
 from datetime import timedelta
 
 from django.contrib.contenttypes.models import ContentType
@@ -41,7 +41,7 @@ class TestPage(TestCase):
             content_type = ContentType.objects.get_for_model(TestPageContent)
 
             self.homepage = Page.objects.create(
-                title="Homepage",
+                title='Homepage',
                 slug='homepage',
                 content_type=content_type,
             )
@@ -52,7 +52,7 @@ class TestPage(TestCase):
 
             self.section = Page.objects.create(
                 parent=self.homepage,
-                title="Section",
+                title='Section',
                 content_type=content_type,
             )
 
@@ -62,7 +62,7 @@ class TestPage(TestCase):
 
             self.subsection = Page.objects.create(
                 parent=self.section,
-                title="Subsection",
+                title='Subsection',
                 content_type=content_type,
             )
 
@@ -72,7 +72,7 @@ class TestPage(TestCase):
 
             self.subsubsection = Page.objects.create(
                 parent=self.subsection,
-                title="Subsubsection",
+                title='Subsubsection',
                 content_type=content_type,
             )
 
@@ -87,20 +87,20 @@ class TestPage(TestCase):
 
         with self.assertNumQueries(2):
             subsection = homepage.children[0].children[0]
-        self.assertEqual(subsection.title, "Subsection")
+        self.assertEqual(subsection.title, 'Subsection')
 
         with self.assertNumQueries(0):
             subsection = homepage.navigation[0].navigation[0]
-        self.assertEqual(subsection.title, "Subsection")
+        self.assertEqual(subsection.title, 'Subsection')
 
         # Make sure that, beyond this, it doesn't go  pathalogical.
         with self.assertNumQueries(1):
             subsubsection = subsection.children[0]
-        self.assertEqual(subsubsection.title, "Subsubsection")
+        self.assertEqual(subsubsection.title, 'Subsubsection')
 
         with self.assertNumQueries(0):
             subsubsection = subsection.children[0]
-        self.assertEqual(subsubsection.title, "Subsubsection")
+        self.assertEqual(subsubsection.title, 'Subsubsection')
 
     def test_page_reverse(self):
         url = self.homepage.reverse('detail', kwargs={
@@ -144,15 +144,15 @@ class TestPage(TestCase):
         self.assertEqual(self.subsubsection.content.__str__(), 'Subsubsection')
 
     def test_pagesearchadapter_get_live_queryset(self):
-        self.assertEqual(len(search.search("Homepage", models=(Page,))), 1)
+        self.assertEqual(len(search.search('Homepage', models=(Page,))), 1)
 
         with publication_manager.select_published(True):
-            self.assertEqual(len(search.search("Homepage", models=(Page,))), 1)
+            self.assertEqual(len(search.search('Homepage', models=(Page,))), 1)
 
             self.homepage.is_online = False
             self.homepage.save()
 
-            self.assertEqual(len(search.search("Homepage", models=(Page,))), 0)
+            self.assertEqual(len(search.search('Homepage', models=(Page,))), 0)
 
     def test_page_get_absolute_url(self):
         with search.update_index():
@@ -225,7 +225,7 @@ class TestSectionPage(TestCase):
             content_type = ContentType.objects.get_for_model(TestPageContentWithSections)
 
             self.homepage = Page.objects.create(
-                title="Homepage",
+                title='Homepage',
                 slug='homepage',
                 content_type=content_type,
             )
@@ -238,12 +238,12 @@ class TestSectionPage(TestCase):
         search_adapter = PageSearchAdapter(Page)
 
         content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, "      homepage Homepage  / ")
+        self.assertEqual(content, '      homepage Homepage  / ')
 
 
 class TestPageComplex(TestCase):
 
-    """
+    '''
     Page structure:
 
                                   Homepage
@@ -260,7 +260,7 @@ class TestPageComplex(TestCase):
                                        |                     |
                                 Tree 3 - Page 4       Tree 3 - Page 5
 
-    """
+    '''
 
     def setUp(self):
         structure = {

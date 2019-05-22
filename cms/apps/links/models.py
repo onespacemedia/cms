@@ -1,4 +1,4 @@
-""""Content used by the links application."""
+'''Content used by the links application.'''
 
 from django.db import models
 
@@ -8,25 +8,25 @@ from cms.models import LinkField
 
 class Link(ContentBase):
 
-    """A redirect to another URL."""
+    '''A redirect to another URL.'''
 
-    classifier = "utilities"
+    classifier = 'utilities'
 
-    icon = "links/img/link.png"
+    icon = 'links/img/link.png'
 
-    urlconf = "cms.apps.links.urls"
+    urlconf = 'cms.apps.links.urls'
 
     robots_index = False
 
     link_url = LinkField(
-        "link URL",
-        help_text="The URL where the user will be redirected.",
+        'link URL',
+        help_text='The URL where the user will be redirected.',
     )
 
     new_window = models.BooleanField(
-        help_text="Open the page in a new window.",
+        help_text='Open the page in a new window.',
         default=False,
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.page.title

@@ -20,7 +20,7 @@ from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
                                   render_breadcrumbs, render_navigation)
 
 
-class MockUser(object):
+class MockUser:
 
     def __init__(self, authenticated=True):
         self.authenticated = authenticated
@@ -229,7 +229,7 @@ class TestTemplatetags(TestCase):
         )
 
     def test_render_breadcrumbs(self):
-        class Object(object):
+        class Object:
             current = None
 
         self.request.pages = Object()
@@ -244,7 +244,7 @@ class TestTemplatetags(TestCase):
         self.assertTrue(len(output) > 0)
 
     def test_get_country_code(self):
-        class Context(object):
+        class Context:
             pass
 
         context = Context()

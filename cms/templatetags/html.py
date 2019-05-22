@@ -1,4 +1,4 @@
-"""Template tags used for processing HTML."""
+'''Template tags used for processing HTML.'''
 
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
@@ -10,15 +10,15 @@ from cms.html import process as process_html
 @library.filter
 @stringfilter
 def html(text):
-    """
+    '''
     Processes HTML text.
 
     The text is checked for permalinks embedded in <a> tags, expanding the
     permalinks to their referenced URL. Images containing a permalink source
     are checked for size and thumbnailed as appropriate.
-    """
+    '''
     if not text:
-        return ""
+        return ''
     text = process_html(text)
     return mark_safe(text)
 
@@ -26,11 +26,11 @@ def html(text):
 @library.filter
 @stringfilter
 def truncate_paragraphs(text, number):
-    """Truncates to the end of the given number of paragraphs in the given text."""
+    '''Returns HTML text truncated to the given number of paragraphs.'''
     position = 0
     count = 0
     while count < number and position < len(text):
-        position = text.find("</p>", position)
+        position = text.find('</p>', position)
         if position == -1:
             position = len(text)
         else:

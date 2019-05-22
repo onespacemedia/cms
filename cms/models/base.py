@@ -1,10 +1,6 @@
 """Abstract base models used by the page management application."""
-from __future__ import unicode_literals
-
-import six
 from django.db import models
 from django.shortcuts import render
-from django.utils.encoding import python_2_unicode_compatible
 from watson.search import SearchAdapter
 
 from cms.apps.media.models import ImageRefField
@@ -217,7 +213,7 @@ class SearchMetaBase(OnlineBase):
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""
-        title = six.text_type(self)
+        title = str(self)
         # Return the context.
         return {
             "meta_description": self.meta_description,
@@ -255,12 +251,9 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
 
     def get_live_queryset(self):
         """Selects only live models."""
-        return super(SearchMetaBaseSearchAdapter, self).get_live_queryset().filter(
-            robots_index=True,
-        )
+        return super().get_live_queryset().filter(robots_index=True)
 
 
-@python_2_unicode_compatible
 class PageBase(SearchMetaBase):
 
     """
@@ -295,7 +288,7 @@ class PageBase(SearchMetaBase):
 
     def get_context_data(self):
         """Returns the SEO context data for this page."""
-        context_data = super(PageBase, self).get_context_data()
+        context_data = super().get_context_data()
         context_data.update({
             "title": self.browser_title or self.title,
             "header": self.title,

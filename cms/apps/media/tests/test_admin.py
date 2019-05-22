@@ -1,7 +1,4 @@
-from __future__ import unicode_literals
-
 import base64
-import json
 import random
 
 from django.contrib.admin.sites import AdminSite
@@ -18,7 +15,7 @@ from ..admin import FileAdmin, VideoAdmin
 from ..models import File, Label, Video
 
 
-class BrokenFile(object):
+class BrokenFile:
 
     """
     A special class designed to raise an IOError the second time it's `file`
@@ -39,7 +36,7 @@ class BrokenFile(object):
         self.obj = File.objects.create(**kwargs)
 
 
-class MockSuperUser(object):
+class MockSuperUser:
     pk = 1
     is_active = True
     is_staff = True
@@ -141,7 +138,7 @@ class TestFileAdminBase(TransactionTestCase):
 
     def test_fileadminbase_get_size(self):
         # Why this has to use a unicode space, I don't know..
-        self.assertEqual(self.file_admin.get_size(self.obj_1), six.text_type('4\xa0bytes'))
+        self.assertEqual(self.file_admin.get_size(self.obj_1), '4\xa0bytes')
 
         obj = File.objects.create(
             title="Foo",
@@ -153,7 +150,7 @@ class TestFileAdminBase(TransactionTestCase):
     def test_fileadminbase_get_preview(self):
         self.assertEqual(
             self.file_admin.get_preview(self.obj_1),
-            '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
+            '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
                 ContentType.objects.get_for_model(File).pk,
                 self.obj_1.pk
             )
@@ -182,7 +179,7 @@ class TestFileAdminBase(TransactionTestCase):
 
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="66" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
@@ -193,7 +190,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="66" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
@@ -236,76 +233,6 @@ class TestFileAdminBase(TransactionTestCase):
         self.assertEqual(view.status_code, 200)
         self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
         self.assertIn('foo', view.context_data)
-
-    def test_fileadminbase_redactor_data(self):
-        self.request.user = MockSuperUser()
-        data = self.file_admin.redactor_data(self.request)
-
-        self.assertEqual(
-            json.loads(data.content.decode()),
-            json.loads('{{"objects": [{{"url": "/r/{content_type}-{pk1}/", "title": "Foo"}}, {{"url": "/r/{content_type}-{pk2}/", "title": "Foo 2"}}], "page": 1, "pages": [1]}}'.format(
-                pk1=self.obj_1.pk,
-                pk2=self.obj_2.pk,
-                content_type=ContentType.objects.get_for_model(File).pk,
-            ))
-        )
-
-        self.request.user.has_perm = lambda x: False
-        data = self.file_admin.redactor_data(self.request)
-        self.assertEqual(data.status_code, 403)
-        self.request.user.has_perm = lambda x: True
-
-        data = self.file_admin.redactor_data(self.request, file_type='images')
-        self.assertTrue(len(data.content) > 250)
-
-    def test_fileadminbase_redactor_upload(self):
-        self.request.user = MockSuperUser()
-        response = self.file_admin.redactor_upload(self.request, '')
-
-        # 405: Method not allowed. We have to POST to this view.
-        self.assertEqual(response.status_code, 405)
-
-        self.request.user.has_perm = lambda x: False
-
-        data = self.file_admin.redactor_upload(self.request, '')
-
-        self.assertEqual(data.status_code, 403)
-
-        self.request.user.has_perm = lambda x: True
-
-        self.request.method = 'POST'
-        response = self.file_admin.redactor_upload(self.request, '')
-        self.assertEqual(response.content, b'')
-
-        response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, b'')
-
-        self.request = self.factory.post('/', data={
-            'file': self.obj_1.file
-        })
-        self.request.user = MockSuperUser()
-
-        response = self.file_admin.redactor_upload(self.request, 'image')
-
-        self.assertEqual(json.loads(response.content.decode()), json.loads('{{"filelink": "/r/{}-{}/"}}'.format(
-            ContentType.objects.get_for_model(File).pk,
-            File.objects.all().order_by('-pk')[0].pk
-        )))
-
-        self.request = self.factory.post('/', data={
-            'file': SimpleUploadedFile('xoxo.pdf', b"data")
-        })
-        self.request.user = MockSuperUser()
-
-        response = self.file_admin.redactor_upload(self.request, 'image')
-        self.assertEqual(response.content, b'')
-
-        response = self.file_admin.redactor_upload(self.request, 'pdf')
-
-        self.assertEqual(json.loads(response.content.decode()), json.loads('{{"filelink": "/r/{}-{}/", "filename": "xoxo.pdf"}}'.format(
-            ContentType.objects.get_for_model(File).pk,
-            File.objects.all().order_by('-pk')[0].pk
-        )))
 
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):

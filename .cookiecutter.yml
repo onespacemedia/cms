@@ -1,5 +1,0 @@
-default_context:
-    news: 'no'
-    sections: 'no'
-    redirects: 'no'
-    geoip: 'yes'

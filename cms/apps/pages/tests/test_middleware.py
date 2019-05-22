@@ -229,7 +229,7 @@ class TestRequestPageManager(TestCase):
         self.assertEqual(alternate_check, alternate_page)
 
 
-class MockUser(object):
+class MockUser:
 
     def __init__(self, authenticated=True):
         self.authenticated = authenticated

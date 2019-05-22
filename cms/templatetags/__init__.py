@@ -1,1 +1,1 @@
-"""Template extensions used by the CMS"""
+'''Template extensions used by the CMS.'''
