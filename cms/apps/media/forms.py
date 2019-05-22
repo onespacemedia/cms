@@ -17,9 +17,12 @@ CHECKED_FILETYPES = {
 }
 
 
-# Takes a file and compares it's claimed MIME type to one calculated by python-magic,
-# but only if it's in a list of MIME types to check.
 def mime_check(file):
+    '''
+    Compares the MIME type implied by a image file's extension to that
+    calculated by python-magic. Returns False if they do not match, True
+    otherwise.
+    '''
     guessed_filetype = magic.from_buffer(file.read(1024), mime=True)
     file.seek(0)
     claimed_filetype = file.content_type
