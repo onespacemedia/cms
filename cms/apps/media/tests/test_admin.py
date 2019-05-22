@@ -242,6 +242,11 @@ class TestFileAdminBase(TransactionTestCase):
         self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
         self.assertIn('foo', view.context_data)
 
+    def test_fileadminbase_mime_check(self):
+        self.assertEqual(mime_check(self.file_1), True)
+        self.assertEqual(mime_check(self.file_2), False)
+        self.assertEqual(mime_check(self.file_3), True)
+
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):
 
@@ -301,8 +306,3 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
         self.assertEqual(view.content, b'{"status": "ok"}')
         self.assertEqual(view.status_code, 200)
-
-    def test_fileadminbase_mime_check(self):
-        self.assertEqual(mime_check(self.file_1), True)
-        self.assertEqual(mime_check(self.file_2), False)
-        self.assertEqual(mime_check(self.file_3), True)
