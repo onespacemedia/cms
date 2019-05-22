@@ -13,6 +13,7 @@ from django.utils.timezone import now
 
 from ..admin import FileAdmin, VideoAdmin
 from ..models import File, Label, Video
+from ..forms import mime_check
 
 
 class BrokenFile:
@@ -94,6 +95,13 @@ class TestFileAdminBase(TransactionTestCase):
             title="Foo 2",
             file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
         )
+
+        # For mime_check: an image whose contents match the given extension
+        self.file_1 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
+        # ...and one whose contents do not...
+        self.file_2 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/jpeg")
+        # ...and one we should never check (we only care about images)
+        self.file_3 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="text/html")
 
         self.label = Label.objects.create(
             name="Foo"
@@ -234,6 +242,11 @@ class TestFileAdminBase(TransactionTestCase):
         self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
         self.assertIn('foo', view.context_data)
 
+    def test_fileadminbase_mime_check(self):
+        self.assertEqual(mime_check(self.file_1), True)
+        self.assertEqual(mime_check(self.file_2), False)
+        self.assertEqual(mime_check(self.file_3), True)
+
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):
 
@@ -293,5 +306,3 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
         self.assertEqual(view.content, b'{"status": "ok"}')
         self.assertEqual(view.status_code, 200)
-
-    # def test_fileadminbase_
