@@ -3,11 +3,11 @@ jobs:
   test_python_3.6:
     working_directory: ~/cms
     docker:
-      - image: circleci/python:3.6.2
+      - image: circleci/python:3.6.6-stretch-node-browsers
         environment:
           - DB_USER=root
           - DB_NAME=cms
-      - image: circleci/postgres:9.5.10
+      - image: circleci/postgres:9.6.11
         environment:
           - POSTGRES_USER=root
           - POSTGRES_DB=cms
@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Install PostgreSQL client
           command: |
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
             wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get update
             sudo apt-get install postgresql-client-9.6
