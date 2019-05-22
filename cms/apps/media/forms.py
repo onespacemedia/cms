@@ -39,8 +39,10 @@ class FileForm(forms.ModelForm):
         # Catch if this is the initial creation or if the file is being changed.
         if not self.instance or not self.instance.file == uploaded_file:
             if not mime_check(uploaded_file):
-                raise forms.ValidationError("The file extension for this image may be incorrect. We've detected "
-                                            "it as a different format, please double check the file.")
+                raise forms.ValidationError(
+                    'The file extension for this image does not seem to match its contents. '
+                    'Make sure the file extension is correct and try again.'
+                )
         return uploaded_file
 
 
