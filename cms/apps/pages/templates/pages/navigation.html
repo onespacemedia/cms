@@ -1,9 +1,9 @@
 {% if navigation %}
-    <ul>
-        {% for entry in navigation %}
-            <li>
-                <a{% if entry.here %} class="here"{% endif %} href="{{entry.url}}">{{entry.title}}</a>
-            </li>
-        {% endfor %}
-    </ul>
+  <ul>
+    {% for entry in navigation %}
+      <li>
+        <a{% if entry.here %} class="here"{% endif %} href="{{ entry.url }}">{{ entry.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
 {% endif %}

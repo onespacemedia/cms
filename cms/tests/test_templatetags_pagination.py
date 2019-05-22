@@ -5,7 +5,7 @@ from ..templatetags.pagination import (get_pagination_url, paginate,
                                        render_pagination)
 
 
-class Object(object):
+class Object:
     paginator = None
 
 

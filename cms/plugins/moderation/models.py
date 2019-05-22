@@ -2,6 +2,7 @@ from django.db import models
 
 from cms.models.managers import PublishedBaseManager
 
+
 DRAFT = 1
 SUBMITTED = 2
 APPROVED = 3
@@ -16,7 +17,7 @@ STATUS_CHOICES = [
 class ModerationManager(PublishedBaseManager):
 
     def select_published(self, queryset):
-        queryset = super(ModerationManager, self).select_published(queryset)
+        queryset = super().select_published(queryset)
 
         return queryset.filter(
             status=APPROVED,
@@ -35,5 +36,5 @@ class ModerationBase(models.Model):
     class Meta:
         abstract = True
         permissions = (
-            ("can_approve", "Can approve items"),
+            ('can_approve', 'Can approve items'),
         )

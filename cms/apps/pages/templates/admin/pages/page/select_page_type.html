@@ -1,11 +1,10 @@
 {% extends "admin/base_site.html" %}
 
-{% load thumbnail %}
-
+{% load static %}
 
 {% block extrahead %}
-    {{block.super}}
-    <link rel="stylesheet" href="{{ STATIC_URL }}pages/css/cms.pages.css"/>
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'pages/css/cms.pages.css' %}"/>
 {% endblock %}
 
 
@@ -13,46 +12,45 @@
 
 
 {% block breadcrumbs %}
-    <div class="breadcrumbs">
-         <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
-         <a href="{% url 'admin:app_list' "pages" %}">Pages</a> &rsaquo;
-         <a href="{% url 'admin:pages_page_changelist' %}">Page</a> &rsaquo;
-         {{title}}
-    </div>
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
+    <a href="{% url 'admin:app_list' "pages" %}">Pages</a> &rsaquo;
+    <a href="{% url 'admin:pages_page_changelist' %}">Page</a> &rsaquo;
+    {{ title }}
+  </div>
 {% endblock %}
 
 
 {% block content %}
+  {% if content_types %}
 
-    {% if content_types %}
+    <div class="cms-Classifiers">
+      <p>Select a type of page from the choices below.</p>
 
-        <p>Select a type of page from the choices below.</p>
+      {% regroup content_types by classifier as classifiers %}
 
-        {% regroup content_types by classifier as classifiers %}
+      <div class="cms-Classifiers_Groups">
 
         {% for classifier in classifiers %}
+          <section class="cms-Classifer_Group">
+            <h2 class="cms-Classifiers_GroupTitle">{{ classifier.grouper|capfirst }}</h2>
 
-            <h3 class="classifier">{{classifier.grouper|capfirst}}</h3>
-
-            <ul class="content-types">
-                {% for content_type in classifier.list %}
-                    <li>
-
-                        <a href="{{ content_type.url }}">
-                            <img src="{{ content_type.icon }}" alt="" class="content-type-icon"/>
-                            <span class="content-type-name">{{ content_type.name|capfirst }}</span>
-                        </a>
-                    </li>
-                {% endfor %}
+            <ul class="cms-Classifiers_Items">
+              {% for content_type in classifier.list %}
+                <li class="cms-Classifiers_Item">
+                  <a class="cms-Classifiers_ItemLink" href="{{ content_type.url }}">
+                    <img class="cms-Classifiers_ItemIcon" src="{{ content_type.icon }}" alt=""/>
+                    <span class="cms-Classifiers_ItemTitle">{{ content_type.name|capfirst }}</span>
+                  </a>
+                </li>
+              {% endfor %}
             </ul>
-
+          </section>
         {% endfor %}
+      </div>
+    </div>
 
-    {% else %}
-
-        <p>You do not have permission to create any type of page.</p>
-
-    {% endif %}
-
+  {% else %}
+    <p>You do not have permission to create any type of page.</p>
+  {% endif %}
 {% endblock %}
-

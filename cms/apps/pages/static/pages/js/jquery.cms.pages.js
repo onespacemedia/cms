@@ -25,9 +25,9 @@
                         var dataContainer = $("<div>").css("opacity", 0);
                         // Process data.
                         if (data.entries.length > 0) {
-                            var homepageList = $('<ul class="actionlist" />');
+                            var homepageList = $('<ul class="dashboard-actionlist" />');
                             function addEntry(depth, list, index, page, siblings) {
-                                var li = $('<li class="changelink" />');
+                                var li = $('<li class="dashboard-changelink" />');
                                 // Add the collapse control.
                                 if (depth > 0 && page.children.length > 0) {
                                     var collapseControl = $('<div class="sitemap-collapse-control"></div>');
@@ -51,7 +51,7 @@
                                 }
                                 if (page.canChange) {
                                     pageContainer.addClass("can-change");
-                                    pageContainer.append(page.title);
+                                    pageContainer.append('<span class="title">' + page.title + '</span>');
                                 } else {
                                     pageContainer.append('<span class="title">' + page.title + '</span>');
                                 }

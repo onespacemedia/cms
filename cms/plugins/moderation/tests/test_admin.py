@@ -6,7 +6,7 @@ from cms.tests.models import TestModerationAdminModel
 from ..admin import ModerationAdminBase
 
 
-class MockSuperUser(object):
+class MockSuperUser:
     pk = 1
 
     def __init__(self, permission):

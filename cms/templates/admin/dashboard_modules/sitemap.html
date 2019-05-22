@@ -1,0 +1,89 @@
+<div class="dashboard-Sitemap" id="sitemap">
+  <noscript>
+    <p>Please turn on JavaScript to activate the sitemap.</p>
+  </noscript>
+</div>
+
+<script>
+  (function($) {
+    $("#sitemap").cms("sitemap");
+  }(django.jQuery));
+</script>
+
+<style>
+  .dashboard-Sitemap {
+    padding: 8px;
+  }
+
+  .dashboard-Sitemap p:last-child{
+    margin-bottom: 0;
+  }
+
+  .dashboard-Sitemap p:first-child{
+    margin-top: 0;
+  }
+
+  .sitemap-entry {
+    display: flex;
+
+    position: relative;
+  }
+
+  .sitemap-entry a:nth-child(2) {
+    margin-left: auto;
+  }
+
+  .sitemap-entry a:last-of-type {
+    margin-right: 20px;
+  }
+
+  .dashboard-changelink:nth-child(even) {
+    background-color: rgba(100,100,100,0.05);
+  }
+
+  .dashboard-changelink {
+    padding-right: 0 !important;
+  }
+
+  .dashboard-actionlist {
+    padding-bottom: 8px !important;
+  }
+
+  .move-up,
+  .move-down {
+    width: 11px;
+    height: 5px;
+    background-image: url(/static/pages/img/arrows.png);
+    background-repeat: no-repeat;
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+    border: none;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 8px 0px 0px;
+    color: transparent;
+    font-size: 0px;
+    line-height: 0px;
+    display: block;
+    text-indent: -999px;
+    outline: none;
+  }
+
+  .move-up {
+    background-position: -15px -29px;
+    top: 2px;
+  }
+
+  .move-up:hover {
+    background-position: -2px -29px;
+  }
+
+  .move-down {
+    background-position: -15px -34px;
+    top: 11px;
+  }
+
+  .move-down:hover {
+    background-position: -2px -34px;
+  }
+</style>

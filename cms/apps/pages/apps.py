@@ -7,5 +7,5 @@ class PagesAppConfig(AppConfig):
 
     def ready(self):
         from cms.apps.pages.models import PageSearchAdapter
-        Page = self.get_model("Page")
+        Page = self.get_model('Page')
         watson.register(Page, PageSearchAdapter)

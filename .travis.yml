@@ -4,18 +4,12 @@ cache:
   - "$HOME/.cache/pip"
 matrix:
   include:
-  - python: '2.7'
-    env: CMD=pytest
-  - python: '3.5'
     env: CMD=pytest
   - python: '3.6'
     env: CMD=pytest
-  - python: pypy-5.4.1
-    env: CMD="pypy -m pytest"
   - python: pypy3.3-5.2-alpha1
     env: CMD="pypy -m pytest"
   allow_failures:
-  - python: pypy-5.4.1
   - python: pypy3.3-5.2-alpha1
   fast_finish: true
 dist: trusty

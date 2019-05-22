@@ -2,47 +2,41 @@
 
 {% block breadcrumbs %}{% endblock %}
 {% block content %}
-    <div id="content-main" class="inner-two-columns">
+  <div id="content-main" class="inner-two-columns">
+    <form enctype="multipart/form-data" action="" method="post" id="_form" class="form-horizontal">
+      {% csrf_token %}
 
-        <form enctype="multipart/form-data" action="" method="post" id="_form" class="form-horizontal">
+      <div class="inner-right-column">
+        <div class="box save-box">
+          <div class="submit-row clearfix">
+            <button type="submit" class="btn btn-high btn-info" name="_save">Duplicate</button>
+            <a href="/admin/pages/page/{{ original_page.pk }}">Cancel</a>
+          </div>
+        </div>
+      </div>
 
-            {% csrf_token %}
-
-            <div class="inner-right-column">
-                <div class="box save-box">
-                    <div class="submit-row clearfix">
-                        <button type="submit" class="btn btn-high btn-info" name="_save">Duplicate</button>
-                        <a href="/admin/pages/page/{{ original_page.pk }}">Cancel</a>
-                    </div>
+      <div class="inner-center-column">
+        <div class="tab-content tab-content-main">
+          <fieldset class="module aligned with-legend">
+            <h2 class="legend">Duplicate page for a country group</h2>
+            <div class="control-group form-row">
+              <div>
+                <div class="control-label">
+                  <label>Language group:</label>
                 </div>
-            </div>
-
-            <div class="inner-center-column">
-                <div class="tab-content tab-content-main">
-
-                    <fieldset class="module aligned with-legend">
-                        <h2 class="legend">Duplicate page for a country group</h2>
-                        <div class="control-group form-row">
-                            <div>
-                                <div class="control-label">
-                                    <label>Language group:</label>
-                                </div>
-                                <div class="controls">
-                                    <select name="country_group">
-                                        {% for group in country_groups %}
-                                            <option value="{{ group.pk }}">{{ group }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <span class="help-inline">Clicking duplicate will create a copy of this page for the selected language group above.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </fieldset>
-
+                <div class="controls">
+                  <select name="country_group">
+                    {% for group in country_groups %}
+                      <option value="{{ group.pk }}">{{ group }}</option>
+                    {% endfor %}
+                  </select>
+                  <span class="help-inline">Clicking duplicate will create a copy of this page for the selected language group above.</span>
                 </div>
+              </div>
             </div>
-
-        </form>
-
-    </div>
+          </fieldset>
+        </div>
+      </div>
+    </form>
+  </div>
 {% endblock %}

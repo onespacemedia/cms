@@ -1,14 +1,10 @@
-from __future__ import unicode_literals
-
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.test import TestCase
-from django.utils.encoding import python_2_unicode_compatible
 
 from ..templatetags.html import html, truncate_paragraphs
 
 
-@python_2_unicode_compatible
 class TestHTMLModel(models.Model):
 
     def __str__(self):
