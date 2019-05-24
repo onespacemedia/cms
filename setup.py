@@ -11,7 +11,7 @@ DEPENDENCIES = [
     'requests',
     'Pillow',
     'sorl-thumbnail',
-    'Jinja2==2.10',
+    'Jinja2==2.10.1',
 
     'beautifulsoup4',
     'django>=1.11,<1.12',
