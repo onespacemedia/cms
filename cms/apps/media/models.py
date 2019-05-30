@@ -169,22 +169,6 @@ IMAGE_FILTER = {
     'file__iregex': r'\.(png|gif|jpg|jpeg)$'
 }
 
-class ImageThumbnailField(models.ForeignKey):
-    '''A foreign key to a File, constrained to only select image files.'''
-
-    def __init__(self, **kwargs):
-        kwargs['to'] = 'media.File'
-        kwargs.setdefault('related_name', '+')
-        kwargs.setdefault('on_delete', models.PROTECT)
-        super().__init__(**kwargs)
-
-    def formfield(self, **kwargs):
-        defaults = {
-            'widget': ImageThumbnailWidget(),
-        }
-        return super().formfield(**defaults)
-
-
 class ImageThumbnailWidget(ForeignKeyRawIdWidget):
     '''
     A widget used to display a thumbnail image preview
