@@ -158,7 +158,12 @@ class FileRefField(models.ForeignKey):
         kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)
 
-    def formfield(self, **kwargs):
+    def formfield(self, skip_defaults=False, **kwargs):
+        # We skip changing the kwargs if we've already set
+        # the widget in an inheriting class
+        if skip:
+            return super().formfield(**kwargs)
+
         defaults = {
             'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
         }
@@ -170,21 +175,18 @@ IMAGE_FILTER = {
 }
 
 
-class ImageRefField(models.ForeignKey):
+class ImageRefField(FileRefField):
     '''A foreign key to a File, constrained to only select image files.'''
 
     def __init__(self, **kwargs):
         kwargs['limit_choices_to'] = IMAGE_FILTER
-        kwargs['to'] = 'media.File'
-        kwargs.setdefault('related_name', '+')
-        kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
         defaults = {
             'widget': ImageThumbnailWidget(self.rel, admin.site),
         }
-        return super().formfield(**defaults)
+        return super().formfield(skip_defaults=True, **defaults)
 
 
 VIDEO_FILTER = {
