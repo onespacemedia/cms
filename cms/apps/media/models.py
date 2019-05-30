@@ -17,8 +17,8 @@ from django.utils.functional import cached_property
 from PIL import Image
 from tinypng.api import shrink_file
 
-from cms.apps.media.filetypes import get_icon, is_image
-
+from .filetypes import get_icon, is_image
+from .widgets import ImageThumbnailWidget
 
 class Label(models.Model):
     '''
@@ -169,24 +169,6 @@ IMAGE_FILTER = {
     'file__iregex': r'\.(png|gif|jpg|jpeg)$'
 }
 
-class ImageThumbnailWidget(ForeignKeyRawIdWidget):
-    '''
-    A widget used to display a thumbnail image preview
-    '''
-    def render(self, name, value, attrs=None):
-        output = []
-
-        if value:
-            file_obj = File.objects.filter(pk=value).first()
-
-            if file_obj:
-                image_url = file_obj.file.url
-                file_name = str(file_obj)
-                output.append(u' <a href="%s" target="_blank"><img src="%s" alt="%s" width="150" height="150"/></a> %s ' % \
-                            (image_url, image_url, file_name, 'Change:'))
-        output.append(super().render(name, value, attrs))
-        return mark_safe(u''.join(output))
-
 
 class ImageRefField(models.ForeignKey):
     '''A foreign key to a File, constrained to only select image files.'''
@@ -208,7 +190,6 @@ class ImageRefField(models.ForeignKey):
 VIDEO_FILTER = {
     'file__iregex': r'\.(mp4|m4v)$'
 }
-
 
 def get_oembed_info_url(url):
     '''
