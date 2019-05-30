@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.html import mark_safe
 from django.utils.functional import cached_property
 from PIL import Image
 from tinypng.api import shrink_file
@@ -168,13 +169,56 @@ IMAGE_FILTER = {
     'file__iregex': r'\.(png|gif|jpg|jpeg)$'
 }
 
+class ImageThumbnailField(models.ForeignKey):
+    '''A foreign key to a File, constrained to only select image files.'''
 
-class ImageRefField(FileRefField):
+    def __init__(self, **kwargs):
+        kwargs['to'] = 'media.File'
+        kwargs.setdefault('related_name', '+')
+        kwargs.setdefault('on_delete', models.PROTECT)
+        super().__init__(**kwargs)
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'widget': ImageThumbnailWidget(),
+        }
+        return super().formfield(**defaults)
+
+
+class ImageThumbnailWidget(ForeignKeyRawIdWidget):
+    '''
+    A widget used to display a thumbnail image preview
+    '''
+    def render(self, name, value, attrs=None):
+        output = []
+
+        if value:
+            file_obj = File.objects.filter(pk=value).first()
+
+            if file_obj:
+                image_url = file_obj.file.url
+                file_name = str(file_obj)
+                output.append(u' <a href="%s" target="_blank"><img src="%s" alt="%s" width="150" height="150"/></a> %s ' % \
+                            (image_url, image_url, file_name, 'Change:'))
+        output.append(super().render(name, value, attrs))
+        return mark_safe(u''.join(output))
+
+
+class ImageRefField(models.ForeignKey):
     '''A foreign key to a File, constrained to only select image files.'''
 
     def __init__(self, **kwargs):
         kwargs['limit_choices_to'] = IMAGE_FILTER
+        kwargs['to'] = 'media.File'
+        kwargs.setdefault('related_name', '+')
+        kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'widget': ImageThumbnailWidget(self.rel, admin.site),
+        }
+        return super().formfield(**defaults)
 
 
 VIDEO_FILTER = {
