@@ -161,7 +161,7 @@ class FileRefField(models.ForeignKey):
     def formfield(self, skip_defaults=False, **kwargs):
         # We skip changing the kwargs if we've already set
         # the widget in an inheriting class
-        if skip:
+        if skip_defaults:
             return super().formfield(**kwargs)
 
         defaults = {
