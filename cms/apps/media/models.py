@@ -22,9 +22,7 @@ from .widgets import ImageThumbnailWidget
 
 class Label(models.Model):
     '''
-    A notional label used to organise static media.
-
-    This does not correspond to a physical label on the disk.
+    A label used to organise static media.
     '''
 
     name = models.CharField(
@@ -388,11 +386,10 @@ class Video(models.Model):
                     'loop': int(loop),
                     'muted': int(mute),
                 })
-            else:
-                return render_to_string('videos/default.html', {
-                    'src': self.external_video_iframe_url,
-                })
-        elif self.high_resolution_mp4 or self.low_resolution_mp4:
+            return render_to_string('videos/default.html', {
+                'src': self.external_video_iframe_url,
+            })
+        if self.high_resolution_mp4 or self.low_resolution_mp4:
             return render_to_string('videos/vimeo.html', {
                 'preload': 'auto' if autoplay else 'metadata',
                 'autoplay': ' autoplay' if autoplay else '',
