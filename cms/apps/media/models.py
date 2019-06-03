@@ -150,7 +150,7 @@ class File(models.Model):
 
 
 class FileRefField(models.ForeignKey):
-    '''A foreign key to a File, constrained to only select image files.'''
+    '''A foreign key to a File.'''
 
     def __init__(self, **kwargs):
         kwargs['to'] = 'media.File'
