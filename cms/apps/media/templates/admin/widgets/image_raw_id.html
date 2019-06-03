@@ -1,0 +1,5 @@
+{% if file_obj %}
+  <a href="{{ file_obj.file.url }}" target="_blank"><img src="{{ file_obj.file.url }}" alt="" width="150" height="150"/></a> Change:
+{% endif %}
+
+{% include 'admin/widgets/foreign_key_raw_id.html' %}
