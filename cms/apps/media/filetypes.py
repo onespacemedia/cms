@@ -35,8 +35,8 @@ FILE_ICONS = {
 
 IMAGE_FILE_EXTENSIONS = ['gif', 'png', 'jpg', 'jpeg']
 
-for extension in IMAGE_FILE_EXTENSIONS:
-    FILE_ICONS[extension] = IMAGE_FILE_ICON
+for ext in IMAGE_FILE_EXTENSIONS:
+    FILE_ICONS[ext] = IMAGE_FILE_ICON
 
 
 def is_image(filename):
