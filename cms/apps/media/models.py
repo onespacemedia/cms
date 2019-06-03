@@ -16,7 +16,8 @@ from django.utils.functional import cached_property
 from PIL import Image
 from tinypng.api import shrink_file
 
-from cms.apps.media.filetypes import get_icon, is_image
+from .filetypes import get_icon, is_image
+from .widgets import ImageThumbnailWidget
 
 
 class Label(models.Model):
@@ -149,7 +150,7 @@ class File(models.Model):
 
 
 class FileRefField(models.ForeignKey):
-    '''A foreign key to a File, constrained to only select image files.'''
+    '''A foreign key to a File.'''
 
     def __init__(self, **kwargs):
         kwargs['to'] = 'media.File'
@@ -158,10 +159,8 @@ class FileRefField(models.ForeignKey):
         super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
-        defaults = {
-            'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
-        }
-        return super().formfield(**defaults)
+        kwargs.setdefault('widget', ForeignKeyRawIdWidget(self.rel, admin.site))
+        return super().formfield(**kwargs)
 
 
 IMAGE_FILTER = {
@@ -176,11 +175,14 @@ class ImageRefField(FileRefField):
         kwargs['limit_choices_to'] = IMAGE_FILTER
         super().__init__(**kwargs)
 
+    def formfield(self, **kwargs):
+        kwargs.setdefault('widget', ImageThumbnailWidget(self.rel, admin.site))
+        return super().formfield(**kwargs)
+
 
 VIDEO_FILTER = {
     'file__iregex': r'\.(mp4|m4v)$'
 }
-
 
 def get_oembed_info_url(url):
     '''
