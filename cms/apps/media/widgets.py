@@ -1,7 +1,4 @@
-from django import forms
-from django.utils.html import mark_safe
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
-from django.utils.html import format_html
 
 
 class ImageThumbnailWidget(ForeignKeyRawIdWidget):
