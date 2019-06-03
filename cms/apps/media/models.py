@@ -12,13 +12,13 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.html import mark_safe
 from django.utils.functional import cached_property
 from PIL import Image
 from tinypng.api import shrink_file
 
 from .filetypes import get_icon, is_image
 from .widgets import ImageThumbnailWidget
+
 
 class Label(models.Model):
     '''
