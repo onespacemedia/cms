@@ -13,7 +13,7 @@ class ImageThumbnailWidget(ForeignKeyRawIdWidget):
         output = []
 
         if value:
-            file_obj = File.objects.filter(pk=value).first()
+            file_obj = File.objects.get(pk=value)
 
             if file_obj:
                 image_url = file_obj.file.url
