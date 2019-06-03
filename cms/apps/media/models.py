@@ -158,16 +158,9 @@ class FileRefField(models.ForeignKey):
         kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)
 
-    def formfield(self, skip_defaults=False, **kwargs):
-        # We skip changing the kwargs if we've already set
-        # the widget in an inheriting class
-        if skip_defaults:
-            return super().formfield(**kwargs)
-
-        defaults = {
-            'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
-        }
-        return super().formfield(**defaults)
+    def formfield(self, **kwargs):
+        kwargs.setdefault('widget', ForeignKeyRawIdWidget(self.rel, admin.site))
+        return super().formfield(**kwargs)
 
 
 IMAGE_FILTER = {
@@ -183,10 +176,8 @@ class ImageRefField(FileRefField):
         super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
-        defaults = {
-            'widget': ImageThumbnailWidget(self.rel, admin.site),
-        }
-        return super().formfield(skip_defaults=True, **defaults)
+        kwargs.setdefault('widget', ImageThumbnailWidget(self.rel, admin.site))
+        return super().formfield(**kwargs)
 
 
 VIDEO_FILTER = {
