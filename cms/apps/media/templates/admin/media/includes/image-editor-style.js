@@ -17,8 +17,8 @@ var Theme = {
     'downloadButton.display': 'none',
 
     // main icons
-    'menu.normalIcon.path': '{% static "cms/svg/image-editor/icon-b.svg" %}',
-    'menu.normalIcon.name': 'icon-b',
+    'menu.normalIcon.path': '{% static "cms/svg/image-editor/icon-c.svg" %}',
+    'menu.normalIcon.name': 'icon-c',
     'menu.activeIcon.path': '{% static "cms/svg/image-editor/icon-a.svg" %}',
     'menu.activeIcon.name': 'icon-a',
     'menu.iconSize.width': '24px',
