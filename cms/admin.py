@@ -1,5 +1,6 @@
 '''Base classes for the CMS admin interface.'''
 from django.contrib import admin
+from django.conf import settings
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
@@ -26,8 +27,12 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
         'classes': ('collapse',),
     })
 
-    # Custom admin actions.
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
+        return form
 
+    # Custom admin actions.
     def publish_selected(self, request, queryset):
         '''Publishes the selected models.'''
         queryset.update(is_online=True)
