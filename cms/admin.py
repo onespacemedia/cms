@@ -29,7 +29,7 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.base_fields['is_online'].initial = getattr(setings, 'ONLINE_DEFAULT', True)
+        form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
         return form
 
     # Custom admin actions.
