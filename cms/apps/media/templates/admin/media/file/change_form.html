@@ -7,6 +7,19 @@
   {% endif %}
 {% endblock %}
 
+{% block after_related_objects %}
+    <h2>Used on</h2>
+      <ul class="fle-RelatedList">
+      {% for obj in related_objects %}
+        {% for page in obj.pages %}
+        <li class="fle-RelatedList_Item">
+          <a class="fle-RelatedList_Link" href="{{ page.admin_url }}">{{ page.page}}</a>
+        </li>
+        {% endfor %}
+      {% endfor %}
+      </ul>
+{% endblock %}
+
 {% block extrahead %}
   {{ block.super }}
 

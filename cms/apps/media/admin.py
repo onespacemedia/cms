@@ -237,7 +237,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         for queryset in querysets:
             for model in queryset:
                 if hasattr(model, 'page'):
-                    type(model)
                     pages.append(model)
 
         return pages
@@ -250,7 +249,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         elif model_name == 'Event':
             return reverse('admin:events_event_change', args=[model.pk])
 
-        return reverse('admin:pages_page_change', args=[model.pk])
+        return reverse('admin:pages_page_change', args=[model.page.pk])
 
     # Custom view logic.
 
