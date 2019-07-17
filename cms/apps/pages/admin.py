@@ -13,6 +13,7 @@ from django import forms
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin, messages
+from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
@@ -467,7 +468,7 @@ class PageAdmin(PageBaseAdmin):
             context = {
                 'title': 'Select page type',
                 'content_types': content_types,
-                'is_popup': request.GET.get('_popup', False),
+                'is_popup': request.GET.get(IS_POPUP_VAR, False),
             }
 
             return render(request, 'admin/pages/page/select_page_type.html', context)
