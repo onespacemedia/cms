@@ -18,3 +18,4 @@ cache
 uploads
 .coverage
 htmlcov
+.vscode/
