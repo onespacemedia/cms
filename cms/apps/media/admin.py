@@ -167,18 +167,82 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             for model in queryset:
                 if hasattr(model, 'page'):
                     pages.append(model)
+                else:
+                    pages.append(model.__class__.objects.get(pk=model.id))
 
         return pages
 
     def get_admin_url(self, model):
         model_name = model.__class__.__name__
 
-        if model_name == 'Article':
-            return reverse('admin:news_article_change', args=[model.pk])
-        elif model_name == 'Event':
-            return reverse('admin:events_event_change', args=[model.pk])
+        model_admin_urls = {
+            'Article':
+                {
+                    'url': 'admin:news_article_change',
+                    'args': [model.pk],
+                },
+            'CallToAction':
+                {
+                    'url': 'admin:components_calltoaction_change',
+                    'args': [model.pk],
+                },
+            'Career':
+                {
+                    'url': 'admin:careers_career_change',
+                    'args': [model.pk],
+                },
+            'Client': {
+                'url': 'admin:projects_client_change',
+                'args': [model.pk],
+            },
+            'ContentSection': {
+                'url': 'admin:pages_page_change',
+                'args': [model.page.pk] if hasattr(model, 'page') else [],
+            },
+            'Event': {
+                'url': 'admin:events_event_change',
+                'args': [model.pk],
+            },
+            'Footer': {
+                'url': 'admin:site_footer_change',
+                'args': [model.pk],
+            },
+            'Logo': {
+                'url': 'admin:components_logoset_change',
+                'args': [model.set.pk] if hasattr(model, 'set') else [],
+            },
+            'Office': {
+                'url': 'admin:contact_office_change',
+                'args': [model.pk],
+            },
+            'Page':
+                {
+                    'url': 'admin:pages_page_change',
+                    'args': [model.pk],
+                },
+            'Person': {
+                'url': 'admin:people_person_change',
+                'args': [model.pk],
+            },
+            'Project': {
+                'url': 'admin:projects_project_change',
+                'args': [model.pk],
+            },
+            'Sector': {
+                'url': 'admin:sectors_sector_change',
+                'args': [model.pk],
+            },
+        }
 
-        return reverse('admin:pages_page_change', args=[model.page.pk])
+
+        if model_name in model_admin_urls:
+            model = model_admin_urls.get(model_name)
+            model_url = model.get('url')
+            model_args = model.get('args')
+
+            return reverse(model_url, args=model_args)
+
+
 
     # Custom view logic.
 
@@ -208,6 +272,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             'pages': [
                 {
                     'page': page,
+                    'name': page.__class__.__name__,
                     'admin_url': self.get_admin_url(page),
                 } for page in self.get_related_pages(querysets)]
             }
