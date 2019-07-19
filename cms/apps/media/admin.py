@@ -243,7 +243,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             return reverse(model_url, args=model_args)
 
 
-
     # Custom view logic.
 
     def response_add(self, request, obj, post_url_continue=None):
@@ -254,8 +253,10 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             return render(request, 'admin/media/file/filebrowser_add_success.html', context)
         return super().response_add(request, obj, post_url_continue=post_url_continue)
 
-    def change_view(self, request, object_id, extra_context=None):
+    def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
+        # Strip all non-numeric characters from object_id to prevent an issue where object_id was returning a string (eg: '1231/change/none)
+        object_id = ''.join(i for i in object_id if i.isdigit())
         test_obj = File.objects.get(pk=object_id)
         querysets = []
 
@@ -272,7 +273,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             'pages': [
                 {
                     'page': page,
-                    'name': page.__class__.__name__,
+                    'model_name': page.__class__.__name__,
                     'admin_url': self.get_admin_url(page),
                 } for page in self.get_related_pages(querysets)]
             }
