@@ -1,6 +1,7 @@
 '''Core models used by the CMS.'''
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 from django import urls
 from django.db import connection, models, transaction
 from django.db.models import F, Q
@@ -216,10 +217,15 @@ class Page(PageBase):
         if self.cached_url and cached:
             return self.cached_url
 
-        if self.parent:
-            url = self.parent.get_absolute_url() + self.slug + '/'
-        else:
-            url = urls.get_script_prefix()
+        # During reversion page recovery, self.parent hasn't been set yet. We catch this here
+        # and it will get updated if the user chooses to save the old version of the page.
+        try:
+            if self.parent:
+                url = self.parent.get_absolute_url() + self.slug + '/'
+            else:
+                url = urls.get_script_prefix()
+        except ObjectDoesNotExist:
+            return ''
 
         if url != self.cached_url:
             self.cached_url = url
@@ -388,7 +394,14 @@ class PageSearchAdapter(PageBaseSearchAdapter):
 
     def get_content(self, obj):
         '''Returns the search text for the page.'''
-        content_obj = obj.content
+
+        # During reversion, obj.content does not exist. We catch this case here and
+        # return '' as it will get updated if they choose to save the old page.
+        try:
+            content_obj = obj.content
+        except ObjectDoesNotExist:
+            return ''
+
 
         return ' '.join((
             super().get_content(obj),
