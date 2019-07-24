@@ -50,25 +50,3 @@
     </style>
   {% endif %}
 {% endblock %}
-
-{# Multilangue page support, this in normally overwritten in a template on the once in a blue moon project that needs it #}
-{#{% if language_pages and display_language_options %}#}
-{##}
-{#    <ul id="suit_form_tabs" class="nav nav-tabs nav-tabs-suit" data-tab-prefix="suit-tab">#}
-{#        {% for page in language_pages %}#}
-{#            <li class="{% if original == page %}active{% endif %}">#}
-{#                <a href="/admin/pages/page/{{ page.pk }}">#}
-{#                    {% if page.is_content_object == False %}#}
-{#                        Default#}
-{#                    {% else %}#}
-{#                        {{ page.country_group }}#}
-{#                    {% endif %}#}
-{#                </a>#}
-{#            </li>#}
-{#        {% endfor %}#}
-{#        <li class="{% if original == page %}active{% endif %}">#}
-{#            <a href="/admin/pages/page/{% if original.is_content_object %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add</a>#}
-{#        </li>#}
-{#    </ul>#}
-{##}
-{#{% endif %}#}

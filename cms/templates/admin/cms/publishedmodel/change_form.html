@@ -1,8 +1,10 @@
 {% extends "admin/change_form.html" %}
 
+{% load admin_urls %}
+
 {% block object-tools-items %}
   <li>
-    <a href="history/" class="historylink">
+    <a href="{% url opts|admin_urlname:'history' object_id %}" class="historylink">
       History
     </a>
   </li>

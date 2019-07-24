@@ -54,7 +54,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
-    list_display = ['get_preview', 'get_number', 'get_title', 'get_alt_text', 'get_size']
+    list_display = ['get_number', 'get_preview', 'get_title', 'get_alt_text', 'get_size']
     list_display_links = list_display
     list_filter = ['labels']
     search_fields = ['title']
@@ -173,8 +173,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         '''Renders the change list.'''
         context = extra_context or {}
 
-        if not 'changelist_template_parent' in context:
-            context['changelist_template_parent'] = 'reversion/change_list.html'
+        context.setdefault('changelist_template_parent', 'reversion/change_list.html')
 
         return super().changelist_view(request, context)
 
@@ -185,10 +184,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         Javascript, which assumes that if _popup is in the URL that it is a
         related item popup).'''
         context = extra_context or {}
-
-        if not 'changelist_template_parent' in context:
-            context['changelist_template_parent'] = 'reversion/change_list.html'
-
+        context.setdefault('changelist_template_parent', 'reversion/change_list.html')
         context['is_popup'] = True
         context['is_media_library_iframe'] = True
 

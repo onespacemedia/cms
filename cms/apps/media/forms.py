@@ -1,10 +1,10 @@
 import base64
 import os
+from io import BytesIO
 
 import magic
 from django.core.files.base import ContentFile
 from django import forms
-from io import BytesIO
 from PIL import Image
 
 from cms.apps.media.models import File
