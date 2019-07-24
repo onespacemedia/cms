@@ -1,19 +1,19 @@
 <fieldset class="module aligned with-legend ">
   <h2 class="legend">Used on</h2>
-
-  <input style="display:none;" type="text" name="changed_image" maxlength="200" id="id_changed_image">
-  <div id="file-used-on-container">
-    <div class="form-row field-title">
+    <div id="file-used-on-container">
+      <div class="form-row field-title">
         <div>
-            <label for="id_title">Pages:</label>
-                <ul class="fle-RelatedList">
-                    {% for obj in related_objects %}
-                        {% for page in obj.pages %}
-                        <li class="fle-RelatedList_Item">
-                        <a class="fle-RelatedList_Link" href="{{ page.admin_url }}">{{ page.model_name }} - {{ page.page}}</a>
-                        </li>
-                        {% endfor %}
-                    {% endfor %}
+          <label for="id_title">Pages:</label>
+            <ul class="fle-RelatedList">
+              {% for obj in related_objects %}
+                {% for page in obj.pages %}
+                  {% if page.admin_url %}
+                    <li class="fle-RelatedList_Item">
+                      <a class="fle-RelatedList_Link" href="{{ page.admin_url }}">{{ page.model_name|capfirst }} - {{ page.page}}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
                 </ul>
         </div>
     </div>

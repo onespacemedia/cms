@@ -2,15 +2,14 @@
 from functools import partial
 
 import requests
-from cms import permalinks
-from cms.apps.media.forms import FileForm, ImageChangeForm
-from cms.apps.media.models import File, Label, Video
+
+from django.apps import apps
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db.models.deletion import get_candidate_relations_to_delete
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
@@ -22,6 +21,10 @@ from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
 from sorl.thumbnail import get_thumbnail
 from watson.admin import SearchAdmin
+
+from cms import permalinks
+from cms.apps.media.forms import ImageChangeForm, FileForm
+from cms.apps.media.models import File, Label, Video
 
 
 @admin.register(Label)
@@ -164,84 +167,18 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     def get_related_pages(self, querysets):
         pages = []
         for queryset in querysets:
-            for model in queryset:
-                if hasattr(model, 'page'):
-                    pages.append(model)
-                else:
-                    pages.append(model.__class__.objects.get(pk=model.id))
-
+            for obj in queryset:
+                pages.append(obj)
         return pages
 
-    def get_admin_url(self, model):
-        model_name = model.__class__.__name__
-
-        model_admin_urls = {
-            'Article':
-                {
-                    'url': 'admin:news_article_change',
-                    'args': [model.pk],
-                },
-            'CallToAction':
-                {
-                    'url': 'admin:components_calltoaction_change',
-                    'args': [model.pk],
-                },
-            'Career':
-                {
-                    'url': 'admin:careers_career_change',
-                    'args': [model.pk],
-                },
-            'Client': {
-                'url': 'admin:projects_client_change',
-                'args': [model.pk],
-            },
-            'ContentSection': {
-                'url': 'admin:pages_page_change',
-                'args': [model.page.pk] if hasattr(model, 'page') else [],
-            },
-            'Event': {
-                'url': 'admin:events_event_change',
-                'args': [model.pk],
-            },
-            'Footer': {
-                'url': 'admin:site_footer_change',
-                'args': [model.pk],
-            },
-            'Logo': {
-                'url': 'admin:components_logoset_change',
-                'args': [model.set.pk] if hasattr(model, 'set') else [],
-            },
-            'Office': {
-                'url': 'admin:contact_office_change',
-                'args': [model.pk],
-            },
-            'Page':
-                {
-                    'url': 'admin:pages_page_change',
-                    'args': [model.pk],
-                },
-            'Person': {
-                'url': 'admin:people_person_change',
-                'args': [model.pk],
-            },
-            'Project': {
-                'url': 'admin:projects_project_change',
-                'args': [model.pk],
-            },
-            'Sector': {
-                'url': 'admin:sectors_sector_change',
-                'args': [model.pk],
-            },
-        }
-
-
-        if model_name in model_admin_urls:
-            model = model_admin_urls.get(model_name)
-            model_url = model.get('url')
-            model_args = model.get('args')
-
-            return reverse(model_url, args=model_args)
-
+    def get_admin_url(self, obj):
+        try:
+            return reverse(
+                f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
+                args=[model.pk]
+            )
+        except NoReverseMatch:
+            return None
 
     # Custom view logic.
 
@@ -255,8 +192,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        # Strip all non-numeric characters from object_id to prevent an issue where object_id was returning a string (eg: '1231/change/none)
-        object_id = ''.join(i for i in object_id if i.isdigit())
         test_obj = File.objects.get(pk=object_id)
         querysets = []
 
@@ -273,13 +208,13 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             'pages': [
                 {
                     'page': page,
-                    'model_name': page.__class__.__name__,
+                    'model_name': page._meta.model_name,
                     'admin_url': self.get_admin_url(page),
                 } for page in self.get_related_pages(querysets)]
             }
         ]
 
-        return super(FileAdmin, self).change_view(request, object_id, extra_context=extra_context)
+        return super().change_view(request, object_id, extra_context=extra_context)
 
     def changelist_view(self, request, extra_context=None):
         '''Renders the change list.'''
