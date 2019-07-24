@@ -175,7 +175,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         try:
             return reverse(
                 f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
-                args=[model.pk]
+                args=[obj.pk]
             )
         except NoReverseMatch:
             return None
