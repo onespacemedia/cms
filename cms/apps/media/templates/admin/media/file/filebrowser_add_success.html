@@ -1,52 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+{% load static %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-    {% load static %}
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>File added</title>
-        {% include "admin/cms/scripts.html" %}
-        <script>
-            django.jQuery(function() {
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>File added</title>
+  {% include "admin/cms/scripts.html" %}
+  <script>
+    django.jQuery(function() {
+      // Get tinymce from parent
+      var tinymce = parent.active_tinymce;
 
-               // Get tinymce from parent
-                var tinymce = parent.active_tinymce;
+      // Make sure we have tinymce
+      if (tinymce) {
+        // Get information
+        var title = "{{ title }}"
+        var permalink = "{{ permalink }}";
 
-                // Make sure we have tinymce
-                if (tinymce) {
+        tinymce.focus()
+        tinymce.selection.setContent(tinymce.dom.createHTML('img', {
+          src: permalink,
+          alt: title,
+          title: title,
+        }));
 
-                    // Get information
-                    var title = "{{ title }}"
-                    var permalink = "{{ permalink }}";
+        // Get the active editor open window
+        var tinymce_popup = parent.active_tinymce_window
+        if (tinymce_popup){
+          tinymce_popup.close()
+        }
+      }
+    });
+  </script>
 
-                    tinymce.focus()
-                    tinymce.selection.setContent(tinymce.dom.createHTML('img', {
-                        src: permalink,
-                        alt: title,
-                        title: title,
-                    }));
+  <style>
+    body {
+      background-color: #FFF;
+    }
 
-                    // Get the active editor open window
-                    var tinymce_popup = parent.active_tinymce_window
-                    if(tinymce_popup){
-                        tinymce_popup.close()
-                    }
-
-                }
-
-            });
-        </script>
-
-        <style>
-            body {
-                background-color: #FFF;
-            }
-            .popup #suit-center {
-                width: 100%;
-                padding: 0;
-            }
-        </style>
-    </head>
-    <body>
-    </body>
+    .popup #suit-center {
+      width: 100%;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+</body>
 </html>

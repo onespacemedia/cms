@@ -1,1 +1,1 @@
-"""A simple link page content type."""
+'''A simple link page content type.'''

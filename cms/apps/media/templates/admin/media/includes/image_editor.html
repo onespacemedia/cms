@@ -1,0 +1,46 @@
+<fieldset class="module aligned with-legend ">
+  <h2 class="legend">Edit</h2>
+
+  <input style="display:none;" type="text" name="changed_image" maxlength="200" id="id_changed_image">
+  <div id="image-editor-container" style="height:750px; display:flex;">
+    <div id="tui-image-editor"></div>
+  </div>
+  <script>
+    (function () {
+      var instance
+
+      document.addEventListener('DOMContentLoaded', function() {
+        {% include 'admin/media/includes/image-editor-style.js' %}
+        instance = new tui.ImageEditor(document.querySelector('#tui-image-editor'), {
+          usageStatistics: false,
+          includeUI: {
+            loadImage: {
+              path: '{{ original.get_absolute_url }}',
+              name: '{{ original.title }}'
+            },
+            menu: {% if settings.IMAGE_EDITOR_TOOLS %}{{ settings.IMAGE_EDITOR_TOOLS }}{% else %}['crop','rotate','flip']{% endif %},
+            theme: Theme,
+            initMenu: 'crop',
+            menuBarPosition: {% if settings.IMAGE_EDITOR_TOOLBAR_POSITION %}{{ settings.IMAGE_EDITOR_TOOLBAR_POSITION }}{% else %}'bottom'{% endif %}
+          },
+          cssMaxWidth: {% if settings.IMAGE_EDITOR_MAX_WIDTH %}{{ settings.IMAGE_EDITOR_MAX_WIDTH }}{% else %}700{% endif %},
+          cssMaxHeight: {% if settings.IMAGE_EDITOR_MAX_HEIGHT %}{{ settings.IMAGE_EDITOR_MAX_HEIGHT }}{% else %}500{% endif %},
+          selectionStyle: {
+            cornerSize: {% if settings.IMAGE_EDITOR_CORNER_SIZE %}{{ settings.IMAGE_EDITOR_CORNER_SIZE }}{% else %}20{% endif %},
+            rotatingPointOffset: {% if settings.IMAGE_EDITOR_POINT_OFFSET %}{{ settings.IMAGE_EDITOR_POINT_OFFSET }}{% else %}70{% endif %}
+          }
+        })
+
+        for (const button of [].slice.call(document.querySelectorAll('.submit-row [type="submit"]'))) {
+          button.addEventListener('click', function() {
+            if (!instance.isEmptyUndoStack()) {
+              var dataURL = instance.toDataURL();
+              document.querySelector('#id_changed_image').value = dataURL
+              console.log(document.querySelector('#id_changed_image'))
+            }
+          })
+        }
+      })
+    })()
+  </script>
+</fieldset>

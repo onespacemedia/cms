@@ -28,7 +28,7 @@ class PublishedBaseModel(PublishedBase):
     pass
 
 
-class Object(object):
+class Object:
 
     sitemap_priority = 1
 

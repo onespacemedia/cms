@@ -1,8 +1,5 @@
-"""Template tags used to render pages."""
-from __future__ import unicode_literals
-
+'''Template tags used to render pages.'''
 import jinja2
-import six
 from django import template
 from django.conf import settings
 from django.utils.html import escape
@@ -18,7 +15,7 @@ register = template.Library()
 
 # Navigation.
 def _navigation_entries(context, pages, section=None, is_json=False):
-    request = context["request"]
+    request = context['request']
     # Compile the entries.
 
     def page_entry(page):
@@ -30,18 +27,18 @@ def _navigation_entries(context, pages, section=None, is_json=False):
 
         if is_json:
             return {
-                "url": url,
-                "title": six.text_type(page),
-                "here": request.path.startswith(url),
-                "children": [page_entry(x) for x in page.navigation if
+                'url': url,
+                'title': str(page),
+                'here': request.path.startswith(url),
+                'children': [page_entry(x) for x in page.navigation if
                              page is not request.pages.homepage]
             }
         return {
-            "url": url,
-            "page": page,
-            "title": six.text_type(page),
-            "here": request.path.startswith(url),
-            "children": [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
+            'url': url,
+            'page': page,
+            'title': str(page),
+            'here': request.path.startswith(url),
+            'children': [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
         }
 
     # All the applicable nav items
@@ -50,7 +47,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
     # Add the section.
     if section:
         section_entry = page_entry(section)
-        section_entry["here"] = context["pages"].current == section_entry["page"]
+        section_entry['here'] = context['pages'].current == section_entry['page']
         entries = [section_entry] + list(entries)
 
     return entries
@@ -60,32 +57,32 @@ def _navigation_entries(context, pages, section=None, is_json=False):
 @library.render_with('pages/navigation.html')
 @jinja2.contextfunction
 def render_navigation(context, pages, section=None):
-    """
+    '''
     Renders a navigation list for the given pages.
 
     The pages should all be a subclass of PageBase, and possess a get_absolute_url() method.
 
     You can also specify an alias for the navigation, at which point it will be set in the
     context rather than rendered.
-    """
+    '''
     return {
-        "navigation": _navigation_entries(context, pages, section),
+        'navigation': _navigation_entries(context, pages, section),
     }
 
 
 # Page linking.
 @library.global_function
 def get_page_url(page, view_func=None, *args, **kwargs):
-    """Renders the URL of the given view func in the given page."""
+    '''Renders the URL of the given view func in the given page.'''
     url = None
     if isinstance(page, int):
         try:
             page = Page.objects.get(pk=page)
         except Page.DoesNotExist:
-            url = "#"
+            url = '#'
             page = None
     if page is None:
-        url = "#"
+        url = '#'
     else:
         # Get the page URL.
         if view_func is None:
@@ -100,65 +97,64 @@ def get_page_url(page, view_func=None, *args, **kwargs):
 @library.global_function
 @jinja2.contextfunction
 def get_meta_description(context, description=None):
-    """
+    '''
     Renders the content of the meta description tag for the current page::
 
-        {% meta_description %}
+        {{ get_meta_description() }}
 
     You can override the meta description by setting a context variable called
     'meta_description'::
 
-        {% with "foo" as meta_description %}
-            {% meta_description %}
+        {% with meta_description = 'foo' %}
+            {{ get_meta_description() }}
         {% endwith %}
 
     You can also provide the meta description as an argument to this tag::
 
-        {% meta_description "foo" %}
+        {{ get_meta_description('foo') %}
 
-    """
+    '''
     if description is None:
-        description = context.get("meta_description")
+        description = context.get('meta_description')
 
     # TODO: Check in the context for objects for every templatetag like this
     if description is None:
-        request = context["request"]
+        request = context['request']
         page = request.pages.current
 
         if page:
             description = page.meta_description
 
-    return escape(description or "")
+    return escape(description or '')
 
 
 @library.global_function
 @jinja2.contextfunction
 def get_meta_robots(context, index=None, follow=None, archive=None):
-    """
+    '''
     Renders the content of the meta robots tag for the current page::
 
-        {% meta_robots %}
+        {{ get_meta_robots() }}
 
     You can override the meta robots by setting boolean context variables called
     'robots_index', 'robots_archive' and 'robots_follow'::
 
-        {% with 1 as robots_follow %}
-            {% meta_robots %}
+        {% with robots_follow = 1 %}
+            {% get_meta_robots() %}
         {% endwith %}
 
     You can also provide the meta robots as three boolean arguments to this
     tag in the order 'index', 'follow' and 'archive'::
 
-        {% meta_robots 1 1 1 %}
-
-    """
+        {% get_meta_robots(1, 1, 1) %}
+    '''
     # Override with context variables.
     if index is None:
-        index = context.get("robots_index")
+        index = context.get('robots_index')
     if follow is None:
-        follow = context.get("robots_follow")
+        follow = context.get('robots_follow')
     if archive is None:
-        archive = context.get("robots_archive")
+        archive = context.get('robots_archive')
 
     # Try to get the values from the current page.
     page = context['pages'].current
@@ -180,10 +176,10 @@ def get_meta_robots(context, index=None, follow=None, archive=None):
         archive = True
 
     # Generate the meta content.
-    robots = ", ".join((
-        index and "INDEX" or "NOINDEX",
-        follow and "FOLLOW" or "NOFOLLOW",
-        archive and "ARCHIVE" or "NOARCHIVE",
+    robots = ', '.join((
+        index and 'INDEX' or 'NOINDEX',
+        follow and 'FOLLOW' or 'NOFOLLOW',
+        archive and 'ARCHIVE' or 'NOARCHIVE',
     ))
     return escape(robots)
 
@@ -201,6 +197,9 @@ def absolute_domain_url(context):
 @library.global_function
 @jinja2.contextfunction
 def get_canonical_url(context):
+    '''
+    Returns the canonical URL of the current page.
+    '''
     request = context['request']
 
     url = '{}{}'.format(
@@ -404,6 +403,10 @@ def get_twitter_description(context, description=None):
 @library.global_function
 @jinja2.contextfunction
 def get_twitter_image(context, image=None):
+    '''
+    Returns an appropriate Twitter image for the current page, falling back
+    to the Open Graph image if it is set.
+    '''
     image_obj = None
 
     # Load from context if exists
@@ -459,7 +462,7 @@ def get_twitter_image(context, image=None):
 @library.render_with('pages/title.html')
 @jinja2.contextfunction
 def render_title(context, browser_title=None):
-    """
+    '''
     Renders the title of the current page::
 
         {% title %}
@@ -474,14 +477,15 @@ def render_title(context, browser_title=None):
 
         {% title "foo" %}
 
-    """
-    request = context["request"]
+    '''
+    request = context['request']
     page = request.pages.current
     homepage = request.pages.homepage
     # Render the title template.
     return {
-        "title": browser_title or context.get("title") or (page and page.browser_title) or (page and page.title) or "",
-        "site_title": (homepage and homepage.browser_title) or (homepage and homepage.title) or ""
+        'title': browser_title or context.get('title') or (page and page.browser_title) or (page and page.title) or '',
+        'site_title': (homepage and homepage.browser_title) or (homepage and homepage.title) or '',
+        'site_name': settings.SITE_NAME or '',
     }
 
 
@@ -489,7 +493,7 @@ def render_title(context, browser_title=None):
 @library.render_with('pages/breadcrumbs.html')
 @jinja2.contextfunction
 def render_breadcrumbs(context, page=None, extended=False):
-    """
+    '''
     Renders the breadcrumbs trail for the current page::
 
         {% breadcrumbs %}
@@ -499,25 +503,25 @@ def render_breadcrumbs(context, page=None, extended=False):
 
         {% breadcrumbs extended=1 %}
 
-    """
-    request = context["request"]
+    '''
+    request = context['request']
     # Render the tag.
     page = page or request.pages.current
     if page:
         breadcrumb_list = [{
-            "short_title": breadcrumb.short_title or breadcrumb.title,
-            "title": breadcrumb.title,
-            "url": breadcrumb.get_absolute_url(),
-            "last": False,
-            "page": breadcrumb,
+            'short_title': breadcrumb.short_title or breadcrumb.title,
+            'title': breadcrumb.title,
+            'url': breadcrumb.get_absolute_url(),
+            'last': False,
+            'page': breadcrumb,
         } for breadcrumb in request.pages.breadcrumbs]
     else:
         breadcrumb_list = []
     if not extended:
-        breadcrumb_list[-1]["last"] = True
+        breadcrumb_list[-1]['last'] = True
     # Render the breadcrumbs.
     return {
-        "breadcrumbs": breadcrumb_list,
+        'breadcrumbs': breadcrumb_list,
     }
 
 

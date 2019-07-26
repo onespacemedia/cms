@@ -1,94 +1,50 @@
 {% extends "admin/change_form.html" %}
+{% load static %}
 
-{% block object-tools-items %}
-    {{ block.super }}
-
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
-    <li>
-        <a href="#" id="edit-button" onclick="return launchEditor();" style="display: none;"><i class="icon-edit icon-alpha75"></i>Edit file</a>
-    </li>
-    {% endif %}
+{% block after_field_sets %}
+  {% if original.is_image %}
+    {% include 'admin/media/includes/image_editor.html' %}
+  {% endif %}
 {% endblock %}
 
-{% block sidebar %}
-    {% if original.is_image %}
-    <div id="navcontainer" class="box">
-        <div id="image_container">
-            <img id="image" src="{{ original.get_absolute_url }}" />
+{% block extrahead %}
+  {{ block.super }}
 
-            <div id="paper">&nbsp;</div>
-        </div>
+  {% if original.is_image %}
+    <!-- Instantiate the image editor widget -->
+    <link type="text/css" rel="stylesheet" href="{% static 'cms/js/imgeditor/image-editor.css' %}">
+    <script type="text/javascript" src="{% static 'cms/js/imgeditor/image-editor.js' %}"></script>
+  {% endif %}
 
-        <a href="{{ original.get_absolute_url }}" target="_blank" id="preview_url">Full size preview</a>
-    </div>
-    {% endif %}
+  {% if is_popup %}
+    <style>
+      body {
+        background-color: #FFF;
+      }
+    </style>
+  {% endif %}
 
-{{ block.super }}
-{% endblock %}
-
-{% block extrajs %}
-    {% if settings.ADOBE_CREATIVE_SDK_ENABLED and original.is_image %}
-    <!-- Load widget code -->
-    <script type="text/javascript" src="http://feather.aviary.com/imaging/v1/editor.js"></script>
-    <script type="text/javascript" src="/static/media/js/jquery.cookie.js"></script>
-
-    <!-- Instantiate the widget -->
-    <script type="text/javascript">
-
-        var featherEditor = new Aviary.Feather({
-            apiKey: '{{ settings.ADOBE_CREATIVE_SDK_CLIENT_ID }}',
-            theme: 'light',
-            displayImageSize: true,
-            onLoad: function() {
-                document.getElementById('edit-button').style.display = 'block';
-            },
-            onSave: function(imageID, newURL) {
-                document.getElementById(imageID).src = newURL;
-                document.getElementById('preview_url').href = newURL;
-
-                // POST to a URL which will GET the new URL and overwrite the saved file.
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "admin:media_file_remote" object_id=original.pk %}',
-                    data: {
-                        url: newURL,
-                    },
-                    beforeSend: function(jqXHR, settings) {
-                        jqXHR.setRequestHeader("X-CSRFToken", $.cookie('csrftoken'));
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.log(textStatus, errorThrown);
-                    },
-                    success: function(data, textStatus, jqXHR) {
-                        // featherEditor.close();
-                        window.location.reload();
-                    }
-                });
-            }
+  {% if not original %}
+    {# Prepopulate the title with the name of the file, for new files. #}
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        var fileInput = document.getElementById('id_file');
+        var titleInput = document.getElementById('id_title');
+        fileInput.addEventListener('change', function (event) {
+          var value = event.target.value;
+          // Don't overwrite a title.
+          if (titleInput.value || !value) {
+            return
+          }
+          // Trim to just the filename, minus path.
+          var filename = value.split(/(\\|\/)/g).pop();
+          // Trim off the file extension.
+          filename = filename.replace(/\.[^/.]+$/, '');
+          if (filename) {
+            titleInput.value = filename
+          }
         });
-
-        function launchEditor(id) {
-            featherEditor.launch({
-                image: 'image',
-                url: '{{ request.build_absolute_uri }}../../../..{{ original.get_absolute_url }}'
-            });
-            return false;
-        }
+      });
     </script>
-    {% endif %}
-
-    {% if is_popup %}
-
-        <style>
-            body {
-                background-color: #FFF;
-            }
-            .popup #suit-center {
-                width: 100%;
-                padding: 0;
-            }
-        </style>
-
-    {% endif %}
-
+  {% endif %}
 {% endblock %}

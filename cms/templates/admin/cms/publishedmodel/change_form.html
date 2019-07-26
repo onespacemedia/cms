@@ -1,17 +1,19 @@
 {% extends "admin/change_form.html" %}
 
+{% load admin_urls %}
+
 {% block object-tools-items %}
+  <li>
+    <a href="{% url opts|admin_urlname:'history' object_id %}" class="historylink">
+      History
+    </a>
+  </li>
+
+  {% if has_absolute_url %}
     <li>
-        <a href="history/" class="historylink">
-            <i class="icon-time icon-alpha75"></i>History
-        </a>
+      <a href="{{ original.get_absolute_url }}?preview=1" class="viewsitelink">
+        View on site
+      </a>
     </li>
-    {% if has_absolute_url %}
-        <li>
-            <a href="{{original.get_absolute_url}}?preview=1" class="viewsitelink">
-                <i class="icon-eye-open icon-alpha75"></i>
-                View on site
-            </a>
-        </li>
-    {% endif%}
+  {% endif%}
 {% endblock %}

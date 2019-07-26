@@ -170,7 +170,7 @@ class TestVideo(TransactionTestCase):
 
         self.assertEqual(
             obj._meta.get_field('video_file').get_limit_choices_to(),
-            {'file__iregex': '\\.(webm|mp4|m4v)$'}
+            {'file__iregex': '\\.(mp4|m4v)$'}
         )
 
         obj.delete()

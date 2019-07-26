@@ -1,0 +1,11 @@
+{% load thumbnail %}
+
+{% if file_obj %}
+  {% thumbnail file_obj.file '150' as thumb %}
+    {% if thumb %}
+      <a href="{{ file_obj.file.url }}" target="_blank"><img src="{{ thumb.url }}" alt="" width="{{ thumb.width }}" height="{{ thumb.height }}"/></a> Change:
+    {% endif %}
+  {% endthumbnail %}
+{% endif %}
+
+{% include 'admin/widgets/foreign_key_raw_id.html' %}
