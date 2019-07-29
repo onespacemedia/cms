@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1 - 26/07/2019
+
+* Fix issue for multilingual site and offline pages [[See #176](https://github.com/onespacemedia/cms/pull/176/files)]
+
 ## 4.0.0 - 26/07/2019
 
 * Decouple from django-suit
