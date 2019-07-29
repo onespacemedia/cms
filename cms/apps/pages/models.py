@@ -38,6 +38,9 @@ class PageManager(OnlineBaseManager):
                     WHERE
                         {ancestors}.{left} < {page_alias}.{left} AND
                         {ancestors}.{right} > {page_alias}.{right} AND (
+                            {ancestors}.{country_group_id} = {page_alias}.{country_group_id} OR
+                            {ancestors}.{country_group_id} IS NULL
+                        ) AND (
                             {ancestors}.{is_online} = FALSE OR
                             {ancestors}.{publication_date} > %s OR
                             {ancestors}.{expiry_date} <= %s
@@ -52,6 +55,7 @@ class PageManager(OnlineBaseManager):
                         'ancestors',
                         'left',
                         'right',
+                        'country_group_id',
                         'is_online',
                         'publication_date',
                         'expiry_date',
