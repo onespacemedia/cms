@@ -71,7 +71,6 @@ class File(models.Model):
         max_length=1000,
         blank=True,
         null=True,
-        verbose_name="caption"
     )
 
     copyright = models.CharField(
