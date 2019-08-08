@@ -171,6 +171,33 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 pages.append(obj)
         return pages
 
+
+    def get_admin_url_for_inlines(self, obj):
+        for model, model_admin in admin.site._registry.items():
+            try:
+                inlines = model_admin.inlines
+            except AttributeError:
+                inlines = []
+                pass
+
+            for inline in inlines:
+                if inline.model == type(obj):
+                    for field in obj._meta.get_fields():
+                        try:
+                            field_value = getattr(obj, field.attname)
+                        except AttributeError:
+                            field_value = None
+
+                        if field_value and field.get_internal_type() in ['ForeignKey']:
+                            try:
+                                return reverse(
+                                    f'admin:{model._meta.app_label}_{model._meta.model_name}_change',
+                                    args=[field_value]
+                                )
+                            except NoReverseMatch:
+                                return None
+
+
     def get_admin_url(self, obj):
         try:
             return reverse(
@@ -178,7 +205,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 args=[obj.pk]
             )
         except NoReverseMatch:
-            return None
+            return self.get_admin_url_for_inlines(obj)
+
+        return None
 
     # Custom view logic.
 
