@@ -1,14 +1,16 @@
-Pages Module
+Pages module
 ============
 
-The pages module is a standard CMS module which allows users to add pages to the website. However, it does not do anything by itself, it requires you to add models which extend `ContentBase  <https://github.com/onespacemedia/cms/blob/dd759528a57ccd917b65a3395c098c5d7622e9cb/cms/apps/pages/models.py#L379>`_.
+The ``pages`` module is a standard CMS module which allows users to add pages to the website. However, it does not do anything by itself, it requires you to add models which extend `ContentBase  <https://github.com/onespacemedia/cms/blob/dd759528a57ccd917b65a3395c098c5d7622e9cb/cms/apps/pages/models.py#L379>`_.
 
 How it works
 ------------
 
-In ``cms.apps.pages.models`` there is a model named ``Page``, which contains a set of generic page fields such as ``parent``, ``publication_date``, ``expiry_date`` and so on.  To be able to add a ``Page`` to the site, we need a "Content Model".  A Content Model is a way of representing a type of page, this could be a homepage, a standard page, a contact page etc -- each Content Model would have it's own front-end template thus allowing you to provide different layout types, themes etc throughout your site.
+In ``cms.apps.pages.models`` there is a model named ``Page``, which contains a set of generic page fields such as ``parent``, ``publication_date``, ``expiry_date`` and so on.
 
-The default CMS project contains an example Content Model in `site/models.py <https://github.com/onespacemedia/cms/blob/dd759528a57ccd917b65a3395c098c5d7622e9cb/cms/project_template/project_name/apps/site/models.py>`_ (but is commented out by default to avoid an initial migration being made by mistake).  Here's the same example::
+To be able to add a ``Page`` to the site, we need a content model.  A content model is a way of representing a type of page. This could be a homepage, a standard page, a contact page etc -- each content model would have its own front-end template thus allowing you to provide different layout types, themes etc throughout your site.
+
+Here is an aexample of a content model::
 
     from django.db import models
 
@@ -24,7 +26,7 @@ The default CMS project contains an example Content Model in `site/models.py <ht
 As you can see, this will create a Page type named 'Content' with a textarea named 'content'.  In addition to our custom field, we will have the following fields:
 
 * Title
-* URL Title (which will automatically populate as you type into the Title field)
+* Slug (automatically populated as you type into the Title field)
 * Parent page selector
 * Publication date
 * Expiry date
@@ -69,11 +71,10 @@ With this structure in place, we would then get a choice of content types when a
 Context processor
 -----------------
 
-The pages module automatically adds a variable named ``pages`` to your template context, this gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this::
-
-    from django.db import models
+The pages module automatically adds a variable named ``pages`` to your template context. This gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this::
 
     from cms.apps.pages.models import ContentBase
+    from django.db import models
 
 
     class Content(ContentBase):
@@ -97,7 +98,7 @@ You can access the page data like this::
     <!-- Fields on the Content model -->
     {{ pages.current.content.introduction }}
 
-The ``content`` attribute on the ``Page`` model is a method which performs a ContentType lookup against the content ID allowing access to the fields of the Content model.
+The ``content`` attribute on the ``Page`` model is a cached property which performs a ContentType lookup against the content ID allowing access to the fields of the Content model.
 
 Template tags
 -------------
