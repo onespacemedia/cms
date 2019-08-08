@@ -1,8 +1,12 @@
 # Changelog
 
+## 4.0.3 - 08/08/2019
+
+* Big speedups in RequestPageManager.
+
 ## 4.0.2 - 06/08/2019
 
-Fix migration state.
+* Fix migration state.
 
 ## 4.0.1 - 26/07/2019
 
