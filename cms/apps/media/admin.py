@@ -25,6 +25,8 @@ from watson.admin import SearchAdmin
 from cms import permalinks
 from cms.apps.media.forms import ImageChangeForm, FileForm
 from cms.apps.media.models import File, Label, Video
+from cms.apps.pages.admin import page_admin
+from cms.apps.pages.models import Page
 
 
 @admin.register(Label)
@@ -205,7 +207,69 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 args=[obj.pk]
             )
         except NoReverseMatch:
-            return self.get_admin_url_for_inlines(obj)
+            pass
+
+        url = self.get_admin_url_for_inlines(obj)
+        if url:
+            return url
+
+        # If we've made it here, then obj is neither an object with an admin change
+        # URL nor is it an inline of a registered model with an admin change URL.
+        # Lets check inlines registered with page_admin.
+
+        for content_base, inline in page_admin.content_inlines:
+            # page_admin.content_inlines is a list of tuples. The first value is the ContentType and the second is
+            # the inline InlineModelAdmin used to register the model.
+
+            if inline.model == type(obj):
+                # We've got an inline for this model. Lets check the fk_name attribute on the InlineModelAdmin.
+                # If it's set we'll use that else we'll find the ForeignKey to 'pages.Page'.
+
+                obj_fk_name = getattr(inline, 'fk_name', False)
+                if obj_fk_name:
+                    # the fk_name value is set so we assume that it will resolve a parent since an inline can't
+                    # be saved without a parent.
+
+                    obj_parent = getattr(obj, obj_fk_name, False)
+                    try:
+                        return reverse(
+                            f'admin:{obj_parent._meta.app_label}_{obj_parent._meta.model_name}_change',
+                            args=[obj_parent.pk]
+                        )
+                    except NoReverseMatch:
+                        pass
+
+                # If we make it here, the fk_name attribute was not set or the parent did not resolve to an object
+                # We'll now look for specifically ForeignKeys to 'pages.Page'. There can't be more than one as if
+                # there were, Django would throw errors on inline registration due to the lack of the fk_name
+                # attribute to distinguish the two fields.
+
+                for field in obj._meta.get_fields():
+                    if field.get_internal_type() in ['ForeignKey']:
+                        # Follow the ForeignKey to find the related model.
+
+                        related_model = obj._meta.get_field(field.attname).rel.to
+
+                        if related_model == Page:
+                            # We've found a Foreign key to 'pages.Page', now to extract the page and get it's admin
+                            # change URL
+
+                            try:
+                                field_value = getattr(obj, field.attname)
+                            except AttributeError:
+                                field_value = None
+
+                            if field_value:
+                                try:
+                                    return reverse(
+                                        f'admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change',
+                                        args=[field_value]
+                                    )
+                                except NoReverseMatch:
+                                    return None
+
+        # If none of the above work then we're really out of options. Just return None and handle this where we're
+        # calling this function.
 
         return None
 
