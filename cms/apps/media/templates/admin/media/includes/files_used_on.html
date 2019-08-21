@@ -1,0 +1,39 @@
+<style>
+  .fle-RelatedList {
+    margin: 0;
+    padding-top: 5px;
+  }
+
+  .fle-RelatedList_Item {
+    list-style: none;
+  }
+</style>
+
+{% if has_related_objects %}
+  <fieldset class="module aligned with-legend ">
+    <h2 class="legend">Used on</h2>
+
+    {% for title, objs in related_objects %}
+      {% if objs %}
+        <div class="control-group form-row field-attribution ">
+          <div>
+            <div class="control-label">
+              <label for="id_attribution">{{ title }}:</label>
+            </div>
+            <div class="controls">
+              <ul class="fle-RelatedList">
+                {% for obj in objs %}
+                  {% if obj.admin_url %}
+                    <li class="fle-RelatedList_Item">
+                      <a class="fle-RelatedList_Link" href="{{ obj.admin_url }}">{{ obj.model_name|capfirst }} - {{ obj.name }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </fieldset>
+{% endif %}
