@@ -1,6 +1,8 @@
 """Admin settings for the static media management application."""
 from __future__ import unicode_literals
 
+import requests
+import json
 import os
 from functools import partial
 
@@ -29,8 +31,113 @@ from cms.apps.pages.models import ContentBase, Page, get_registered_content
 from cms.apps.multilingual.models import MultilingualTranslation
 
 
-import requests
-import json
+def get_related_pages(querysets):
+    pages = []
+    for queryset in querysets:
+        for obj in queryset:
+            pages.append(obj)
+    return pages
+
+def get_admin_url_for_inlines(obj):
+    for model, model_admin in admin.site._registry.items():
+        try:
+            inlines = model_admin.inlines
+        except AttributeError:
+            inlines = []
+            pass
+
+        for inline in inlines:
+            if inline.model == type(obj):
+                for field in obj._meta.get_fields():
+                    try:
+                        field_value = getattr(obj, field.attname)
+                    except AttributeError:
+                        field_value = None
+
+                    if field_value and field.get_internal_type() in ['ForeignKey'] and issubclass(field.rel.to, (ContentBase, MultilingualTranslation)):
+                        try:
+                            return reverse(
+                                'admin:{}_{}_change'.format(
+                                    model._meta.app_label,
+                                    model._meta.model_name
+                                ),
+                                args=[field_value]
+                            )
+                        except NoReverseMatch:
+                            return None
+
+def get_admin_url(obj):
+    try:
+        return reverse(
+            'admin:{}_{}_change'.format(
+                obj._meta.app_label,
+                obj._meta.model_name
+            ),
+            args=[obj.pk]
+        )
+    except NoReverseMatch:
+        pass
+
+    url = get_admin_url_for_inlines(obj)
+    if url:
+        return url
+
+    return None
+
+def get_html_uses(object_id):
+    uses = []
+
+    for model in apps.get_models():
+        html_fields = []
+
+        for field in model._meta.get_fields():
+            try:
+                if field.get_internal_type() in ['HtmlField']:
+                    html_fields.append(field)
+            except AttributeError:
+                # the field is actually a relation
+                pass
+
+        if html_fields:
+            for obj in model.objects.all():
+                for field in html_fields:
+                    if getattr(obj, field.attname) and 'src="/r/12-{}/"'.format(object_id) in getattr(obj, field.attname):
+                        uses.append({
+                            'name': str(obj),
+                            'model_name': obj._meta.model_name,
+                            'admin_url': get_admin_url(obj)
+                        })
+
+    return uses
+
+def get_related_objects(object_id):
+    test_obj = File.objects.get(pk=object_id)
+    querysets = []
+
+    for related in get_candidate_relations_to_delete(test_obj._meta):
+        related_objs = related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
+            **{"%s__in" % related.field.name: [test_obj]}
+        )
+
+        if related_objs:
+            querysets.append(related_objs)
+
+    related_pages = get_related_pages(querysets)
+    wysiwyg_fields = get_html_uses(object_id)
+
+    has_related_objects = related_pages or wysiwyg_fields
+    related_objects = [
+        ('Linked from', [
+            {
+                'name': str(page),
+                'model_name': page._meta.model_name,
+                'admin_url': get_admin_url(page),
+            } for page in related_pages]
+        ),
+        ('In WYSIWYGs', wysiwyg_fields)
+    ]
+
+    return related_objects, has_related_objects
 
 
 class LabelAdmin(admin.ModelAdmin):
@@ -366,114 +473,13 @@ class FileAdminBase(admin.ModelAdmin):
         except:
             return HttpResponse('')
 
-    def get_related_pages(self, querysets):
-        pages = []
-        for queryset in querysets:
-            for obj in queryset:
-                pages.append(obj)
-        return pages
-
-    def get_admin_url_for_inlines(self, obj):
-        for model, model_admin in admin.site._registry.items():
-            try:
-                inlines = model_admin.inlines
-            except AttributeError:
-                inlines = []
-                pass
-
-            for inline in inlines:
-                if inline.model == type(obj):
-                    print inline
-                    for field in obj._meta.get_fields():
-                        try:
-                            field_value = getattr(obj, field.attname)
-                        except AttributeError:
-                            field_value = None
-
-                        if field_value and field.get_internal_type() in ['ForeignKey'] and issubclass(field.rel.to, (ContentBase, MultilingualTranslation)):
-                            try:
-                                return reverse(
-                                    'admin:{}_{}_change'.format(
-                                        model._meta.app_label,
-                                        model._meta.model_name
-                                    ),
-                                    args=[field_value]
-                                )
-                            except NoReverseMatch:
-                                return None
-
-    def get_admin_url(self, obj):
-        try:
-            return reverse(
-                'admin:{}_{}_change'.format(
-                    obj._meta.app_label,
-                    obj._meta.model_name
-                ),
-                args=[obj.pk]
-            )
-        except NoReverseMatch:
-            pass
-
-        url = self.get_admin_url_for_inlines(obj)
-        if url:
-            return url
-
-        return None
-
-    def get_html_uses(self, object_id):
-        uses = []
-
-        for model in apps.get_models():
-            html_fields = []
-
-            for field in model._meta.get_fields():
-                try:
-                    if field.get_internal_type() in ['HtmlField']:
-                        html_fields.append(field)
-                except AttributeError:
-                    # the field is actually a relation
-                    pass
-
-            if html_fields:
-                for obj in model.objects.all():
-                    for field in html_fields:
-                        if getattr(obj, field.attname) and 'src="/r/12-{}/"'.format(object_id) in getattr(obj, field.attname):
-                            uses.append({
-                                'name': str(obj),
-                                'model_name': obj._meta.model_name,
-                                'admin_url': self.get_admin_url(obj)
-                            })
-
-        return uses
-
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        test_obj = File.objects.get(pk=object_id)
-        querysets = []
 
-        for related in get_candidate_relations_to_delete(test_obj._meta):
-            related_objs = related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
-                **{"%s__in" % related.field.name: [test_obj]}
-            )
+        related_objects, has_related_objects = get_related_objects(object_id)
 
-            if related_objs:
-                querysets.append(related_objs)
-
-        related_pages = self.get_related_pages(querysets)
-        wysiwyg_fields = self.get_html_uses(object_id)
-
-        extra_context['related_objects'] = [
-            ('Linked from', [
-                {
-                    'name': str(page),
-                    'model_name': page._meta.model_name,
-                    'admin_url': self.get_admin_url(page),
-                } for page in related_pages]
-            ),
-            ('In WYSIWYGs', wysiwyg_fields)
-        ]
-
-        extra_context['has_related_objects'] = related_pages or wysiwyg_fields
+        extra_context['related_objects'] = related_objects
+        extra_context['has_related_objects'] = has_related_objects
 
         return super(FileAdminBase, self).change_view(request, object_id, extra_context=extra_context)
 
