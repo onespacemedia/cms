@@ -7,4 +7,4 @@ Onespacemedia.
 '''
 
 # Always use 3 parts, not 1, 2, or 4.
-VERSION = (4, 0, 3)
+VERSION = (4, 0, 4)

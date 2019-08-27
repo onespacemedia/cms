@@ -253,7 +253,7 @@ class PageAdmin(PageBaseAdmin):
             if obj:
                 try:
                     form_field.initial = getattr(obj.content, field.name, '')
-                    if isinstance(field, models.ManyToManyField):
+                    if isinstance(field, models.ManyToManyField) and not form_field.initial == '':
                         form_field.initial = form_field.initial.all()
                 except content_cls.DoesNotExist:
                     # This means that we're in a reversion recovery, or
