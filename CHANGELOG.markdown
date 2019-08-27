@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.4 - 27/08/2019
+
+* Fix an issue when changing page ContentType where the new ContentType has ManyToMany fields not on the original.
+
 ## 4.0.3 - 08/08/2019
 
 * Big speedups in RequestPageManager.
