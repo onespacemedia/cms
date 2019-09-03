@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.5 - 03/09/2019
+
+* Add a class to the ImageRefField widget's image preview to allow for easier styling.
+
 ## 4.0.4 - 27/08/2019
 
 * Fix an issue when changing page ContentType where the new ContentType has ManyToMany fields not on the original.
