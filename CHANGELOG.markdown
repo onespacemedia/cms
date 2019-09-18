@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.6 - 18/09/2019
+
+Fix saving pages from the changelist view when its content model has `fieldsets` under certain circumstances.
+
 ## 4.0.5 - 03/09/2019
 
 * Add a class to the ImageRefField widget's image preview to allow for easier styling.
