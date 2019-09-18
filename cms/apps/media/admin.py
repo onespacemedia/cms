@@ -58,7 +58,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     list_display_links = list_display
     list_filter = ['labels']
     search_fields = ['title']
-    ordering = ['pk']
 
     def get_form(self, request, obj=None, **kwargs):
         if obj and obj.is_image():

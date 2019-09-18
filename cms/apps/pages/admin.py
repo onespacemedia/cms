@@ -329,7 +329,11 @@ class PageAdmin(PageBaseAdmin):
         for field in content_obj._meta.fields:
             if field.name == 'page':
                 continue
-            setattr(content_obj, field.name, form.cleaned_data[field.name])
+            # This will not necessarily be in the form; if you change something
+            # that is `list_editable` in the changelist, for example.
+            if field.name in form.cleaned_data:
+                setattr(content_obj, field.name, form.cleaned_data[field.name])
+
         # Save the model.
         super().save_model(request, obj, form, change)
         # Save the page content.
