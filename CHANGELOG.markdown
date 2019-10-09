@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.8 - 18/09/2019
+* Don't override `submit_line.html` - this should be a decision for the CMS skin or a project-local override.
+
 ## 4.0.7 - 18/09/2019
 
 * Simplify template override for `pages/page/change_form.html`.
