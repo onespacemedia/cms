@@ -27053,8 +27053,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: '_attachDomEvents',
 	        value: function _attachDomEvents() {
-	            // ImageEditor supports IE 9 higher
-	            document.addEventListener('keydown', this._handlers.keydown);
+              // ImageEditor supports IE 9 higher
+	            this.ui._mainElement.parentNode.parentNode.addEventListener('keydown', this._handlers.keydown);
 	        }
 
 	        /**
@@ -27066,7 +27066,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: '_detachDomEvents',
 	        value: function _detachDomEvents() {
 	            // ImageEditor supports IE 9 higher
-	            document.removeEventListener('keydown', this._handlers.keydown);
+	            this.ui._mainElement.parentNode.parentNode.removeEventListener('keydown', this._handlers.keydown);
 	        }
 
 	        /**
