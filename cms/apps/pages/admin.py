@@ -311,12 +311,6 @@ class PageAdmin(PageBaseAdmin):
 
     def save_model(self, request, obj, form, change):
         '''Saves the model and adds its content fields.'''
-        print('#####')
-        print('#####')
-        print('#####')
-        print('#####')
-        print('#####')
-        print('#####')
         content_cls = self.get_page_content_cls(request, obj)
         content_cls_type = ContentType.objects.get_for_model(content_cls)
         # Delete the old page content, if it's expired.
