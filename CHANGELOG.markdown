@@ -1,6 +1,12 @@
 # Changelog
 
+## 4.0.9 - 11/10/2019
+
+* Remove key press listeners from image editor
+* Fix an issue where get parameters in the URL made saving a new page impossible
+
 ## 4.0.8 - 18/09/2019
+
 * Don't override `submit_line.html` - this should be a decision for the CMS skin or a project-local override.
 
 ## 4.0.7 - 18/09/2019

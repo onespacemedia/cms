@@ -311,6 +311,12 @@ class PageAdmin(PageBaseAdmin):
 
     def save_model(self, request, obj, form, change):
         '''Saves the model and adds its content fields.'''
+        print('#####')
+        print('#####')
+        print('#####')
+        print('#####')
+        print('#####')
+        print('#####')
         content_cls = self.get_page_content_cls(request, obj)
         content_cls_type = ContentType.objects.get_for_model(content_cls)
         # Delete the old page content, if it's expired.
@@ -480,6 +486,22 @@ class PageAdmin(PageBaseAdmin):
             if not self.has_add_content_permission(request, ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()):
                 raise PermissionDenied('You are not allowed to add pages of that content type.')
         return super().add_view(request, form_url, extra_context)
+
+    def get_preserved_filters(self, request):
+        '''
+            This is to fix an always present issue in our CMS where if there were preserved filters from the list view,
+            the type of page being saved would not be passed to the form action of the change form. This mean that on
+            posting, the admin would think the user was on the page type selection page and not trying to save the form.
+            We just need to add the PAGE_TYPE_PARAMETER to the form action if there are preserved filters.
+
+            For more info see: https://github.com/onespacemedia/osm-jet/issues/11
+        '''
+        preserved_filters = super().get_preserved_filters(request)
+
+        if preserved_filters and request.GET.get(PAGE_TYPE_PARAMETER):
+            preserved_filters = f'{preserved_filters}&{PAGE_TYPE_PARAMETER}={request.GET.get(PAGE_TYPE_PARAMETER)}'
+
+        return preserved_filters
 
     def response_add(self, request, obj, post_url_continue=None):
         '''Redirects to the sitemap if appropriate.'''
