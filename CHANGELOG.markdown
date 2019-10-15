@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Remove `cached_url` from the Page model, because it is [unreliable](https://github.com/onespacemedia/cms/pull/181).
+
 ## 4.0.9 - 11/10/2019
 
 * Remove key press listeners from image editor
