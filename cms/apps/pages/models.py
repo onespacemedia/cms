@@ -460,7 +460,7 @@ class ContentBase(models.Model):
         given lower priority than the title of the page it is attached to.
 
         By default this will return every text field on the ContentBase,
-        joined by spaces. A common case for overriding this is when your
+        separated by a space. A common case for overriding this is when your
         page's content is built out of other models.
         '''
         return ' '.join([
@@ -470,6 +470,7 @@ class ContentBase(models.Model):
                 in self._meta.fields
                 if isinstance(field, (models.CharField, models.TextField))
             ]
+            # Because we don't want to index "None" :)
             if getattr(self, field_name)
         ])
 
