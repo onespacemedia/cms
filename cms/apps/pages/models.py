@@ -376,17 +376,10 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         '''Returns the search text for the page.'''
         content_obj = obj.content
 
-        return ' '.join((
+        return ' '.join([
             super().get_content(obj),
-            self.prepare_content(' '.join(
-                force_text(self._resolve_field(content_obj, field_name))
-                for field_name in (
-                    field.name for field
-                    in content_obj._meta.fields
-                    if isinstance(field, (models.CharField, models.TextField))
-                )
-            ))
-        ))
+            self.prepare_content(content_obj.get_searchable_text())
+        ])
 
     def get_live_queryset(self):
         '''Selects the live page queryset.'''
@@ -470,14 +463,15 @@ class ContentBase(models.Model):
         joined by spaces. A common case for overriding this is when your
         page's content is built out of other models.
         '''
-        return ' '.join(
-            force_text(self._resolve_field(self, field_name))
-            for field_name in (
+        return ' '.join([
+            force_text(getattr(self, field_name))
+            for field_name in [
                 field.name for field
                 in self._meta.fields
                 if isinstance(field, (models.CharField, models.TextField))
-            )
-        )
+            ]
+            if getattr(self, field_name)
+        ])
 
 
 class Country(models.Model):
