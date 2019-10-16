@@ -10,7 +10,7 @@ Onespacemedia CMS assumes Jinja2 templating with [django-jinja](https://github.c
 
 ## Features
 
-onespacemedia-cms comes with very few features by default. It has very few opinions about what how your project should work, and plays well with all your existing models.
+onespacemedia-cms comes with very few features by default. It has no opinions about how your project should work, it has minimal opinions about how the admin looks, and it plays well with your existing models.
 
 -  Hierarchal page management with no depth limit.
 -  Publication controls with online preview.
@@ -20,7 +20,7 @@ onespacemedia-cms comes with very few features by default. It has very few opini
 -  Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
 -  Automatic SEO-friendly redirect management (via [django-historylinks](https://github.com/etianen/django-historylinks)).
 -  Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
--  Many optional helper model classes
+-  Many helper model classes and views for SEO-friendly user-visible models.
 
 ## Getting started
 
@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'cms',
     'cms.apps.pages',
     'cms.apps.media',
-    #
     'cms.apps.links',
 ]
 ```
@@ -62,7 +61,7 @@ MIDDLEWARE = [
 Finally, add `cms.apps.pages.context_processors.pages` to your template engine's `context_processors`.
 
 
-You should now run the following::
+You should now run the following:
 
 ```
 $ ./manage.py migrate
@@ -71,11 +70,11 @@ $ ./manage.py migrate
 ## Pages module
 
 
-The ``pages`` module is a standard CMS module which allows users to add pages to the website. However, it does not do anything by itself; It requires you to add models into your project which inherit from `ContentBase  <https://github.com/onespacemedia/cms/blob/dd759528a57ccd917b65a3395c098c5d7622e9cb/cms/apps/pages/models.py#L379>`_.
+The ``pages`` module is a standard CMS module which allows users to add pages to the website. However, it does not do anything by itself; It requires you to add models into your project which inherit from `cms.apps.ContentBase`
 
 ### How it works
 
-In ``cms.apps.pages.models`` there is a model named ``Page``, which contains a set of generic page fields such as ``parent``, ``publication_date``, ``expiry_date`` and so on.
+In `cms.apps.pages.models` there is a model named `Page`, which contains a set of generic page fields such as `parent`, `publication_date`, ``expiry_date`` and so on.
 
 To be able to add a ``Page`` to the site, we need a content model.  A content model is a way of representing a type of page. This could be a homepage, a standard page, a contact page etc -- each content model would have its own front-end template thus allowing you to provide different layout types, themes etc throughout your site.
 
@@ -83,9 +82,8 @@ Here is an example of a content model::
 
 
 ```
-from django.db import models
-
 from cms.apps.pages.models import ContentBase
+from django.db import models
 
 
 class Content(ContentBase):
@@ -116,7 +114,7 @@ As you can see, this will create a page content type named 'Content' with a text
   * Follow links
   * Allow archiving
 
-
+None of these exist on your content model; they are on the page to which a content model instance is attached. The fields from your content model are dynamically injected into the editing form in your admin. If you'd like to see the hairy details of how this works, see `get_form` in `apps/pages/admin.py`.
 
 If we wanted to have another page type with a different set of fields (or even the same fields) we simply have to add another model which extends ``ContentBase``, like so::
 
@@ -140,11 +138,11 @@ class ContentTwo(ContentBase):
     )
 ```
 
-With this structure in place, we would then get a choice of content types when adding a page.
+With this structure in place, we would then get a choice of content types when adding a new page.
 
 ### Context processor
 
-The pages module automatically adds a variable named ``pages`` to your template context. This gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this:
+The pages module automatically adds a variable named `pages` to your template context. This gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this:
 
 
 ```
@@ -159,7 +157,6 @@ class Content(ContentBase):
     )
 ```
 
-
 You can access the page data in your template like this:
 
 ```
@@ -172,13 +169,14 @@ You can access the page data in your template like this:
 <!-- Fields on the Page model -->
 {{ pages.current.title }}
 {{ pages.current.slug }}
+```
 
+The `content` attribute on the `Page` model is a cached property which performs a ContentType lookup against the content ID allowing access to the fields of the Content model:
+
+```
 <!-- Fields on the Content model -->
 {{ pages.current.content.introduction }}
 ```
-
-
-The `content` attribute on the `Page` model is a cached property which performs a ContentType lookup against the content ID allowing access to the fields of the Content model.
 
 ### Jinja2 template functions
 
@@ -190,7 +188,7 @@ Renders the site navigation using the template specified at ``pages/navigation.h
 
     {{ render_navigation(pages.homepage.navigation) }}
 
-Which would produce an output like this (though with some standard class names):
+Which would produce an output like this:
 
 ```
 <ul>
@@ -213,26 +211,28 @@ If you would like the "base page" (the page that the navigation is being based o
 The output of this would be:
 
 ```
-    <ul>
-        <li>
-            <a class="here" href="/">Homepage</a>
-        </li>
+<ul>
+    <li>
+        <a class="here" href="/">Homepage</a>
+    </li>
 
-        <li>
-            <a href="/page-1/">Page One</a>
-        </li>
+    <li>
+        <a href="/page-1/">Page One</a>
+    </li>
 
-        <li>
-            <a href="/page-2/">Page Two</a>
-        </li>
-    </ul>
+    <li>
+        <a href="/page-2/">Page Two</a>
+    </li>
+</ul>
 ```
+
+You will probably want to override the output in your project. For example, you'll almost certainly want to add class names, and to handle children of children. We suggest you make a local copy of `apps/pages/templates/pages/navigation.html` in your project.
 
 #### `get_navigation(pages, section=None)`
 
 This is a wrapper around `navigation`, but returns the navigation list instead of rendering it out to the page.
 
-.. py:method:: page_url(page, view_func=None, *args, **kwargs)
+#### `get_page_url(page, view_func=None, *args, **kwargs)`
 
 Gets the URL of a Page's view function.
 
@@ -242,69 +242,69 @@ TODO: Expand on this.
 
 Renders the content of the meta description tag for the current page::
 
-#### `{{ get_meta_description() }}`
+#### `get_meta_description()`
 
+You can override the meta description by setting a context variable called `meta_description`. You might want to use this in, e.g. the `get_context_data` method of a function to set a default for models that do not inherit from SearchMetaBase:
 
-You can override the meta description by setting a context variable called ``meta_description``::
+```
+{% with meta_description = 'foo' %}
+    {{ get_meta_description() }}
+{% endwith %}
+```
 
-    {% with meta_description = 'foo' %}
-        {% meta_description %}
-    {% endwith %}
+#### `get_meta_robots(context, index=None, follow=None, archive=None)`
 
-You can also provide the meta description as an argument to this tag::
+Renders the content of the meta robots tag for the current page:
 
-    {% meta_description "foo" %}
-
-.. py:method:: meta_robots(context, index=None, follow=None, archive=None)
-
-Renders the content of the meta robots tag for the current page::
-
-
-    {% meta_robots %}
+{{ get_meta_robots() }}
 
 You can override the meta robots by setting boolean context variables called
 ``robots_index``, ``robots_archive`` and ``robots_follow``::
 
-    {% with 1 as robots_follow %}
-        {% meta_robots %}
-    {% endwith %}
+```
+{% with robots_follow = 1 %}
+    {{ get_meta_robots() }}
+{% endwith %}
+```
 
 You can also provide the meta robots as three boolean arguments to this
 tag in the order 'index', 'follow' and 'archive'::
 
-    {% meta_robots 1 1 1 %}
+    {{ get_meta_robots(1, 1, 1) }}
 
-.. py:method:: title(context, browser_title=None)
+#### `render_title(browser_title=None)`
 
 Renders the title of the current page::
 
-    {% title %}
+    {{ render_title }}
 
-You can override the title by setting a context variable called ``title``::
+You can override the title by setting a context variable called `title`:
 
-    {% with "foo" as title %}
-        {% title %}
-    {% endwith %}
+```
+{% with title = "foo" %}
+  {{ render_title() }}
+{% endwith %}
+```
 
-You can also provide the title as an argument to this tag::
+You can also provide the title as an argument to this tag:
 
-    {% title "foo" %}
+```
+{{ title('foo') }}
+```
 
-.. py:method:: breadcrumbs(context, page=None, extended=False)
+#### `render_breadcrumbs(page=None, extended=False)`
 
 Renders the breadcrumbs trail for the current page::
 
-    {% breadcrumbs %}
+    {{ render_breadcrumbs() }}
 
-To override and extend the breadcrumb trail within page applications, add the ``extended`` flag to the tag and add your own breadcrumbs underneath::
+To override and extend the breadcrumb trail within page applications, add the ``extended`` flag to the tag and add your own breadcrumbs underneath:
 
-    {% breadcrumbs extended=1 %}
+    {{ render_breadcrumbs(extended=1) }}
 
-FAQs
-----
+### FAQs
 
-Can I change the content type after the page has been created?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Can I change the content type after the page has been created?
 
 Yes, but it has risks.  Changing the content type will cause you to lose data in any fields which don't exist in the new model, that is to say that if your structure looks like this::
 
@@ -323,7 +323,7 @@ class ContentTwo(ContentBase):
     )
 ```
 
-You can switch without issue as they have the same fields, however if your models look like this::
+You can switch without issue as they have the same fields. However, if your models look like this:
 
 ```
 class Content(ContentBase):
@@ -342,6 +342,8 @@ class ContentTwo(ContentBase):
 
 You would lose the data in the ``content`` field (on save) if you switched the content type from ``Content`` to ``ContentTwo``.
 
+Any objects that have a `ForeignKey` with `on_delete=models.CASCADE` will also be deleted in this case.
+
 If you still want to change the content type, then it's reasonably simple.
 
 #. Go to the create page of the content type you want to change *to*. Copy the number from the ``?type=XX`` portion of the URL.
@@ -350,36 +352,33 @@ If you still want to change the content type, then it's reasonably simple.
 
 At this point you will be looking at the fieldset for the new content type, but you will not have applied the changes.  If you're happy with the way your data looks hit Save and the changes will be saved.
 
-Can I change the ModelAdmin ``fieldsets`` of a model admin view?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Can I change the ModelAdmin ``fieldsets`` of a model admin view?
 
 Yes. Simply add the ``fieldsets`` tuple to your model rather than your admin.py.
 
-Can I set a ``filter_horizontal`` on a content model ManyToManyField?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Can I set a ``filter_horizontal`` on a content model ManyToManyField?
 
 Yes. Simply add the ``filter_horizontal`` tuple to your model rather than your admin.py.
 
-Can I add inline model admins to content models?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Can I add inline model admins to content models?
 
-Yes.  In your admin.py add code that looks like this::
+Yes. First, you need to add a ForeignKey from your inline model to `pages.Page` (note: *not* your content model!).
 
-    from django.contrib import admin
+In your admin.py add code that looks like this:
 
-    from .models import Content, CarouselSlide
+```
+from cms.apps.pages.admin import page_admin
+from django.contrib import admin
 
-    from cms.apps.pages.admin import page_admin
-
-
-    class CarouselSlideInline(admin.StackedInline):
-        model = CarouselSlide
-
-    page_admin.register_content_inline(Content, CarouselSlideInline)
+from .models import ContentModel, CarouselSlide
 
 
-Note that CarouselSlide, in this example, must have its foreign key to `pages.Page`, and not to your content model.
+class CarouselSlideInline(admin.StackedInline):
+    model = CarouselSlide
 
+
+page_admin.register_content_inline(ContentModel, CarouselSlideInline)
+```
 
 ## Media module
 
@@ -391,7 +390,7 @@ To make it easier to integrate the media module into your project a selection of
 
 #### FileRefField()
 
-Provides a widget which allows a user to select a file from the media library.
+FileRefField provides a widget which allows a user to select a file from the media library.
 
 #### ImageRefField()
 
@@ -405,16 +404,17 @@ The same functionality as the ``FileRefField()``, but with the files filtered to
 
 A ``Video`` object is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
 
-
 ## Links module
 
 The Links module provides a new page content type named "Link" which allows you to have a navigation item without a page associated.
 
 ### Configuration
 
-Ensure both ``cms.apps.pages`` and ``cms.apps.links`` are in your project's ``INSTALLED_APPS`` then add the new model to your database with the following::
+Ensure both ``cms.apps.pages`` and ``cms.apps.links`` are in your project's `INSTALLED_APPS`. If they weren't already, you will need to migrate:
 
-    $ ./manage.py migrate
+```
+$ ./manage.py migrate
+```
 
 ### Usage
 
@@ -424,22 +424,23 @@ If you do not have any other page content types you will be taken straight to th
 
 ## Moderation plugin
 
-Built into the CMS is a fully featured moderation system which allows any model in your project to be controlled by a status system.  Models which utilise the moderation system gain a field named ``status`` which has three possible values: "Draft", "Submitted for approval" or "Approved". Objects are only visible on the front-end of the website when they are marked as "Approved".
+Built into the CMS is a moderation system which allows any model in your project to be controlled by a status system.  Models which utilise the moderation system gain a field named `status` which has three possible values: "Draft", "Submitted for approval" or "Approved". Objects are only visible on the front-end of the website when they are marked as "Approved".
 
 Adding the moderation system to a model will create a new permission to be created named "Can approve items". Users will need to have this permission to be able to publish items to the website by setting the object status to "Approved", users without the permission will only be able to set the object status to "Draft" or "Submitted for approval".
 
 ### Adding the moderation system to a model
 
-There are a few steps required to integrate the moderation system with your models.  You will need to modify your models.py to look like this::
+There are a few steps required to integrate the moderation system with your models.  You will need to modify your models.py to look like this:
 
-    from cms.plugins.moderation.models import ModerationBase
+```
+from cms.plugins.moderation.models import ModerationBase
 
-    class MyModel(ModerationBase):
+class MyModel(ModerationBase):
 
-        # If you wish to set Meta settings, you need to extend ModerationBase.Meta.
-        class Meta(ModerationBase.Meta):
-            pass
-
+    # If you wish to set Meta settings, you need to extend ModerationBase.Meta.
+    class Meta(ModerationBase.Meta):
+        pass
+```
 
 To integrate the moderation system with the Django admin system modify your admin.py to use this structure:
 
@@ -452,12 +453,9 @@ from .models import MyModel
 
 @admin.register(MyModel)
 class MyModelAdmin(ModerationAdminBase):
-
-    # If your fieldsets variable only contains MODERATION_FIELDS, you can omit
-    # this variable entirely as this configuration is the default.
-    fieldsets = (
+    fieldsets = [
         MODERATION_FIELDS,
-    )
+    ]
 ```
 
-If your model already existed before adding the moderation system you will need to run ``./manage.py update_permissions`` (and probably restart the server) before they appear.
+If your model already existed before adding the moderation system you will need to run `./manage.py update_permissions` (and probably restart the server) before they appear.
