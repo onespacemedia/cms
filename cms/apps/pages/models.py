@@ -71,7 +71,6 @@ class PageManager(OnlineBaseManager):
         return self.prefetch_related('child_set__child_set').get(parent=None,
                                                                  is_content_object=False)
 
-
 class Page(PageBase):
 
     '''A page within the site.'''
@@ -461,6 +460,24 @@ class ContentBase(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_searchable_text(self):
+        '''
+        Returns a blob of text that will be indexed by Watson. This will be
+        given lower priority than the title of the page it is attached to.
+
+        By default this will return every text field on the ContentBase,
+        joined by spaces. A common case for overriding this is when your
+        page's content is built out of other models.
+        '''
+        return ' '.join(
+            force_text(self._resolve_field(self, field_name))
+            for field_name in (
+                field.name for field
+                in self._meta.fields
+                if isinstance(field, (models.CharField, models.TextField))
+            )
+        )
 
 
 class Country(models.Model):
