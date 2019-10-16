@@ -83,7 +83,7 @@ class TestPage(TestCase):
     def testChildPrefetching(self):
         # Make sure that prefetching works to two levels deep.
         with self.assertNumQueries(3):
-            homepage = Page.objects.get_homepage()
+            homepage = Page.objects.root_nodes()[0]
 
         with self.assertNumQueries(2):
             subsection = homepage.children[0].children[0]

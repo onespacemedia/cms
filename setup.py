@@ -16,6 +16,7 @@ DEPENDENCIES = [
     'beautifulsoup4',
     'django>=1.11,<1.12',
     'django-historylinks',
+    'django-mptt',
     'django-watson',
     'django-reversion',
     'django-jinja==2.4.1',

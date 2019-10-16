@@ -516,45 +516,9 @@ class PageAdmin(PageBaseAdmin):
         '''Adds in some custom admin URLs.'''
         admin_view = self.admin_site.admin_view
         return [
-            url(r'^sitemap.json$', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
             url(r'^move-page/$', admin_view(self.move_page_view), name='pages_page_move_page'),
             url(r'^(?P<page>\d+)/duplicate/$', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate_page'),
         ] + super().get_urls()
-
-    def sitemap_json_view(self, request):
-        '''Returns a JSON data structure describing the sitemap.'''
-        # Get the homepage.
-        homepage = request.pages.homepage
-        # Compile the initial data.
-        data = {
-            'canAdd': self.has_add_permission(request),
-            'createHomepageUrl': reverse('admin:pages_page_add') + '?{0}={1}'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
-            'moveUrl': reverse('admin:pages_page_move_page') or None,
-            'addUrl': reverse('admin:pages_page_add') + '?{0}={1}&parent=__id__'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
-            'changeUrl': reverse('admin:pages_page_change', args=('__id__',)) + '?{0}={1}'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
-            'deleteUrl': reverse('admin:pages_page_delete', args=('__id__',)) + '?{0}={1}'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
-        }
-        # Add in the page data.
-        if homepage:
-            def sitemap_entry(page):
-                children = []
-                for child in page.children:
-                    children.append(sitemap_entry(child))
-                return {
-                    'isOnline': page.is_online,
-                    'id': page.id,
-                    'title': str(page),
-                    'children': children,
-                    'canChange': self.has_change_permission(request, page),
-                    'canDelete': self.has_delete_permission(request, page),
-                }
-            data['entries'] = [sitemap_entry(homepage)]
-        else:
-            data['entries'] = []
-        # Render the JSON.
-        response = HttpResponse(content_type='application/json; charset=utf-8')
-        json.dump(data, response)
-        return response
 
     @transaction.atomic
     def move_page_view(self, request):
@@ -563,91 +527,19 @@ class PageAdmin(PageBaseAdmin):
         if not self.has_change_permission(request):
             return HttpResponseForbidden('You do not have permission to move this page.')
 
-        # Lock entire table.
-        existing_pages_list = Page.objects.all().exclude(
-            is_content_object=True,
-        ).select_for_update().values(
-            'id',
-            'parent_id',
-            'left',
-            'right',
-            'title'
-        ).order_by('left')
-        existing_pages = dict(
-            (page['id'], page)
-            for page
-            in existing_pages_list
-        )
+        moving_page = Page.objects.get(id=int(request.POST['page']))
 
-        # Get the page.
-        page = existing_pages[int(request.POST['page'])]
-        parent_id = page['parent_id']
-
-        # Get all the siblings.
-        siblings = [s for s in existing_pages_list if s['parent_id'] == parent_id]
-
-        # Find the page to swap.
-        direction = request.POST['direction']
-
-        if direction == 'up':
-            siblings.reverse()
-        elif direction == 'down':
-            pass
+        if request.POST['direction'] == 'up':
+            moving_page.move_to(moving_page.get_previous_sibling(), position='left')
+        elif request.POST['direction'] == 'down':
+            moving_page.move_to(moving_page.get_next_sibling(), position='right')
         else:
-            raise ValueError('Direction should be "up" or "down".')
+            raise ValueError('Direction should be either "up" or "down".')
 
-        sibling_iter = iter(siblings)
-        for sibling in sibling_iter:
-            if sibling['id'] == page['id']:
-                break
-        try:
-            other_page = next(sibling_iter)
-        except StopIteration:
-            return HttpResponse('Page could not be moved, as nothing to swap with.')
-
-        # Put the pages in order.
-        first_page, second_page = sorted((page, other_page), key=lambda p: p['left'])
-
-        # Excise the first page.
-        Page.objects.filter(left__gte=first_page['left'], right__lte=first_page['right']).update(
-            left=F('left') * -1,
-            right=F('right') * -1,
-        )
-
-        # Move the other page.
-        branch_width = first_page['right'] - first_page['left'] + 1
-        Page.objects.filter(left__gte=second_page['left'], right__lte=second_page['right']).update(
-            left=F('left') - branch_width,
-            right=F('right') - branch_width,
-        )
-
-        # Put the page back in.
-        second_branch_width = second_page['right'] - second_page['left'] + 1
-        Page.objects.filter(left__lte=-first_page['left'], right__gte=-first_page['right']).update(
-            left=(F('left') - second_branch_width) * -1,
-            right=(F('right') - second_branch_width) * -1,
-        )
-
-        # Update all content models to match the left and right of their parents.
-        existing_pages_list = Page.objects.all().exclude(
-            is_content_object=False,
-        ).select_for_update().values(
-            'id',
-            'parent_id',
-            'owner',
-            'left',
-            'right',
-            'title'
-        ).order_by('left')
-
-        for child_page in existing_pages_list:
-            child_page.update(
-                left=F('owner__left'),
-                right=F('owner__right'),
-            )
+        Page.objects.rebuild()
 
         # Report back.
-        return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
+        return HttpResponse(f'Page #{request.POST["page"]} was moved {request.POST["direction"]}.')
 
     @staticmethod
     def duplicate_for_country_group(request, *args, **kwargs):
