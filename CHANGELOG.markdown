@@ -1,7 +1,8 @@
 # Changelog
 
-## Next release
+## Next release (4.1.0?)
 * Remove `cached_url` from the Page model, because it is [unreliable](https://github.com/onespacemedia/cms/pull/181).
+* Make it possible for ContentBase derivatives to override how they are searched by Watson.
 
 ## 4.0.9 - 11/10/2019
 
