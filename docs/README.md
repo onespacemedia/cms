@@ -4,16 +4,23 @@ Onespacemedia CMS is a collection of Django extensions that add content-manageme
 
 The current version of onespacemedia-cms should always be compatible with the current LTS version of Django.
 
-## Features enabled by default
+## Requirements
 
+Onespacemedia CMS assumes Jinja2 templating with [django-jinja](https://github.com/niwinz/django-jinja), search with [django-watson](https://github.com/etianen/django-watson/issues), and very little else.
+
+## Features
+
+onespacemedia-cms comes with very few features by default. It has very few opinions about what how your project should work, and plays well with all your existing models.
+
+-  Hierarchal page management with no depth limit.
 -  Publication controls with online preview.
 -  Pre-configured WYSIWYG editor widgets (using TinyMCE)
--  Hierarchal page management with no depth limit.
 -  Image and file management, with easy embedding via WYSIWYG editors or pure model fields.
 -  Internal / external links in menus (via bundled `links` app).
 -  Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
 -  Automatic SEO-friendly redirect management (via [django-historylinks](https://github.com/etianen/django-historylinks)).
 -  Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
+-  Many optional helper model classes
 
 ## Getting started
 
@@ -35,6 +42,10 @@ Add the CMS to your `INSTALLED_APPS`:
 INSTALLED_APPS = [
     ...
     'cms',
+    'cms.apps.pages',
+    'cms.apps.media',
+    #
+    'cms.apps.links',
 ]
 ```
 
@@ -48,6 +59,9 @@ MIDDLEWARE = [
 ]
 ```
 
+Finally, add `cms.apps.pages.context_processors.pages` to your template engine's `context_processors`.
+
+
 You should now run the following::
 
 ```
@@ -57,7 +71,7 @@ $ ./manage.py migrate
 ## Pages module
 
 
-The ``pages`` module is a standard CMS module which allows users to add pages to the website. However, it does not do anything by itself/ It requires you to add models which extend `ContentBase  <https://github.com/onespacemedia/cms/blob/dd759528a57ccd917b65a3395c098c5d7622e9cb/cms/apps/pages/models.py#L379>`_.
+The ``pages`` module is a standard CMS module which allows users to add pages to the website. However, it does not do anything by itself; It requires you to add models into your project which inherit from `ContentBase  <https://github.com/onespacemedia/cms/blob/dd759528a57ccd917b65a3395c098c5d7622e9cb/cms/apps/pages/models.py#L379>`_.
 
 ### How it works
 
@@ -65,7 +79,7 @@ In ``cms.apps.pages.models`` there is a model named ``Page``, which contains a s
 
 To be able to add a ``Page`` to the site, we need a content model.  A content model is a way of representing a type of page. This could be a homepage, a standard page, a contact page etc -- each content model would have its own front-end template thus allowing you to provide different layout types, themes etc throughout your site.
 
-Here is an aexample of a content model::
+Here is an example of a content model::
 
 
 ```
@@ -82,7 +96,7 @@ class Content(ContentBase):
 ```
 
 
-As you can see, this will create a Page type named 'Content' with a textarea named 'content'.  In addition to our custom field, we will have the following fields:
+As you can see, this will create a page content type named 'Content' with a textarea named 'content'.  In addition to our custom field, we will have the following fields:
 
 * Title
 * Slug (automatically populated as you type into the Title field)
@@ -101,6 +115,8 @@ As you can see, this will create a Page type named 'Content' with a textarea nam
   * Allow index
   * Follow links
   * Allow archiving
+
+
 
 If we wanted to have another page type with a different set of fields (or even the same fields) we simply have to add another model which extends ``ContentBase``, like so::
 
@@ -128,7 +144,7 @@ With this structure in place, we would then get a choice of content types when a
 
 ### Context processor
 
-The pages module automatically adds a variable named ``pages`` to your template context. This gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this::
+The pages module automatically adds a variable named ``pages`` to your template context. This gives you access to the page data and content for the current page and the homepage.  Let's assume your model looks like this:
 
 
 ```
@@ -168,7 +184,7 @@ The `content` attribute on the `Page` model is a cached property which performs 
 
 A collection of template tags are included with the pages module, mostly for the purposes of simplifying SEO.
 
-#### `render_navigation(context, pages, section=None)`
+#### `render_navigation(pages, section=None)`
 
 Renders the site navigation using the template specified at ``pages/navigation.html``. By default this is just an unordered list with each navigation item as a list item.  The simplest usage is like this::
 
@@ -191,7 +207,8 @@ Which would produce an output like this (though with some standard class names):
 If you would like the "base page" (the page that the navigation is being based off) to be included in the navigation simply add the ``section`` kwarg::
 
 ```
-{% navigation pages.homepage.navigation section=pages.homepage %}
+{{ render_navigation(pages.homepage.navigation, section=pages.homepage) }}
+```
 
 The output of this would be:
 
@@ -211,9 +228,9 @@ The output of this would be:
     </ul>
 ```
 
-.. py:method:: get_navigation(context, pages, section=None)
+#### `get_navigation(pages, section=None)`
 
-This is a wrapper around ``navigation``, but returns the navigation list instead of rendering it out to the page.
+This is a wrapper around `navigation`, but returns the navigation list instead of rendering it out to the page.
 
 .. py:method:: page_url(page, view_func=None, *args, **kwargs)
 
@@ -221,15 +238,16 @@ Gets the URL of a Page's view function.
 
 TODO: Expand on this.
 
-.. py:method:: meta_description(context, description=None)
+#### `meta_description(description=None)`
 
 Renders the content of the meta description tag for the current page::
 
-    {% meta_description %}
+#### `{{ get_meta_description() }}`
+
 
 You can override the meta description by setting a context variable called ``meta_description``::
 
-    {% with "foo" as meta_description %}
+    {% with meta_description = 'foo' %}
         {% meta_description %}
     {% endwith %}
 
@@ -240,6 +258,7 @@ You can also provide the meta description as an argument to this tag::
 .. py:method:: meta_robots(context, index=None, follow=None, archive=None)
 
 Renders the content of the meta robots tag for the current page::
+
 
     {% meta_robots %}
 
@@ -359,64 +378,57 @@ Yes.  In your admin.py add code that looks like this::
     page_admin.register_content_inline(Content, CarouselSlideInline)
 
 
-Media module
-============
+Note that CarouselSlide, in this example, must have its foreign key to `pages.Page`, and not to your content model.
+
+
+## Media module
 
 The media app provides a file and image management interface to the CMS admin. It also integrates with WYSIWYG text editors to provide a file browser and image browser interface that allows images and files to be uploaded directly into the editor.
 
-Models
-------
+### Models
 
 To make it easier to integrate the media module into your project a selection of models are provided.
 
-.. py:class:: FileRefField()
+#### FileRefField()
 
 Provides a widget which allows a user to select a file from the media library.
 
-.. py:class:: ImageRefField()
+#### ImageRefField()
 
 The same functionality as the ``FileRefField()``, but with the files filtered to only show images.
 
-.. py:class:: VideoFileRefField()
+#### VideoFileRefField()
 
 The same functionality as the ``FileRefField()``, but with the files filtered to only show videos.
 
-.. py:class:: VideoRefField()
+#### VideoRefField()
 
 A ``Video`` object is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
 
 
-Links Module
-============
+## Links module
 
 The Links module provides a new page content type named "Link" which allows you to have a navigation item without a page associated.
 
-Configuration
--------------
+### Configuration
 
 Ensure both ``cms.apps.pages`` and ``cms.apps.links`` are in your project's ``INSTALLED_APPS`` then add the new model to your database with the following::
 
     $ ./manage.py migrate
 
-Usage
------
+### Usage
 
 To add a Link to your site simply add a Page. If you have more than one content type you will be shown a page such as this:
 
-.. image :: img/content_types_link.png
-
 If you do not have any other page content types you will be taken straight to the add form.  The form itself is very straightforward, simply add the Title for the page and a URL to redirect to.
 
-
-Moderation Plugin
-=================
+## Moderation plugin
 
 Built into the CMS is a fully featured moderation system which allows any model in your project to be controlled by a status system.  Models which utilise the moderation system gain a field named ``status`` which has three possible values: "Draft", "Submitted for approval" or "Approved". Objects are only visible on the front-end of the website when they are marked as "Approved".
 
 Adding the moderation system to a model will create a new permission to be created named "Can approve items". Users will need to have this permission to be able to publish items to the website by setting the object status to "Approved", users without the permission will only be able to set the object status to "Draft" or "Submitted for approval".
 
-Adding the moderation system to a model
----------------------------------------
+### Adding the moderation system to a model
 
 There are a few steps required to integrate the moderation system with your models.  You will need to modify your models.py to look like this::
 
@@ -429,24 +441,23 @@ There are a few steps required to integrate the moderation system with your mode
             pass
 
 
-To integrate the moderation system with the Django admin system modify your admin.py to use this structure::
+To integrate the moderation system with the Django admin system modify your admin.py to use this structure:
+
+````
+from cms.plugins.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
+from django.contrib import admin
+
+from .models import MyModel
 
 
-    from django.contrib import admin
+@admin.register(MyModel)
+class MyModelAdmin(ModerationAdminBase):
 
-    from .models import MyModel
-
-    from cms.plugins.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
-
-
-    class MyModelAdmin(ModerationAdminBase):
-
-        # If your fieldsets variable only contains MODERATION_FIELDS, you can omit
-        # this variable entirely as this configuration is the default.
-        fieldsets = (
-            MODERATION_FIELDS,
-        )
-
-    admin.site.register(MyModel, MyModelAdmin)
+    # If your fieldsets variable only contains MODERATION_FIELDS, you can omit
+    # this variable entirely as this configuration is the default.
+    fieldsets = (
+        MODERATION_FIELDS,
+    )
+```
 
 If your model already existed before adding the moderation system you will need to run ``./manage.py update_permissions`` (and probably restart the server) before they appear.
