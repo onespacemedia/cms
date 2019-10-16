@@ -59,7 +59,7 @@ class RequestPageManager:
     def homepage(self):
         '''Returns the site homepage.'''
         try:
-            return Page.objects.get_homepage()
+            return Page.objects.root_nodes()[0]
         except Page.DoesNotExist:
             return None
 

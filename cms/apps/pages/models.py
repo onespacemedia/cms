@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
 from historylinks import shortcuts as historylinks
+from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from reversion.models import Version
 
 from cms import sitemaps
@@ -16,7 +17,6 @@ from cms.models.managers import publication_manager
 
 
 class PageManager(OnlineBaseManager):
-
     '''Manager for Page objects.'''
 
     def select_published(self, queryset, page_alias=None):
@@ -66,21 +66,16 @@ class PageManager(OnlineBaseManager):
         )
         return queryset
 
-    def get_homepage(self):
-        '''Returns the site homepage.'''
-        return self.prefetch_related('child_set__child_set').get(parent=None,
-                                                                 is_content_object=False)
 
-
-class Page(PageBase):
-
+class Page(MPTTModel, PageBase):
     '''A page within the site.'''
 
-    objects = PageManager()
+    objects = TreeManager()
+    published_objects = PageManager()
 
     # Hierarchy fields.
 
-    parent = models.ForeignKey(
+    parent = TreeForeignKey(
         'self',
         blank=True,
         null=True,
@@ -113,22 +108,6 @@ class Page(PageBase):
         null=True,
         related_name='owner_set',
     )
-
-    @cached_property
-    def children(self):
-        '''The child pages for this page.'''
-        children = []
-        if self.right - self.left > 1:  # Optimization - don't fetch children
-            #  we know aren't there!
-            for child in self.child_set.filter(is_content_object=False):
-                child.parent = self
-                children.append(child)
-        return children
-
-    @property
-    def navigation(self):
-        '''The sub-navigation of this page.'''
-        return [child for child in self.children if child.in_navigation]
 
     # Publication fields.
 
@@ -176,6 +155,40 @@ class Page(PageBase):
         help_text="Visitors that aren't logged in won't see this page in the navigation"
     )
 
+    class Meta:
+        unique_together = (('parent', 'slug', 'country_group'),)
+        ordering = ('left',)
+
+    class MPTTMeta:
+        right_attr = 'right'
+        left_attr = 'left'
+
+    def save(self, *args, **kwargs):
+        super(Page, self).save(*args, **kwargs)
+        Page.objects.rebuild()
+
+    def get_absolute_url(self):
+        if not self.parent:
+            return urls.get_script_prefix()
+
+        return self.parent.get_absolute_url() + self.slug + '/'
+
+    @cached_property
+    def children(self):
+        '''The child pages for this page.'''
+        children = []
+        if self.right - self.left > 1:  # Optimization - don't fetch children
+            #  we know aren't there!
+            for child in self.child_set.filter(is_content_object=False):
+                child.parent = self
+                children.append(child)
+        return children
+
+    @property
+    def navigation(self):
+        '''The sub-navigation of this page.'''
+        return [child for child in self.children if child.in_navigation]
+
     def auth_required(self):
         if self.requires_authentication or not self.parent:
             return self.requires_authentication
@@ -206,136 +219,6 @@ class Page(PageBase):
             kwargs=kwargs,
             urlconf=urlconf,
         )
-
-    # Standard model methods.
-
-    def get_absolute_url(self):
-        '''Generates the absolute url of the page.'''
-
-        if not self.parent:
-            return urls.get_script_prefix()
-
-        return self.parent.get_absolute_url() + self.slug + '/'
-
-    # Tree management.
-
-    @property
-    def _branch_width(self):
-        return self.right - self.left + 1
-
-    def _excise_branch(self):
-        '''Excises this whole branch from the tree.'''
-        branch_width = self._branch_width
-        Page.objects.filter(left__gte=self.left).update(
-            left=F('left') - branch_width,
-        )
-        Page.objects.filter(right__gte=self.left).update(
-            right=F('right') - branch_width,
-        )
-
-    def _insert_branch(self):
-        '''Inserts this whole branch into the tree.'''
-        branch_width = self._branch_width
-        Page.objects.filter(left__gte=self.left).update(
-            left=F('left') + branch_width,
-        )
-        Page.objects.filter(right__gte=self.left).update(
-            right=F('right') + branch_width,
-        )
-
-    @transaction.atomic
-    def save(self, *args, **kwargs):
-        '''Saves the page.'''
-
-        if self.is_content_object is False:
-            with connection.cursor() as cursor:
-                cursor.execute('LOCK TABLE {} IN ROW SHARE MODE'.format(Page._meta.db_table))
-
-                # Lock entire table.
-                existing_pages = dict(
-                    (page['id'], page)
-                    for page
-                    in Page.objects.filter(
-                        is_content_object=False
-                    ).select_for_update().values(
-                        'id',
-                        'parent_id',
-                        'left',
-                        'right'
-                    )
-                )
-
-                if self.left is None or self.right is None:
-                    # This page is being inserted.
-                    if existing_pages:
-                        parent_right = existing_pages[self.parent_id]['right']
-                        # Set the model left and right.
-                        self.left = parent_right
-                        self.right = self.left + 1
-                        # Update the whole tree structure.
-                        self._insert_branch()
-                    else:
-                        # This is the first page to be created, ever!
-                        self.left = 1
-                        self.right = 2
-                else:
-                    # This is an update.
-                    if self.id not in existing_pages:
-                        old_parent_id = -1
-                    else:
-                        old_parent_id = existing_pages[self.id]['parent_id']
-
-                    if old_parent_id != self.parent_id:
-                        # The page has moved.
-                        branch_width = self.right - self.left + 1
-                        # Disconnect child branch.
-                        if branch_width > 2:
-                            Page.objects.filter(
-                                left__gt=self.left,
-                                right__lt=self.right
-                            ).update(
-                                left=F('left') * -1,
-                                right=F('right') * -1,
-                            )
-                        self._excise_branch()
-                        # Store old left and right values.
-                        old_left = self.left
-                        old_right = self.right
-                        # Put self into the tree.
-                        if self.parent_id:
-                            parent_right = existing_pages[self.parent_id]['right']
-                            if parent_right > self.right:
-                                parent_right -= self._branch_width
-                            self.left = parent_right
-                            self.right = self.left + branch_width - 1
-                            self._insert_branch()
-
-                            # Put all children back into the tree.
-                            if branch_width > 2:
-                                child_offset = self.left - old_left
-                                Page.objects.filter(
-                                    left__lt=-old_left,
-                                    right__gt=-old_right
-                                ).update(
-                                    left=(F('left') - child_offset) * -1,
-                                    right=(F('right') - child_offset) * -1,
-                                )
-
-        # Now actually save it!
-        super().save(*args, **kwargs)
-
-    @transaction.atomic
-    def delete(self, *args, **kwargs):
-        '''Deletes the page.'''
-        list(Page.objects.all().select_for_update().values_list(
-            'left',
-            'right'
-        ))  #
-        # Lock entire
-        #  table.
-        super().delete(*args, **kwargs)
-        # Update the entire tree.
-        self._excise_branch()
 
     def last_modified(self):
         versions = Version.objects.get_for_object(self)
@@ -395,7 +278,7 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         with publication_manager.select_published(False):
             qs = Page._base_manager.all()
         if publication_manager.select_published_active():
-            qs = Page.objects.select_published(qs, page_alias='U0')
+            qs = Page.published_objects.select_published(qs, page_alias='U0')
         # Filter out unindexable pages.
         qs = filter_indexable_pages(qs)
         # All done!
