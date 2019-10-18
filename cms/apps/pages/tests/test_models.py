@@ -166,19 +166,16 @@ class TestPage(TestCase):
                 left=None,
                 right=None,
             )
-            self.assertIsNone(new_page.cached_url)
+
             new_page.save()
-            self.assertEqual(new_page.cached_url, '/')
 
             TestPageContent.objects.create(
                 page=new_page,
             )
 
         self.assertEqual(new_page.get_absolute_url(), '/')
-        self.assertEqual(new_page.get_absolute_url(True), '/')
 
         new_page = Page.objects.get(pk=new_page.pk)
-        self.assertEqual(new_page.cached_url, '/')
         self.assertEqual(new_page.get_absolute_url(), '/')
 
     def test_last_modified(self):
@@ -238,7 +235,7 @@ class TestSectionPage(TestCase):
         search_adapter = PageSearchAdapter(Page)
 
         content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, '      homepage Homepage  / ')
+        self.assertEqual(content, '      homepage Homepage  ')
 
 
 class TestPageComplex(TestCase):

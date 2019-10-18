@@ -165,12 +165,6 @@ class Page(PageBase):
         help_text='The type of page content.',
     )
 
-    cached_url = models.CharField(
-        max_length=1000,
-        null=True,
-        blank=True,
-    )
-
     requires_authentication = models.BooleanField(
         default=False,
         help_text='Visitors will need to be logged in to see this page'
@@ -215,21 +209,13 @@ class Page(PageBase):
 
     # Standard model methods.
 
-    def get_absolute_url(self, cached=False):
+    def get_absolute_url(self):
         '''Generates the absolute url of the page.'''
-        if self.cached_url and cached:
-            return self.cached_url
 
-        if self.parent:
-            url = self.parent.get_absolute_url() + self.slug + '/'
-        else:
-            url = urls.get_script_prefix()
+        if not self.parent:
+            return urls.get_script_prefix()
 
-        if url != self.cached_url:
-            self.cached_url = url
-            self.save()
-
-        return url
+        return self.parent.get_absolute_url() + self.slug + '/'
 
     # Tree management.
 
@@ -338,8 +324,6 @@ class Page(PageBase):
         # Now actually save it!
         super().save(*args, **kwargs)
 
-        self.get_absolute_url(False)
-
     @transaction.atomic
     def delete(self, *args, **kwargs):
         '''Deletes the page.'''
@@ -362,7 +346,6 @@ class Page(PageBase):
                 latest_version.revision.user
             )
         return '-'
-
 
     class Meta:
         unique_together = (('parent', 'slug', 'country_group'),)
