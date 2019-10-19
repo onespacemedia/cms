@@ -45,7 +45,8 @@ PAGE_TYPE_PARAMETER = 'type'
 # We check this a couple of times to see if we are using the localisation
 # middleware. We support MIDDLEWARE_CLASSES for compatibility with older
 # projects and older Djangos.
-SETTINGS_MIDDLEWARE = getattr(settings, 'MIDDLEWARE_CLASSES', settings.MIDDLEWARE)
+SETTINGS_MIDDLEWARE = getattr(settings, 'MIDDLEWARE', None) or settings.MIDDLEWARE_CLASSES
+
 
 class PageContentTypeFilter(admin.SimpleListFilter):
     '''Enables filtering of pages by their content type.'''
@@ -709,6 +710,7 @@ class CountryAdmin(admin.ModelAdmin):
 
 admin.site.register(Page, PageAdmin)
 
+print(SETTINGS_MIDDLEWARE)
 if 'cms.middleware.LocalisationMiddleware' in SETTINGS_MIDDLEWARE:
     admin.site.register(Country, CountryAdmin)
     admin.site.register(CountryGroup, CountryGroupAdmin)
