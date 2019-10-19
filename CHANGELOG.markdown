@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Ensure all `ForeignKey`s have an `on_delete` explicitly specified for Django 2.2 compatibility.
+
 ## 4.0.10 - 18/10/2019
 * Fix `Video.embed_html()` function using the wrong renderer for local mp4 files.
 * Remove `cached_url` from the Page model, because it is [unreliable](https://github.com/onespacemedia/cms/pull/181).
