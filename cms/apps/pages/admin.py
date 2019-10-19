@@ -710,7 +710,6 @@ class CountryAdmin(admin.ModelAdmin):
 
 admin.site.register(Page, PageAdmin)
 
-print(SETTINGS_MIDDLEWARE)
 if 'cms.middleware.LocalisationMiddleware' in SETTINGS_MIDDLEWARE:
     admin.site.register(Country, CountryAdmin)
     admin.site.register(CountryGroup, CountryGroupAdmin)
