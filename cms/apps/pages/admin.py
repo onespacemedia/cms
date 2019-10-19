@@ -42,8 +42,8 @@ PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
 
-# We check this a couple of times to see if we are localised. We prefer
-# MIDDLEWARE, but support MIDDLEWARE_CLASSES for compatibility with older
+# We check this a couple of times to see if we are using the localisation
+# middleware. We support MIDDLEWARE_CLASSES for compatibility with older
 # projects and older Djangos.
 SETTINGS_MIDDLEWARE = getattr(settings, 'MIDDLEWARE_CLASSES', settings.MIDDLEWARE)
 
