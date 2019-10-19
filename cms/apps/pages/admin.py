@@ -42,11 +42,6 @@ PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
 
-# We check this a couple of times to see if we are using the localisation
-# middleware. We support MIDDLEWARE_CLASSES for compatibility with older
-# projects and older Djangos.
-SETTINGS_MIDDLEWARE = getattr(settings, 'MIDDLEWARE', None) or settings.MIDDLEWARE_CLASSES
-
 
 class PageContentTypeFilter(admin.SimpleListFilter):
     '''Enables filtering of pages by their content type.'''
@@ -430,7 +425,8 @@ class PageAdmin(PageBaseAdmin):
             ).order_by('-country_group')
 
         extra_context['display_language_options'] = False
-        if 'cms.middleware.LocalisationMiddleware' in SETTINGS_MIDDLEWARE:
+        middleware = getattr(settings, 'MIDDLEWARE', None) or settings.MIDDLEWARE_CLASSES
+        if 'cms.middleware.LocalisationMiddleware' in middleware:
             extra_context['display_language_options'] = True
 
         # Call the change view.
@@ -710,7 +706,9 @@ class CountryAdmin(admin.ModelAdmin):
 
 admin.site.register(Page, PageAdmin)
 
-if 'cms.middleware.LocalisationMiddleware' in SETTINGS_MIDDLEWARE:
+middleware = getattr(settings, 'MIDDLEWARE', None) or settings.MIDDLEWARE_CLASSES
+
+if 'cms.middleware.LocalisationMiddleware' in middleware:
     admin.site.register(Country, CountryAdmin)
     admin.site.register(CountryGroup, CountryGroupAdmin)
 
