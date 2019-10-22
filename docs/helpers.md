@@ -1,6 +1,6 @@
-= Helper models, views, and `ModelAdmin`s
+# Helper models, views, and `ModelAdmin`s
 
-== OnlineBase
+## OnlineBase
 
 `cms.models.OnlineBase` provides publication controls. It provides a single field: `is_online`. When it is `False` (unchecked), it will not appear on the front-end of your website.
 
@@ -11,7 +11,7 @@ Because this custom manager is aware of the currently active request, it will re
 * The current request's user is a staff user, _and_ the `preview` GET parameter in the URL is non-empty (e.g. `?preview=1`). This allows you to preview offline objects.
 * The current request's path matches a regular expression in the `settings.PUBLICATION_URLS` tuple. One of these will probably be `^admin/` in your configuration, for obvious reasons.
 
-== PageBase
+## PageBase
 
 `cms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are fairly typical for a typical article-like thing on a website. If an instance of your model lives at its own URL and has a title, then you almost certainly want to inherit from `PageBase`. The CMS's own `Page` model inherits from it.
 
@@ -21,7 +21,7 @@ TODO:
 * `PageBaseAdmin`
 * `PageDetailMixin`
 
-== SearchMetaBase
+## SearchMetaBase
 
 `cms.models.SearchMetaBase` provides everything that `PageBase` does, except a title and a slug. This is for models in which you want all the features of `PageBase`, but which don't have a "title" from which you can construct a page title.
 
