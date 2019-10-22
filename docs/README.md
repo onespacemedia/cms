@@ -432,22 +432,6 @@ To add a Link to your site simply add a Page.
 
 If you have more than one content type registered (i.e. anything other than that in the Links app itself) you will be asked to choose a page type, after which you choose 'Link'. If you do not have any other page content types you will be taken directly to the add form.  The form itself is very straightforward; simply add the Title for the page and a URL to redirect to.
 
-## Helper models `cms.models`
-
-TODO.
-
-### `cms.models.OnlineBase`
-
-TODO.
-
-### `cms.models.SearchMetaBase`
-
-TODO.
-
-### `cms.models.PageBase`
-
-TODO.
-
 
 ## Moderation plugin
 
