@@ -404,13 +404,13 @@ To make it easier to integrate the media module into your project, a few fields 
 
 `FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable).
 
-`ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images.
+`ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images. This will also display a small preview of the image in the widget in the admin.
 
-`VideoFileRefField()` has the same functionality `FileRefField()`, but the files are filtered to only show videos.
+`VideoFileRefField()` has the same functionality as `FileRefField()`, but the files are filtered to only show videos.
 
-#### VideoRefField()
+#### Video
 
-A `Video` object is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
+A `Video` model is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
 
 ## Links module (`cms.apps.links`)
 
