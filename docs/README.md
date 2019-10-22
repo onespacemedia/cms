@@ -302,11 +302,11 @@ To override and extend the breadcrumb trail within page applications, add the ``
 
     {{ render_breadcrumbs(extended=1) }}
 
-### FAQs
+### How do I....
 
-#### Can I change the content type after the page has been created?
+#### ...change the content type after the page has been created?
 
-Yes, but it has risks.  Changing the content type will cause you to lose data in any fields which don't exist in the new model, that is to say that if your structure looks like this::
+This has risks.  Changing the content type will cause you to lose data in any fields which don't exist in the new model. For example, if your models look like this:
 
 ```
 class Content(ContentBase):
@@ -352,17 +352,17 @@ If you still want to change the content type, then it's reasonably simple.
 
 At this point you will be looking at the fieldset for the new content type, but you will not have applied the changes.  If you're happy with the way your data looks hit Save and the changes will be saved.
 
-#### Can I change the ModelAdmin ``fieldsets`` of a model admin view?
+#### ...change the ModelAdmin ``fieldsets`` of my content model?
 
-Yes. Simply add the ``fieldsets`` tuple to your model rather than your admin.py.
+Simply add the `fieldsets` tuple to your model rather than your admin.py.
 
-#### Can I set a ``filter_horizontal`` on a content model ManyToManyField?
+#### ...set a `filter_horizontal` on a content model ManyToManyField?
 
-Yes. Simply add the ``filter_horizontal`` tuple to your model rather than your admin.py.
+Simply add the ``filter_horizontal`` tuple to your model rather than your admin.py.
 
-#### Can I add inline model admins to content models?
+#### ...add inline model admins to content models?
 
-Yes. First, you need to add a ForeignKey from your inline model to `pages.Page` (note: *not* your content model!).
+First, you need to add a ForeignKey from your inline model to `pages.Page` (note: *not* your content model!).
 
 In your admin.py add code that looks like this:
 
@@ -397,8 +397,6 @@ The CMS's `file` provides additional fields: a title, alt text (for images), att
 #### Label
 
 A Label helps administrators organise media; think of them as tags, or notes to self. They are not intended to be shown to users on the front end of a website.
-
-##### `is_image`
 
 ### Fields
 
