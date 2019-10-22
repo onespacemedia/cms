@@ -382,31 +382,41 @@ page_admin.register_content_inline(ContentModel, CarouselSlideInline)
 
 ## Media module
 
-The media app provides a file and image management interface to the CMS admin. It also integrates with WYSIWYG text editors to provide a file browser and image browser interface that allows images and files to be uploaded directly into the editor.
+The media app provides file and image management to the CMS admin. It also integrates with the CMS's WYSIWYG text editor to provide a file browser and image browser interface that allows images and files to be added directly into the editor.
+
+For images,
 
 ### Models
 
-To make it easier to integrate the media module into your project a selection of models are provided.
+#### File
 
-#### FileRefField()
+File is a wrapper around a Django FileField. This allows users to upload their files in one place and use it in more than one.
 
-FileRefField provides a widget which allows a user to select a file from the media library.
+The CMS's `file` provides additional fields: a title, alt text (for images), attribution and copyright. It is up to you how, or if, to render these on the front-end of the website.
 
-#### ImageRefField()
+#### Label
 
-The same functionality as the ``FileRefField()``, but with the files filtered to only show images.
+A Label helps administrators organise media; think of them as tags, or notes to self. They are not intended to be shown to users on the front end of a website.
 
-#### VideoFileRefField()
+##### `is_image`
 
-The same functionality as the ``FileRefField()``, but with the files filtered to only show videos.
+### Fields
+
+To make it easier to integrate the media module into your project, a few fields are provided. You should generally use these any time you want to reference a File.
+
+`FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable).
+
+`ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images.
+
+`VideoFileRefField()` has the same functionality `FileRefField()`, but the files are filtered to only show videos.
 
 #### VideoRefField()
 
-A ``Video`` object is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
+A `Video` object is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
 
-## Links module
+## Links module (`cms.apps.links`)
 
-The Links module provides a new page content type named "Link" which allows you to have a navigation item without a page associated.
+The Links module provides a new page content type named "Link" which allows you to have a navigation item without a page associated - it will redirect to an arbitrary URL.
 
 ### Configuration
 
@@ -418,9 +428,26 @@ $ ./manage.py migrate
 
 ### Usage
 
-To add a Link to your site simply add a Page. If you have more than one content type you will be shown a page such as this:
+To add a Link to your site simply add a Page.
 
-If you do not have any other page content types you will be taken straight to the add form.  The form itself is very straightforward, simply add the Title for the page and a URL to redirect to.
+If you have more than one content type registered (i.e. anything other than that in the Links app itself) you will be asked to choose a page type, after which you choose 'Link'. If you do not have any other page content types you will be taken directly to the add form.  The form itself is very straightforward; simply add the Title for the page and a URL to redirect to.
+
+## Helper models `cms.models`
+
+TODO.
+
+### `cms.models.OnlineBase`
+
+TODO.
+
+### `cms.models.SearchMetaBase`
+
+TODO.
+
+### `cms.models.PageBase`
+
+TODO.
+
 
 ## Moderation plugin
 
