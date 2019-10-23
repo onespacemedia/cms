@@ -1,4 +1,5 @@
 * [Introduction](/)
+* [Getting started: the walkthrough](walkthrough.md)
 * [The Pages app](pages-app.md)
 * [The Media app](media-app.md)
 * [The Links app](links-app.md)
