@@ -24,45 +24,6 @@ onespacemedia-cms comes with very few features by default. It has no opinions ab
 
 ## Getting started
 
-### Project template
-
-Onespacemedia's [project template](https://github.com/onespacemedia/project-template) is the fastest way to get a new project started with onespacemedia-cms. It includes a set of basic apps, many useful helper functions & classes, and a front-end build system based on Node, Webpack and PostCSS. See the instructions in the [GitHub repository](https://github.com/onespacemedia/project-template>) for details.
-
-### Installation on an existing project
-
-To install `onespacemedia-cms` simply run:
-
-```
-$ pip install onespacemedia-cms
-```
-
-Add the CMS to your `INSTALLED_APPS`:
-
-```
-INSTALLED_APPS = [
-    ...
-    'cms',
-    'cms.apps.pages',
-    'cms.apps.media',
-    'cms.apps.links',
-]
-```
-
-Add the page middleware:
-
-```
-MIDDLEWARE = [
-    ...
-    'cms.middleware.PublicationMiddleware',
-    'cms.apps.pages.middleware.PageMiddleware',
-]
-```
-
-Finally, add `cms.apps.pages.context_processors.pages` to your template engine's `context_processors`.
-
-
-You should now run the following:
-
-```
-$ ./manage.py migrate
-```
+* Read the [walkthrough](walkthrough.md)
+* Clone and have a poke around the [accompanying tiny CMS project repo](https://github.com/onespacemedia/tiny-cms-project)
+* For a full-fledged CMS project with some skeletal apps, see our [project template](https://github.com/onespacemedia/project-template)
