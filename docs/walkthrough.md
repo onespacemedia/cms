@@ -94,7 +94,7 @@ class ContentSection(models.Model):
 ```
 
 We've defined a section model with a title, text, and an ordering field.
-Now let's register it as something that can be used inline:
+Now let's register it as an inline for MyContent:
 
 ```
 from cms.apps.pages.admin import page_admin
@@ -127,7 +127,9 @@ Now, stick this just before the `{% endblock %}` in your `content/mycontent.html
 
 And that concludes part 1: You can now build pages out of an arbitrary number of sections. In fact, for a lot of sites, you might not even need to write a single view!
 
-## Deeper dive: Let's make another content model
+## Let's make another content model: a deeper dive
+
+For the second part of this walkthrough, we are going to create a simple blog app using some of the CMS's more advanced tooling.
 
 First, create an app called `news`, add it to your `INSTALLED_APPS`, and add this to your `models.py`:
 
@@ -136,40 +138,48 @@ from cms.apps.pages.models import ContentBase
 
 class NewsFeed(ContentBase):
 
-    intro_text = models.TextField(
-        default='Welcome to my blog!',
-    )
+    classifier = 'apps'
+
+    icon = 'icons/news.png'
 ```
 
+Notice that we're not declaring any model fields here - for now, we won't need to.
+Instead, we've introduced two new class attributes that will be used on the "Add a page" screen in your admin: `classifier` and `icon`.
 
 On the "Add a page" screen, the available page types are broken down into classifiers.
 Really, this is just a heading under which this page type will appear.
 Typically, at Onespacemedia we use 'apps' for content models whose primary purpose it is to display links to other content, and 'content' for content models for which the content is primarily on-page.
 That's just our convention; you can actually name this anything you like. The CMS doesn't mind!
 
-This will be title-cased when it is rendered in the admin.
+The `icon` attribute will, as you may have guessed, be displayed in the "Add a page" screen too.
+This attribute should be a path inside your static files directory.
+The icon itself should be 96x96, but making it a little larger won't hurt.
 
-icon:
-
-```
-An icon at this location (under your static files directory) will be
-displayed in the "Add a page" screen. ContentBase has a default icon,
-but you can make your own icons too. This should be 96x96 at the moment,
-but making it a little larger wouldn't hurt.
-
+We don't actually _have_ to specify an icon here; `ContentBase` from which `NewsFeed` inherits has a default icon.
+Our news app is super-special, though, so let's give it an icon all its own.
+At Onespacemedia we made a whole lot of icons, all in the same style, which are perfect for the 'Add a page' screen.
 For now, go grab
 [this one](https://github.com/onespacemedia/cms-icons/blob/master/png/news.png)
 for your news app and stick it into your `static/icons` directory.
-Need some help? At Onespacemedia we made a whole lot of icons in the
-same style which are perfect for the 'Add a page' screen.
-```
 
+This content model will be a news feed, to which articles can be assigned (with a normal `ForeignKey`).
+We want to be able to have multiple types of news feed.
+For example, we might want to have a page of articles called "News" (what your cat did today) vs "Blog" (insights on cat behaviour).
+We'll get to exactly how this will happen shortly.
+But first, we're going to need an Article model.
 
 ## Let's use the CMS's helper models
 
+The CMS comes with a lot of handy helper models, and some nice helper fields too. You will want to use them, because you should always use the batteries! We're going to be introducing several of them in our
+
+Now, add these imports to your `news/models.py`:
+
 ```
-from cms.models import PageBase
+from cms.apps.media.models import ImageRefField
+from cms.models import HtmlField, PageBase
 ```
+
+
 
 ```
 class Article(PageBase):
@@ -208,11 +218,6 @@ class Article(PageBase):
 
 
 
-We want to be able to have multiple types of news feed.
-For example, we might want to have a page of articles called "News" (what your cat did today) vs "Blog" (insights on cat behaviour). Because we have access to the current page and its content object in our request, we can filter only the news articles which have this ForeignKey set to the currently active page - alternatively put, that "belong" to it. We will show you
-
-
-
 ImageRefField is a ForeignKey to `media.File`, but it uses a raw ID widget by default, and is constrained to only select files that appear
 to be images (just a regex on the filename). You also have FileRefField
 that doesn't do the "looks like an image" filtering, but does use the
@@ -222,7 +227,6 @@ In fact, even the default view mentioned above comes from a urlconf on
 ContentBase, with an extremely simple TemplateView derivative.
 
 ## Per-page-type URL routing
-
 
 
 ```
@@ -353,14 +357,6 @@ comment:
 ```
 
 ## Let's make another content model
-
-## Let's make your "Add a page screen" nicer
-
-```
-    classifier = 'apps'
-
-    icon = 'icons/news.png'
-```
 
 
 ## Next steps
