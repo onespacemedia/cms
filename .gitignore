@@ -19,7 +19,3 @@ uploads
 .coverage
 htmlcov
 .vscode/
-
-# For working with Docsify
-docs/index.html
-docs/.nojekyll
