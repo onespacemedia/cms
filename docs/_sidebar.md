@@ -4,5 +4,6 @@
 * [The Links app](links-app.md)
 * [django-watson integration](watson-integration.md)
 * Reference
+  * [Moderation system](moderation.md)
   * [Helper models](helpers.md)
   * [Jinja2 template functions](template-functions.md)
