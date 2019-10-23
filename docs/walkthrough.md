@@ -22,7 +22,7 @@ from cms.apps.pages.models import ContentBase
 from django.db import models
 
 
-class Content(ContentBase):
+class MyContent(ContentBase):
     introduction = models.TextField(
         null=True,
         blank=True,
@@ -41,25 +41,36 @@ _There is no explicit registration of content models_; it just works.
 `introduction` is, of course, a standard Django field, which we'll use this later in our template.
 We can define no fields at all on this model! Just its existence as a non-abstract class inheriting from ContentBase will make it available in the page types.
 
-Now go to your admin and add a Page. You will be prompted to select a page type. Once you have selected "Content" as your page type, your page will appear with the `introduction` field all ready to fill out. Do that now, save the page, then go to the root page on your website.
+Now go to your admin and add a Page. You will be prompted to select a page type. Once you have selected "My content" as your page type, your page will appear with the `introduction` field all ready to fill out. Do that now, save the page, then go to the root URL on your website.
 
-Surprise! It's totally empty. Just as it doesn't have any assumptions about what your content looks like, it doesn't have any opinions on what the front end of your site should look like either. But the CMS fallback
-
+Surprise! It's totally empty.
+Just as it doesn't have any assumptions about what your content looks like, it doesn't have any opinions on what the front end of your site should look like either.
+But the CMS is in fact rendering this view, and is making an educated guess as to what template it should use. It's falling back to your `base.html` at the moment, but that's not its first choice. Let's create a template called `content/mycontent.html`:
 
 ```
-# We don't have to specify a urlconf as we did in the news app. If you
-# don't specify one, it will default to rendering the template at
-# `<app_label>/<modelname>.html` - i.e. `content/content.html` in this case.
+{% extends 'base.html' %}
+
+{% block main %} {# or whatever your main block is on your site :) #}
+  <h1>{{ pages.current.title }}</h1>
+
+  <p>{{ pages.current.content.introduction }}</p>
+{% endblock %}
 ```
+
+Now reload your page. It has content! That's because if it hasn't been told to do anything else, it will look for a template at `<app_label>/<model_name>.html`. Convention over configuration ahoy!
+
+Where did `pages` come from? That would be the template context processor you added earlier. `pages.current` refers to the currently active Page. `pages.current.content` refers to the instance of your content model that is attached to the page.
+
+This is the very simplest example of rendering a page's content model on the front end. There's all sorts of other things we can do here, but if your model has some fields, and maybe some inlines, you don't _need_ to write any views, just a template.
+
+Did we (royal we) say inlines? We definitely did.
+
+## Lets add some admin inlines
+
+OK, so let's say you want to build your new content page out of an entirely arbitrary number of sections. That's fine too! We can add inlines to our change-page view in the admin. Here is what your model looks like. Pay special attention to the ForeignKey if nothing else - this is essential, and note that it is to `pages.Page` and _not_ your content model:
 
 ```
 class ContentSection(models.Model):
-    # This is a model which will be registered inline so that you can edit it
-    # directly from the page's admin screen.
-    #
-    # This ForeignKey to `pages.Page` is entirely necessary in order to make
-    # inlines work. Note that it is to the *Page* itself and not the content
-    # model!
     page = models.ForeignKey(
         'pages.Page',
         on_delete=models.CASCADE,
@@ -69,8 +80,7 @@ class ContentSection(models.Model):
         max_length=100,
     )
 
-    # HtmlField is explained in more depth over in the news app.
-    text = HtmlField(
+    text = TextField(
         null=True,
         blank=True,
     )
@@ -79,13 +89,43 @@ class ContentSection(models.Model):
         default=0,
     )
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         ordering = ['order']
 ```
 
+We've defined a section model with a title, text, and an ordering field.
+Now let's register it as something that can be used inline:
+
+```
+from cms.apps.pages.admin import page_admin
+from django.contrib.admin import StackedInline
+
+from .models import MyContent, ContentSection
+
+
+class ContentSectionInline(StackedInline):
+    model = ContentSection
+
+page_admin.register_content_inline(MyContent, ContentSectionInline)
+```
+
+That's it! It's just as easy as adding inlines to any other model. We've told the CMS "be prepared to display these inlines only when the page type is MyContent". This won't appear on pages whose type is any other model, because it might not make sense there.
+
+Now, stick this just before the `{% endblock %}` in your `content/mycontent.html` template:
+
+```
+{% for section in pages.current.contentsection_set.all() %}
+<section>
+  <h2>{{ section.title }}</h2>
+
+  {% if section.text %}
+    {{ section.text|html}}
+  {% endif %}
+</section>
+{% endfor %}
+```
+
+And that concludes part 1: You can now build pages out of an arbitrary number of sections. In fact, for a lot of sites, you might not even need to write a single view!
 
 ## Deeper dive: Let's make another content model
 
