@@ -2,6 +2,7 @@
 * [The Pages app](pages-app.md)
 * [The Media app](media-app.md)
 * [The Links app](links-app.md)
+* [django-watson integration](watson-integration.md)
 * Reference
   * [Helper models](helpers.md)
   * [Jinja2 template functions](template-functions.md)
