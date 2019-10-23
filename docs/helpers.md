@@ -42,6 +42,13 @@ PageBase defines several fields that make this useful for article-like things:
 
 The companion `cms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so that they can be seen by the CMS's [template functions](template-functions.md). There is also `cms.views.PageDetailMixin`, which does not inherit from Django's `DetailView`.
 
+Because the Django `DetailView` from which this inherits will check the `slug` kwarg by default, your detail view could be as simple as this:
+
+```python
+class ArticleDetailView(PageDetailView):
+    model = Article
+```
+
 ## SearchMetaBase
 
 `cms.models.SearchMetaBase` provides everything that `PageBase` does, except a title and a slug. This is for models in which you want all the features of `PageBase`, but which don't have a "title" from which you can construct a page title.
