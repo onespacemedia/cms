@@ -160,7 +160,7 @@ Our news app is super-special, though, so let's give it an icon all its own.
 At Onespacemedia we made a whole lot of icons, all in the same style, which are perfect for the 'Add a page' screen.
 For now, go grab
 [this one](https://github.com/onespacemedia/cms-icons/blob/master/png/news.png)
-for your news app and stick it into your `static/icons` directory.
+for your news app and put it in your `static/icons` directory.
 
 This content model will be a news feed, to which articles can be assigned (with a normal `ForeignKey`).
 We want to be able to have multiple types of news feed.
@@ -179,12 +179,10 @@ from cms.apps.media.models import ImageRefField
 from cms.models import HtmlField, PageBase
 ```
 
-
+And the model itself:
 
 ```
 class Article(PageBase):
-    '''A simple news article.'''
-
     page = models.ForeignKey(
         'news.NewsFeed',
         on_delete=models.PROTECT,
@@ -216,126 +214,194 @@ class Article(PageBase):
         return self.title
 ```
 
+OK, let's talk about PageBase here.
+It's a helper (abstract) model to make it easier for you to have article-like fields on your model.
+It has nearly all the fields that the Page model itself does, but does not consider itself part of any hierarchy.
+In fact, the CMS Page itself inherits from PageBase.
+Here's what you get:
 
+* A title and slug
+* Online/offline controls (enforced by the manager)
+* OpenGraph and Twitter card fields.
+* SEO fields like meta descriptions and a title override.
 
-ImageRefField is a ForeignKey to `media.File`, but it uses a raw ID widget by default, and is constrained to only select files that appear
-to be images (just a regex on the filename). You also have FileRefField
-that doesn't do the "looks like an image" filtering, but does use the
-raw ID widget.
+On to `ImageRefField`.
+You can read about the [media app](media-app.md) later on, but the short version is: it's a model wrapper around Django's `FileField`.
+`ImageRefField` is a ForeignKey to `media.File`, but it uses a raw ID widget by default, and is constrained to only select files that appear to be images (just a regex on the filename).
 
-In fact, even the default view mentioned above comes from a urlconf on
-ContentBase, with an extremely simple TemplateView derivative.
+`HtmlField` is an HTML field with a nice WYSIWYG editor as its default widget - that was what the `WYSIWYG_OPTIONS` setting was about. You can use a standard TextField here if you like, or if there's some other editor you would prefer, that's fine too.
 
-## Per-page-type URL routing
-
+Now, in our `admin.py` for our news app, we're going to register our Article:
 
 ```
+from cms.admin import PageBaseAdmin
+from django.contrib import admin
+
+from .models import Article, NewsFeed
+
+
+@admin.register(Article)
+class ArticleAdmin(PageBaseAdmin):
+    fieldsets = [
+        (None, {
+            'fields': ['title', 'slug', 'page', 'content', 'summary'],
+        }),
+        PageBaseAdmin.PUBLICATION_FIELDS,
+        PageBaseAdmin.SEO_FIELDS,
+        PageBaseAdmin.OPENGRAPH_FIELDS,
+        PageBaseAdmin.OPENGRAPH_TWITTER_FIELDS,
+    ]
+```
+
+`PageBaseAdmin` defines some useful default behaviour for the article-like things it is intended to enable.
+It also defines some useful fieldsets that you will definitely want, such as the publication controls (turning things on/offline), and those SEO and social media controls mentioned earlier.
+You should definitely use it for anything that inherits from `PageBase`, but nothing in `onespacemedia-cms` forces you to.
+
+Now, go create a "News feed" page, if you haven't already, and add an Article, setting "Page" to your new news feed.
+
+## Let's add URL routing
+
+We've examined the simple case of how to render a content model using a template.
+But what if we want total control over everything under a page's URL?
+Like, for example, if we have a page at `/news/`, we want `/news/` to render a list of news articles, and `/news/my-article/` to render the article with the slug `my-article`, but without hard-coding anything in your root urlconf?
+
+Glad you asked! First, let's create a `urls.py` inside your news app, and make it look like this:
+
+```python
+from django.conf.urls import url
+
+from . import views
+
+urlpatterns = [
+    url(r'^$', views.ArticleListView.as_view(), name='article_list'),
+    url(r'^(?P<slug>[^/]+)/$', views.ArticleDetailView.as_view(), name='article_detail'),
+]
+```
+
+You _don't_ want to add this to your root urlconf, because we don't need to.
+Instead, add this to your `NewsFeed` model:
+
+```python
 urlconf = 'tiny_project.apps.news.urls'
 ```
 
-```
-The urlconf used to power this content's views. We don't *have* to
-specify this at all! If we did not then it would simply render a
-template at <app_label>/<model_name>.html. But this allows us to have
-have complete control of everything below this page in the URL
-structure.
-```
+You'll want to correct the path; we've assumed your news app lives at `tiny_project.apps/news`.
+However you do this, this must be an absolute import path from the root of your Django application.
+
+And there you have it: your page's URLs will now be controlled by your news app's urlconf!
+In fact, even the default template-rendering behaviour we visited earlier comes from a default urlconf on ContentBase, which routes to an extremely simple TemplateView derivative.
+
+You'll get an exception thrown now, because we didn't actually implement `news.views`. Let's add a `views.py` in there now:
+
+## Let's access the pages system in a view
+
+```python
+from django.views.generic import ListView
 
 
-```
-    def get_absolute_url(self):
-        # OK, so once we have our urlconf on our content object, whereever we
-        # we have access to that content, we reverse those URLs almost exactly
-        # as we use django's standard reverse.
-        #
-        # self.page here is our NewsFeed (content model), and self.page.page
-        # is the page to which our content model is attached.
-        return self.page.page.reverse('article_detail', kwargs={
-            'slug': self.slug,
-        })
-```
-
-## Using the pages system in a view
-
-```
 class ArticleListView(ListView):
     model = Article
 
     def get_queryset(self):
-        # As also mentioned in models.py, we only want to list those news
-        # articles that "belong" to the current page. Once again, our
-        # PageMiddleware and its friend RequestPageManager make this really
-        # easy.
         return super().get_queryset().filter(
             page__page=self.request.pages.current
         )
+
 ```
+
+This is just a generic Django list view, nothing surprising here.
+But we've overridden `get_queryset` so it only returns the articles that have their `page` attribute set to the `NewsFeed` content object of the current page.
+We now have multiple news feeds!
+
+Unpacking that `page__page` a bit: the first `page` is the content object, the second is the Page for which it is the content model (content models have a foreign key to Page).
+
+Just like we had access to `pages`, `pages.current`, etc in the context in our template in our first content model example, we have them available in our view, as attributes of the current request.
+
+Let's make a detail view for the article. Add this to your imports:
+
+```python
+from cms.views import PageDetailView
+```
+
+And make our detail view here:
+
+```python
+class ArticleDetailView(PageDetailView):
+    model = Article
+```
+
+`PageDetailView` is a subclass of Django's `DetailView` that takes care of putting the page title, SEO information and all the other `PageBase` metadata into the template context, where it can be accessed by our CMS's template functions that render them on the page.
+If you have a `DetailView` for a model that inherits from `PageBase`, you almost certainly want to inherit from `PageDetailView`, but nothing forces you to.
+
+## Let's reverse some page URLs
+
+Just as a page can define a `urlconf` to render it, that `urlconf` can be reversed any time you have access to a page. It so happens that our Article does: it has a `ForeignKey` to the content model, which has a foreign key to its Page, so we can access it via `self.page.page`.
+
+Like all good models, our article deserves to know what URL it lives at. Let's write a `get_absolute_url` function:
+
+```python
+def get_absolute_url(self):
+    return self.page.page.reverse('article_detail', kwargs={
+        'slug': self.slug,
+    })
+```
+
+We use `page.reverse` almost exactly like we do Django's `django.urls.reverse` - in fact, the `reverse` function on Page uses it internally, but specifies the content model's urlconf.
 
 ## Adding per-page settings
 
-Now that we have a news article
+Now that we have a news feed, and our cats are writing countless articles about themselves, we'll probably find the need to paginate the news list at some point.
+The great part of the simple data model of onespacemedia-cms is that it makes it really easy to define page settings that are not visible to non-admin users.
 
 Let's add this to our `NewsFeed` content model:
 
 ```
 per_page = models.IntegerField(
-    verbose_name='Articles per page',
+    verbose_name='articles per page',
     default=12,
 )
 ```
 
-The great part of the simple data model of onespacemedia-cms is that it makes it really easy to define page settings that are not visible to non-admin users.
-
-
-Here, we want admin
-control over how many will be displayed on a page. We'll be able to
-access this later in the `get_paginate_by` function in our view.
-Another typical example would be deciding where a form on a "Contact"
-
-content model would send emails to. No need to hard-code anything! Some
-other CMSes make this extraordinarily hard; here you're just writing
-Django.
-
-Notice also that onespacemedia-cms works perfectly with standard Django model fields.
-
+We'll be able to access this later in the `get_paginate_by` function in our ArticleListView. Let's add a `get_paginate_by` to our `ArticleListView`:
 
 ```
-    def get_paginate_by(self, queryset):
-        # As mentioned in models.py, we have a simple setting on the content
-        # model to control how many news articles are being shown by page
-        # (just a plain old IntegerField). In there, we mentioned that we
-        # would have access to the current page in the view. But how?
-        #
-        # Simples: PageMiddleware patches the current page tree on to the
-        # request (actually an instance of RequestPageManager).
-        # `pages.current` is the currently active page, i.e. the page to which
-        # our current content object is attached. So all we need to do to make
-        # it paginate by our admin-defined amount is...
-        return self.request.pages.current.content.per_page
+  def get_paginate_by(self, queryset):
+      return self.request.pages.current.content.per_page
 
 ```
-## Adding fieldsets to our content model
+
+As we have access to the current page's content, we can do this for hidden fields too.
+
+There are many use cases for this.
+A typical example would be deciding where a form on a "Contact" content model would send emails to.
+Or you may want to add controls for using an alternative layout on certain news pages and not others.
+Some other CMSes make this extraordinarily hard; here you're just writing Django.
+No need to hard-code anything!
+
+
+## Let's add fieldsets to our content model
+
+You may remember that content models do not have `ModelAdmin`s at all - their fields get automatically patched into the form for the _Page_.
+But, we like fieldsets! So we simply define them on the NewsFeed content model.
+There's no need to list the various SEO and publication fields on the Page here, only ones that our content model has.
 
 ```
-    fieldsets = [
-        ('Settings', {
-            'fields': ['per_page'],
-        }),
-    ]
+fieldsets = [
+    ('Settings', {
+        'fields': ['per_page'],
+    }),
+]
 ```
 
-comment:
-```
-    # ContentBase derivatives don't have ModelAdmins at all - their fields get
-    # automatically patched into the form for the *Page*. But, we like
-    # fieldsets! So we simply define them on the model. There's no need to
-    # list the various SEO and publication fields on the Page here; these will
-    # be added automatically.
-```
+Of course, this is a silly example as we only have one field on our content model, which doesn't really merit a fieldset.
+But it's nice knowing that we have the option if we need it.
 
 ## Let's fix your base template
 
-```jinja2
+Finally, many times we mentioned about all of that SEO and OpenGraph goodness that would be available in your page's context if we used certain helper models and helper views.
+Let's get our template functions into the `<head>` of our document:
+
+```django
 <meta name="description" content="{{ get_meta_description() }}">
 <meta name="robots" content="{{ get_meta_robots() }}">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -356,11 +422,10 @@ comment:
 <title>{% block title %}{{ render_title() }}{% endblock %}</title>
 ```
 
-## Let's make another content model
-
-
 ## Next steps
 
-If you haven't already
+If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around. It's a slightly-more-fleshed out version of the example we've written here. It is extremely highly commented and could serve as a mini walkthrough all by itself.
 
 For a real-world example of much more complex models and views, you might want to look at our [project template](https://github.com/onespacmedia/project-template).
+
+If you're the reading type, you'll want to read [more about the pages system](pages-app.md).
