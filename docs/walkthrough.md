@@ -348,6 +348,38 @@ def get_absolute_url(self):
 
 We use `page.reverse` almost exactly like we do Django's `django.urls.reverse` - in fact, the `reverse` function on Page uses it internally, but specifies the content model's urlconf.
 
+Now that we have a `get_absolute_url` on our news article, we can add a `news/article_list.html` template, where Django's generic `ListView` is expecting to find it:
+
+```
+{% extends 'base.html' %}
+
+{% block main %}
+  <ul>
+    {% for object in object_list %}
+      <li>
+        <a href="{{ object.get_absolute_url() }}">{{ object.title }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+```
+
+And now that we can actually make our way to it, an article detail template at `news/article_detail.html`:
+
+```
+{% extends 'base.html' %}
+
+{% block main %}
+  <h1>{{ object.title }}</h1>
+
+  {% if object.image %}
+  <p>
+    <img src="{{ object.image.get_absolute_url() }}" alt="">
+  </p>
+  {{ object.content|safe }}
+{% endblock %}
+```
+
 ## Adding per-page settings
 
 Now that we have a news feed, and our cats are writing countless articles about themselves, we'll probably find the need to paginate the news list at some point.
@@ -362,7 +394,9 @@ per_page = models.IntegerField(
 )
 ```
 
-We'll be able to access this later in the `get_paginate_by` function in our ArticleListView. Let's add a `get_paginate_by` to our `ArticleListView`:
+We'll be able to access this later in the `get_paginate_by` function in our ArticleListView.
+We have access to the current page's content in a view; we can use this for non-user-visible fields (e.g. page settings) just as easily as we use it for user-visible fields like textual content.
+Let's add a `get_paginate_by` to our `ArticleListView`:
 
 ```
   def get_paginate_by(self, queryset):
@@ -370,12 +404,10 @@ We'll be able to access this later in the `get_paginate_by` function in our Arti
 
 ```
 
-As we have access to the current page's content, we can do this for hidden fields too.
-
 There are many use cases for this.
 A typical example would be deciding where a form on a "Contact" content model would send emails to.
 Or you may want to add controls for using an alternative layout on certain news pages and not others.
-Some other CMSes make this extraordinarily hard; here you're just writing Django.
+Some other CMSes make this harder than it needs to be; here you're just writing Django.
 No need to hard-code anything!
 
 
