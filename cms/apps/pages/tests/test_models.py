@@ -20,7 +20,10 @@ class TestPageContent(ContentBase):
 
 
 class TestPageContentWithSections(ContentBase):
-    pass
+    testing = models.CharField(
+        max_length=20,
+        default='testing',
+    )
 
 
 class Section(models.Model):
@@ -235,7 +238,7 @@ class TestSectionPage(TestCase):
         search_adapter = PageSearchAdapter(Page)
 
         content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, '      homepage Homepage  ')
+        self.assertEqual(content, '      homepage Homepage  testing')
 
 
 class TestPageComplex(TestCase):
