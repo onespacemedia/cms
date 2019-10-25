@@ -1,8 +1,11 @@
 # Changelog
 
 ## Next release (4.1.0?)
-* Remove `cached_url` from the Page model, because it is [unreliable](https://github.com/onespacemedia/cms/pull/181).
 * Make it possible for ContentBase derivatives to override how they are searched by Watson.
+
+## 4.0.10 - 18/10/2019
+* Fix `Video.embed_html()` function using the wrong renderer for local mp4 files.
+* Remove `cached_url` from the Page model, because it is [unreliable](https://github.com/onespacemedia/cms/pull/181).
 
 ## 4.0.9 - 11/10/2019
 
