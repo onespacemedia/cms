@@ -15,7 +15,7 @@ touch apps/content/__init__.py
 
 Now add your `content` app to your `INSTALLED_APPS`.
 
-Now add this to your `models.py`:
+Then, add this to your `models.py`:
 
 ```
 from cms.apps.pages.models import ContentBase
