@@ -71,7 +71,6 @@ class PageManager(OnlineBaseManager):
         return self.prefetch_related('child_set__child_set').get(parent=None,
                                                                  is_content_object=False)
 
-
 class Page(PageBase):
 
     '''A page within the site.'''
@@ -165,12 +164,6 @@ class Page(PageBase):
         help_text='The type of page content.',
     )
 
-    cached_url = models.CharField(
-        max_length=1000,
-        null=True,
-        blank=True,
-    )
-
     requires_authentication = models.BooleanField(
         default=False,
         help_text='Visitors will need to be logged in to see this page'
@@ -215,21 +208,13 @@ class Page(PageBase):
 
     # Standard model methods.
 
-    def get_absolute_url(self, cached=False):
+    def get_absolute_url(self):
         '''Generates the absolute url of the page.'''
-        if self.cached_url and cached:
-            return self.cached_url
 
-        if self.parent:
-            url = self.parent.get_absolute_url() + self.slug + '/'
-        else:
-            url = urls.get_script_prefix()
+        if not self.parent:
+            return urls.get_script_prefix()
 
-        if url != self.cached_url:
-            self.cached_url = url
-            self.save()
-
-        return url
+        return self.parent.get_absolute_url() + self.slug + '/'
 
     # Tree management.
 
@@ -338,8 +323,6 @@ class Page(PageBase):
         # Now actually save it!
         super().save(*args, **kwargs)
 
-        self.get_absolute_url(False)
-
     @transaction.atomic
     def delete(self, *args, **kwargs):
         '''Deletes the page.'''
@@ -362,7 +345,6 @@ class Page(PageBase):
                 latest_version.revision.user
             )
         return '-'
-
 
     class Meta:
         unique_together = (('parent', 'slug', 'country_group'),)
@@ -394,17 +376,10 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         '''Returns the search text for the page.'''
         content_obj = obj.content
 
-        return ' '.join((
+        return ' '.join([
             super().get_content(obj),
-            self.prepare_content(' '.join(
-                force_text(self._resolve_field(content_obj, field_name))
-                for field_name in (
-                    field.name for field
-                    in content_obj._meta.fields
-                    if isinstance(field, (models.CharField, models.TextField))
-                )
-            ))
-        ))
+            self.prepare_content(content_obj.get_searchable_text())
+        ])
 
     def get_live_queryset(self):
         '''Selects the live page queryset.'''
@@ -478,6 +453,26 @@ class ContentBase(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_searchable_text(self):
+        '''
+        Returns a blob of text that will be indexed by Watson. This will be
+        given lower priority than the title of the page it is attached to.
+
+        By default this will return every text field on the ContentBase,
+        separated by a space. A common case for overriding this is when your
+        page's content is built out of other models.
+        '''
+        return ' '.join([
+            force_text(getattr(self, field_name))
+            for field_name in [
+                field.name for field
+                in self._meta.fields
+                if isinstance(field, (models.CharField, models.TextField))
+            ]
+            # Because we don't want to index "None" :)
+            if getattr(self, field_name)
+        ])
 
 
 class Country(models.Model):
