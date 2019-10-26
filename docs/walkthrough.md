@@ -186,9 +186,9 @@ from cms.apps.media.models import ImageRefField
 from cms.models import HtmlField, PageBase
 ```
 
-And the model itself:
+And add the model itself:
 
-```
+```python
 class Article(PageBase):
     page = models.ForeignKey(
         'news.NewsFeed',
@@ -240,7 +240,7 @@ You can read about the [media app](media-app.md) later on, but the short version
 
 Now, in our `admin.py` for our news app, we're going to register our Article:
 
-```
+```python
 from cms.admin import PageBaseAdmin
 from django.contrib import admin
 
@@ -394,7 +394,7 @@ The great part of the simple data model of onespacemedia-cms is that it makes it
 
 Add this to our `NewsFeed` content model:
 
-```
+```python
 per_page = models.IntegerField(
     verbose_name='articles per page',
     default=12,
@@ -403,7 +403,7 @@ per_page = models.IntegerField(
 
 Then, we can override `ListView`'s  `get_paginate_by` in our `ArticleListView`:
 
-```
+```python
   def get_paginate_by(self, queryset):
       return self.request.pages.current.content.per_page
 
@@ -421,7 +421,7 @@ You may remember that content models do not have `ModelAdmin`s at all - their fi
 But, we like fieldsets! So we simply define them on the NewsFeed content model.
 There's no need to list the various SEO and publication fields on the Page here, only ones that our content model has.
 
-```
+```python
 fieldsets = [
     ('Settings', {
         'fields': ['per_page'],
@@ -437,7 +437,7 @@ But it's nice knowing that we have the option if we need it.
 Finally, many times we mentioned about all of that SEO and OpenGraph goodness that would be available in your page's context if we used certain helper models and helper views.
 Let's get our template functions into the `<head>` of our document:
 
-```django
+```
 <meta name="description" content="{{ get_meta_description() }}">
 <meta name="robots" content="{{ get_meta_robots() }}">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
