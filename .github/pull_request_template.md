@@ -1,0 +1,3 @@
+---
+- [ ] This pull request updates the CHANGELOG.
+- [ ] If this adds any new functionality or changes existing behaviour, this pull request updates the documentation.
