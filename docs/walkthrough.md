@@ -181,7 +181,7 @@ You will want to use them, because you should always use the batteries! We're go
 
 First, add these imports to your `news/models.py`:
 
-```
+```python
 from cms.apps.media.models import ImageRefField
 from cms.models import HtmlField, PageBase
 ```
@@ -460,7 +460,7 @@ Let's get our template functions into the `<head>` of our document:
 
 ## Next steps
 
-If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around. It's a slightly-more-fleshed out version of the example we've written here. It is extremely highly commented and could serve as a mini walkthrough all by itself.
+If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around. It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and could serve as a mini walkthrough all by itself.
 
 For a real-world example of much more complex models and views, you might want to look at our [project template](https://github.com/onespacmedia/project-template).
 
