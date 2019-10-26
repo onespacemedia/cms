@@ -176,9 +176,10 @@ But first, we're going to need an Article model.
 
 ## Let's use the CMS's helper models
 
-The CMS comes with a lot of handy helper models, and some nice helper fields too. You will want to use them, because you should always use the batteries! We're going to be introducing several of them in our
+The CMS comes with a lot of handy helper models, and some nice helper fields too.
+You will want to use them, because you should always use the batteries! We're going to be introducing a couple of them in our `Article` model.
 
-Now, add these imports to your `news/models.py`:
+First, add these imports to your `news/models.py`:
 
 ```
 from cms.apps.media.models import ImageRefField
