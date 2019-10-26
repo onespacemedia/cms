@@ -154,7 +154,7 @@ Instead, we've introduced two new class attributes that will be used on the "Add
 
 On the "Add a page" screen, the available page types are broken down into classifiers.
 Really, this is just a heading under which this page type will appear.
-Typically, at Onespacemedia we use 'apps' for content models whose primary purpose it is to display links to other content, and 'content' for content models for which the content is primarily on-page.
+At Onespacemedia we use 'apps' for content models whose primary purpose it is to display links to other content, and 'content' for content models for which the content is primarily on-page.
 That's just our convention; you can actually name this anything you like. The CMS doesn't mind!
 
 The `icon` attribute will, as you may have guessed, be displayed in the "Add a page" screen too.
@@ -386,12 +386,12 @@ And now that we can actually make our way to it, an article detail template at `
 {% endblock %}
 ```
 
-## Adding per-page settings
+## Let's add some per-page settings
 
 Now that we have a news feed, and our cats are writing countless articles about themselves, we'll probably find the need to paginate the news list at some point.
 The great part of the simple data model of onespacemedia-cms is that it makes it really easy to define page settings that are not visible to non-admin users.
 
-Let's add this to our `NewsFeed` content model:
+Add this to our `NewsFeed` content model:
 
 ```
 per_page = models.IntegerField(
@@ -400,9 +400,7 @@ per_page = models.IntegerField(
 )
 ```
 
-We'll be able to access this later in the `get_paginate_by` function in our ArticleListView.
-We have access to the current page's content in a view; we can use this for non-user-visible fields (e.g. page settings) just as easily as we use it for user-visible fields like textual content.
-Let's add a `get_paginate_by` to our `ArticleListView`:
+Then, we can override `ListView`'s  `get_paginate_by` in our `ArticleListView`:
 
 ```
   def get_paginate_by(self, queryset):
@@ -410,12 +408,11 @@ Let's add a `get_paginate_by` to our `ArticleListView`:
 
 ```
 
-There are many use cases for this.
-A typical example would be deciding where a form on a "Contact" content model would send emails to.
-Or you may want to add controls for using an alternative layout on certain news pages and not others.
-Some other CMSes make this harder than it needs to be; here you're just writing Django.
-No need to hard-code anything!
-
+There are many use cases for this sort of thing.
+If we had a "Contact" content model that rendered a contact form, you could add an `EmailField` to decide who the submissions go to.
+Or you may want to make certain `NewsFeed` pages use a different layout; in this case you could add a `layout` field and override `get_template_names` in your view.
+There's no need to hard-code anything with onespacemedia-cms!
+Some CMSes make this harder for developers than it needs to be; here you're just writing Django.
 
 ## Let's add fieldsets to our content model
 
