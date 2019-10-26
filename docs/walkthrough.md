@@ -292,7 +292,7 @@ Instead, add this to your `NewsFeed` model:
 urlconf = 'tiny_project.apps.news.urls'
 ```
 
-You'll want to correct the path; we've assumed your news app lives at `tiny_project.apps/news`.
+You'll want to correct the path; we've assumed your news app lives at `tiny_project.apps.news`.
 However you do this, this must be an absolute import path from the root of your Django application.
 
 And there you have it: your page's URLs will now be controlled by your news app's urlconf!
@@ -460,7 +460,7 @@ Let's get our template functions into the `<head>` of our document:
 
 ## Next steps
 
-If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around. It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and could serve as a mini walkthrough all by itself.
+If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around. It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and serves as a mini walkthrough all by itself.
 
 For a real-world example of much more complex models and views, you might want to look at our [project template](https://github.com/onespacmedia/project-template).
 
