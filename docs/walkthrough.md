@@ -65,15 +65,22 @@ But the CMS is in fact rendering this view, and is making an educated guess as t
 
 Now reload your page. It has content! That's because if it hasn't been told to do anything else, it will look for a template at `<app_label>/<model_name>.html`. Convention over configuration ahoy!
 
-Where did `pages` come from? That would be the template context processor you added earlier. `pages.current` refers to the currently active Page. `pages.current.content` refers to the instance of your content model that is attached to the page.
+Where did `pages` come from? That would be the template context processor you added earlier.
+`pages.current` refers to the currently active Page.
+`pages.current.content` refers to the instance of your content model that is attached to the page.
 
-This is the very simplest example of rendering a page's content model on the front end. There's all sorts of other things we can do here, but if your model has some fields, and maybe some inlines, you don't _need_ to write any views, just a template.
+This is the very simplest example of rendering a page's content model on the front end.
+There's all sorts of other things we can do with content models, but if your model has some fields, and maybe some inlines, you don't _need_ to write any views, just a template.
 
 Did we (royal we) say inlines? We definitely did.
 
 ## Lets add some admin inlines
 
-OK, so let's say you want to build your new content page out of an entirely arbitrary number of sections. That's fine too! We can add inlines to our change-page view in the admin. Here is what your model looks like. Pay special attention to the ForeignKey if nothing else - this is essential, and note that it is to `pages.Page` and _not_ your content model:
+OK, so let's say you want to build your new content page out of an entirely arbitrary number of sections.
+That's fine too!
+We can add inlines to our change-page view in the admin.
+Here is what your model looks like.
+Pay special attention to the ForeignKey if nothing else - this is essential, and note that it is to `pages.Page` and _not_ your content model:
 
 ```
 class ContentSection(models.Model):
@@ -115,7 +122,9 @@ class ContentSectionInline(StackedInline):
 page_admin.register_content_inline(MyContent, ContentSectionInline)
 ```
 
-That's it! It's just as easy as adding inlines to any other model. We've told the CMS "be prepared to display these inlines only when the page type is MyContent". This won't appear on pages whose type is any other model, because it might not make sense there.
+That's it! It's just as easy as adding inlines to any other model.
+We've told the CMS "be prepared to display these inlines only when the page type is MyContent".
+This won't appear on pages whose type is any other model, because it might not make sense there.
 
 Now, stick this just before the `{% endblock %}` in your `content/mycontent.html` template:
 
@@ -131,7 +140,8 @@ Now, stick this just before the `{% endblock %}` in your `content/mycontent.html
 {% endfor %}
 ```
 
-And that concludes part 1: You can now build pages out of an arbitrary number of sections. In fact, for a lot of sites, you might not even need to write a single view!
+And that concludes part 1: You can now build pages out of an arbitrary number of sections
+In fact, for a lot of sites, you might not even need to write a single view!
 
 ## Let's make another content model: a deeper dive
 
@@ -236,7 +246,8 @@ On to `ImageRefField`.
 You can read about the [media app](media-app.md) later on, but the short version is: it's a model wrapper around Django's `FileField`.
 `ImageRefField` is a ForeignKey to `media.File`, but it uses a raw ID widget by default, and is constrained to only select files that appear to be images (just a regex on the filename).
 
-`HtmlField` is an HTML field with a nice WYSIWYG editor as its default widget - that was what the `WYSIWYG_OPTIONS` setting was about. You can use a standard TextField here if you like, or if there's some other editor you would prefer, that's fine too.
+`HtmlField` is an HTML field with a nice WYSIWYG editor as its default widget - that was what the `WYSIWYG_OPTIONS` setting was about.
+You can use a standard TextField here if you like, or you can bring your own HTML editor; nothing in the CMS requires `HtmlField` to be used.
 
 Now, in our `admin.py` for our news app, we're going to register our Article:
 
@@ -353,7 +364,8 @@ def get_absolute_url(self):
     })
 ```
 
-We use `page.reverse` almost exactly like we do Django's `django.urls.reverse` - in fact, the `reverse` function on Page uses it internally, but specifies the content model's urlconf.
+We use `page.reverse` almost exactly like we do Django's `django.urls.reverse`
+- in fact, the `reverse` function on Page uses it internally, by passing it the content model's urlconf.
 
 Now that we have a `get_absolute_url` on our news article, we can add a `news/article_list.html` template, where Django's generic `ListView` is expecting to find it:
 
@@ -417,7 +429,7 @@ Some CMSes make this harder for developers than it needs to be; here you're just
 
 ## Let's add fieldsets to our content model
 
-You may remember that content models do not have `ModelAdmin`s at all - their fields get automatically patched into the form for the _Page_.
+You may remember that content models do not have `ModelAdmin`s at all - their fields get patched onto the admin form for the _Page_.
 But, we like fieldsets! So we simply define them on the NewsFeed content model.
 There's no need to list the various SEO and publication fields on the Page here, only ones that our content model has.
 
@@ -460,7 +472,8 @@ Let's get our template functions into the `<head>` of our document:
 
 ## Next steps
 
-If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around. It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and serves as a mini walkthrough all by itself.
+If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around.
+It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and serves as a mini walkthrough all by itself.
 
 For a real-world example of much more complex models and views, you might want to look at our [project template](https://github.com/onespacmedia/project-template).
 
