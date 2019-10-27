@@ -1,6 +1,6 @@
 # The Links app
 
-The Links module provides a new page content type named "Link" which allows you to have a navigation item without a page associated - it will redirect to an arbitrary URL.
+The Links module provides a content model named "Link" which allows you to have a navigation item without a page associated - it will redirect to an arbitrary URL.
 
 ## Configuration
 
@@ -14,4 +14,8 @@ $ ./manage.py migrate
 
 To add a Link to your site simply add a Page and select the "Link" page type.
 
-If you have more than one content type registered (i.e. anything other than that in the Links app itself) you will be asked to choose a page type, after which you choose 'Link'. If you do not have any other page content types you will be taken directly to the add form.  The form itself is very straightforward; simply add the Title for the page and a URL to redirect to.
+If you have more than one content type registered (i.e. anything other than that in the Links app itself) you will be asked to choose a page type, after which you choose 'Link'.
+If you do not have any other page content types you will be taken directly to the add form.
+The form itself is very straightforward; simply add the Title for the page and a URL to redirect to.
+
+There is a 'New window' field, which is an instruction to open the link in a new window. This does nothing by itself; you will need to handle this in your navigation template.
