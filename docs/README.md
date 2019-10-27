@@ -27,3 +27,12 @@ onespacemedia-cms comes with very few features by default. It has no opinions ab
 * Read the [walkthrough](walkthrough.md)
 * Clone and have a poke around the [accompanying tiny CMS project repo](https://github.com/onespacemedia/tiny-cms-project)
 * For a full-fledged CMS project with some skeletal apps, see our [project template](https://github.com/onespacemedia/project-template)
+
+## Editing this document
+
+This is a [docsify](https://docsify.js.org/) document. For an optimal editing experience:
+
+```
+npm install -g docsify
+docsify serve docs/
+```
