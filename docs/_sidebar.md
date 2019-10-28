@@ -4,6 +4,7 @@
 * [The Media app](media-app.md)
 * [The Links app](links-app.md)
 * [django-watson integration](watson-integration.md)
+* [Sitemaps integration](sitemaps.md)
 * Reference
   * [Moderation system](moderation.md)
   * [Helper models](helpers.md)
