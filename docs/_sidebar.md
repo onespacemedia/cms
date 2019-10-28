@@ -3,8 +3,8 @@
 * [The Pages app](pages-app.md)
 * [The Media app](media-app.md)
 * [The Links app](links-app.md)
+* [Sitemaps](sitemaps.md)
 * [django-watson integration](watson-integration.md)
-* [Sitemaps integration](sitemaps.md)
 * Reference
   * [Moderation system](moderation.md)
   * [Helper models](helpers.md)
