@@ -80,8 +80,8 @@ from django.utils.timezone import now
 
 
 class ArticleManager(PageBaseManager):
-    def get_queryset(self, queryset):
-        return super().get_queryset().exclude(date__gt=now())
+    def select_published(self, queryset):
+        return super().select_published(queryset).exclude(date__gt=now())
 
 
 class Article(PageBase):
