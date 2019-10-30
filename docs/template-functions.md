@@ -33,7 +33,7 @@ The `<head>` of your document should look like this:
 Renders the title of the current page:
 
 ```
-{{ render_title() }}
+<title>{{ render_title() }}</title>
 ```
 
 You can override the title by setting a context variable called `title`:
@@ -56,7 +56,7 @@ You can override the meta description by setting a context variable called `meta
 
 ```
 {% with meta_description = 'foo' %}
-  {{ get_meta_description() }}
+  <meta name="description" content="{{ get_meta_description() }}">
 {% endwith %}
 ```
 
@@ -65,7 +65,7 @@ You can override the meta description by setting a context variable called `meta
 Renders the content of the meta robots tag for the current page:
 
 ```
-{{ get_meta_robots() }}
+<meta name="robots" content="{{ get_meta_robots() }}">
 ```
 
 You can override the meta robots by setting boolean context variables called
