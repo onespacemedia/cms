@@ -1,6 +1,6 @@
 # The Pages app
 
-`cms.apps.pages` is a standard CMS module which allows users to add a page tree and page content to the website. However, it does not do anything by itself; It requires you to add models into your project which inherit from `cms.apps.ContentBase`
+`cms.apps.pages` allows users to add a page tree and page content to the website. However, it does not do anything by itself; It requires you to add models into your project which inherit from `cms.apps.ContentBase`
 
 ## How it works
 
