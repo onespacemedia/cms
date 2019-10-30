@@ -1,11 +1,13 @@
 # A walkthrough
 
-This walkthrough will take you through setting up the CMS on an existing project, and it will introduce several core CMS concepts. If you are better at learning from code than learning from long documents,
-you probably want to look at the [tiny CMS project repo](https://github.com/onespacemedia/tiny-cms-project).
+This walkthrough will take you through setting up the CMS on an existing project, and it will introduce several core CMS concepts.
+If you prefer to learn from code than learn from a wall of text,
+you probably want to look at the companion [tiny CMS project repo](https://github.com/onespacemedia/tiny-cms-project).
 
 ## Django settings
 
-We'll need to add a few settings that the CMS depends on. Don't worry too much about what these do for now; the concepts behind them will be explained in depth over the course of the walkthrough.
+We'll need to add a few settings that the CMS depends on.
+Don't worry too much about what these do for now; the concepts behind them will be explained in depth over the course of the walkthrough.
 
 First, tell us the name of your site. We depend on this in one of our [template functions](template-functions.md):
 
@@ -41,23 +43,23 @@ INSTALLED_APPS = [
 
 Add our context processors to our template context processors (in `['OPTIONS']['context_processors']`):
 
-```
+```python
 'cms.apps.pages.context_processors.pages',
 ```
 
 Add the CMS middleware to your MIDDLEWARE:
 
-```
+```python
 MIDDLEWARE = [
   # ...
   'cms.middleware.PublicationMiddleware',
   'cms.apps.pages.middleware.PageMiddleware',
 ]
-```
+```python
 
 And finally, options for our HTML editor:
 
-```
+```python
 WYSIWYG_OPTIONS = {
     'height': 500,
     'plugins': [
