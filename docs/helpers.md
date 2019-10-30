@@ -91,3 +91,4 @@ class Article(PageBase):
 ```
 
 There is also a `PublishedBaseManager` that you can override in exactly the same way, in case you are not inheriting from one of the helper models (thus don't have an `is_online` field) but still have criteria under you would always like objects to be hidden on the front-end of the site.
+This is how the [moderation system](moderation.md) works.
