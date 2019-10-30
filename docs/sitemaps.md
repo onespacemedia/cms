@@ -52,7 +52,7 @@ class ArticleSitemap(sitemaps.PageBaseSitemap):
 sitemaps.register(YourModel, sitemap_cls=ArticleSitemap)
 ```
 
-Finally, so that search engines actually see the root sitemap file, you'll want to add an entry into your robots.txt:
+Finally, add an entry into your robots.txt so that search engines see your root sitemap file:
 
 ```
 Sitemap: https://www.example.com/sitemap.xml
