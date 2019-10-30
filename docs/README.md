@@ -33,6 +33,6 @@ onespacemedia-cms comes with very few features by default. It has no opinions ab
 This is a [docsify](https://docsify.js.org/) document. For an optimal editing experience:
 
 ```
-npm install -g docsify
+npm install -g docsify-cli
 docsify serve docs/
 ```
