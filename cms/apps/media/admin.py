@@ -198,6 +198,17 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                                 return None
 
     def get_admin_url(self, obj):
+        '''
+        Guesses the admin URL for an object.
+
+        If the object has its own change view, then that will be returned.
+
+        It will then check to see if it is an inline on another object's
+        change view.
+
+        Failing that, it will see if it is an inline registered to a Page
+        (with page_admin.register_content_inline).
+        '''
         try:
             return reverse(
                 f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
@@ -214,12 +225,12 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         # If we've made it here, then obj is neither an object with an admin
         # change URL nor is it an inline of a registered model with an admin
         # change URL. Lets check inlines registered with page_admin.
-        for content_base, inline in page_admin.content_inlines:
+        for _, inline in page_admin.content_inlines:
             # page_admin.content_inlines is a list of tuples. The first value
             # is the ContentType and the second is the inline InlineModelAdmin
             # used to register the model.
 
-            if inline.model == type(obj):
+            if isinstance(obj, inline.model):
                 # We've got an inline for this model. Lets check the fk_name
                 # attribute on the InlineModelAdmin. If it's set we'll use
                 # that, else we'll find the ForeignKey to 'pages.Page'.
@@ -285,7 +296,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 ))
             context['related_objects'] = [
                 {
-                    'title': obj,
+                    'title': str(obj),
                     'model_name': obj._meta.verbose_name,
                     'admin_url': self.get_admin_url(obj),
                 } for obj in related_objs
