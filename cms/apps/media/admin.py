@@ -300,7 +300,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             {'pages': [
                 {
                     'page': page,
-                    'model_name': page._meta.model_name,
+                    'model_name': page._meta.verbose_name,
                     'admin_url': self.get_admin_url(page),
                 } for page in self.get_related_pages(querysets)
             ]}
