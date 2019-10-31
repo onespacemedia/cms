@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Show usage of media library files on the file's change form.
+
 ## 4.1.0 - 25/10/2019
 * Make it possible for ContentBase derivatives to override how they are searched by Watson.
 
