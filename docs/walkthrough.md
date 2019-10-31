@@ -37,6 +37,7 @@ INSTALLED_APPS = [
   'cms',
   'cms.apps.pages',
   'cms.apps.media',
+  # Links is optional, but it's very handy to have.
   'cms.apps.links',
 ]
 ```
