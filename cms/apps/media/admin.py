@@ -166,13 +166,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     get_title.admin_order_field = 'title'
     get_title.short_description = 'title'
 
-    def get_related_pages(self, querysets):
-        pages = []
-        for queryset in querysets:
-            for obj in queryset:
-                pages.append(obj)
-        return pages
-
     def get_admin_url_for_inlines(self, obj):
         for model, model_admin in admin.site._registry.items():
             try:
@@ -227,8 +220,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
                 obj_fk_name = getattr(inline, 'fk_name', False)
                 if obj_fk_name:
-                    # the fk_name value is set so we assume that it will resolve a parent since an inline can't
-                    # be saved without a parent.
+                    # the fk_name value is set so we assume that it will
+                    # resolve a parent since an inline can't be saved without
+                    # a parent.
 
                     obj_parent = getattr(obj, obj_fk_name, False)
                     try:
@@ -285,23 +279,20 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
         test_obj = File.objects.get(pk=object_id)
-        querysets = []
+        related_objs = []
 
         for related in get_candidate_relations_to_delete(test_obj._meta):
-            related_objs = related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
+            related_objs = related_objs + list(related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
                 **{"%s__in" % related.field.name: [test_obj]}
-            )
-
-            if related_objs:
-                querysets.append(related_objs)
+            ))
 
         extra_context['related_objects'] = [
             {'pages': [
                 {
-                    'page': page,
-                    'model_name': page._meta.verbose_name,
-                    'admin_url': self.get_admin_url(page),
-                } for page in self.get_related_pages(querysets)
+                    'page': obj,
+                    'model_name': obj._meta.verbose_name,
+                    'admin_url': self.get_admin_url(obj),
+                } for obj in related_objs
             ]}
         ]
 
