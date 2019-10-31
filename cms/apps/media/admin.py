@@ -173,7 +173,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 pages.append(obj)
         return pages
 
-
     def get_admin_url_for_inlines(self, obj):
         for model, model_admin in admin.site._registry.items():
             try:
@@ -199,7 +198,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                             except NoReverseMatch:
                                 return None
 
-
     def get_admin_url(self, obj):
         try:
             return reverse(
@@ -210,20 +208,22 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             pass
 
         url = self.get_admin_url_for_inlines(obj)
+
         if url:
             return url
 
-        # If we've made it here, then obj is neither an object with an admin change
-        # URL nor is it an inline of a registered model with an admin change URL.
-        # Lets check inlines registered with page_admin.
-
+        # If we've made it here, then obj is neither an object with an admin
+        # change URL nor is it an inline of a registered model with an admin
+        # change URL. Lets check inlines registered with page_admin.
         for content_base, inline in page_admin.content_inlines:
-            # page_admin.content_inlines is a list of tuples. The first value is the ContentType and the second is
-            # the inline InlineModelAdmin used to register the model.
+            # page_admin.content_inlines is a list of tuples. The first value
+            # is the ContentType and the second is the inline InlineModelAdmin
+            # used to register the model.
 
             if inline.model == type(obj):
-                # We've got an inline for this model. Lets check the fk_name attribute on the InlineModelAdmin.
-                # If it's set we'll use that else we'll find the ForeignKey to 'pages.Page'.
+                # We've got an inline for this model. Lets check the fk_name
+                # attribute on the InlineModelAdmin. If it's set we'll use
+                # that, else we'll find the ForeignKey to 'pages.Page'.
 
                 obj_fk_name = getattr(inline, 'fk_name', False)
                 if obj_fk_name:
@@ -239,9 +239,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                     except NoReverseMatch:
                         pass
 
-                # If we make it here, the fk_name attribute was not set or the parent did not resolve to an object
-                # We'll now look for specifically ForeignKeys to 'pages.Page'. There can't be more than one as if
-                # there were, Django would throw errors on inline registration due to the lack of the fk_name
+                # If we make it here, the fk_name attribute was not set or the
+                # parent did not resolve to an object We'll now look for
+                # specifically ForeignKeys to 'pages.Page'. There can't be
+                # more than one as if there were, Django would throw errors on
+                # inline registration due to the lack of the fk_name
                 # attribute to distinguish the two fields.
 
                 for field in obj._meta.get_fields():
@@ -251,8 +253,8 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                         related_model = obj._meta.get_field(field.attname).rel.to
 
                         if related_model == Page:
-                            # We've found a Foreign key to 'pages.Page', now to extract the page and get it's admin
-                            # change URL
+                            # We've found a Foreign key to 'pages.Page', now
+                            # to extract the page and get its admin change URL.
 
                             try:
                                 field_value = getattr(obj, field.attname)
@@ -268,12 +270,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                                 except NoReverseMatch:
                                     return None
 
-        # If none of the above work then we're really out of options. Just return None and handle this where we're
-        # calling this function.
-
+        # If none of the above work then we're really out of options. Just
+        # return None and let our caller handle this.
         return None
-
-    # Custom view logic.
 
     def response_add(self, request, obj, post_url_continue=None):
         '''Returns the response for a successful add action.'''
