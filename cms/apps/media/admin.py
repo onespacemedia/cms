@@ -287,13 +287,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             ))
 
         extra_context['related_objects'] = [
-            {'pages': [
-                {
-                    'page': obj,
-                    'model_name': obj._meta.verbose_name,
-                    'admin_url': self.get_admin_url(obj),
-                } for obj in related_objs
-            ]}
+            {
+                'title': obj,
+                'model_name': obj._meta.verbose_name,
+                'admin_url': self.get_admin_url(obj),
+            } for obj in related_objs
         ]
 
         return super().change_view(request, object_id, extra_context=extra_context)

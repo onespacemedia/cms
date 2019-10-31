@@ -6,13 +6,14 @@
           <label for="id_title">Pages:</label>
           <ul class="fle-RelatedList">
             {% for obj in related_objects %}
-              {% for page in obj.pages %}
-                {% if page.admin_url %}
-                  <li class="fle-RelatedList_Item">
-                    <a class="fle-RelatedList_Link" href="{{ page.admin_url }}">{{ page.model_name|capfirst }} - {{ page.page}}</a>
-                  </li>
-                {% endif %}
-              {% endfor %}
+              {% if obj.admin_url %}
+                <li class="fle-RelatedList_Item">
+                  <a class="fle-RelatedList_Link" href="{{ obj.admin_url }}">
+                    <strong>{{ obj.model_name|capfirst }}:</strong>
+                    {{ obj.title }}
+                  </a>
+                </li>
+              {% endif %}
             {% endfor %}
           </ul>
         </div>
