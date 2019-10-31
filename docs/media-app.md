@@ -1,6 +1,11 @@
 # The Media app
 
-The media app provides file and image management to the CMS admin. It also integrates with the CMS's WYSIWYG text editor to provide a file browser and image browser interface that allows images and files to be added directly into the editor.
+## User-visible features
+
+The media app provides file and image management to the Django admin.
+It also integrates with the CMS's WYSIWYG text editor to provide a file browser and image browser interface that allows images and files to be added directly into the editor.
+
+The default `FileAdmin` adds a thumbnail preview to the list view, falling back to an appropriate icon for the file type if the file is not an image.
 
 For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
 
@@ -8,9 +13,11 @@ For images, there is an in-browser image editor that gives quick access to commo
 
 ### File
 
-`cms.apps.media.models.File` is a wrapper around a Django FileField. This allows users to upload their files in one place and use it in more than one.
+`cms.apps.media.models.File` is a wrapper around a Django FileField. This allows users to upload their files in one place and use it in more than one place.
 
-The CMS's `file` provides additional fields: a title, alt text (for images), attribution and copyright. It is up to you how, or if, to render these on the front-end of the website. This is not typically used for files uploaded via the public front-end of a website (i.e. non-staff users). For this, you'll want to use a simpler Django `FileField` or `ImageField`.
+The CMS's `File` provides additional fields: a title, alt text (for images), attribution and copyright. It is up to you how, or if, to render these on the front-end of the website.
+
+`File` is not typically used for files uploaded via the public front-end of a website (i.e. non-staff users). For this, you'll want to use a simpler Django `FileField` or `ImageField`.
 
 ### Label
 
@@ -22,7 +29,7 @@ The CMS's `file` provides additional fields: a title, alt text (for images), att
 
 ## Fields
 
-To make it easier to integrate the media module into your project, a few fields are provided. You should generally use these any time you want to reference a File.
+A few fields are provided To make it easier to integrate the media module into your project. You should generally use these any time you want to reference a File.
 
 `FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable).
 
