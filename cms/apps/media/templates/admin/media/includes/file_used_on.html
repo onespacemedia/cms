@@ -1,3 +1,16 @@
+<style>
+  .fle-RelatedList_Item {
+    margin-top: 8px;
+  }
+
+  .fle-RelatedList_Item:first-child {
+    margin-top: 0;
+  }
+
+  .fle-RelatedList_Item strong {
+    color: initial;
+  }
+</style>
 {% if related_objects %}
   <ul class="fle-RelatedList">
     {% for obj in related_objects %}
