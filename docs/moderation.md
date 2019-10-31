@@ -13,7 +13,7 @@ Users without the permission will only be able to set the object's status to "Dr
 
 First, modify your model:
 
-```
+```python
 from cms.plugins.moderation.models import ModerationBase
 
 class MyModel(ModerationBase):
@@ -26,7 +26,7 @@ class MyModel(ModerationBase):
 
 To integrate the moderation system with the Django admin, modify your ModelAdmin to take this form:
 
-````
+```python
 from cms.plugins.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
 from django.contrib import admin
 
@@ -36,6 +36,7 @@ from .models import MyModel
 @admin.register(MyModel)
 class MyModelAdmin(ModerationAdminBase):
     fieldsets = [
+        # ...your fieldsets here...
         MODERATION_FIELDS,
     ]
 ```
