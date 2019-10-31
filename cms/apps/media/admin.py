@@ -297,14 +297,13 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 querysets.append(related_objs)
 
         extra_context['related_objects'] = [
-            {
-            'pages': [
+            {'pages': [
                 {
                     'page': page,
                     'model_name': page._meta.model_name,
                     'admin_url': self.get_admin_url(page),
-                } for page in self.get_related_pages(querysets)]
-            }
+                } for page in self.get_related_pages(querysets)
+            ]}
         ]
 
         return super().change_view(request, object_id, extra_context=extra_context)
