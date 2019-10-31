@@ -390,7 +390,7 @@ class Video(models.Model):
                 'src': self.external_video_iframe_url,
             })
         if self.high_resolution_mp4 or self.low_resolution_mp4:
-            return render_to_string('videos/vimeo.html', {
+            return render_to_string('videos/local.html', {
                 'preload': 'auto' if autoplay else 'metadata',
                 'autoplay': ' autoplay' if autoplay else '',
                 'controls': ' controls' if controls else '',

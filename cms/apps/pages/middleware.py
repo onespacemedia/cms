@@ -38,6 +38,10 @@ class RequestPageManager:
         return None
 
     def alternate_page_version(self, page):
+        # Save ourselves a DB query if we are not using localisation.
+        if not self.country:
+            return page
+
         try:
             # See if the page has any alternate versions for the current country
             alternate_version = Page.objects.get(
@@ -59,7 +63,7 @@ class RequestPageManager:
         except Page.DoesNotExist:
             return None
 
-    @property
+    @cached_property
     def is_homepage(self):
         '''Whether the current request is for the site homepage.'''
         return self._path == self.homepage.get_absolute_url()
@@ -83,7 +87,7 @@ class RequestPageManager:
             do_breadcrumbs(self.homepage)
         return breadcrumbs
 
-    @property
+    @cached_property
     def section(self):
         '''The current primary level section, or None.'''
         try:
@@ -92,7 +96,7 @@ class RequestPageManager:
         except IndexError:
             return None
 
-    @property
+    @cached_property
     def subsection(self):
         '''The current secondary level section, or None.'''
         try:
@@ -101,7 +105,7 @@ class RequestPageManager:
         except IndexError:
             return None
 
-    @property
+    @cached_property
     def current(self):
         '''The current best-matched page.'''
         try:
@@ -110,7 +114,7 @@ class RequestPageManager:
         except IndexError:
             return None
 
-    @property
+    @cached_property
     def is_exact(self):
         '''Whether the current page exactly matches the request URL.'''
         return self.current.get_absolute_url() == self._path
