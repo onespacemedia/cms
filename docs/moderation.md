@@ -1,7 +1,8 @@
 # Moderation system
 
-The CMS has a simple system which allows the publication of a page to be controlled by a moderation system.
-Models which utilise the moderation system gain a field named `status` which has three possible values: "Draft", "Submitted for approval" or "Approved".
+Sometimes it is useful for certain admin users to be able to create and edit objects, such as news articles, but to not be able to publish them immediately.
+The CMS has a simple, entirely optional system for facilitating this.
+Models which utilise this moderation system gain a field named `status` which has three possible values: "Draft", "Submitted for approval" or "Approved".
 Objects are only visible on the front-end of the website when they are marked as "Approved".
 
 Adding the moderation system to a model will create a new permission named "Can approve items".
@@ -16,6 +17,7 @@ First, modify your model:
 from cms.plugins.moderation.models import ModerationBase
 
 class MyModel(ModerationBase):
+    # Your fields here.
 
     # If you have Meta options, they should extend ModerationBase.Meta.
     class Meta(ModerationBase.Meta):
