@@ -16,6 +16,7 @@ from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseNotAllowed)
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
+from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
@@ -59,11 +60,16 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         ('Media management', {
             'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
         }),
+        ('Usage', {
+            # This is the used_on function, not a field.
+            'fields': ['used_on'],
+        }),
     ]
     filter_horizontal = ['labels']
     list_display = ['get_number', 'get_preview', 'get_title', 'get_alt_text', 'get_size']
     list_display_links = list_display
     list_filter = ['labels']
+    readonly_fields = ['used_on']
     search_fields = ['title']
 
     def get_form(self, request, obj=None, **kwargs):
@@ -268,6 +274,27 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         # return None and let our caller handle this.
         return None
 
+    def used_on(self, obj=None):
+        context = {}
+        if obj:
+            related_objs = []
+
+            for related in get_candidate_relations_to_delete(obj._meta):
+                related_objs = related_objs + list(related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
+                    **{"%s__in" % related.field.name: [obj]}
+                ))
+            context['related_objects'] = [
+                {
+                    'title': obj,
+                    'model_name': obj._meta.verbose_name,
+                    'admin_url': self.get_admin_url(obj),
+                } for obj in related_objs
+            ]
+
+        else:
+            context['related_objects'] = []
+        return render_to_string('admin/media/includes/file_used_on.html', context)
+
     def response_add(self, request, obj, post_url_continue=None):
         '''Returns the response for a successful add action.'''
         if '_tinymce' in request.GET:
@@ -275,26 +302,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                        'title': obj.title}
             return render(request, 'admin/media/file/filebrowser_add_success.html', context)
         return super().response_add(request, obj, post_url_continue=post_url_continue)
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        extra_context = extra_context or {}
-        test_obj = File.objects.get(pk=object_id)
-        related_objs = []
-
-        for related in get_candidate_relations_to_delete(test_obj._meta):
-            related_objs = related_objs + list(related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
-                **{"%s__in" % related.field.name: [test_obj]}
-            ))
-
-        extra_context['related_objects'] = [
-            {
-                'title': obj,
-                'model_name': obj._meta.verbose_name,
-                'admin_url': self.get_admin_url(obj),
-            } for obj in related_objs
-        ]
-
-        return super().change_view(request, object_id, extra_context=extra_context)
 
     def changelist_view(self, request, extra_context=None):
         '''Renders the change list.'''

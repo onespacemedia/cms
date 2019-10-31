@@ -1,22 +1,18 @@
-<fieldset class="module aligned with-legend ">
-  <h2 class="legend">Used on</h2>
-    <div id="file-used-on-container">
-      <div class="form-row field-title">
-        <div>
-          <label for="id_title">Used on:</label>
-          <ul class="fle-RelatedList">
-            {% for obj in related_objects %}
-              {% if obj.admin_url %}
-                <li class="fle-RelatedList_Item">
-                  <a class="fle-RelatedList_Link" href="{{ obj.admin_url }}">
-                    <strong>{{ obj.model_name|capfirst }}:</strong>
-                    {{ obj.title }}
-                  </a>
-                </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
-</fieldset>
+{% if related_objects %}
+  <ul class="fle-RelatedList">
+    {% for obj in related_objects %}
+      {% if obj.admin_url %}
+        <li class="fle-RelatedList_Item">
+          <a class="fle-RelatedList_Link" href="{{ obj.admin_url }}">
+            <strong>{{ obj.model_name|capfirst }}:</strong>
+            {{ obj.title }}
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="fle-RelatedList fle-RelatedList-empty">
+    No usage to show.
+  </p>
+{% endif %}

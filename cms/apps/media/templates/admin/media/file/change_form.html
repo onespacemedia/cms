@@ -7,12 +7,6 @@
   {% endif %}
 {% endblock %}
 
-{% block after_related_objects %}
-  {% if related_objects %}
-    {% include 'admin/media/includes/file_used_on.html' %}
-  {% endif %}
-{% endblock %}
-
 {% block extrahead %}
   {{ block.super }}
 
