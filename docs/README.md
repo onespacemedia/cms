@@ -1,7 +1,7 @@
 # Onespacemedia CMS documentation
 
 Onespacemedia CMS is a collection of Django extensions that add content-management facilities to Django projects, originally forked from [etianen/cms](https://github.com/etianen/cms).
-The team at [Onespacemedia](http://www.onespacemedia.com>) are actively working on the project, adding new features, updating existing ones and keeping it working with the latest versions of Django.
+The team at [Onespacemedia](http://www.onespacemedia.com) are actively working on the project, adding new features, updating existing ones and keeping it working with the latest versions of Django.
 
 ## Requirements
 
