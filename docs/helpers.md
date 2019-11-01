@@ -30,6 +30,8 @@ PageBase defines several fields that make this useful for article-like things:
 * SEO controls: title tag override, meta description, robots controls
 * Fields for Twitter and Facebook (OpenGraph) cards
 
+You can read more about it in the [helpers.md](section about helper models).
+
 `cms.admin.PageBaseAdmin` is the companion `ModelAdmin`; at risk of repeating ourselves, anything that derives from `PageBase` definitely wants to use `PageBaseAdmin`. It prepopulates your `title` and `slug` field automatically, and offers the following fieldsets:
 
 * `PUBLICATION_FIELDS`, inherited from `OnlineBase`
