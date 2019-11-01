@@ -220,7 +220,7 @@ In fact, for a lot of sites, you might not even need to write a single view!
 
 For the second part of this walkthrough, we are going to create a simple blog app using some of the CMS's more advanced tooling.
 
-First, create an app called `news`, add it to your `INSTALLED_APPS`, and add this to your `models.py`:
+First, create an app called "news", add it to your `INSTALLED_APPS`, and add this to your `news/models.py`:
 
 ```
 from cms.apps.pages.models import ContentBase
