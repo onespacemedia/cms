@@ -69,7 +69,7 @@ Renders the content of the meta robots tag for the current page:
 ```
 
 You can override the meta robots by setting boolean context variables called
-``robots_index``, ``robots_archive`` and ``robots_follow``:
+`robots_index`, `robots_archive` and `robots_follow`:
 
 ```
 {% with robots_follow = 1 %}
@@ -87,7 +87,7 @@ tag in the order 'index', 'follow' and 'archive':
 ## Navigation functions
 ### `render_navigation(pages, section=None)`
 
-Renders the site navigation using the template specified at ``pages/navigation.html``. By default this is just an unordered list with each navigation item as a list item.  The simplest usage is like this:
+Renders the site navigation using the template specified at `pages/navigation.html`. By default this is just an unordered list with each navigation item as a list item.  The simplest usage is like this:
 
 ```
 {{ render_navigation(pages.homepage.navigation) }}
@@ -107,7 +107,7 @@ Which would produce an output like this:
 </ul>
 ```
 
-If you would like the "base page" (the page that the navigation is being based off) to be included in the navigation simply add the ``section`` kwarg:
+If you would like the "base page" (the page that the navigation is being based off) to be included in the navigation simply add the `section` kwarg:
 
 ```
 {{ render_navigation(pages.homepage.navigation, section=pages.homepage) }}
@@ -141,7 +141,7 @@ Renders the breadcrumbs trail for the current page:
 {{ render_breadcrumbs() }}
 ```
 
-To override and extend the breadcrumb trail within page applications, add the ``extended`` flag to the tag and add your own breadcrumbs underneath:
+To override and extend the breadcrumb trail within page applications, add the `extended` flag to the tag and add your own breadcrumbs underneath:
 
 ```
 {{ render_breadcrumbs(extended=1) }}

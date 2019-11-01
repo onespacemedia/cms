@@ -4,7 +4,7 @@ The Links module provides a content model named "Link" which allows you to have 
 
 ## Configuration
 
-Ensure both ``cms.apps.pages`` and ``cms.apps.links`` are in your project's `INSTALLED_APPS`. If they weren't already, you will need to migrate:
+Ensure both `cms.apps.pages` and `cms.apps.links` are in your project's `INSTALLED_APPS`. If they weren't already, you will need to migrate:
 
 ```
 $ ./manage.py migrate
