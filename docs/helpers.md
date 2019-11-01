@@ -39,7 +39,7 @@ You can read more about it in the [helpers.md](section about helper models).
 * `OPENGRAPH_FIELDS`, to control how OpenGraph card rendering (Facebook and others)
 * `OPENGRAPH_TWITTER_FIELDS`, to control how Twitter cards are rendered
 
-The companion `cms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so that they can be seen by the CMS's [template functions](template-functions.md). There is also `cms.views.PageDetailMixin`, which does not inherit from Django's `DetailView`.
+The companion `cms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so that they can be seen by the CMS's [template functions](template-functions.md). There is also `cms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.
 
 Because the Django `DetailView` from which this inherits will check the `slug` kwarg by default, your detail view could be as simple as this:
 
