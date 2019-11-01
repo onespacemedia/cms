@@ -152,7 +152,7 @@ Any objects that have a `ForeignKey` with `on_delete=models.CASCADE` to your con
 
 If you still want to change the content type, then it's reasonably simple.
 
-1. Go to the create page of the content type you want to change *to*. Copy the number from the ``?type=XX`` portion of the URL.
+1. Go to the create page of the content type you want to change *to*. Copy the number from the `?type=XX` portion of the URL.
 2. Go to the edit page of the page you wish to switch.
 3. Add `?type=XX` to the end of the URL.
 
