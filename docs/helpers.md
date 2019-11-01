@@ -6,7 +6,7 @@
 It provides a single field: `is_online`. When it is `False` (unchecked), it will not appear on the front-end of your website.
 
 You do not have to do anything other than inherit from OnlineBase for this to work; objects that are not online are automatically excluded from querysets via a custom manager, `OnlineBaseManager`.
-We will go into more detail about that later.
+We will go into more detail about that [elsewhere](publication-control.md).
 
 `cms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model; derivatives of OnlineBase should probably inherit from this for their user model. It defines `PUBLICATION_FIELDS`, which you can use on your model's admin thusly:
 
@@ -39,7 +39,7 @@ You can read more about it in the [helpers.md](section about helper models).
 * `OPENGRAPH_FIELDS`, to control how OpenGraph card rendering (Facebook and others)
 * `OPENGRAPH_TWITTER_FIELDS`, to control how Twitter cards are rendered
 
-The companion `cms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so that they can be seen by the CMS's [template functions](template-functions.md). There is also `cms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.
+The companion `cms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so they are seen by the CMS's [template functions](template-functions.md). There is also `cms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.
 
 Because the Django `DetailView` from which this inherits will check the `slug` kwarg by default, your detail view could be as simple as this:
 
