@@ -9,3 +9,4 @@
 * [Sitemaps](sitemaps.md)
 * [Jinja2 template functions](template-functions.md)
 * [django-watson integration](watson-integration.md)
+* [Performance notes](performance.md)
