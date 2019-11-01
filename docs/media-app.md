@@ -1,13 +1,7 @@
 # The Media app
 
-## User-visible features
-
 The media app provides file and image management to the Django admin.
 It also integrates with the CMS's WYSIWYG text editor to provide a file browser and image browser interface that allows images and files to be added directly into the editor.
-
-The default `FileAdmin` adds a thumbnail preview to the list view, falling back to an appropriate icon for the file type if the file is not an image.
-
-For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
 
 ## Models
 
@@ -15,25 +9,53 @@ For images, there is an in-browser image editor that gives quick access to commo
 
 `cms.apps.media.models.File` is a wrapper around a Django FileField. This allows users to upload their files in one place and use it in more than one place.
 
-The CMS's `File` provides additional fields: a title, alt text (for images), attribution and copyright. It is up to you how, or if, to render these on the front-end of the website.
+`File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users). For this, you'll want to use a simpler Django `django.db.models.FileField` or `ImageField`.
 
-`File` is not typically used for files uploaded via the public front-end of a website (i.e. non-staff users). For this, you'll want to use a simpler Django `FileField` or `ImageField`.
+The default `FileAdmin` adds a thumbnail preview to the list view, falling back to an appropriate icon for the file type if the file is not an image.
+
+For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
+
+When uploading images, an attempt is made to guard against a file being uploaded with an extension that does not match its contents.
+For example, you won't be able to upload a PNG file with a `.jpg` extension, or vice-versa.
+This helps to prevent exceptions being thrown while thumbnailing images on the front-end of the site.
+
+#### Model fields
+
+* `title`: A name for the file. In the admin, this is prepopulated from the filename when first uploaded, if no title is provided by the user.
+* `labels`: A `ManyToManyField` to `Label` (see below).
+* `file`: A Django `FileField`, which is the file itself.
+* `attribution`, `copyright` and `alt_text`: Additional metadata fields. It is up to you how, or if, to render these on the front end of the site.
+
+In addition, the following fields are present on the model, but are not user-visible and are automatically populated on save:
+
+* `width` and `height`: The image dimensions of the file, if the file is an image.
+* `date_added`: The time the file was first uploaded. This is used for ordering in the admin (most recent first).
+
+#### Model methods & properties
+
+* `get_dimensions()`: If the file is an image, returns a tuple of (width, height), otherwise returns 0. This is only used internally; you probably want to access the `width` and `height` fields on the model instead, as they incur no overhead.
+* `icon`: A cached property that returns the path to an appropriate icon for the file type, e.g. `/static/media/img/x-office-spreadsheet.png`. This is used as a fallback in the media list if a file is not an image.
+* `is_image()`: Returns True if the file is an image (based on the file extension), False otherwise:
 
 ### Label
 
 `cms.apps.media.models.Label` helps administrators organise media; think of them as tags, or notes to self. They are not intended to be shown to users on the front end of a website.
 
+Label has only one field: a `title`, which is also used as the ordering field.
+
 ### Video
 
-`cms.apps.media.models.Video` is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible ``<video>`` tags on the frontend of your website.
+`cms.apps.media.models.Video` is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible `<video>` tags on the frontend of your website.
+
+TODO: document the magic embed
 
 ## Fields
 
-A few fields are provided To make it easier to integrate the media module into your project. You should generally use these any time you want to reference a File.
+The media apps are provided to make it easier to integrate the media module into your project. You should generally use these any time you want to reference a File.
 
-`FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
+`cms.apps.media.models.FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
-`ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images. This will also display a small preview of the image in the widget in the admin.
+`cms.apps.media.models.ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images (based on the extension of the file).
+This will also display a small preview of the image in the widget in the admin.
 
-`VideoFileRefField()` has the same functionality as `FileRefField()`, but the files are filtered to only show videos.
-
+`cms.apps.media.models.VideoFileRefField` has the same functionality as `FileRefField()`, but the files are filtered to only show videos.
