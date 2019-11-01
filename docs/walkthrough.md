@@ -308,7 +308,7 @@ OK, let's talk about PageBase here.
 It's a helper (abstract) model to make it easier for you to have article-like fields on your model.
 It has nearly all the fields that the Page model itself does, but does not consider itself part of any hierarchy.
 In fact, the CMS Page itself inherits from PageBase.
-Here's what you get:
+Here's what you get (see the [helper models](helpers.md) section for more):
 
 * A title and slug
 * Online/offline controls (enforced by the manager)
