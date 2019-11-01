@@ -75,7 +75,8 @@ In addition to our "Text" field from our content model, we will have the followi
   * Follow links
   * Allow archiving
 
-None of these exist on your content model; they are on a Page object to which a content model instance is attached.
+None of these exist on your content model; in fact, `ContentBase` has no user-visible fields at all.
+They are on a Page object to which a content model instance is attached.
 The fields from your content model are dynamically injected into the editing form in your admin.
 If you'd like to see the hairy details of how this works, see `get_form` in `apps/pages/admin.py`.
 
