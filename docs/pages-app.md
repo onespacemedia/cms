@@ -44,7 +44,7 @@ As you can see, this will create a page content type named 'Content' with a text
   * Follow links
   * Allow archiving
 
-None of these exist on your content model; they are on the page to which a content model instance is attached. The fields from your content model are dynamically injected into the editing form in your admin. If you'd like to see the hairy details of how this works, see `get_form` in `apps/pages/admin.py`.
+None of these exist on your content model; they are on a Page object to which a content model instance is attached. The fields from your content model are dynamically injected into the editing form in your admin. If you'd like to see the hairy details of how this works, see `get_form` in `apps/pages/admin.py`.
 
 If we wanted to have another page type with a different set of fields (or even the same fields) we simply have to add another model which extends `ContentBase`, like so:
 
