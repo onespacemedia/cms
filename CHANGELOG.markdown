@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Complete rewrite of the documentation.
+
 ## 4.1.0 - 25/10/2019
 * Make it possible for ContentBase derivatives to override how they are searched by Watson.
 
