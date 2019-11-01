@@ -31,7 +31,7 @@ The CMS's `File` provides additional fields: a title, alt text (for images), att
 
 A few fields are provided To make it easier to integrate the media module into your project. You should generally use these any time you want to reference a File.
 
-`FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable).
+`FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
 `ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images. This will also display a small preview of the image in the widget in the admin.
 
