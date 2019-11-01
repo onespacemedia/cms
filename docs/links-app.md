@@ -1,6 +1,6 @@
 # The Links app
 
-The Links module provides a content model named "Link" which allows you to have a navigation item without a page associated - it will redirect to an arbitrary URL.
+The Links module provides a content model named "Link" which allows you to have a navigation item without any page content associated; instead, its entry will redirect to an arbitrary URL.
 
 ## Configuration
 
