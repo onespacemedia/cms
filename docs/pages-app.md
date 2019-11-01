@@ -8,7 +8,7 @@ In `cms.apps.pages.models` there is a model named `Page`, which contains a set o
 
 To be able to add a `Page` to the site, we need a content model.  A content model is a way of representing a type of page. This could be a homepage, a standard page, a contact page etc -- each content model would have its own front-end template thus allowing you to provide different layout types, themes etc throughout your site.
 
-Here is an example of a content model::
+Here is an example of a content model:
 
 
 ```python
@@ -46,7 +46,7 @@ As you can see, this will create a page content type named 'Content' with a text
 
 None of these exist on your content model; they are on the page to which a content model instance is attached. The fields from your content model are dynamically injected into the editing form in your admin. If you'd like to see the hairy details of how this works, see `get_form` in `apps/pages/admin.py`.
 
-If we wanted to have another page type with a different set of fields (or even the same fields) we simply have to add another model which extends `ContentBase`, like so::
+If we wanted to have another page type with a different set of fields (or even the same fields) we simply have to add another model which extends `ContentBase`, like so:
 
 ```
 from django.db import models
@@ -146,7 +146,7 @@ class ContentTwo(ContentBase):
     )
 ```
 
-You would lose the data in the ``content`` field (on save) if you switched the content type from ``Content`` to ``ContentTwo``.
+You would lose the data in the `content` field (on save) if you switched the content type from `Content` to `ContentTwo`.
 
 Any objects that have a `ForeignKey` with `on_delete=models.CASCADE` to your content model will also be deleted.
 
@@ -154,17 +154,17 @@ If you still want to change the content type, then it's reasonably simple.
 
 1. Go to the create page of the content type you want to change *to*. Copy the number from the ``?type=XX`` portion of the URL.
 2. Go to the edit page of the page you wish to switch.
-3. Add ``?type=XX`` to the end of the URL.
+3. Add `?type=XX` to the end of the URL.
 
 At this point you will be looking at the fieldset for the new content type, but you will not have applied the changes.  If you're happy with the way your data looks hit Save and the changes will be saved.
 
-#### ...change the ModelAdmin ``fieldsets`` of my content model?
+#### ...change the ModelAdmin `fieldsets` of my content model?
 
 Simply add the `fieldsets` tuple to your model rather than your admin.py.
 
 #### ...set a `filter_horizontal` on a content model ManyToManyField?
 
-Simply add the ``filter_horizontal`` tuple to your model rather than your admin.py.
+Simply add the `filter_horizontal` tuple to your model rather than your admin.py.
 
 #### ...add inline model admins to content models?
 
