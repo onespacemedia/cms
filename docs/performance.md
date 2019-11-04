@@ -22,8 +22,31 @@ If you check against `page.content.new_window` in every item in your navigation,
 For a large site, this can have quite some performance impact.
 
 Your solution is to only check against `Page.content` when you know you need to.
-In the example above, you could put the `Link` model's content type ID into your page's context.
-That way, you could check against `page.content_type_id` to see if its content type is a `Link`, and only access `page.content.new_window` if it is.
+In the example above, you could put the `Link` model's content type ID into your page's context, with a context processor like this:
+
+```python
+def page_type_ids(request):
+    # Imports need to be here because this can cause an apps-not-ready
+    # exception.
+    from cms.apps.links.models import Link
+    from django.contrib.contenttypes.models import ContentType
+
+    return {
+        'page_type_ids': {
+            'link': ContentType.objects.get_for_model(Link).id,
+            # more page types here if you need to check against their
+            # `.content` too
+        }
+    }
+```
+
+That way, you could check against `page.content_type_id` to see if its content type is a `Link`, and only access `page.content.new_window` if it is:
+
+```
+<a href="{{ entry.url }}" itemprop="url" {% if entry.page.content_type_id == page_type_ids.link and entry.page.content.new_window %}target="_blank"{% endif %}>
+   {{ entry.title }}
+</a>
+```
 
 ## Expensive 404 pages
 
