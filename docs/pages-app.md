@@ -102,7 +102,7 @@ class PlainPageTwo(ContentBase):
     )
 ```
 
-You can access the content object for a given page `content` attribute on a `Page` object.
+You can access the content object for a `Page` object via the its `content` attribute (actually a cached property).
 
 ### Rendering the current page
 
@@ -113,7 +113,7 @@ In our [walkthrough](walkthrough.md) we used this to create a news article list 
 You don't have to specify your own `urlconf` in your content model if you don't want to.
 `ContentBase` has a default `urlconf` that routes to a simple `TemplateView`.
 That attempts to render a template living at `<app-label>`/`modelname.html`.
-Thus, our default template for rendering PlainPage, if it was in an app called `things`, would live at `things/plainpage.html`.
+Thus, our default template for rendering our content model `PlainPage`, if it was in an app called `things`, would live at `things/plainpage.html`.
 
 ### The context processor
 
@@ -203,11 +203,11 @@ If you're happy with the way your data looks hit Save.
 
 ### ...change the ModelAdmin `fieldsets` of my content model?
 
-Simply add the `fieldsets` tuple to your model rather than your admin.py.
+Add the `fieldsets` tuple to your model rather than your admin.py.
 
 ### ...set a `filter_horizontal` on a content model ManyToManyField?
 
-Simply add the `filter_horizontal` tuple to your model rather than your admin.py.
+Add the `filter_horizontal` tuple to your model rather than your admin.py.
 
 ### ...add inline model admins to content models?
 

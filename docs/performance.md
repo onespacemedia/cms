@@ -50,7 +50,7 @@ That way, you could check against `page.content_type_id` to see if its content t
 
 ## Expensive 404 pages
 
-Because the pages middleware only attempts to render a page at a given URL when the URL would 404 otherwise, your 404 page is rendered before the page is served.
+Because the pages middleware only attempts to render a page at a given URL when that URL would 404 otherwise, your 404 page is rendered before the page is served.
 Therefore, if your 404 page is expensive to render, all pages on your site will be expensive to render too.
 In particular, rendering your navigation in your 404 page causes the navigation to be rendered _twice_ - once for the 404 page, once for the navigation itself. This almost doubles the CMS's baseline overhead!
 
