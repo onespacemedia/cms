@@ -130,7 +130,7 @@ Assuming the page's current content object is an instance of `PlainPage` above, 
 {{ pages.current.title }}
 {{ pages.current.slug }}
 
-<!-- The content object -->
+<!-- The content object (PlainPage instance) -->
 {{ pages.current.content }}
 
 <!-- `text` field on the content object -->
