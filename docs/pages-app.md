@@ -118,22 +118,9 @@ Thus, our default template for rendering our content model `PlainPage`, if it wa
 ### The context processor
 
 The pages module adds a key named `pages` to your template context.
-This gives you access to the page data and content for the current page and the homepage.
-Let's assume your model looks like this:
+This gives you access to the page data and content for the current page, as well as the rest of the pages tree.
 
-```python
-from cms.apps.pages.models import ContentBase
-from django.db import models
-
-
-class Content(ContentBase):
-
-    introduction = models.TextField(
-        blank=True,
-    )
-```
-
-You can access the page data in your template like this:
+Assuming the page's current content object is an instance of `PlainPage` above, you can access the page data in your template like this:
 
 ```
 <!-- The currently active Page object -->
@@ -146,8 +133,8 @@ You can access the page data in your template like this:
 <!-- The content object -->
 {{ pages.current.content }}
 
-<!-- `introduction` on the content object -->
-{{ pages.current.content.introduction }}
+<!-- `text` field on the content object -->
+{{ pages.current.content.text }}
 ```
 
 ## How do I....
