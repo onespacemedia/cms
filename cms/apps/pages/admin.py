@@ -425,8 +425,7 @@ class PageAdmin(PageBaseAdmin):
             ).order_by('-country_group')
 
         extra_context['display_language_options'] = False
-        middleware = getattr(settings, 'MIDDLEWARE', None) or settings.MIDDLEWARE_CLASSES
-        if 'cms.middleware.LocalisationMiddleware' in middleware:
+        if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
             extra_context['display_language_options'] = True
 
         # Call the change view.
@@ -706,9 +705,7 @@ class CountryAdmin(admin.ModelAdmin):
 
 admin.site.register(Page, PageAdmin)
 
-middleware = getattr(settings, 'MIDDLEWARE', None) or settings.MIDDLEWARE_CLASSES
-
-if 'cms.middleware.LocalisationMiddleware' in middleware:
+if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
     admin.site.register(Country, CountryAdmin)
     admin.site.register(CountryGroup, CountryGroupAdmin)
 
