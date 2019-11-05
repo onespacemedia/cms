@@ -14,7 +14,7 @@ DEPENDENCIES = [
     'Jinja2==2.10.1',
 
     'beautifulsoup4',
-    'django>=1.11,<1.12',
+    'django>=1.11,<2.3',
     'django-historylinks',
     'django-watson',
     'django-reversion',
@@ -51,9 +51,9 @@ setup(
             # / Project template
             'coveralls',
             'mock',
-            'geoip',
+            'geoip2',
         ],
-        'geoip': ['geoip']
+        'geoip': ['geoip2']
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
