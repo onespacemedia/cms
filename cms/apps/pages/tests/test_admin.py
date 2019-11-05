@@ -554,11 +554,7 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
-        NEW_MIDDLEWARE_CLASSES = [
-            'cms.middleware.LocalisationMiddleware',
-        ] + list(settings.MIDDLEWARE_CLASSES)
-
-        with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
+        with self.settings(MIDDLEWARE=['cms.middleware.LocalisationMiddleware']):
             request = self._build_request()
             response = self.page_admin.change_view(request, str(self.homepage.pk))
             self.assertEqual(response.status_code, 200)
