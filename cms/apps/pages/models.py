@@ -113,6 +113,7 @@ class Page(PageBase):
         blank=True,
         null=True,
         related_name='owner_set',
+        on_delete=models.CASCADE,
     )
 
     @cached_property
