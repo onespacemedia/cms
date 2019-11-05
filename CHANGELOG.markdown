@@ -1,7 +1,11 @@
 # Changelog
 
-## Next release
+# Next release
+* Rename "Search engine optimization" fieldset of SearchMetaBaseAdmin to "SEO".
 * Ensure all `ForeignKey`s have an `on_delete` explicitly specified for Django 2.2 compatibility.
+
+## 4.1.0 - 25/10/2019
+* Make it possible for ContentBase derivatives to override how they are searched by Watson.
 
 ## 4.0.10 - 18/10/2019
 * Fix `Video.embed_html()` function using the wrong renderer for local mp4 files.
