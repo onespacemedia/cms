@@ -55,10 +55,10 @@ class Migration(migrations.Migration):
                 ('expiry_date', models.DateTimeField(help_text='The date that this page will be removed from the website.  Leave this blank to never expire this page.', null=True, db_index=True, blank=True)),
                 ('in_navigation', models.BooleanField(default=True, help_text='Uncheck this box to remove this content from the site navigation.', verbose_name='add to navigation')),
                 ('cached_url', models.CharField(max_length=1000, null=True, blank=True)),
-                ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', help_text='The type of page content.')),
-                ('country_group', models.ForeignKey(blank=True, to='pages.CountryGroup', null=True)),
-                ('owner', models.ForeignKey(related_name='owner_set', blank=True, to='pages.Page', null=True)),
-                ('parent', models.ForeignKey(related_name='child_set', blank=True, to='pages.Page', null=True)),
+                ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', help_text='The type of page content.', on_delete=models.CASCADE)),
+                ('country_group', models.ForeignKey(blank=True, to='pages.CountryGroup', null=True, on_delete=models.CASCADE)),
+                ('owner', models.ForeignKey(related_name='owner_set', blank=True, to='pages.Page', null=True, on_delete=models.CASCADE)),
+                ('parent', models.ForeignKey(related_name='child_set', blank=True, to='pages.Page', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('left',),
@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='country',
             name='group',
-            field=models.ForeignKey(blank=True, to='pages.CountryGroup', null=True),
+            field=models.ForeignKey(blank=True, to='pages.CountryGroup', null=True, on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='page',

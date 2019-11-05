@@ -1,7 +1,8 @@
 # Changelog
 
 # Next release
-## Rename "Search engine optimization" fieldset of SearchMetaBaseAdmin to "SEO".
+* Rename "Search engine optimization" fieldset of SearchMetaBaseAdmin to "SEO".
+* Ensure all `ForeignKey`s have an `on_delete` explicitly specified for Django 2.2 compatibility.
 
 ## 4.1.0 - 25/10/2019
 * Make it possible for ContentBase derivatives to override how they are searched by Watson.
