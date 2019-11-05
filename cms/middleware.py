@@ -3,7 +3,6 @@
 import re
 
 from django.conf import settings
-from django.contrib.gis.geoip import GeoIP
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
 from django.utils.deprecation import MiddlewareMixin
@@ -96,6 +95,10 @@ class LocalisationMiddleware(MiddlewareMixin):
                 pass
 
     def process_response(self, request, response, geoip_path=None):
+        # This import is here to avoid an exception being thrown when
+        # localisation is not required - this import will fail if GeoIP files
+        # are not present.
+        from django.contrib.gis.geoip2 import GeoIP2
 
         # Continue for media
         if request.path.startswith('/media/') \
@@ -108,7 +111,7 @@ class LocalisationMiddleware(MiddlewareMixin):
         if request.country is None:
 
             # Get the Geo location of the requests IP
-            geo_ip = GeoIP(path=geoip_path)
+            geo_ip = GeoIP2(path=geoip_path)
             country_geo_ip = geo_ip.country(get_client_ip(request))
 
             if country_geo_ip['country_code']:
