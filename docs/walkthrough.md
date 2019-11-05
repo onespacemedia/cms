@@ -56,7 +56,7 @@ MIDDLEWARE = [
   'cms.middleware.PublicationMiddleware',
   'cms.apps.pages.middleware.PageMiddleware',
 ]
-```python
+```
 
 And finally, options for our HTML editor:
 
