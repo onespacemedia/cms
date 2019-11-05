@@ -51,7 +51,7 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
 
     list_display = ('__str__', 'is_online',)
 
-    SEO_FIELDS = ('Search engine optimization', {
+    SEO_FIELDS = ('SEO', {
         'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',),
         'classes': ('collapse',),
     })

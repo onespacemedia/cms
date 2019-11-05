@@ -71,7 +71,6 @@ class PageManager(OnlineBaseManager):
         return self.prefetch_related('child_set__child_set').get(parent=None,
                                                                  is_content_object=False)
 
-
 class Page(PageBase):
 
     '''A page within the site.'''
@@ -85,6 +84,7 @@ class Page(PageBase):
         blank=True,
         null=True,
         related_name='child_set',
+        on_delete=models.CASCADE,
     )
 
     left = models.IntegerField(
@@ -104,7 +104,8 @@ class Page(PageBase):
     country_group = models.ForeignKey(
         'pages.CountryGroup',
         blank=True,
-        null=True
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     owner = models.ForeignKey(
@@ -163,6 +164,7 @@ class Page(PageBase):
         ContentType,
         editable=False,
         help_text='The type of page content.',
+        on_delete=models.CASCADE,
     )
 
     requires_authentication = models.BooleanField(
@@ -377,17 +379,10 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         '''Returns the search text for the page.'''
         content_obj = obj.content
 
-        return ' '.join((
+        return ' '.join([
             super().get_content(obj),
-            self.prepare_content(' '.join(
-                force_text(self._resolve_field(content_obj, field_name))
-                for field_name in (
-                    field.name for field
-                    in content_obj._meta.fields
-                    if isinstance(field, (models.CharField, models.TextField))
-                )
-            ))
-        ))
+            self.prepare_content(content_obj.get_searchable_text())
+        ])
 
     def get_live_queryset(self):
         '''Selects the live page queryset.'''
@@ -453,6 +448,7 @@ class ContentBase(models.Model):
         primary_key=True,
         editable=False,
         related_name='+',
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -461,6 +457,26 @@ class ContentBase(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_searchable_text(self):
+        '''
+        Returns a blob of text that will be indexed by Watson. This will be
+        given lower priority than the title of the page it is attached to.
+
+        By default this will return every text field on the ContentBase,
+        separated by a space. A common case for overriding this is when your
+        page's content is built out of other models.
+        '''
+        return ' '.join([
+            force_text(getattr(self, field_name))
+            for field_name in [
+                field.name for field
+                in self._meta.fields
+                if isinstance(field, (models.CharField, models.TextField))
+            ]
+            # Because we don't want to index "None" :)
+            if getattr(self, field_name)
+        ])
 
 
 class Country(models.Model):
@@ -475,7 +491,8 @@ class Country(models.Model):
     group = models.ForeignKey(
         'pages.CountryGroup',
         blank=True,
-        null=True
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     default = models.NullBooleanField(

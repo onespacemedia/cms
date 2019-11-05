@@ -267,7 +267,7 @@ class TestPageAdmin(TestCase):
                 'fields': ('short_title', 'in_navigation', "hide_from_anonymous",),
                 'classes': ('collapse',)
             }),
-            ('Search engine optimization', {
+            ('SEO', {
                 'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
             }),
@@ -299,7 +299,7 @@ class TestPageAdmin(TestCase):
                 'fields': ('short_title', 'in_navigation', "hide_from_anonymous",),
                 'classes': ('collapse',)
             }),
-            ('Search engine optimization', {
+            ('SEO', {
                 'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive'),
                 'classes': ('collapse',)
             }),
