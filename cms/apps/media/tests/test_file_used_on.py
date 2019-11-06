@@ -71,6 +71,14 @@ page_admin.register_content_inline(TestContentBaseInline, TestContentBaseInlineA
 class TestFileUsedOn(TestCase):
     maxDiff = 2000
 
+    def clear_image_references(self, models):
+        # Clear out the old images from the previous test to esnure
+        # that they do not interfere.
+        for model in models:
+            if hasattr(model, 'image'):
+                model.image = None
+                model.save()
+
     def setUp(self):
         self.site = AdminSite(name='test_admin')
 
@@ -100,10 +108,6 @@ class TestFileUsedOn(TestCase):
             image=self.test_file,
         )
 
-        self.test_model_1_other = TestModelOne.objects.create(
-            image=self.other_test_file,
-        )
-
         self.test_model_2a = TestModelTwo.objects.create(
             image=self.test_file,
         )
@@ -111,24 +115,8 @@ class TestFileUsedOn(TestCase):
         # We will define these ourselves later
         self.test_page_model = None
         self.test_content_base_inline = None
-        self.test_model_1a_inline = None
         self.test_content_base = None
 
-        self.expected_outcome_test_file = [
-            {
-                'title': str(obj),
-                'model_name': obj._meta.verbose_name,
-                'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
-            } for obj in [self.test_model_1a, self.test_model_1b, self.test_model_2a]
-        ]
-
-        self.expected_outcome_other_test_file = [
-            {
-                'title': str(obj),
-                'model_name': obj._meta.verbose_name,
-                'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
-            } for obj in [self.test_model_1_other]
-        ]
 
     def tearDown(self):
         self.test_file.file.delete(False)
@@ -138,24 +126,27 @@ class TestFileUsedOn(TestCase):
 
         self.test_model_1a.delete()
         self.test_model_1b.delete()
-        self.test_model_1_other.delete()
         self.test_model_2a.delete()
 
         if self.test_content_base_inline:
             self.test_content_base_inline.delete()
-            self.test_model_1a_inline.delete()
             self.test_page_model.delete()
             self.test_content_base.delete()
 
-    def test_get_related_objects_admin_urls(self):
+    def test_get_related_objects_admin_urls_from_models_with_image(self):
         # We have an instance of File (eg: self.test_file)
-        # We have a Model with an ImageRefField (referencing the file)
+        # We have a Model with an ImageRefField (eg: self.test_model_1a)
         # We need to check that we can get the expected related objects when passing the file reference to get_related_objects_admin_urls()
+        expected_outcome = [
+            {
+                'title': str(obj),
+                'model_name': obj._meta.verbose_name,
+                'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
+            } for obj in [self.test_model_1a, self.test_model_1b, self.test_model_2a]
+        ]
+        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), self.expected_outcome_test_file)
-        self.assertEqual(get_related_objects_admin_urls(self.other_test_file), self.expected_outcome_other_test_file)
-
-    def test_inlines(self):
+    def test_get_related_objects_admin_urls_from_contentbase_with_image(self):
         with search.update_index():
             self.test_page_model = Page.objects.create(
                 title='Test page',
@@ -167,49 +158,45 @@ class TestFileUsedOn(TestCase):
                 image=self.test_file,
             )
 
-        self.test_model_1a_inline = TestModelOneInline.objects.create(
-            parent=self.test_model_1a,
-            image=self.test_file
-        )
+        self.clear_image_references([
+            self.test_model_1a,
+            self.test_model_1b,
+            self.test_model_2a
+        ])
 
-        # Clear out the old images from the previous test to esnure
-        # that they do not interfere.
-        self.test_model_1a.image = None
-        self.test_model_1a.save()
-        self.test_model_1b.image = None
-        self.test_model_1b.save()
-        self.test_model_2a.image = None
-        self.test_model_2a.save()
-
-        self.expected_outcome_test_file = [
+        expected_outcome = [
             {
                 'title': str(self.test_content_base),
                 'model_name': self.test_content_base._meta.verbose_name,
                 'admin_url': reverse(f'admin:{self.test_page_model._meta.app_label}_{self.test_page_model._meta.model_name}_change', args=[self.test_page_model.pk]),
             },
-            {
-                'title': str(self.test_model_1a_inline),
-                'model_name': self.test_model_1a_inline._meta.verbose_name,
-                'admin_url': reverse(f'admin:{self.test_model_1a._meta.app_label}_{self.test_model_1a._meta.model_name}_change', args=[self.test_model_1a.pk]),
-            },
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), self.expected_outcome_test_file)
+        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
 
-        # Now clear the contentbase image so we can add an inline to the
-        # contentbase that has an image set and see it the contentbase's
-        # parent gets returned.
-        self.test_content_base.image = None
-        self.test_content_base.save()
-        self.test_model_1a_inline.image = None
-        self.test_model_1a_inline.save()
+    def test_get_related_objects_from_contentbase_inline_with_image(self):
+        with search.update_index():
+            self.test_page_model = Page.objects.create(
+                title='Test page',
+                content_type=ContentType.objects.get_for_model(TestContentBase),
+            )
+
+            self.test_content_base = TestContentBase.objects.create(
+                page=self.test_page_model,
+            )
 
         self.test_content_base_inline = TestContentBaseInline.objects.create(
             page=self.test_page_model,
             image=self.test_file,
         )
 
-        self.expected_outcome_test_file = [
+        self.clear_image_references([
+            self.test_model_1a,
+            self.test_model_1b,
+            self.test_model_2a
+        ])
+
+        expected_outcome = [
             {
                 'title': str(self.test_content_base_inline),
                 'model_name': self.test_content_base_inline._meta.verbose_name,
@@ -217,4 +204,36 @@ class TestFileUsedOn(TestCase):
             }
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), self.expected_outcome_test_file)
+        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
+
+    def test_get_related_objects_admin_urls_from_model_inline_with_image(self):
+        with search.update_index():
+            self.test_page_model = Page.objects.create(
+                title='Test page',
+                content_type=ContentType.objects.get_for_model(TestContentBase),
+            )
+
+            self.test_content_base = TestContentBase.objects.create(
+                page=self.test_page_model,
+            )
+
+        test_model_1a_inline = TestModelOneInline.objects.create(
+            parent=self.test_model_1a,
+            image=self.test_file
+        )
+
+        self.clear_image_references([
+            self.test_model_1a,
+            self.test_model_1b,
+            self.test_model_2a
+        ])
+
+        expected_outcome = [
+            {
+                'title': str(test_model_1a_inline),
+                'model_name': test_model_1a_inline._meta.verbose_name,
+                'admin_url': reverse(f'admin:{self.test_model_1a._meta.app_label}_{self.test_model_1a._meta.model_name}_change', args=[self.test_model_1a.pk]),
+            },
+        ]
+
+        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
