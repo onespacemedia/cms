@@ -108,7 +108,7 @@ def get_admin_url(obj):
     # looking through all registered models and tunneling down.
 
     for model_cls, model_admin in admin.site._registry.items():
-        # Check if the model we're looknig at has any inlines. If it hasn't had
+        # Check if the model we're looking at has any inlines. If it hasn't had
         # any inlines set, model.inlines returns an empty array.
         inlines = model_admin.inlines
 
