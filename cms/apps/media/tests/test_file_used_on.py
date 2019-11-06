@@ -108,6 +108,14 @@ class TestFileUsedOn(TestCase):
             image=self.test_file,
         )
 
+        self.test_model_1a_other = TestModelOne.objects.create(
+            image=self.other_test_file
+        )
+
+        self.test_model_2a_other = TestModelTwo.objects.create(
+            image=self.other_test_file
+        )
+
         self.test_model_2a = TestModelTwo.objects.create(
             image=self.test_file,
         )
@@ -144,7 +152,19 @@ class TestFileUsedOn(TestCase):
                 'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
             } for obj in [self.test_model_1a, self.test_model_1b, self.test_model_2a]
         ]
+
         self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
+
+    def test_get_related_objects_admin_urls_from_models_with_other_image(self):
+        expected_outcome = [
+            {
+                'title': str(obj),
+                'model_name': obj._meta.verbose_name,
+                'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
+            } for obj in [self.test_model_1a_other, self.test_model_2a_other]
+        ]
+
+        self.assertEqual(get_related_objects_admin_urls(self.other_test_file), expected_outcome)
 
     def test_get_related_objects_admin_urls_from_contentbase_with_image(self):
         with search.update_index():
