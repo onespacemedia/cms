@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next release
+* Show usage of media library files on the file's change form.
 * Make middleware compatible with both `MIDDLEWARE` and `MIDDLEWARE_CLASSES`.
 * Ensure all `ForeignKey`s have an `on_delete` explicitly specified for Django 2.2 compatibility.
 * Rename "Search engine optimization" fieldset of SearchMetaBaseAdmin to "SEO".
