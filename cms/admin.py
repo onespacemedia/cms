@@ -70,13 +70,10 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
                     field_value = None
 
                 if field_value:
-                    try:
-                        return reverse(
-                            f'admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change',
-                            args=[field_value]
-                        )
-                    except NoReverseMatch:
-                        return None
+                    return reverse(
+                        f'admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change',
+                        args=[field_value]
+                    )
 
 def get_admin_url(obj):
     '''
@@ -111,7 +108,7 @@ def get_admin_url(obj):
     # looking through all registered models and tunneling down.
 
     for model_cls, model_admin in admin.site._registry.items():
-        # Check if the model we're looking at has any inlines. If it hasn't had
+        # Check if the model we're looknig at has any inlines. If it hasn't had
         # any inlines set, model.inlines returns an empty array.
         inlines = model_admin.inlines
 
