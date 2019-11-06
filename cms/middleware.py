@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.gis.geoip import GeoIP
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
+from django.utils.deprecation import MiddlewareMixin
 
 from cms.apps.pages.models import Country
 from cms.models import PublicationManagementError, publication_manager
@@ -20,21 +21,20 @@ def get_client_ip(request):
     return ip
 
 
-class PublicationMiddleware:
+class PublicationMiddleware(MiddlewareMixin):
 
     '''Middleware that enables preview mode for admin users.'''
 
-    def __init__(self):
-        '''Initializes the PublicationMiddleware.'''
-        self.exclude_urls = [
+    def process_request(self, request):
+        '''Starts preview mode, if available.'''
+
+        exclude_urls = [
             re.compile(url)
             for url in
             getattr(settings, 'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS', ())
         ]
 
-    def process_request(self, request):
-        '''Starts preview mode, if available.'''
-        if not any(pattern.match(request.path_info[1:]) for pattern in self.exclude_urls):
+        if not any(pattern.match(request.path_info[1:]) for pattern in exclude_urls):
             # See if preview mode is requested.
             try:
                 preview_mode = bool(int(request.GET.get('preview', 0)))
@@ -60,7 +60,7 @@ class PublicationMiddleware:
         return response
 
 
-class LocalisationMiddleware:
+class LocalisationMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
 
