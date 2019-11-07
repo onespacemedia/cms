@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Importing `cms.sitemaps` from the module containing an app's AppConfig no longer raises `AppRegistryNotReady`.
+
 ## 4.2.0
 * Show usage of media library files on the file's change form.
 * Make middleware compatible with both `MIDDLEWARE` and `MIDDLEWARE_CLASSES`.
