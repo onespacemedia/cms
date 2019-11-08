@@ -1,4 +1,8 @@
-from django.test import RequestFactory, TestCase
+from django.contrib.contenttypes.models import ContentType
+from django.test import Client, RequestFactory, TestCase
+from watson import search
+
+from cms.apps.pages.models import ContentBase, Page
 
 from ..models.base import \
     PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
@@ -17,7 +21,11 @@ class TestSearchMetaBaseModel(SearchMetaBase):
 
 
 class PageBaseModel(PageBase):
-    pass
+    def get_absolute_url(self):
+        return '/'
+
+class TestContentBase(ContentBase):
+            pass
 
 
 # Test search adapters.
@@ -97,3 +105,22 @@ class ModelsBaseTest(TestCase):
             'twitter_description': '',
             'twitter_image': None
         })
+
+    def test_get_preview_url(self):
+        with search.update_index():
+            page_obj = Page.objects.create(
+                title='Foo',
+                content_type=ContentType.objects.get_for_model(TestContentBase),
+                is_online=False,
+            )
+
+            content_obj = TestContentBase.objects.create(page=page_obj)
+
+        client = Client()
+        request = client.get(page_obj.get_absolute_url())
+
+        self.assertEqual(request.status_code, 404)
+
+        request = client.get(page_obj.get_preview_url())
+
+        self.assertEqual(request.status_code, 200)
