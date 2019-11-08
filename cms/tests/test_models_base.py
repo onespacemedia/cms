@@ -116,6 +116,11 @@ class ModelsBaseTest(TestCase):
 
             content_obj = TestContentBase.objects.create(page=page_obj)
 
+        print('#############')
+        print('preview URL', page_obj.get_preview_url())
+        print('absolute URL', page_obj.get_absolute_url())
+        print('#############')
+
         client = Client()
         request = client.get(page_obj.get_absolute_url())
 
