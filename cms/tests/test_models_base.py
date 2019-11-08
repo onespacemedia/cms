@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.test import Client, RequestFactory, TestCase
+from django.test import RequestFactory, TestCase
 from watson import search
 
 from cms.apps.pages.models import ContentBase, Page
@@ -116,13 +116,16 @@ class ModelsBaseTest(TestCase):
 
             content_obj = TestContentBase.objects.create(page=page_obj)
 
-        print('#############')
-        print('preview URL', page_obj.get_preview_url())
-        print('absolute URL', page_obj.get_absolute_url())
-        print('#############')
+        middleware = [
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'cms.middleware.PublicationMiddleware',
+            'cms.apps.pages.middleware.PageMiddleware',
+        ]
 
-        request = self.client.get(page_obj.get_absolute_url())
-        self.assertEqual(request.status_code, 404)
+        with self.settings(MIDDLEWARE=middleware):
+            request = self.client.get(page_obj.get_absolute_url())
+            self.assertEqual(request.status_code, 404)
 
-        request = self.client.get(page_obj.get_preview_url())
-        self.assertEqual(request.status_code, 200)
+            request = self.client.get(page_obj.get_preview_url())
+            self.assertEqual(request.status_code, 200)
