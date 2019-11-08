@@ -2,6 +2,7 @@
 
 ## Next release
 * Importing `cms.sitemaps` at the top level of a module containing an app's AppConfig no longer raises `AppRegistryNotReady`.
+* `PageBase`'s help text for the `slug` field now makes sense.
 
 ## 4.2.0 - 2019-11-06
 * Show usage of media library files on the file's change form.
