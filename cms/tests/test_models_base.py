@@ -121,11 +121,8 @@ class ModelsBaseTest(TestCase):
         print('absolute URL', page_obj.get_absolute_url())
         print('#############')
 
-        client = Client()
-        request = client.get(page_obj.get_absolute_url())
-
+        request = self.client.get(page_obj.get_absolute_url())
         self.assertEqual(request.status_code, 404)
 
-        request = client.get(page_obj.get_preview_url())
-
+        request = self.client.get(page_obj.get_preview_url())
         self.assertEqual(request.status_code, 200)
