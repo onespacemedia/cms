@@ -1,5 +1,6 @@
 import os
 
+from django.contrib.auth.models import AnonymousUser
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory, TestCase
 
@@ -12,6 +13,7 @@ class MiddlewareTest(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.request = self.factory.get('/?preview=a')
+        self.request.user = AnonymousUser()
 
     def test_publicationmiddleware_process_request(self):
         publication_middleware = PublicationMiddleware()
