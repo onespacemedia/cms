@@ -15,6 +15,8 @@ The default `FileAdmin` adds a thumbnail preview to the list view, falling back 
 
 For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
 
+The admin will show a list of all the places where an object is used in a "Usage" fieldset, with links (where possible) to their admin URLs. It's smart enough to know about usage within inlines, both those registered to normal models and as inlines on [pages-app.md](pages).
+
 When uploading images, an attempt is made to guard against a file being uploaded with an extension that does not match its contents.
 For example, you won't be able to upload a PNG file with a `.jpg` extension, or vice-versa.
 This helps to prevent exceptions being thrown while thumbnailing images on the front-end of the site.
