@@ -9,7 +9,7 @@ from django.template.response import SimpleTemplateResponse
 from django.utils.deprecation import MiddlewareMixin
 
 from cms.apps.pages.models import Country
-from cms.models import PublicationManagementError, publication_manager
+from cms.models import PublicationManagementError, publication_manager, path_token_generator
 
 
 def get_client_ip(request):
@@ -37,11 +37,13 @@ class PublicationMiddleware(MiddlewareMixin):
         if not any(pattern.match(request.path_info[1:]) for pattern in exclude_urls):
             # See if preview mode is requested.
             try:
-                preview_mode = bool(int(request.GET.get('preview', 0)))
+                path = f'{request.path_info[1:] if request.path_info[1:] else request.path_info}'
+                token_preview_valid = path_token_generator.check_token(request.GET.get('preview', 0), path)
+                user_preview = request.GET.get('preview', 0) and request.user.is_authenticated() and request.user.is_staff and request.user.is_active
             except ValueError:
                 preview_mode = False
-            # Only allow preview mode if the user is a logged in administrator.
-            preview_mode = preview_mode and request.user.is_authenticated() and request.user.is_staff and request.user.is_active
+            # Only allow preview mode if the user is a logged in administrator or they have a token for this specific path
+            preview_mode = token_preview_valid or user_preview
             publication_manager.begin(not preview_mode)
 
     def process_response(self, request, response):
