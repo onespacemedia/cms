@@ -20,6 +20,8 @@ class YourModelAdmin(OnlineBaseAdmin):
 
 `OnlineBaseAdmin` also adds a helpful list `action`: you will be able to turn off items as a batch from the list view.
 
+`OnlineBase` implements a `get_preview_url()` method that generates a secret URL at which an object can be previewed by non-administrative users. We use this in our [OSM Jet](https://github.com/onespacemedia/) admin skin to generate a "click to copy public preview URL"-like function. If your object does not implement a `get_absolute_url()` method, this method will return None.
+
 ## PageBase
 
 `cms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are fairly typical for a typical article-like thing on a website. If an instance of your model lives at its own URL and has a title, such as a news article or a blog post, then you almost certainly want to inherit from `PageBase`. The CMS's own `Page` model inherits from it.

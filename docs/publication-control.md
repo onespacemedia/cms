@@ -8,9 +8,10 @@ PageBaseManager and SearchMetaBaseManager inherit from OnlineBaseManager, and do
 But if your model inherits from PageBase or SearchMetaBase, a custom manager for it should inherit from the corresponding manager, in case extra features get added to the helper model and/or manager.
 </aside>
 
-It will only return offline objects in a queryset if any of the following things are true:
+It will only return offline objects in a queryset if _any_ of the following things are true:
 
 * The current request's user is a staff user, _and_ the `preview` GET parameter in the URL is non-empty (e.g. `?preview=1`). This allows administrators to preview offline objects.
+* The value of the `preview` GET parameter matches a hash of the current path and your `settings.SECRET_KEY` (this is a simplification of, but not entirely unlike, how it actually works). This is used by `OnlineBase` to implement its `get_preview_url()` method.
 * The current request's path matches a regular expression in the `settings.PUBLICATION_URLS` tuple. One of these will probably be `^admin/` in your configuration, for obvious reasons.
 
 Sometimes you might want to exclude objects automatically based on other criteria.
