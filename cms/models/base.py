@@ -10,10 +10,11 @@ from cms.models.managers import (OnlineBaseManager, PageBaseManager,
 
 
 class PathTokenGenerator:
-    """
-    Strategy object used to generate and check tokens for the password
-    reset mechanism.
-    """
+    '''
+        A simple token generator that takes a path and generates a hash for it.
+        Intended for use by the CMS publication middleware and OnlineBase derivatives.
+        In reality it just takes a string so it can be used for other purposes.
+    '''
     key_salt = "django.contrib.auth.tokens.PasswordResetTokenGenerator"
 
     def make_token(self, path):
@@ -66,9 +67,6 @@ class OnlineBase(PublishedBase):
     def get_preview_url(self):
         if not hasattr(self, 'get_absolute_url'):
             return None
-
-        if self.is_online:
-            return self.get_absolute_url()
 
         return f'{self.get_absolute_url()}?preview={path_token_generator.make_token(self.get_absolute_url())}'
 
