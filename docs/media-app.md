@@ -54,7 +54,8 @@ TODO: document the magic embed
 
 ## Fields
 
-The media apps are provided to make it easier to integrate the media module into your project. You should generally use these any time you want to reference a File.
+Three useful fields in the media app make it easier to integrate the media module into your project.
+You should probably use these any time you want to reference a File.
 
 `cms.apps.media.models.FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
