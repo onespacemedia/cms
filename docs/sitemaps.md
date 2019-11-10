@@ -15,7 +15,8 @@ urlpatterns = [
 ]
 ```
 
-There are, of course, helper sitemap classes for all of the CMS's [helper classes](helpers.md). You actually don't need to worry about those nearly all of the time.
+There are, of course, helper sitemap classes for all of the CMS's [helper classes](helpers.md).
+You actually don't need to worry about those nearly all of the time.
 The `cms.sitemaps.register` function guesses which one you should want to use:
 
 ```python
@@ -38,7 +39,9 @@ But if you are inheriting from `OnlineBase` your sitemap should inherit from thi
 It will add the change frequency and priority from the SEO fields on those models to the model's sitemap.
 It will also exclude any objects that have been excluded from search engines (i.e. `robots_index == False`).
 
-Let's contrive an example in which we would want to do this. Say you have an `Article` model in your site that inherits from `PageBase`, that has the option of just linking to an external URL, rather than having any content of its own. We don't want those articles to appear in the sitemap. So we exclude them from indexing like so.
+Let's contrive an example in which we would want to do this.
+Say you have an `Article` model in your site that inherits from `PageBase`, that has the option of just linking to an external URL, rather than having any content of its own.
+We don't want those articles to appear in the sitemap. So we exclude them from indexing like so.
 
 ```python
 from cms import sitemaps
@@ -52,7 +55,7 @@ class ArticleSitemap(sitemaps.PageBaseSitemap):
 sitemaps.register(YourModel, sitemap_cls=ArticleSitemap)
 ```
 
-Finally, add an entry into your robots.txt so that search engines see your root sitemap file:
+Finally, add an entry into your /robots.txt so that search engines see your root sitemap file:
 
 ```
 Sitemap: https://www.example.com/sitemap.xml
