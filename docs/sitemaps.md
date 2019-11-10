@@ -52,7 +52,7 @@ class ArticleSitemap(sitemaps.PageBaseSitemap):
     def items(self):
         return super().items().filter(external_url=None)
 
-sitemaps.register(YourModel, sitemap_cls=ArticleSitemap)
+sitemaps.register(Article, sitemap_cls=ArticleSitemap)
 ```
 
 Finally, add an entry into your /robots.txt so that search engines see your root sitemap file:
