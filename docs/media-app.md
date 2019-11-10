@@ -16,7 +16,7 @@ The default `FileAdmin` adds a thumbnail preview to the list view, falling back 
 For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
 
 The admin will show a list of all the places where an object is used in a "Usage" fieldset, with links (where possible) to their admin URLs.
-It's smart enough to know about usage within inlines, both those registered to normal models and as inlines on [pages-app.md](pages).
+It's smart enough to know about usage within inlines, both those registered to normal models and as inlines on [content models](pages-app.md).
 
 When uploading images, an attempt is made to guard against a file being uploaded with an extension that does not match its contents.
 For example, you won't be able to upload a PNG file with a `.jpg` extension, or vice-versa.
@@ -42,7 +42,8 @@ In addition, the following fields are present on the model, but are not user-vis
 
 ### Label
 
-`cms.apps.media.models.Label` helps administrators organise media; think of them as tags, or notes to self. They are not intended to be shown to users on the front end of a website.
+`cms.apps.media.models.Label` helps administrators organise media; think of them as tags, or notes to self.
+The are not intended to be shown to users on the front end of a website.
 
 Label has only one field: a `title`, which is also used as the ordering field.
 
