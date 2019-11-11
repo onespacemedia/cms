@@ -48,7 +48,7 @@ class Article(models.Model)
 That's it!
 
 
-If you are rendering this on the front-end of your site, you probably want to filter your HTML through the `html` template filter.
+When rendering the HTML on the front-end of your site, you probably want to filter your HTML through the `html` template filter.
 This will expand permalinks and set alt text, attribution etc on the images in your WYSIWYG editor (if they were inserted through the media library plugin mentioned above).
 
 ```
