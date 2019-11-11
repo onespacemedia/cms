@@ -33,7 +33,7 @@ It assumes that the model implements a `get_absolute_url` method.
 
 `cms.sitemaps.OnlineBaseSitemap` is for models that inherit from OnlineBase.
 It will ensure that objects that are not online (`is_online == False`) will not be shown in the sitemap.
-Actually, it simply inherits from `BaseSitemap` and adds nothing - it is the manager on `OnlineBase` that ensures not-online objects are not shown.
+Actually, it simply inherits from `BaseSitemap` and adds nothing - it is the manager on `OnlineBase` that ensures only online objects are shown.
 But if you are inheriting from `OnlineBase` your sitemap should inherit from this class in case this implementation detail changes in the future.
 
 `cms.sitemaps.SearchMetaBaseSitemap` and `cms.sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
