@@ -19,6 +19,7 @@ class TestLinks(TestCase):
             Link.objects.create(
                 page=page,
                 link_url='http://www.example.com/',
+                permanent=False,
             )
 
         factory = RequestFactory()
@@ -33,3 +34,23 @@ class TestLinks(TestCase):
 
         self.assertEquals(view.status_code, 302)
         self.assertEquals(view['Location'], 'http://www.example.com/')
+
+        with update_index():
+            page = Page.objects.create(
+                title='Permanent redirect',
+                slug='permanent-redirect',
+                content_type=ContentType.objects.get_for_model(Link),
+                parent=page,
+            )
+
+            link = Link.objects.create(
+                page=page,
+                link_url='http://www.example.com/',
+                permanent=True,
+            )
+
+        request = factory.get('/permanent-redirect/')
+
+        setattr(request, 'pages', Object)
+        request.pages.current = page
+        view = index(request)

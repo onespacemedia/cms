@@ -28,5 +28,13 @@ class Link(ContentBase):
         default=False,
     )
 
+    permanent = models.BooleanField(
+        default=False,
+        help_text=(
+            'By default this entry will use a temporary (302) redirect. '
+            'Check this to make it permanent (301).'
+        ),
+    )
+
     def __str__(self):
         return self.page.title
