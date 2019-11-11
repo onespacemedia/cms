@@ -1,8 +1,6 @@
-'''Google sitemaps used by the page managment application.'''
+'''Google sitemaps used by the page management application.'''
 
 from django.contrib.sitemaps import Sitemap
-
-from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 
 # A dictionary of registered sitemap classes.
 registered_sitemaps = {}
@@ -68,6 +66,11 @@ class SitemapRegistrationError(Exception):
 
 def register(model, sitemap_cls=None):
     '''Registers a model with the sitemap registry.'''
+
+    # These imports need to be here to avoid raising an exception when models
+    # are registered in the module containing an AppConfig.
+    from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
+
     # Generate the registration key.
     registration_key = '{app_label}-{model_name}'.format(
         app_label=model._meta.app_label,
