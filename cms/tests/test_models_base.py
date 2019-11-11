@@ -1,14 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase
-from watson import search
 
-from cms.apps.pages.models import ContentBase, Page
-
-from ..models.base import \
-    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from ..models.base import \
-    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
-from ..models.base import PageBase, PublishedBase, SearchMetaBase
+from ..models.base import PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
+from ..models.base import SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+from ..models.base import PageBase, path_token_generator, PublishedBase, SearchMetaBase
 
 
 # Test models.
@@ -23,9 +18,6 @@ class TestSearchMetaBaseModel(SearchMetaBase):
 class PageBaseModel(PageBase):
     def get_absolute_url(self):
         return '/'
-
-class TestContentBase(ContentBase):
-            pass
 
 
 # Test search adapters.
@@ -107,25 +99,9 @@ class ModelsBaseTest(TestCase):
         })
 
     def test_get_preview_url(self):
-        with search.update_index():
-            page_obj = Page.objects.create(
-                title='Foo',
-                content_type=ContentType.objects.get_for_model(TestContentBase),
-                is_online=False,
-            )
+        obj = PageBaseModel.objects.create()
 
-            content_obj = TestContentBase.objects.create(page=page_obj)
-
-        middleware = [
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'cms.middleware.PublicationMiddleware',
-            'cms.apps.pages.middleware.PageMiddleware',
-        ]
-
-        with self.settings(MIDDLEWARE=middleware):
-            request = self.client.get(page_obj.get_absolute_url())
-            self.assertEqual(request.status_code, 404)
-
-            request = self.client.get(page_obj.get_preview_url())
-            self.assertEqual(request.status_code, 200)
+        self.assertEqual(
+            '/?preview={}'.format(path_token_generator.make_token('/')),
+            obj.get_preview_url()
+        )
