@@ -11,3 +11,4 @@
 * [Jinja2 template functions](template-functions.md)
 * [django-watson integration](watson-integration.md)
 * [Performance notes](performance.md)
+* [About this documentation](DOCUMENTATION-README.md)

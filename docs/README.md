@@ -36,3 +36,5 @@ This is a [docsify](https://docsify.js.org/) document. For an optimal editing ex
 npm install -g docsify-cli
 docsify serve docs/
 ```
+
+See the [meta-documentation](DOCUMENTATION-README.md) for more.
