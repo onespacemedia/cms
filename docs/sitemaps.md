@@ -26,8 +26,8 @@ sitemaps.register(YourModel)
 
 It will guess which sitemap class to use based on which helper model your model inherits from, checking `PageBase`, `SearchMetaBase`, and `OnlineBase`, in that order.
 
-`cms.sitemaps.BaseSitemap` does not do anything at all, other than returning all of the objects of the given class.
-It assumes that they have a `get_absolute_url` method.
+`cms.sitemaps.BaseSitemap` does not do anything at all, other than returning all of the instances of a given model.
+It assumes that the model implements a `get_absolute_url` method.
 
 `cms.sitemaps.OnlineBaseSitemap` is for models that inherit from OnlineBase.
 It will ensure that objects that are not online (`is_online == False`) will not be shown in the sitemap.
@@ -54,7 +54,8 @@ class ArticleSitemap(sitemaps.PageBaseSitemap):
 sitemaps.register(Article, sitemap_cls=ArticleSitemap)
 ```
 
-Finally, add an entry into your /robots.txt so that search engines see your root sitemap file:
+Once you have a sitemap, you will want search engines to know where it lives.
+Add an entry like this to your /robots.txt:
 
 ```
 Sitemap: https://www.example.com/sitemap.xml
