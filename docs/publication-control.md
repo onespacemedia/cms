@@ -3,10 +3,10 @@
 As mentioned in `OnlineBase` in our discussion about [helper models](helpers.md), anything that inherits from `OnlineBase` will have a manager that ensures that objects with `is_online == False` will be excluded from `Model.objects.all()`.
 For `OnlineBase` this is `cms.models.OnlineBaseManager`, for `PageBase` it is `cms.models.PageBaseManager`, etc.
 
-<aside>
-PageBaseManager and SearchMetaBaseManager inherit from OnlineBaseManager, and do not currently add any features.
-But if your model inherits from PageBase or SearchMetaBase, a custom manager for it should inherit from the corresponding manager, in case extra features get added to the helper model and/or manager.
-</aside>
+?> **Note:** PageBaseManager and SearchMetaBaseManager inherit from OnlineBaseManager, and do not currently add any features.
+But if your model inherits from PageBase or SearchMetaBase,
+a custom manager for it should inherit from the corresponding manager,
+in case extra features get added to the helper model and/or manager.
 
 It will only return offline objects in a queryset if _any_ of the following things are true:
 

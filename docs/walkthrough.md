@@ -111,11 +111,9 @@ This is the job of **content models**.
 That's what derivatives of `ContentBase` are. Anything that inherits from `ContentBase` will be available as a page type in the CMS.
 _There is no explicit registration of content models_; it just works.
 
-<aside>
-  We've named this model MyContent.
-  In our companion <a href="https://github.com/onespacemedia/tiny-cms-project">tiny CMS project</a>, we've named it simply "Content".
-  We use "MyContent" here to avoid confusion between the concept of a "content model", and our model that is named "Content".
-</aside>
+?> **Note:** We've named this model MyContent.
+In our companion <a href="https://github.com/onespacemedia/tiny-cms-project">tiny CMS project</a>, we've named it simply "Content".
+We use "MyContent" here to avoid confusion between the concept of a "content model", and our model that is named "Content".
 
 `introduction` is, of course, a standard Django field, which we'll use this later in our template.
 We can define no fields at all on this model! Just its existence as a non-abstract class inheriting from ContentBase will make it available in the page types.
