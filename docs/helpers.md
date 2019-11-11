@@ -10,7 +10,7 @@ We will go into more detail about that [elsewhere](publication-control.md).
 
 `OnlineBase` implements a `get_preview_url()` method that generates a secret URL at which an object can be previewed by non-administrative users.
 We use this in our [OSM Jet](https://github.com/onespacemedia/osm-jet) admin skin to generate a "click to copy public preview URL" function.
-If your object does not implement a `get_absolute_url()` method, this method will return None.
+If your model does not implement a `get_absolute_url()` method, this method will return `None`.
 
 `cms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model; derivatives of OnlineBase should probably inherit from this for their user model. It defines `PUBLICATION_FIELDS`, which you can use on your model's admin thusly:
 
