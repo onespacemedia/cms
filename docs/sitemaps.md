@@ -26,8 +26,6 @@ sitemaps.register(YourModel)
 
 It will guess which sitemap class to use based on which helper model your model inherits from, checking `PageBase`, `SearchMetaBase`, and `OnlineBase`, in that order.
 
-You may have the need to exclude objects from the sitemap based on other criteria, such as when it would return a blank page. In that case, pass an sitemap class to `register`.
-
 `cms.sitemaps.BaseSitemap` does not do anything at all, other than returning all of the objects of the given class. It assumes that they have a `get_absolute_url` method.
 
 `cms.sitemaps.OnlineBaseSitemap` is for models that inherit from OnlineBase.
