@@ -24,6 +24,9 @@ class YourModelAdmin(OnlineBaseAdmin):
 We use this in our [OSM Jet](https://github.com/onespacemedia/osm-jet) admin skin to generate a "click to copy public preview URL" function.
 If your object does not implement a `get_absolute_url()` method, this method will return None.
 
+By default, new objects will have "Online" checked by default in the admin.
+If you want to change this, set `ONLINE_DEFAULT` to `False` in your Django settings.
+
 ## PageBase
 
 `cms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are fairly typical for a typical article-like thing on a website.
