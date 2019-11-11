@@ -12,15 +12,15 @@ Onespacemedia CMS assumes Jinja2 templating with [django-jinja](https://github.c
 Onespacemedia CMS comes with a minimal feature set by default.
 It has no opinions about how your project should be structured, it has minimal opinions about how the admin looks, and it plays well with your existing models.
 
--  Hierarchal [page management](pages-app.md) with no depth limit.
--  [Publication controls](publication-control.md) with online preview.
--  Pre-configured [WYSIWYG editor](html-editor.md) widgets (using TinyMCE).
--  [Image and file management](media-app.md), with easy embedding via WYSIWYG editors or pure model fields.
--  Internal / external links in menus (via bundled optional [links app](links-app.md)).
--  Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
--  Automatic SEO-friendly redirect management (via [django-historylinks](https://github.com/etianen/django-historylinks)).
--  Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
--  Many [helper models](helpers.md) and views for SEO-friendly user-visible models.
+* Hierarchal [page management](pages-app.md) with no depth limit.
+* [Publication controls](publication-control.md) with online preview.
+* Pre-configured [WYSIWYG editor](html-editor.md) widgets (using TinyMCE).
+* [Image and file management](media-app.md), with easy embedding via WYSIWYG editors or pure model fields.
+* Internal / external links in menus (via bundled optional [links app](links-app.md)).
+* Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
+* Automatic SEO-friendly redirect management (via [django-historylinks](https://github.com/etianen/django-historylinks)).
+* Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
+* Many [helper models](helpers.md) and views for SEO-friendly user-visible models.
 
 ## Getting started
 
