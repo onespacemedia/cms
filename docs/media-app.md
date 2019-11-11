@@ -7,9 +7,11 @@ It also integrates with the CMS's WYSIWYG text editor to provide a file browser 
 
 ### File
 
-`cms.apps.media.models.File` is a wrapper around a Django FileField. This allows users to upload their files in one place and use it in more than one place.
+`cms.apps.media.models.File` is a wrapper around a Django FileField.
+This allows users to upload a file in one place and use it in more than one place.
 
-`File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users). For this, you'll want to use a simpler Django `django.db.models.FileField` or `ImageField`.
+`File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users).
+For this, you'll want to use a simpler Django `django.db.models.FileField` or `ImageField`.
 
 The default `FileAdmin` adds a thumbnail preview to the list view, falling back to an appropriate icon for the file type if the file is not an image.
 
@@ -42,14 +44,16 @@ In addition, the following fields are present on the model, but are not user-vis
 
 ### Label
 
-`cms.apps.media.models.Label` helps administrators organise media; think of them as tags, or notes to self.
+`cms.apps.media.models.Label` helps administrators organise media;
+think of them as tags, or notes to self.
 The are not intended to be shown to users on the front end of a website.
 
 Label has only one field: a `title`, which is also used as the ordering field.
 
 ### Video
 
-`cms.apps.media.models.Video` is a collection of video files and related imagery.  You can use it to easily create cross-browser compatible `<video>` tags on the frontend of your website.
+`cms.apps.media.models.Video` is a collection of video files and related imagery.
+You can use it to easily create cross-browser compatible `<video>` tags on the frontend of your website.
 
 TODO: document the magic embed
 
@@ -58,7 +62,9 @@ TODO: document the magic embed
 Three useful fields in the media app make it easier to integrate the media module into your project.
 You should probably use these any time you want to reference a File.
 
-`cms.apps.media.models.FileRefField` provides a widget which allows a user to select a file from the media library. This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` - if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
+`cms.apps.media.models.FileRefField` provides a widget which allows a user to select a file from the media library.
+This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` -
+if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
 `cms.apps.media.models.ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images (based on the extension of the file).
 This will also display a small preview of the image in the widget in the admin.
