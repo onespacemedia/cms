@@ -159,8 +159,41 @@ It is a thin wrapper around `Page.reverse`.
 {{ get_page_url(pages.current, 'article_detail', slug=article.slug) }}
 ```
 
-
 ### `get_canonical_url()`
 
 Returns the canonical URL for the currently viewed URL.
 It merely ensures that any query string junk does not cause a page to be indexed more than once by search engines.
+
+## OpenGraph (Facebook and others) functions
+
+`get_og_title`, `get_og_description` and `get_og_image` render the OpenGraph title, description, and image for the current object.
+
+You will want to use them like so:
+
+```
+<meta property="og:title" content="{{ get_og_title() }}">
+<meta property="og:url" content="{{ get_canonical_url() }}">
+<meta property="og:type" content="website">
+<meta property="og:description" content="{{ get_og_description() }}">
+<meta property="og:image" content="{{ get_og_image() }}">
+```
+
+`get_og_title` is smart enough to fall back to the current object's browser title override or `title` attribute.
+
+`get_og_image` checks the OpenGraph image field of the current object, then falls back to the `image`, `photo` and `logo` field on the current object, in that order.
+
+`get_og_description` will fall back to the current object's `description` and `summary` field.
+
+## Twitter card functions
+
+`get_twitter_card`, `get_twitter_description` and `get_twitter_image` render the current Twitter card information for the current object. Usage:
+
+```
+<!-- Twitter card data -->
+<meta name="twitter:card" content="{{ get_twitter_card() }}" />
+<meta name="twitter:title" content="{{ get_twitter_title() }}" />
+<meta name="twitter:description" content="{{ get_twitter_description() }}" />
+<meta name="twitter:image" content="{{ get_twitter_image() }}" />
+```
+
+If no Twitter card information is set on the current object, Twitter will look at the OpenGraph fields above.
