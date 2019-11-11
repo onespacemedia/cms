@@ -44,6 +44,9 @@ You can override the title by setting a context variable called `title`:
 {% endwith %}
 ```
 
+By default this will be rendered with the template `pages/title.html`.
+This template will append `settings.SITE_NAME` to the title; if you would like to override this behaviour override this template.
+
 ### `meta_description(description=None)`
 
 Renders the content of the meta description tag for the current page:
@@ -155,3 +158,9 @@ It is a thin wrapper around `Page.reverse`.
 ```
 {{ get_page_url(pages.current, 'article_detail', slug=article.slug) }}
 ```
+
+
+### `get_canonical_url()`
+
+Returns the canonical URL for the currently viewed URL.
+It merely ensures that any query string junk does not cause a page to be indexed more than once by search engines.
