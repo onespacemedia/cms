@@ -6,7 +6,7 @@
 * `PageBase`'s help text for the `slug` field now makes sense.
 * `OnlineBase` and its derivatives (including the Page model) now implement `get_preview_url()`, to generate a URL at which non-admin users can preview an object.
 * Remove a pessimisation in `PageManager.get_homepage`.
-* Complete rewrite of the [documentation](https://onespacemedia.github.io/cms/).
+* The [documentation](https://onespacemedia.github.io/cms/) has been completely rewritten.
 
 ## 4.2.0 - 2019-11-06
 
