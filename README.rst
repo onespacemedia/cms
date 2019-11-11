@@ -27,7 +27,7 @@ with the current LTS version of Django.
 Resources
 =========
 
-* `Documentation <http://onespacemedia-cms.readthedocs.org/>`_
+* `Documentation <https://onespacemedia.github.io/cms/>`_
 * `Code <http://github.com/onespacemedia/cms>`_
 * `Travis CI <http://travis-ci.org/onespacemedia/cms>`_
 * `Circle CI <https://circleci.com/gh/onespacemedia/cms>`_
