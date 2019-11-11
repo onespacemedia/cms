@@ -14,7 +14,7 @@ The CMS itself has a couple of notable performance pitfalls, which are easy to a
 
 Accessing the `content` property of a page causes at least one database query, and sometimes two.
 Because it is a [cached property](https://docs.djangoproject.com/en/dev/ref/utils/#django.utils.functional.cached_property),
-future accesses of it are close to free, but your first access of it is not.
+subsequent accesses of it are close to free, but your first access of it is not.
 
 Treating it as free might be damaging your performance.
 An example might be your navigation template's implementation of the `new_window` field of the [Link content model](links-app.md).
@@ -52,6 +52,6 @@ That way, you could check against `page.content_type_id` to see if its content t
 
 Because the pages middleware only attempts to render a page at a given URL when that URL would 404 otherwise, your 404 page is rendered before the page is served.
 Therefore, if rendering your 404 page is expensive, all pages on your site will be expensive to render too.
-In particular, rendering your navigation in your 404 page causes the navigation to be rendered _twice_ - once for the 404 page, once for the navigation itself. This almost doubles the CMS's baseline overhead!
+In particular, rendering your navigation in your 404 page causes the navigation to be rendered _twice_- once for the 404 page, once for the navigation itself. This almost doubles the CMS's baseline overhead!
 
 For better results, strip down your 404 page to its absolute minimum.
