@@ -8,6 +8,10 @@ It provides a single field: `is_online`. When it is `False` (unchecked), it will
 You do not have to do anything other than inherit from OnlineBase for this to work; objects that are not online are automatically excluded from querysets via a custom manager, `OnlineBaseManager`.
 We will go into more detail about that [elsewhere](publication-control.md).
 
+`OnlineBase` implements a `get_preview_url()` method that generates a secret URL at which an object can be previewed by non-administrative users.
+We use this in our [OSM Jet](https://github.com/onespacemedia/osm-jet) admin skin to generate a "click to copy public preview URL" function.
+If your object does not implement a `get_absolute_url()` method, this method will return None.
+
 `cms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model; derivatives of OnlineBase should probably inherit from this for their user model. It defines `PUBLICATION_FIELDS`, which you can use on your model's admin thusly:
 
 ```python
@@ -20,11 +24,7 @@ class YourModelAdmin(OnlineBaseAdmin):
 
 `OnlineBaseAdmin` also adds a helpful list `action`: you will be able to turn off items as a batch from the list view.
 
-`OnlineBase` implements a `get_preview_url()` method that generates a secret URL at which an object can be previewed by non-administrative users.
-We use this in our [OSM Jet](https://github.com/onespacemedia/osm-jet) admin skin to generate a "click to copy public preview URL" function.
-If your object does not implement a `get_absolute_url()` method, this method will return None.
-
-By default, new objects will have "Online" checked by default in the admin.
+By default, new objects will have the checkbox for `is_online` checked by default in the admin, if your `ModelAdmin` extends from `OnlineBase`.
 If you want to change this, set `ONLINE_DEFAULT` to `False` in your Django settings.
 
 ## PageBase
