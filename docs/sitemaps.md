@@ -1,6 +1,7 @@
 # Sitemaps
 
-Any model that has a `get_absolute_url()` method should usually be registered with your sitemap.xml.
+Any model that has a `get_absolute_url()` method should usually be registered with an [XML sitemap](https://en.wikipedia.org/wiki/Sitemaps) for easier indexing by search engines.
+The CMS has some helpers for this, which build on Django's [sitemaps framework](https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/).
 
 First, you will need a URL route in your root `urls.py`. You will want something very much like this:
 
@@ -17,7 +18,7 @@ urlpatterns = [
 
 There are, of course, helper sitemap classes for all of the CMS's [helper models](helpers.md).
 You actually don't need to worry about those nearly all of the time.
-The `cms.sitemaps.register` function guesses which one you should want to use:
+The `cms.sitemaps.register` function guesses an appropriate one for you:
 
 ```python
 from cms import sitemaps
@@ -34,7 +35,7 @@ It will ensure that objects that are not online (`is_online == False`) will not 
 Actually, it simply inherits from `BaseSitemap` and adds nothing - it is the manager on `OnlineBase` that ensures not-online objects are not shown.
 But if you are inheriting from `OnlineBase` your sitemap should inherit from this class in case this implementation detail changes in the future.
 
-`cms.sitemaps.SearchMetaBaseSitemap` and `cms.Sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
+`cms.sitemaps.SearchMetaBaseSitemap` and `cms.sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
 It will add the change frequency and priority from the SEO fields on those models to the model's sitemap.
 It will also exclude any objects that have been excluded from search engines (i.e. `robots_index == False`).
 
