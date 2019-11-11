@@ -9,7 +9,7 @@ Onespacemedia CMS assumes Jinja2 templating with [django-jinja](https://github.c
 
 ## Features
 
-onespacemedia-cms comes with a minimal feature set by default.
+Onespacemedia CMS comes with a minimal feature set by default.
 It has no opinions about how your project should be structured, it has minimal opinions about how the admin looks, and it plays well with your existing models.
 
 -  Hierarchal [page management](pages-app.md) with no depth limit.

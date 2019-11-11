@@ -1,6 +1,6 @@
 # Notes on performance
 
-onespacemedia-cms is extremely performant.
+Onespacemedia CMS is extremely performant.
 
 The baseline overhead of the CMS (the pages middleware, rendering the navigation, and accessing a page's content model) is significantly less than 100 milliseconds in local development for a typical mid-sized website with no caching.
 A typical production configuration is faster than this.

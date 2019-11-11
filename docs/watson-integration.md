@@ -1,11 +1,11 @@
 # django-watson integration
 
-onespacemedia-cms integrates [django-watson](https://github.com/etianen/django-watson) into the admin for improved full-text searching of pages in your admin.
+Onespacemedia CMS integrates [django-watson](https://github.com/etianen/django-watson) into the admin for improved full-text searching of pages in your admin.
 Any ModelAdmin that inherits from the `SearchMetaBaseAdmin` or `PageBaseAdmin` [helper ModelAdmins](helpers.md) will also get this full-text search.
 
 As much as we like Watson, the CMS does not require that you use Watson for searching on the front-end of your site;
 you're free to implement your own search, or no search at all.
-If you choose to use Watson on your front-end, and you are using the CMS's helper models, the CMS comes a few helper search adapters.
+If you choose to use Watson on your front-end, and you are using the CMS's helper models, the CMS supplies a few helper search adapters.
 Just pass one of these as the second argument to `register` (see ["Registering models"](https://github.com/etianen/django-watson/wiki/registering-models) in Watson's documentation):
 
 ```

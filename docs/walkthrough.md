@@ -344,7 +344,7 @@ class ArticleAdmin(PageBaseAdmin):
 
 `PageBaseAdmin` defines some useful default behaviour for the article-like things it is intended to enable.
 It also defines some useful fieldsets that you will definitely want, such as the publication controls (turning things on/offline), and those SEO and social media controls mentioned earlier.
-You should definitely use it for anything that inherits from `PageBase`, but nothing in `onespacemedia-cms` forces you to.
+You should definitely use it for anything that inherits from `PageBase`, but nothing in Onespacemedia CMS forces you to.
 
 Now, go create a "News feed" page, if you haven't already, and add an Article, setting "Page" to your new news feed.
 
@@ -473,7 +473,7 @@ And now that we can actually make our way to it, an article detail template at `
 ## Let's add some per-page settings
 
 Now that we have a news feed, and our cats are writing countless articles about themselves, we'll probably find the need to paginate the news list at some point.
-The great part of the simple data model of onespacemedia-cms is that it makes it really easy to define page settings that are not visible to non-admin users.
+The great part of the simple data model of Onespacemedia CMS is that it makes it really easy to define page settings that are not visible to non-admin users.
 
 Add this to our `NewsFeed` content model:
 
@@ -495,7 +495,7 @@ Then, we can override `ListView`'s  `get_paginate_by` in our `ArticleListView`:
 There are many use cases for this sort of thing.
 If we had a "Contact" content model that rendered a contact form, you could add an `EmailField` to decide who the submissions go to.
 Or you may want to make certain `NewsFeed` pages use a different layout; in this case you could add a `layout` field and override `get_template_names` in your view.
-There's no need to hard-code anything with onespacemedia-cms!
+There's no need to hard-code anything with Onespacemedia CMS!
 Some CMSes make this harder for developers than it needs to be; here you're just writing Django.
 
 ## Let's add fieldsets to our content model
