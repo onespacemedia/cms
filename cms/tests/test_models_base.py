@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase
 
 from ..models.base import PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter

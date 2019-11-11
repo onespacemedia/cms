@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.contenttypes.models import ContentType
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory, TestCase
 from watson import search
