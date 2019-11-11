@@ -61,8 +61,8 @@ class MiddlewareTest(TestCase):
             request = self.client.get(page_obj.get_absolute_url())
             self.assertEqual(request.status_code, 404)
 
-            # request = self.client.get(page_obj.get_preview_url())
-            # self.assertEqual(request.status_code, 200)
+            request = self.client.get(page_obj.get_preview_url())
+            self.assertEqual(request.status_code, 200)
 
     def test_localisationmiddleware_process_request(self):
         localisation_middleware = LocalisationMiddleware()
