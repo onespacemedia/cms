@@ -149,6 +149,9 @@ To override and extend the breadcrumb trail within page applications, add the `e
 
 ### `get_page_url(page, view_func=None, *args, **kwargs)`
 
-Gets the URL of a Page's view function.
+Resolves the URL of a route defined in a page's `urlconf`, passing positional and/or keyword arguments to the resolver.
+It is a thin wrapper around `Page.reverse`.
 
-TODO: Expand on this.
+```
+{{ get_page_url(pages.current, 'article_detail', slug=article.slug) }}
+```
