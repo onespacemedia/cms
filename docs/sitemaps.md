@@ -1,6 +1,6 @@
 # Sitemaps
 
-Any model that has a `get_absolute_url()` method should usually be registered with an [XML sitemap](https://en.wikipedia.org/wiki/Sitemaps) for easier indexing by search engines.
+Any model that has a `get_absolute_url()` method should probably have its URL exposed in an [XML sitemap](https://en.wikipedia.org/wiki/Sitemaps) for easier indexing by search engines.
 The CMS has some helpers for this, which build on Django's [sitemaps framework](https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/).
 
 First, you will need a URL route in your root `urls.py`. You will want something very much like this:
