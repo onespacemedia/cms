@@ -15,7 +15,7 @@ docsify serve docs/
 
 Then visit http://localhost:3000/ for a pretty, live-reloading experience.
 
-Via the magic of docsify, there is no build step, there is no build _system_, and no deployment step is necessary to push changes live.
+Via the magic of docsify, there is no build step, there is no build _system_, and there is no deployment step.
 Pushing to or merging changes in to the `master` branch will automatically deploy to GitHub pages.
 
 ## Style
