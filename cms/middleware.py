@@ -39,7 +39,7 @@ class PublicationMiddleware(MiddlewareMixin):
             try:
                 path = f'{request.path_info[1:] if request.path_info[1:] else request.path_info}'
                 token_preview_valid = path_token_generator.check_token(request.GET.get('preview', 0), path)
-                user_preview = request.GET.get('preview', 0) and request.user.is_authenticated() and request.user.is_staff
+                user_preview = request.GET.get('preview', 0) and request.user.is_authenticated and request.user.is_staff
             except ValueError:
                 preview_mode = False
             # Only allow preview mode if the user is a logged in administrator or they have a token for this specific path
