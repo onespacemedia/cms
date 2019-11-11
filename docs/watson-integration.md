@@ -45,3 +45,28 @@ def get_searchable_text(self):
         for section in self.page.contentsection_set.all()
     ])
 ```
+
+## Avoiding "&lt;content model&gt; matching query does not exist" during page save
+
+If you are creating a Page outside of the admin (such as in unit tests), you will probably get an exception warning that your page's content does not exist.
+This is because of the page's search adapter looking for `get_searchable_text` on the content;
+it is calling the cached property `.content` on the Page instance to fetch the page's content, which does not and cannot exist until the page itself has been saved.
+
+To work around this, you will want to wrap it in Watson's `search.update_index` context manager:
+
+
+```python
+from watson import search
+
+
+with search.update_index():
+    new_page = Page(
+        # your page creation fields here
+    )
+
+    new_page.save()
+
+    SomeContentModel.objects.create(
+        page=new_page,
+    )
+```
