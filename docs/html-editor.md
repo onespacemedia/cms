@@ -1,0 +1,57 @@
+# The HTML editor
+
+Onespacemedia CMS comes with an <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing, using TinyMCE v4.
+Nowhere does the CMS use this internally, but it's something almost every website requires.
+
+First, you will want to provide some settings for TinyMCE using the `WYSIWYG_OPTIONS` setting.
+These correspond to [TinyMCE v4's settings](https://www.tiny.cloud/docs-4x/configure/integration-and-setup/).
+
+Here is a nice minimal configuration:
+
+```python
+WYSIWYG_OPTIONS = {
+    # Overall height of the WYSIWYG
+    'height': 500,
+
+    # The one to pay attention to here is `cmsimage` - it allows you to insert
+    # images from your media library.
+    'plugins': [
+        'advlist autolink link image lists charmap hr anchor pagebreak',
+        'wordcount visualblocks visualchars code fullscreen cmsimage hr',
+    ],
+    # cmsimage here gives you the aforementioned item in your toolbar.
+    'toolbar1': 'code | cut copy pastetext | undo redo | bullist numlist | link unlink anchor cmsimage | blockquote',
+    'menubar': False,
+    'toolbar_items_size': 'small',
+    'block_formats': 'Paragraph=p;Header 2=h2;Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;',
+    'convert_urls': False,
+    'paste_as_text': True,
+    'image_advtab': True,
+}
+```
+
+Adding the `cmsimage` plugin (and corresponding `cmsimage` button) will allow media files to be inserted directly from your [media gallery](media-app.md).
+
+Next, use `cms.models.HtmlField` (also available through `cms.models.fields`) to add HTML editing to your admin:
+
+
+```python
+from cms.models import HtmlField
+# ... other imports here ....
+
+
+class Article(models.Model)
+    content = HtmlField()
+```
+
+That's it!
+
+
+If you are rendering this on the front-end of your site, you probably want to filter your HTML through the `html` template filter. This will expand permalinks and set alt text, attribution etc on the images in your WYSIWYG editor (if they were inserted through the media library plugin mentioned above).
+
+```
+{{ object.content|html }}
+```
+
+There may be circumstances in which you want to use the HTML editing widget, but not use the field on your model.
+In this unusual case, use `cms.fields.HtmlWidget` in your form class.

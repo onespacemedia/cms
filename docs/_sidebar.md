@@ -4,6 +4,7 @@
 * [The Media app](media-app.md)
 * [The Links app](links-app.md)
 * [Helper models](helpers.md)
+* [The HTML editor](html-editor.md)
 * [Publication control](publication-control.md)
 * [Moderation system](moderation.md)
 * [Sitemaps](sitemaps.md)

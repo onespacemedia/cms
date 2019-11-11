@@ -14,7 +14,7 @@ It has no opinions about how your project should be structured, it has minimal o
 
 -  Hierarchal [page management](pages-app.md) with no depth limit.
 -  [Publication controls](publication-control.md) with online preview.
--  Pre-configured WYSIWYG editor widgets (using TinyMCE).
+-  Pre-configured [WYSIWYG editor](html-editor.md) widgets (using TinyMCE).
 -  [Image and file management](media-app.md), with easy embedding via WYSIWYG editors or pure model fields.
 -  Internal / external links in menus (via bundled optional [links app](links-app.md)).
 -  Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
