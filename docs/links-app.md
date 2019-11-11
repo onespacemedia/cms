@@ -13,7 +13,7 @@ $ ./manage.py migrate
 
 ## Usage
 
-To add a Link to your site simply add a Page and select the "Link" page type.
+To add a Link to your site's navigation menu, add a Page and select the "Link" page type.
 
 If you have more than one content type registered (i.e. anything other than that in the Links app itself) you will be asked to choose a page type, after which you choose 'Link'.
 If you do not have any other page content types you will be taken directly to the add form.
