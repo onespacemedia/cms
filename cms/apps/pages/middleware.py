@@ -8,6 +8,7 @@ from django.core.handlers.base import BaseHandler
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
+from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 
@@ -120,7 +121,7 @@ class RequestPageManager:
         return self.current.get_absolute_url() == self._path
 
 
-class PageMiddleware:
+class PageMiddleware(MiddlewareMixin):
 
     '''Serves up pages when no other view is matched.'''
 

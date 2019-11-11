@@ -30,7 +30,6 @@ class Label(models.Model):
     )
 
     def __str__(self):
-        '''Returns the name of the label.'''
         return self.name
 
     class Meta:
@@ -91,11 +90,9 @@ class File(models.Model):
     )
 
     def get_absolute_url(self):
-        '''Generates the absolute URL of the image.'''
         return self.file.url
 
     def __str__(self):
-        '''Returns the title of the media.'''
         return self.title
 
     class Meta:
@@ -338,7 +335,6 @@ class Video(models.Model):
     # End secret fields
 
     def __str__(self):
-        '''Returns the title of the media.'''
         return self.title
 
     def clean(self):

@@ -68,8 +68,8 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         '''Returns the site homepage.'''
-        return self.prefetch_related('child_set__child_set').get(parent=None,
-                                                                 is_content_object=False)
+        return self.get(parent=None, is_content_object=False)
+
 
 class Page(PageBase):
 
@@ -84,6 +84,7 @@ class Page(PageBase):
         blank=True,
         null=True,
         related_name='child_set',
+        on_delete=models.CASCADE,
     )
 
     left = models.IntegerField(
@@ -103,7 +104,8 @@ class Page(PageBase):
     country_group = models.ForeignKey(
         'pages.CountryGroup',
         blank=True,
-        null=True
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     owner = models.ForeignKey(
@@ -162,6 +164,7 @@ class Page(PageBase):
         ContentType,
         editable=False,
         help_text='The type of page content.',
+        on_delete=models.CASCADE,
     )
 
     requires_authentication = models.BooleanField(
@@ -445,6 +448,7 @@ class ContentBase(models.Model):
         primary_key=True,
         editable=False,
         related_name='+',
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -487,7 +491,8 @@ class Country(models.Model):
     group = models.ForeignKey(
         'pages.CountryGroup',
         blank=True,
-        null=True
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     default = models.NullBooleanField(

@@ -10,14 +10,10 @@ from ..models import Country, CountryGroup, Page
 class TestArticleAdminBase(TestCase):
 
     def test_article_admin(self):
-        NEW_MIDDLEWARE_CLASSES = (
-            'cms.middleware.LocalisationMiddleware',
-        ) + tuple(settings.MIDDLEWARE_CLASSES)
-
         self.assertNotIn(Country, admin.site._registry)
         self.assertNotIn(CountryGroup, admin.site._registry)
 
-        with self.settings(MIDDLEWARE_CLASSES=NEW_MIDDLEWARE_CLASSES):
+        with self.settings(MIDDLEWARE=['cms.middleware.LocalisationMiddleware']):
             module = sys.modules['cms.apps.pages.admin']
             del sys.modules['cms.apps.pages.admin']
 

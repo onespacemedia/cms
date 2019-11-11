@@ -1,11 +1,35 @@
 """Abstract base models used by the page management application."""
 from django.db import models
 from django.shortcuts import render
+from django.utils.crypto import salted_hmac
 from watson.search import SearchAdapter
 
 from cms.apps.media.models import ImageRefField
 from cms.models.managers import (OnlineBaseManager, PageBaseManager,
                                  PublishedBaseManager, SearchMetaBaseManager)
+
+
+class PathTokenGenerator:
+    '''
+        A simple token generator that takes a path and generates a hash for it.
+        Intended for use by the CMS publication middleware and OnlineBase derivatives.
+        In reality it just takes a string so it can be used for other purposes.
+    '''
+    key_salt = "django.contrib.auth.tokens.PasswordResetTokenGenerator"
+
+    def make_token(self, path):
+        return salted_hmac(
+            self.key_salt,
+            path,
+        ).hexdigest()[::2]
+
+    def check_token(self, token, path):
+        return token == salted_hmac(
+            self.key_salt,
+            path,
+        ).hexdigest()[::2]
+
+path_token_generator = PathTokenGenerator()
 
 
 class PublishedBase(models.Model):
@@ -39,6 +63,12 @@ class OnlineBase(PublishedBase):
             "Logged-in admin users will still be able to view this page by clicking the 'view on site' button."
         ),
     )
+
+    def get_preview_url(self):
+        if not hasattr(self, 'get_absolute_url'):
+            return None
+
+        return f'{self.get_absolute_url()}?preview={path_token_generator.make_token(self.get_absolute_url())}'
 
     class Meta:
         abstract = True
@@ -266,7 +296,8 @@ class PageBase(SearchMetaBase):
     # Base fields.
 
     slug = models.SlugField(
-        help_text='A user friendly URL'
+        help_text='A unique portion of the URL that is used to identify this '
+                  'specific page using human-readable keywords (e.g., about-us)'
     )
 
     title = models.CharField(

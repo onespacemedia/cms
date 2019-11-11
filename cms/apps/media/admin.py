@@ -2,15 +2,21 @@
 from functools import partial
 
 import requests
+
+from django.apps import apps
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
+from django.core.urlresolvers import NoReverseMatch, reverse
+from django.db.models.deletion import get_candidate_relations_to_delete
+from django.db.utils import DEFAULT_DB_ALIAS
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseNotAllowed)
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
+from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
@@ -20,6 +26,9 @@ from watson.admin import SearchAdmin
 from cms import permalinks
 from cms.apps.media.forms import ImageChangeForm, FileForm
 from cms.apps.media.models import File, Label, Video
+from cms.apps.pages.admin import page_admin
+from cms.apps.pages.models import Page
+from cms.admin import get_related_objects_admin_urls
 
 
 @admin.register(Label)
@@ -52,11 +61,16 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         ('Media management', {
             'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
         }),
+        ('Usage', {
+            # This is the used_on function, not a field.
+            'fields': ['used_on'],
+        }),
     ]
     filter_horizontal = ['labels']
     list_display = ['get_number', 'get_preview', 'get_title', 'get_alt_text', 'get_size']
     list_display_links = list_display
     list_filter = ['labels']
+    readonly_fields = ['used_on']
     search_fields = ['title']
 
     def get_form(self, request, obj=None, **kwargs):
@@ -159,7 +173,14 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     get_title.admin_order_field = 'title'
     get_title.short_description = 'title'
 
-    # Custom view logic.
+    def used_on(self, obj=None):
+        context = {}
+
+        if obj:
+            context['related_objects'] = get_related_objects_admin_urls(obj)
+        else:
+            context['related_objects'] = []
+        return render_to_string('admin/media/includes/file_used_on.html', context)
 
     def response_add(self, request, obj, post_url_continue=None):
         '''Returns the response for a successful add action.'''
