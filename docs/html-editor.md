@@ -1,7 +1,8 @@
 # The HTML editor
 
-Onespacemedia CMS comes with an <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing, using TinyMCE v4.
-Nowhere does the CMS use this internally, but it's something almost every website requires.
+Onespacemedia CMS comes with an <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin, using TinyMCE v4.
+The CMS does not use this internally (as it has no opinions about what your content should look like),
+but it's included with the CMS because almost every website requires it.
 
 First, you will want to provide some settings for TinyMCE using the `WYSIWYG_OPTIONS` setting.
 These correspond to [TinyMCE v4's settings](https://www.tiny.cloud/docs-4x/configure/integration-and-setup/).
@@ -32,7 +33,7 @@ WYSIWYG_OPTIONS = {
 
 Adding the `cmsimage` plugin (and corresponding `cmsimage` button) will allow media files to be inserted directly from your [media gallery](media-app.md).
 
-Next, use `cms.models.HtmlField` (also available through `cms.models.fields`) to add HTML editing to your admin:
+Next, use `cms.models.HtmlField` to add HTML editing to your admin:
 
 
 ```python
@@ -47,7 +48,8 @@ class Article(models.Model)
 That's it!
 
 
-If you are rendering this on the front-end of your site, you probably want to filter your HTML through the `html` template filter. This will expand permalinks and set alt text, attribution etc on the images in your WYSIWYG editor (if they were inserted through the media library plugin mentioned above).
+If you are rendering this on the front-end of your site, you probably want to filter your HTML through the `html` template filter.
+This will expand permalinks and set alt text, attribution etc on the images in your WYSIWYG editor (if they were inserted through the media library plugin mentioned above).
 
 ```
 {{ object.content|html }}
