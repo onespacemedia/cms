@@ -44,7 +44,7 @@ class PublicationMiddleware(MiddlewareMixin):
                 token_preview_valid = path_token_generator.check_token(request.GET['preview'], path)
                 # Allow something like preview=1, preview=any_other_value if
                 # they are a staff user.
-                user_preview = request.GET['preview'] and request.user.is_authenticated and request.user.is_staff
+                user_preview = request.GET['preview'] and request.user.is_staff
             except KeyError:
                 # Preview mode was not requested.
                 user_preview = False
