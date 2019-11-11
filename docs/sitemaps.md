@@ -39,7 +39,7 @@ It will add the change frequency and priority from the SEO fields on those model
 It will also exclude any objects that have been excluded from search engines (i.e. `robots_index == False`).
 
 Let's contrive an example.
-Say you have an `Article` model in your site that inherits from `PageBase`, that has the option of just linking to an external URL, rather than having any content of its own.
+Say you have an `Article` model in your site that inherits from `PageBase`, which has the option of just linking to an external URL, rather than having any content of its own.
 We don't want those articles to appear in the sitemap. So we exclude them from indexing like so.
 
 ```python
