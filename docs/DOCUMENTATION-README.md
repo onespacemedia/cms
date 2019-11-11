@@ -20,7 +20,7 @@ Pushing to or merging changes in to the `master` branch will automatically deplo
 
 ## Style
 
-This document tries to stick to a one-sentence-per-line style (aka ["Semantic Linefeeds"](https://rhodesmill.org/brandon/2012/one-sentence-per-line/)) in its source code.
+This document tries to stick to a one-sentence-per-line style in its source code (aka ["Semantic Linefeeds"](https://rhodesmill.org/brandon/2012/one-sentence-per-line/)).
 Single newlines are turned into a space (i.e. essentially ignored) by Markdown, so you can insert them mid-paragraph.
 One sentence per line makes for clearer diffs.
 
