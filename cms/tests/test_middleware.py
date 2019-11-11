@@ -61,6 +61,11 @@ class MiddlewareTest(TestCase):
             request = self.client.get(page_obj.get_absolute_url())
             self.assertEqual(request.status_code, 404)
 
+            # Ensure preview mode (without a valid token) fails for
+            # non-authenticated users.
+            request = self.client.get(page_obj.get_absolute_url() + '?preview=1')
+            self.assertEqual(request.status_code, 404)
+
             request = self.client.get(page_obj.get_preview_url())
             self.assertEqual(request.status_code, 200)
 
