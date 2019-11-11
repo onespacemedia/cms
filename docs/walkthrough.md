@@ -29,7 +29,7 @@ PUBLICATION_MIDDLEWARE_EXCLUDE_URLS = (
 )
 ```
 
-Add our core CMS things to your INSTALLED_APPS:
+Add our core CMS things to your `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
@@ -48,7 +48,7 @@ Add our context processors to our template context processors (in `['OPTIONS']['
 'cms.apps.pages.context_processors.pages',
 ```
 
-Add the CMS middleware to your MIDDLEWARE:
+Add the CMS middleware to your `MIDDLEWARE`:
 
 ```python
 MIDDLEWARE = [
@@ -90,7 +90,7 @@ Now add your `content` app to your `INSTALLED_APPS`.
 
 Then, add this to your `models.py`:
 
-```
+```python
 from cms.apps.pages.models import ContentBase
 from django.db import models
 
@@ -153,7 +153,7 @@ We can add inlines to our change-page view in the admin.
 Here is what your model looks like.
 Pay special attention to the ForeignKey if nothing else - this is essential, and note that it is to `pages.Page` and _not_ your content model:
 
-```
+```python
 class ContentSection(models.Model):
     page = models.ForeignKey(
         'pages.Page',
@@ -164,7 +164,7 @@ class ContentSection(models.Model):
         max_length=100,
     )
 
-    text = TextField(
+    text = models.TextField(
         null=True,
         blank=True,
     )
@@ -180,7 +180,7 @@ class ContentSection(models.Model):
 We've defined a section model with a title, text, and an ordering field.
 Now let's register it as an inline for MyContent:
 
-```
+```python
 from cms.apps.pages.admin import page_admin
 from django.contrib.admin import StackedInline
 
@@ -220,7 +220,7 @@ For the second part of this walkthrough, we are going to create a simple blog ap
 
 First, create an app called "news", add it to your `INSTALLED_APPS`, and add this to your `news/models.py`:
 
-```
+```python
 from cms.apps.pages.models import ContentBase
 
 class NewsFeed(ContentBase):
