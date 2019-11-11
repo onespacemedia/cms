@@ -17,7 +17,7 @@ urlpatterns = [
 ```
 
 There are, of course, helper sitemap classes for all of the CMS's [helper models](helpers.md).
-You actually don't need to worry about those nearly all of the time.
+You don't need to worry about those much of the time.
 The `cms.sitemaps.register` function guesses an appropriate one for you:
 
 ```python
