@@ -55,7 +55,29 @@ Label has only one field: a `title`, which is also used as the ordering field.
 `cms.apps.media.models.Video` is a collection of video files and related imagery.
 You can use it to easily create cross-browser compatible `<video>` tags on the frontend of your website.
 
-TODO: document the magic embed
+It has the following fields:
+
+* `title` is self-explanatory.
+* `external_video` is for embedding an off-site video (e.g. YouTube, Vimeo, etc). More on this below.
+* `high_resolution_mp4` is for a self-hosted MP4 (H.264). This is a `VideoFileRefField`, which is a reference to a `media.File`.
+* `low_resolution_mp4` for a lower-resolution version suitable for playing on mobile devices.
+* `image` is for displaying a cover image on the video (e.g. for the `poster` attribute on the `<video>` tag).
+
+For external videos, the `save` method on the model will work out how to embed the video via oEmbed.
+If this can be automatically determined, some hidden fields will be populated that you can use on your front end to embed it:
+
+* `external_video_id` will be the provider's ID for the video. For YouTube, this will be a string of seemingly-random characters (e.g. `3LlAi8ygeMI`), or a number for Vimeo videos.
+* `external_video_iframe_url` will be populated with the URL of the IFrame (presuming that this is how your video provider embeds it, which all major ones do). For a YouTube video, an example would be `https://www.youtube.com//embed/3LlAi8ygeMI?feature=oembed`.
+* `external_video_provider` is the lower-case name of the provider, e.g. `youtube`.
+
+If the external video does not provide oEmbed information
+(e.g. because the uploader has prevented embedding, or the service does not support oEmbed),
+`ValidationError` will be raised.
+
+The `Video` model provides the `embed_html` method to intelligently provide embed HTML for your video.
+You can pass it the `loop`, `autoplay`, `controls`, `mute` parameters to control playback & appearance, all of which default to `False`.
+Additionally, for YouTube external videos, you can pass it `youtube_parameters`, which will be added as query string parameters to the embed IFrame.
+For example, if you wish to enable the YouTube JS API on an embed, you can pass `{'enablejsapi': '1'}`.
 
 ## Fields
 
