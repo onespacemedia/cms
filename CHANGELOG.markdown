@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Fix recovering Page objects with reversion.
+
 ## 4.3.0 - 2019-11-12
 * Importing `cms.sitemaps` at the top level of a module containing an app's AppConfig no longer raises `AppRegistryNotReady`.
 * `PageBase`'s help text for the `slug` field now makes sense.

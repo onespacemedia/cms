@@ -28,7 +28,7 @@ from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import six
-from watson.search import update_index
+from watson.search import search_context_manager, update_index
 
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Country, CountryGroup, Page,
@@ -431,6 +431,14 @@ class PageAdmin(PageBaseAdmin):
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
+
+    def recover_view(self, request, version_id, extra_context=None):
+        '''
+        Stop Watson from trying to index the page during recovery (a situation
+        where PageInstance.content does not exist).
+        '''
+        search_context_manager.invalidate()
+        return super().recover_view(request, version_id, extra_context=extra_context)
 
     def revision_view(self, request, object_id, version_id, extra_context=None):
         '''Load up the correct content inlines.'''
