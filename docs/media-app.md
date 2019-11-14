@@ -26,10 +26,12 @@ This helps to prevent exceptions being thrown while thumbnailing images on the f
 
 #### Model fields
 
-* `title`: A name for the file. In the admin, this is prepopulated from the filename when first uploaded, if no title is provided by the user.
+* `title`: A name for the file.
+In the admin, this is prepopulated from the filename when first uploaded, if no title is provided by the user.
 * `labels`: A `ManyToManyField` to `Label` (see below).
 * `file`: A Django `FileField`, which is the file itself.
-* `attribution`, `copyright` and `alt_text`: Additional metadata fields. It is up to you how, or if, to render these on the front end of the site.
+* `attribution`, `copyright` and `alt_text`: Additional metadata fields.
+It is up to you how, or if, to render these on the front end of the site.
 
 In addition, the following fields are present on the model, but are not user-visible and are automatically populated on save:
 
@@ -38,7 +40,8 @@ In addition, the following fields are present on the model, but are not user-vis
 
 #### Model methods & properties
 
-* `get_dimensions()`: If the file is an image, returns a tuple of (width, height), otherwise returns 0. This is only used internally; you probably want to access the `width` and `height` fields on the model instead, as they incur no overhead.
+* `get_dimensions()`: If the file is an image, returns a tuple of (width, height), otherwise returns 0.
+This is only used internally; you probably want to access the `width` and `height` fields on the model instead, as they incur no overhead.
 * `icon`: A cached property that returns the path to an appropriate icon for the file type, e.g. `/static/media/img/x-office-spreadsheet.png`. This is used as a fallback in the media list if a file is not an image.
 * `is_image()`: Returns True if the file is an image (based on the file extension), False otherwise:
 
@@ -63,11 +66,13 @@ It has the following fields:
 * `low_resolution_mp4` for a lower-resolution version suitable for playing on mobile devices.
 * `image` is for displaying a cover image on the video (e.g. for the `poster` attribute on the `<video>` tag).
 
-For external videos, the `save` method on the model will work out how to embed the video via oEmbed.
-If this can be automatically determined, some hidden fields will be populated that you can use on your front end to embed it:
+For external videos, the `save` method on the model will work out how to embed the video.
+If the video has oEmbed information, some hidden fields will be populated that you can use on your front end to embed it:
 
-* `external_video_id` will be the provider's ID for the video. For YouTube, this will be a string of seemingly-random characters (e.g. `3LlAi8ygeMI`), or a number for Vimeo videos.
-* `external_video_iframe_url` will be populated with the URL of the IFrame (presuming that this is how your video provider embeds it, which all major ones do). For a YouTube video, an example would be `https://www.youtube.com//embed/3LlAi8ygeMI?feature=oembed`.
+* `external_video_id` will be the provider's ID for the video.
+For YouTube, this will be a string of seemingly-random characters (e.g. `3LlAi8ygeMI`), or a number for Vimeo videos.
+* `external_video_iframe_url` will be populated with the URL of the IFrame (presuming that this is how your video provider embeds it, which all major ones do).
+For a YouTube video, an example would be `https://www.youtube.com//embed/3LlAi8ygeMI?feature=oembed`.
 * `external_video_provider` is the lower-case name of the provider, e.g. `youtube`.
 
 If the external video does not provide oEmbed information
@@ -88,7 +93,7 @@ You should probably use these any time you want to reference a File.
 This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` -
 if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
-`cms.apps.media.models.ImageRefField` has the same functionality as `FileRefField()`, but files are filtered to only show images (based on the extension of the file).
+`cms.apps.media.models.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
 This will also display a small preview of the image in the widget in the admin.
 
-`cms.apps.media.models.VideoFileRefField` has the same functionality as `FileRefField()`, but the files are filtered to only show videos.
+`cms.apps.media.models.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
