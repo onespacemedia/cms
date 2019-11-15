@@ -29,7 +29,7 @@ For example, our "Dreamies" page probably lives at `/cat-treats/dreamies/`.
 ### Content models
 
 The Page model mostly defines its title, its place in the page tree, and some hidden metadata fields.
-It does not define any user-visible content; it is, in short, entirely agnostic about what content looks like.
+It does not define any user-visible content; it is entirely agnostic about what content looks like.
 It delegates this to **content models**.
 
 A content model is a way of representing a type of page.
