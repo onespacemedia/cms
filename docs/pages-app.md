@@ -115,7 +115,7 @@ urlconf = 'tiny_project.apps.news.urls'
 ```
 
 You don't have to specify your own `urlconf` in your content model if you don't want to.
-`ContentBase` has a default `urlconf` that routes to a simple `TemplateView`.
+`ContentBase` has a default `urlconf` (`'cms.apps.pages.urls'`) that routes to a simple `TemplateView`.
 That attempts to render a template living at `<app-label>`/`modelname.html`.
 Thus, our default template for rendering our content model `PlainPage`, if it was in an app called `things`, would live at `things/plainpage.html`.
 
