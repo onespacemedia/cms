@@ -49,7 +49,7 @@ This is only used internally; you probably want to access the `width` and `heigh
 
 `cms.apps.media.models.Label` helps administrators organise media;
 think of them as tags, or notes to self.
-The are not intended to be shown to users on the front end of a website.
+They are not intended to be shown to users on the front end of a website.
 
 Label has only one field: a `title`, which is also used as the ordering field.
 
