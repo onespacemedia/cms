@@ -144,6 +144,8 @@ Renders the breadcrumbs trail for the current page:
 {{ render_breadcrumbs() }}
 ```
 
+This will render with the template `pages/breadcrumbs.html`, which you will probably want to override in your project.
+
 To override and extend the breadcrumb trail within page applications, add the `extended` flag to the tag and add your own breadcrumbs underneath:
 
 ```
