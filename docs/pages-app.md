@@ -108,7 +108,11 @@ You can access the content object for a `Page` object via the its `content` attr
 
 The middleware will attempt to render the page based on the content model's `urlconf` attribute.
 This is a string containing a dotted path to a standard Django urlconf, and that urlconf will define how the current URL and paths below it will be rendered.
-In our [walkthrough](walkthrough.md) we used this to create a news article list and a route for a news detail page.
+In our [walkthrough](walkthrough.md) we used this to create a news article list and a route for a news detail page, like this:
+
+```python
+urlconf = 'tiny_project.apps.news.urls'
+```
 
 You don't have to specify your own `urlconf` in your content model if you don't want to.
 `ContentBase` has a default `urlconf` that routes to a simple `TemplateView`.
