@@ -36,10 +36,10 @@ The CMS's own `Page` model inherits from it.
 PageBase defines several fields that make this useful for article-like things:
 
 * A title and slug
-* SEO controls: title tag override, meta description, robots controls
+* Search engine optimisation (SEO) controls: title tag override, meta description, robots controls
 * Fields for Twitter and Facebook (OpenGraph) cards
 
-`cms.admin.PageBaseAdmin` is the companion `ModelAdmin`; at risk of repeating ourselves, anything that derives from `PageBase` definitely wants to use `PageBaseAdmin`.
+`cms.admin.PageBaseAdmin` is the companion `ModelAdmin`; anything that derives from `PageBase` definitely wants to use `PageBaseAdmin`.
 It prepopulates your `title` and `slug` field automatically, and offers the following fieldsets:
 
 * `PUBLICATION_FIELDS`, inherited from `OnlineBase`
