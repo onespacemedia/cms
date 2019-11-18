@@ -19,7 +19,7 @@ This gives you access to the page tree (as `request.pages`) any time you have ac
 * `current`: the currently-active Page object. This is the most interesting one, and the most commonly-accessed.
 * `homepage`: the Page that has no parent, i.e. the home page of the site.
 * `breadcrumbs`: A list representing a trail of pages from the current page to the homepage. For example, if a page called "Dreamies" had a parent of "Cat treats" whose parent was the home page, then the breadcrumb trail would take the form `[<Page: Home>, <Page: Cat treats>, <Page: Dreamies>]`.
-* `section`: The closest element to the homepage in the tree. In our example above, this would be "Cat treats". If `current` was "Cat treats", it would be "Cat treats" again. If `current` is the homepage, it would be `None`.
+* `section`: The closest element to the homepage in the tree. In our example above, this would be "Cat treats". If `current` is "Cat treats", it would be "Cat treats" again. If `current` is the homepage, it would be `None`.
 * `subsection`: The closest page below `section`. It would be "Dreamies" in our example.
 
 Secondly, it handles rendering the page at the current URL in its `process_response`.
