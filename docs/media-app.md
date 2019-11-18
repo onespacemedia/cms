@@ -43,7 +43,7 @@ In addition, the following fields are present on the model, but are not user-vis
 * `get_dimensions()`: If the file is an image, returns a tuple of (width, height), otherwise returns 0.
 This is only used internally; you probably want to access the `width` and `height` fields on the model instead, as they incur no overhead.
 * `icon`: A cached property that returns the path to an appropriate icon for the file type, e.g. `/static/media/img/x-office-spreadsheet.png`. This is used as a fallback in the media list if a file is not an image.
-* `is_image()`: Returns True if the file is an image (based on the file extension), False otherwise:
+* `is_image()`: Returns `True` if the file is an image (based on the file extension), `False` otherwise:
 
 ### Label
 
