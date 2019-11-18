@@ -186,7 +186,7 @@ You will want to use them like so:
 
 ## Twitter card functions
 
-`get_twitter_card`, `get_twitter_description` and `get_twitter_image` render the current Twitter card information for the current object. Usage:
+`get_twitter_card`, `get_twitter_description` and `get_twitter_image` render the current Twitter card information for the current object. You will want to use them like so:
 
 ```
 <!-- Twitter card data -->
