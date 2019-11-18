@@ -7,7 +7,7 @@ It also integrates with the CMS's WYSIWYG text editor to provide a file browser 
 
 ### File
 
-`cms.apps.media.models.File` is a wrapper around a Django FileField.
+`cms.apps.media.models.File` is a wrapper around Django's FileField.
 This allows users to upload a file in one place and use it in more than one place.
 
 `File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users).
