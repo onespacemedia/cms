@@ -3,7 +3,8 @@
 ## OnlineBase
 
 `cms.models.OnlineBase` provides publication controls.
-It provides a single field: `is_online`. When it is `False` (unchecked), it will not appear on the front-end of your website.
+It provides a single field: `is_online`.
+An object with this field set to `False` (unchecked) will not appear on the front-end of your website.
 
 You do not have to do anything other than inherit from OnlineBase for this to work; objects that are not online are automatically excluded from querysets via a custom manager, `OnlineBaseManager`.
 We will go into more detail about that [elsewhere](publication-control.md).
