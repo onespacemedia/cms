@@ -13,7 +13,9 @@ We will go into more detail about that [elsewhere](publication-control.md).
 We use this in our [OSM Jet](https://github.com/onespacemedia/osm-jet) admin skin to generate a "click to copy public preview URL" function.
 If your model does not implement a `get_absolute_url()` method, this method will return `None`.
 
-`cms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model; derivatives of OnlineBase should probably inherit from this for their user model. It defines `PUBLICATION_FIELDS`, which you can use on your model's admin like this:
+`cms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model;
+if your model inherits directly from `OnlineBase`, your `ModelAdmin` should inherit from `OnlineBaseAdmin`.
+It defines `PUBLICATION_FIELDS`, which you can use on your model's admin like this:
 
 ```python
 class YourModelAdmin(OnlineBaseAdmin):
@@ -30,7 +32,7 @@ If you want to change this, set `ONLINE_DEFAULT` to `False` in your Django setti
 
 ## PageBase
 
-`cms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are useful to article-like models on a website.
+`cms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are useful for page- or article-like models on a website.
 If an instance of your model lives at its own URL and has a title, such as a news article or a blog post, then you almost certainly want to inherit from `PageBase`.
 The CMS's own `Page` model inherits from it.
 
