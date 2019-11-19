@@ -30,13 +30,19 @@ The `<head>` of your document should look like this:
 
 ### `render_title(browser_title=None)`
 
-Renders the title of the current page:
+Renders, in this order of priority:
+
+a) The title of the current object, or
+b) The title of the current page, or
+c) The title of the home page.
 
 ```
 <title>{{ render_title() }}</title>
 ```
 
-You can override the title by setting a context variable called `title`:
+In the first case, it works by simply checking the template context for a key called `title`, and outputs that if it is present
+(our [helper views](helpers.md) `PageDetailMixin` and `PageDetailView` will place it there).
+As such, you can override the title by setting a context variable called `title`:
 
 ```
 {% with title = "foo" %}
