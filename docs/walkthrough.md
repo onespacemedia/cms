@@ -116,7 +116,7 @@ In our companion <a href="https://github.com/onespacemedia/tiny-cms-project">tin
 We use "MyContent" here to avoid confusion between the concept of a "content model", and our model that is named "Content".
 
 `introduction` is, of course, a standard Django field, which we'll use this later in our template.
-We can define no fields at all on this model! Just its existence as a non-abstract class inheriting from ContentBase will make it available in the page types.
+We don't have to define any fields at all on this model! Just its existence as a non-abstract class inheriting from ContentBase will make it available in the page types.
 
 Now go to your admin and add a Page. You will be prompted to select a page type. Once you have selected "My content" as your page type, your page will appear with the `introduction` field all ready to fill out. Do that now, save the page, then go to the root URL on your website.
 
