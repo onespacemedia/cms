@@ -344,7 +344,7 @@ class ArticleAdmin(PageBaseAdmin):
 
 `PageBaseAdmin` defines some useful default behaviour for the article-like things it is intended to enable.
 It also defines some useful fieldsets that you will definitely want, such as the publication controls (turning things on/offline), and those SEO and social media controls mentioned earlier.
-You should definitely use it for anything that inherits from `PageBase`, but nothing in Onespacemedia CMS forces you to.
+You should use it for anything that inherits from `PageBase`, though nothing in Onespacemedia CMS forces you to.
 
 Now, go create a "News feed" page, if you haven't already, and add an Article, setting "Page" to your new news feed.
 
