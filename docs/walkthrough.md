@@ -317,7 +317,7 @@ On to `ImageRefField`.
 You can read about the [media app](media-app.md) later on, but the short version is: it's a model wrapper around Django's `FileField`.
 `ImageRefField` is a ForeignKey to `media.File`, but it uses a raw ID widget by default, and is constrained to only select files that appear to be images (just a regex on the filename).
 
-`HtmlField` is an HTML field with a nice WYSIWYG editor as its default widget - that was what the `WYSIWYG_OPTIONS` setting was about.
+`HtmlField` is a `TextField` with a nice WYSIWYG editor as its default widget - that was what the `WYSIWYG_OPTIONS` setting was about.
 You can use a standard TextField here if you like, or you can bring your own HTML editor; nothing in the CMS requires `HtmlField` to be used.
 
 Now, in our `admin.py` for our news app, we're going to register our Article:
