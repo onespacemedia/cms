@@ -33,8 +33,9 @@ WYSIWYG_OPTIONS = {
 
 Adding the `cmsimage` plugin (and corresponding `cmsimage` button) will allow media files to be inserted directly from your [media gallery](media-app.md).
 
-Next, use `cms.models.HtmlField` to add HTML editing to your admin:
-
+Next, use `cms.models.HtmlField` to add HTML editing to your admin.
+`HtmlField` is a subclass of `TextField` which overrides the widget with a TinyMCE text editor.
+Other than the widget, it works just like a `TextField`:
 
 ```python
 from cms.models import HtmlField
@@ -47,7 +48,6 @@ class Article(models.Model)
 
 That's it!
 
-
 When rendering the HTML on the front-end of your site, you probably want to filter your HTML through the `html` template filter.
 This will expand permalinks and set alt text, attribution etc on the images in your WYSIWYG editor (if they were inserted through the media library plugin mentioned above).
 
@@ -55,5 +55,5 @@ This will expand permalinks and set alt text, attribution etc on the images in y
 {{ object.content|html }}
 ```
 
-There may be circumstances in which you want to use the HTML editing widget, but not use the field on your model.
+There may be circumstances in which you want to use the HTML editing widget, but not use `HtmlField` on your model.
 In this unusual case, use `cms.fields.HtmlWidget` in your form class.
