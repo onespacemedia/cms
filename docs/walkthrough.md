@@ -276,7 +276,7 @@ class Article(PageBase):
         on_delete=models.PROTECT,
         null=True,
         blank=False,
-        verbose_name='News feed'
+        verbose_name='News feed',
     )
 
     image = ImageRefField(
