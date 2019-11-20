@@ -23,7 +23,8 @@ An object's meta description will be used as the description of its search resul
 It inherits the behaviour of `OnlineBaseSearchAdapter` above, but will also exclude any results that have been excluded from external search engine crawlers.
 
 `cms.models.SearchMetaBaseSearchAdapter` is for models that inherit directly from the less-commonly-used `SearchMetaBase`.
-It behaves exactly like `PageBaseSearchAdapter`, but doesn't assume the presence of a "title" field; it will use Watson's behaviour of using the `__str__` of the object.
+It behaves exactly like `PageBaseSearchAdapter`, but doesn't assume the presence of a "title" field;
+it will default to Watson's behaviour of using the `__str__` of the object as the title in search results.
 
 ## Controlling search text for content models (ContentBase derivatives)
 
