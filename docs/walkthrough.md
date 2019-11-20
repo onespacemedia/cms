@@ -201,13 +201,13 @@ Now, stick this just before the `{% endblock %}` in your `content/mycontent.html
 
 ```
 {% for section in pages.current.contentsection_set.all() %}
-<section>
-  <h2>{{ section.title }}</h2>
+  <section>
+    <h2>{{ section.title }}</h2>
 
-  {% if section.text %}
-    {{ section.text|html}}
-  {% endif %}
-</section>
+    {% if section.text %}
+      {{ section.text|html}}
+    {% endif %}
+  </section>
 {% endfor %}
 ```
 
