@@ -1,7 +1,7 @@
 """Abstract base models used by the page management application."""
 from django.db import models
 from django.shortcuts import render
-from django.utils.crypto import salted_hmac
+from django.utils.crypto import constant_time_compare, salted_hmac
 from watson.search import SearchAdapter
 
 from cms.apps.media.models import ImageRefField
@@ -24,10 +24,10 @@ class PathTokenGenerator:
         ).hexdigest()[::2]
 
     def check_token(self, token, path):
-        return token == salted_hmac(
-            self.key_salt,
-            path,
-        ).hexdigest()[::2]
+        return constant_time_compare(
+            token,
+            salted_hmac(self.key_salt, path).hexdigest()[::2]
+        )
 
 path_token_generator = PathTokenGenerator()
 
