@@ -27,8 +27,7 @@ It behaves exactly like `PageBaseSearchAdapter`, but doesn't assume the presence
 
 ## Controlling search text for content models (ContentBase derivatives)
 
-By default, `cms.apps.pages.models.PageSearchAdapter`, with which the CMS registers the `Page` model, will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
-That is to say, anything in a `CharField` or `TextField` will be visible to Watson's full-text search.
+The CMS `Page` model is registered with `cms.apps.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
 
 That's sensible behaviour, but you may have inlined models that need to be searched too.
 For example, our simple sectioned content model from the [walkthrough](walkthrough.md) has most of its textual content in `ContentSection` objects.
