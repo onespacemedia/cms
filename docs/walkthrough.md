@@ -302,7 +302,7 @@ class Article(PageBase):
         return self.title
 ```
 
-OK, let's talk about PageBase here.
+Let's talk about PageBase!
 It's a helper (abstract) model to make it easier for you to have article-like fields on your model.
 It has nearly all the fields that the Page model itself does, but does not consider itself part of any hierarchy.
 In fact, the CMS Page itself inherits from PageBase.
