@@ -36,8 +36,8 @@ The `OnlineBaseManager` used by `OnlineBase`, not `OnlineBaseSitemap`, ensures t
 However if you are inheriting from `OnlineBase` your sitemap should inherit from this class in case the implementation changes in the future.
 
 `cms.sitemaps.SearchMetaBaseSitemap` and `cms.sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
-It will add the change frequency and priority from the SEO fields on those models to the model's sitemap.
-It will also exclude any objects that have been excluded from search engines (i.e. `robots_index == False`).
+They will add the change frequency and priority from the SEO fields on those models to the model's sitemap.
+They will also exclude any objects that have been excluded from search engines (i.e. `robots_index == False`).
 
 It may be useful to exclude certain URLs from your sitemap on criteria other than its "online" status.
 Let's contrive an example.
