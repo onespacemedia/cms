@@ -31,10 +31,9 @@ checking `PageBase`, `SearchMetaBase`, and `OnlineBase`, in that order.
 `cms.sitemaps.BaseSitemap` does not do anything at all, other than returning all of the instances of a given model.
 It assumes that the model implements a `get_absolute_url` method.
 
-`cms.sitemaps.OnlineBaseSitemap` is for models that inherit from OnlineBase.
-It will ensure that objects that are not online (`is_online == False`) will not be shown in the sitemap.
-Actually, it simply inherits from `BaseSitemap` and adds nothing - it is the manager on `OnlineBase` that ensures only online objects are shown.
-But if you are inheriting from `OnlineBase` your sitemap should inherit from this class in case this implementation detail changes in the future.
+`cms.sitemaps.OnlineBaseSitemap` inherits from `BaseSitemap`, but does not add anything.
+The `OnlineBaseManager` used by `OnlineBase`, not `OnlineBaseSitemap`, ensures that only online objects are included in the sitemap.
+However if you are inheriting from `OnlineBase` your sitemap should inherit from this class in case the implementation changes in the future.
 
 `cms.sitemaps.SearchMetaBaseSitemap` and `cms.sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
 It will add the change frequency and priority from the SEO fields on those models to the model's sitemap.
