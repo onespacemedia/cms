@@ -1,6 +1,6 @@
 # The HTML editor
 
-Onespacemedia CMS comes with an <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin, using TinyMCE v4.
+Onespacemedia CMS comes with a <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin, using TinyMCE v4.
 The CMS does not use this internally (as it has no opinions about what your content should look like),
 but it's included with the CMS because almost every website requires it.
 
