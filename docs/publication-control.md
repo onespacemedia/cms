@@ -45,11 +45,11 @@ For example, if a non-admin user has posted a news article that needs to be appr
 
 You can do this by importing `cms.models.publication_manager` and using its `select_published` context manager:
 
-```
+```python
 from cms.models import publication_manager
-```
 
-```
+# ...
+
 with publication_manager.select_published(False):
     return YourModel.objects.all()
 ```
