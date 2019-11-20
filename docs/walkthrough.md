@@ -205,7 +205,7 @@ Now, stick this just before the `{% endblock %}` in your `content/mycontent.html
     <h2>{{ section.title }}</h2>
 
     {% if section.text %}
-      {{ section.text|html}}
+      {{ section.text }}
     {% endif %}
   </section>
 {% endfor %}
