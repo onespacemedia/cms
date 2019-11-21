@@ -435,8 +435,8 @@ def get_absolute_url(self):
     })
 ```
 
-We use `page.reverse` almost exactly like we do Django's `django.urls.reverse`
-- in fact, the `reverse` function on Page uses it internally, by passing it the content model's urlconf.
+We use `page.reverse` almost exactly like we do Django's `django.urls.reverse` -
+in fact, the `reverse` function on Page uses it internally, by passing it the content model's urlconf.
 
 Now that we have a `get_absolute_url` on our news article, we can add a `news/article_list.html` template, where Django's generic `ListView` is expecting to find it:
 
@@ -466,6 +466,8 @@ And now that we can actually make our way to it, an article detail template at `
     <p>
       <img src="{{ object.image.get_absolute_url() }}" alt="">
     </p>
+  {% endif %}
+
   {{ object.content|safe }}
 {% endblock %}
 ```
