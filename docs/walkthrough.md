@@ -463,9 +463,9 @@ And now that we can actually make our way to it, an article detail template at `
   <h1>{{ object.title }}</h1>
 
   {% if object.image %}
-  <p>
-    <img src="{{ object.image.get_absolute_url() }}" alt="">
-  </p>
+    <p>
+      <img src="{{ object.image.get_absolute_url() }}" alt="">
+    </p>
   {{ object.content|safe }}
 {% endblock %}
 ```
