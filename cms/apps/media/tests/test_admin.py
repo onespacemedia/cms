@@ -55,6 +55,7 @@ class TestVideoAdmin(TestCase):
 
         factory = RequestFactory()
         self.request = factory.get('/')
+        self.request.user = MockSuperUser
 
     def test_videoadmin_to_field_allowed(self):
         self.assertTrue(self.video_admin.to_field_allowed(self.request, 'id'))
@@ -71,6 +72,7 @@ class TestFileAdminBase(TransactionTestCase):
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
+        self.request.user = MockSuperUser()
 
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
@@ -141,6 +143,7 @@ class TestFileAdminBase(TransactionTestCase):
         self.assertEqual(len(actions), 2)
 
         self.request = self.factory.get('/?{}'.format(IS_POPUP_VAR))
+        self.request.user = MockSuperUser()
         actions = self.file_admin.get_actions(self.request)
         self.assertEqual(len(actions), 0)
 
@@ -219,6 +222,7 @@ class TestFileAdminBase(TransactionTestCase):
         self.assertEqual(response.status_code, 302)
 
         self.request = self.factory.get('/?_tinymce')
+        self.request.user = MockSuperUser()
         setattr(self.request, 'session', 'session')
         messages = FallbackStorage(self.request)
         setattr(self.request, '_messages', messages)
@@ -256,6 +260,7 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
+        self.request.user = MockSuperUser
 
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
