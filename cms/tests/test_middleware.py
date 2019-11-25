@@ -85,7 +85,7 @@ class MiddlewareTest(TestCase):
         response = SimpleTemplateResponse('pagination/pagination.html', context)
         localisation_middleware = LocalisationMiddleware()
 
-        geoip_dat_file = '{}/geoip/GeoIP.dat'.format(os.path.dirname(os.path.realpath(__file__)))
+        geoip_dat_file = '{}/geolite2/GeoLite2-Country.mmdb'.format(os.path.dirname(os.path.realpath(__file__)))
 
         self.request = self.factory.get('/media/')
         processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
