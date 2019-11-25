@@ -10,29 +10,10 @@ from reversion import create_revision
 from watson import search
 
 from ....models.managers import publication_manager
+from ...testing_models.models import (TestSection, TestPageContent,
+                                      TestPageContentWithSections)
 from ..models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
                       filter_indexable_pages)
-
-
-class TestPageContent(ContentBase):
-
-    urlconf = 'cms.apps.pages.tests.urls'
-
-
-class TestPageContentWithSections(ContentBase):
-    testing = models.CharField(
-        max_length=20,
-        default='testing',
-    )
-
-
-class Section(models.Model):
-
-    page = models.ForeignKey(Page)
-
-    title = models.CharField(
-        max_length=100,
-    )
 
 
 class TestPage(TestCase):

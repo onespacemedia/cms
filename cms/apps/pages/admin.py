@@ -342,7 +342,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Now save m2m fields.
         for field in content_obj._meta.many_to_many:
-            setattr(content_obj, field.name, form.cleaned_data[field.name])
+            getattr(content_obj, field.name).set(form.cleaned_data[field.name])
 
         obj.content = content_obj
 

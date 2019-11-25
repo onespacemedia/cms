@@ -51,6 +51,7 @@ def pytest_configure():
             'cms.apps.links',
             'cms.apps.media',
             'cms.apps.pages',
+            'cms.apps.testing',
 
             # Tests which contain custom models.
             'cms.tests',
