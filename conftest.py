@@ -48,6 +48,7 @@ def pytest_configure():
             'django.contrib.sitemaps',
 
             # CMS apps
+            'cms',
             'cms.apps.links',
             'cms.apps.media',
             'cms.apps.pages',

@@ -46,9 +46,9 @@ class ModelsBaseTest(TestCase):
             'robots_index': True,
             # This differs from 1.11 to 2.x - 2.x puts the PK in the default
             # __str__.
-            'title': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel ({obj.pk})'],
+            'title': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel object ({obj.pk})'],
             'robots_archive': True,
-            'header': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel ({obj.pk})'],
+            'header': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel object ({obj.pk})'],
             'og_title': '',
             'og_description': '',
             'og_image': None,
