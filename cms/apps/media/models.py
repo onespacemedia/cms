@@ -411,6 +411,6 @@ class VideoRefField(models.ForeignKey):
 
     def formfield(self, **kwargs):
         defaults = {
-            'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
+            'widget': ForeignKeyRawIdWidget(self.remote_field, admin.site),
         }
         return super().formfield(**defaults)
