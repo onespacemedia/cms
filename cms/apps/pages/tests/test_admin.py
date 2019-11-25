@@ -111,7 +111,7 @@ class TestPageAdmin(TestCase):
     def test_pageadmin_get_object(self):
         factory = RequestFactory()
         request = factory.get('/')
-        self.assertEqual(self.page_admin.get_object(request, -1), None)
+        self.<assertEqual></assertEqual>(self.page_admin.get_object(request, -1), None)
 
     def test_pageadmin_register_page_inline(self):
         self.page_admin._register_page_inline(InlineModelNoPage)
@@ -786,7 +786,7 @@ class TestPageAdmin(TestCase):
             country_group=self.country_group.pk
         )
         response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
-        self.assertEquals(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)
+        self.assertEqual(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)
 
         with search.update_index():
 
@@ -812,11 +812,11 @@ class TestPageAdmin(TestCase):
                 country_group=self.country_group.pk
             )
             response = self.page_admin.duplicate_for_country_group(request, page=inline_page.pk)
-            self.assertEquals(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
+            self.assertEqual(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
 
             inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
 
-            self.assertEquals(inline_page_clone.inlinemodel_set.count(), 1)
+            self.assertEqual(inline_page_clone.inlinemodel_set.count(), 1)
 
     def test_pagecontenttypefilter_queryset(self):
         # Ensures that the queryset returned by filtering is correct.

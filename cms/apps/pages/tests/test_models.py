@@ -165,14 +165,14 @@ class TestPage(TestCase):
     def test_last_modified(self):
 
         # We have no versions
-        self.assertEquals(self.homepage.last_modified(), '-')
+        self.assertEqual(self.homepage.last_modified(), '-')
 
         # Create an initial revision.
         with create_revision():
             self.homepage.save()
 
         # We have reversion and a version in the db, last_modified should not be empty
-        self.assertNotEquals(self.homepage.last_modified(), '-')
+        self.assertNotEqual(self.homepage.last_modified(), '-')
 
     def test_publication(self):
         self.homepage.publication_date = now() + timedelta(days=10)
