@@ -46,9 +46,9 @@ class ModelsBaseTest(TestCase):
             'robots_index': True,
             # This differs from 1.11 to 2.x - 2.x puts the PK in the default
             # __str__.
-            'title': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel {obj.pk}'],
+            'title': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel ({obj.pk})'],
             'robots_archive': True,
-            'header': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel {obj.pk}'],
+            'header': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel ({obj.pk})'],
             'og_title': '',
             'og_description': '',
             'og_image': None,
@@ -58,7 +58,7 @@ class ModelsBaseTest(TestCase):
             'twitter_image': None
         }
 
-        for key, value in obj.get_context_data():
+        for key, value in obj.get_context_data().items():
             if isinstance(expected_context[key], list):
                 self.assertIn(value, expected_context[key])
             else:
