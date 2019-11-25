@@ -44,16 +44,6 @@ class MockSuperUser:
         return True
 
 
-def get_inline_instances_1_4_x(self, request):
-    inline_instances = []
-    for inline_class in self.inlines:
-        inline = inline_class(self.model, self.admin_site)
-        inline.max_num = 0
-        inline_instances.append(inline)
-
-    return inline_instances
-
-
 class TestPageAdmin(TestCase):
 
     maxDiff = None
@@ -111,7 +101,7 @@ class TestPageAdmin(TestCase):
     def test_pageadmin_get_object(self):
         factory = RequestFactory()
         request = factory.get('/')
-        self.<assertEqual></assertEqual>(self.page_admin.get_object(request, -1), None)
+        self.assertEqual(self.page_admin.get_object(request, -1), None)
 
     def test_pageadmin_register_page_inline(self):
         self.page_admin._register_page_inline(InlineModelNoPage)
@@ -123,20 +113,6 @@ class TestPageAdmin(TestCase):
 
         self.assertListEqual(self.page_admin.content_inlines, [(TestPageContent, InlineModelInline), ])
 
-    def test_get_inline_instances_1_4_x(self):
-        class Inlines:
-            model = TestPageContent
-            admin_site = self.page_admin
-
-            def __init__(self, *args, **kwargs):
-                self.inlines = kwargs.get('inlines', [])
-
-        factory = RequestFactory()
-        request = factory.get('/')
-
-        self.assertListEqual(get_inline_instances_1_4_x(Inlines(), request), [])
-        self.assertEqual(len(get_inline_instances_1_4_x(Inlines(inlines=[InlineModel]), request)), 1)
-
     def test_pageadmin_get_inline_instances(self):
         request = self._build_request(
             page_type=ContentType.objects.get_for_model(TestPageContent).pk
@@ -146,16 +122,6 @@ class TestPageAdmin(TestCase):
         self.assertListEqual(self.page_admin.get_inline_instances(request, obj=self.homepage), [])
         self.page_admin.register_content_inline(TestPageContent, InlineModelInline)
         self.assertEqual(len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1)
-
-        # Monkey patch the function back to Django 1.4.x style so we can trigger
-        # the TypeError in `PageAdmin.get_inline_instances`.
-        initial_instances = getattr(admin.ModelAdmin, 'get_inline_instances')
-        setattr(admin.ModelAdmin, 'get_inline_instances', get_inline_instances_1_4_x)
-
-        self.assertEqual(len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1)
-
-        # Put the method back to what is was.
-        setattr(admin.ModelAdmin, 'get_inline_instances', initial_instances)
 
     def test_pageadmin_get_revision_instances(self):
         request = self._build_request(
