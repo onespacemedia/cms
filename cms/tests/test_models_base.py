@@ -40,13 +40,15 @@ class ModelsBaseTest(TestCase):
 
     def test_searchmetabase_get_context_data(self):
         obj = TestSearchMetaBaseModel.objects.create()
-        self.assertDictEqual(obj.get_context_data(), {
+        expected_context = {
             'meta_description': '',
             'robots_follow': True,
             'robots_index': True,
-            'title': 'TestSearchMetaBaseModel object',
+            # This differs from 1.11 to 2.x - 2.x puts the PK in the default
+            # __str__.
+            'title': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel {obj.pk}'],
             'robots_archive': True,
-            'header': 'TestSearchMetaBaseModel object',
+            'header': ['TestSearchMetaBaseModel object', f'TestSearchMetaBaseModel {obj.pk}'],
             'og_title': '',
             'og_description': '',
             'og_image': None,
@@ -54,7 +56,13 @@ class ModelsBaseTest(TestCase):
             'twitter_title': '',
             'twitter_description': '',
             'twitter_image': None
-        })
+        }
+
+        for key, value in obj.get_context_data():
+            if isinstance(expected_context[key], list):
+                self.assertIn(value, expected_context[key])
+            else:
+                self.assertEqual(value, expected_context[key])
 
     def test_searchmetabase_render(self):
         factory = RequestFactory()
