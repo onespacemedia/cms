@@ -28,13 +28,14 @@ class TestForms(TestCase):
         widget = HtmlWidget()
 
         media = widget.get_media()
+        print(media)
 
         self.assertDictEqual(media.__dict__, {
-            '_css': {},
-            '_js': [
+            '_css_lists': [{}],
+            '_js_lists': [[
                 '/static/cms/js/tinymce/tinymce.min.js',
                 '/static/cms/js/jquery.cms.wysiwyg.js'
-            ]
+            ]],
         })
 
     def test_htmlwidget_render(self):
