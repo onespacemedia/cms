@@ -50,7 +50,6 @@ setup(
             'pytest-xdist',
             # / Project template
             'coveralls',
-            'mock',
             'geoip2',
         ],
         'geoip': ['geoip2']
