@@ -28,7 +28,6 @@ class TestForms(TestCase):
         widget = HtmlWidget()
 
         media = widget.get_media()
-        print(media)
 
         self.assertDictEqual(media.__dict__, {
             '_css_lists': [{}],
