@@ -144,7 +144,6 @@ class MiddlewareTest(TestCase):
         )
 
         self.request = self.factory.get('/')
-        self.request.country = obj
         # Give ourselves a US West IP.
         self.request.META['REMOTE_ADDR'] = '52.52.95.213'
         localisation_middleware.process_request(self.request)
@@ -159,7 +158,6 @@ class MiddlewareTest(TestCase):
         )
 
         self.request = self.factory.get('/')
-        self.request.country = obj
 
         # Give ourselves an Indian IP.
         self.request.META['REMOTE_ADDR'] = '13.232.220.164'
