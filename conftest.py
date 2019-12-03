@@ -122,4 +122,5 @@ def pytest_configure():
             }
         ],
         GEOIP_PATH=os.path.join('cms', 'tests', 'geoip'),
+        MIDDLEWARE=[],
     )
