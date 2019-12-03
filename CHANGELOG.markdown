@@ -4,6 +4,7 @@
 * Rename "Search engine optimization" fieldset of SearchMetaBaseAdmin to "SEO".
 * Django 2.2 compatibility:
   * **Breaking change:** If you are using `LocalisationMiddleware`, change your `MIDDLEWARE_CLASSES` setting to `MIDDLEWARE`. The other CMS middleware is now compatible with both, but the check for localisation middleware now only looks at `MIDDLEWARE`, to simplify 2.2 compatibility.
+  * **Breaking change:** `cms` must now be in your `INSTALLED_APPS`.
   * Ensure all `ForeignKey`s have an `on_delete` explicitly specified.
 
 ## 4.1.0 - 25/10/2019
