@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.3.1
+* The [documentation](https://onespacemedia.github.io/cms/) has been completely rewritten.
+
 ## 4.3.0 - 2019-11-12
 * Importing `cms.sitemaps` at the top level of a module containing an app's AppConfig no longer raises `AppRegistryNotReady`.
 * `PageBase`'s help text for the `slug` field now makes sense.
@@ -7,6 +10,7 @@
 * Remove a pessimisation in `PageManager.get_homepage`.
 
 ## 4.2.0 - 2019-11-06
+
 * Show usage of media library files on the file's change form.
 * Make middleware compatible with both `MIDDLEWARE` and `MIDDLEWARE_CLASSES`.
 * Ensure all `ForeignKey`s have an `on_delete` explicitly specified for Django 2.2 compatibility.
