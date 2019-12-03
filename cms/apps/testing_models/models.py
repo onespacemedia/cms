@@ -1,6 +1,7 @@
 # Test-only models.
 from django.db import models
 from cms.apps.pages.models import ContentBase
+from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 
 
 class TestPageContent(ContentBase):
@@ -46,3 +47,23 @@ class TestPageContentWithFields(ContentBase):
         InlineModelNoPage,
         blank=True,
     )
+
+
+class SitemapModel(models.Model):
+    pass
+
+
+class PageBaseModel(PageBase):
+    pass
+
+
+class SearchMetaBaseModel(SearchMetaBase):
+    pass
+
+
+class OnlineBaseModel(OnlineBase):
+    pass
+
+
+class PublishedBaseModel(PublishedBase):
+    pass
