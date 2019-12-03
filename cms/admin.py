@@ -1,9 +1,9 @@
 '''Base classes for the CMS admin interface.'''
 from django.contrib import admin
 from django.conf import settings
-from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db.models.deletion import get_candidate_relations_to_delete
 from django.db.utils import DEFAULT_DB_ALIAS
+from django.urls import NoReverseMatch, reverse
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
@@ -58,7 +58,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
         if field.get_internal_type() in ['ForeignKey', 'OneToOneField']:
             # Follow the ForeignKey to find the related model.
 
-            related_model = obj._meta.get_field(field.attname).rel.to
+            related_model = obj._meta.get_field(field.attname).remote_field.model
 
             if parent == related_model:
                 # We've found a Foreign key to the parent, now
@@ -74,6 +74,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
                         f'admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change',
                         args=[field_value]
                     )
+
 
 def get_admin_url(obj):
     '''
