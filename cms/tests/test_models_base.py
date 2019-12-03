@@ -1,10 +1,8 @@
 from django.test import RequestFactory, TestCase
 
-from ..models.base import \
-    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from ..models.base import \
-    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
-from ..models.base import PageBase, PublishedBase, SearchMetaBase
+from ..models.base import PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
+from ..models.base import SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+from ..models.base import PageBase, path_token_generator, PublishedBase, SearchMetaBase
 
 
 # Test models.
@@ -17,7 +15,8 @@ class TestSearchMetaBaseModel(SearchMetaBase):
 
 
 class PageBaseModel(PageBase):
-    pass
+    def get_absolute_url(self):
+        return '/'
 
 
 # Test search adapters.
@@ -105,3 +104,11 @@ class ModelsBaseTest(TestCase):
             'twitter_description': '',
             'twitter_image': None
         })
+
+    def test_get_preview_url(self):
+        obj = PageBaseModel.objects.create()
+
+        self.assertEqual(
+            '/?preview={}'.format(path_token_generator.make_token('/')),
+            obj.get_preview_url()
+        )
