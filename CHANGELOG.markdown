@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 4.3.1
 * The [documentation](https://onespacemedia.github.io/cms/) has been completely rewritten.
 
 ## 4.3.0 - 2019-11-12
