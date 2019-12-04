@@ -769,7 +769,7 @@ class TestPageAdmin(TestCase):
                 page=inline_page,
             )
 
-            inline_model = InlineModel.objects.create(
+            inline_model = TestInlineModel.objects.create(
                 page=inline_page,
             )
 
