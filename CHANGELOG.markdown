@@ -1,10 +1,10 @@
 # Changelog
 
 ## Next release
-* Django 2.2 compatibility:
+* Django 2.2 compatibility is now complete:
   * **Breaking change:** If you are using `LocalisationMiddleware`, change your `MIDDLEWARE_CLASSES` setting to `MIDDLEWARE`. The other CMS middleware is now compatible with both, but the check for localisation middleware now only looks at `MIDDLEWARE`, to simplify 2.2 compatibility.
   * **Breaking change:** `cms` must now be in your `INSTALLED_APPS`.
-  * Ensure all `ForeignKey`s have an `on_delete` explicitly specified.
+  * All `ForeignKey`s now have an `on_delete` explicitly specified (one was missed in 4.2.0).
 
 ## 4.3.1 - 2019-12-04
 * The [documentation](https://onespacemedia.github.io/cms/) has been completely rewritten.
