@@ -782,7 +782,7 @@ class TestPageAdmin(TestCase):
 
             inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
 
-            self.assertEqual(inline_page_clone.inlinemodel_set.count(), 1)
+            self.assertEqual(inline_page_clone.testinlinemodel_set.count(), 1)
 
     def test_pagecontenttypefilter_queryset(self):
         # Ensures that the queryset returned by filtering is correct.
