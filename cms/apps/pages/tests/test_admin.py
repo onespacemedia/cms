@@ -21,8 +21,8 @@ from django.utils.text import slugify
 from reversion.models import Version
 from watson import search
 
-from cms.apps.testing_models.admin import (InlineModelInline, InlineModelNoPageInline)
-from cms.apps.testing_models.models import (InlineModel, InlineModelNoPage,
+from cms.apps.testing_models.admin import (TestInlineModelInline, TestInlineModelNoPageInline)
+from cms.apps.testing_models.models import (TestInlineModel, TestInlineModelNoPage,
                                             TestPageContent, TestPageContentWithFields)
 
 from ..admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
@@ -104,14 +104,14 @@ class TestPageAdmin(TestCase):
         self.assertEqual(self.page_admin.get_object(request, -1), None)
 
     def test_pageadmin_register_page_inline(self):
-        self.page_admin._register_page_inline(InlineModelNoPage)
+        self.page_admin._register_page_inline(TestInlineModelNoPage)
 
     def test_pageadmin_register_content_inline(self):
         self.assertListEqual(self.page_admin.content_inlines, [])
 
-        self.page_admin.register_content_inline(TestPageContent, InlineModelInline)
+        self.page_admin.register_content_inline(TestPageContent, TestInlineModelInline)
 
-        self.assertListEqual(self.page_admin.content_inlines, [(TestPageContent, InlineModelInline), ])
+        self.assertListEqual(self.page_admin.content_inlines, [(TestPageContent, TestInlineModelInline), ])
 
     def test_pageadmin_get_inline_instances(self):
         request = self._build_request(
@@ -120,7 +120,7 @@ class TestPageAdmin(TestCase):
 
         self.assertListEqual(self.page_admin.get_inline_instances(request), [])
         self.assertListEqual(self.page_admin.get_inline_instances(request, obj=self.homepage), [])
-        self.page_admin.register_content_inline(TestPageContent, InlineModelInline)
+        self.page_admin.register_content_inline(TestPageContent, TestInlineModelInline)
         self.assertEqual(len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1)
 
     def test_pageadmin_get_revision_instances(self):
@@ -133,7 +133,7 @@ class TestPageAdmin(TestCase):
 
         # Register a content type which doesn't have a `page` attribute to
         # trigger the exception in `get_revision_instances`.
-        self.page_admin.register_content_inline(TestPageContent, InlineModelNoPageInline)
+        self.page_admin.register_content_inline(TestPageContent, TestInlineModelNoPageInline)
 
         instances = self.page_admin.get_revision_instances(request, self.homepage)
         self.assertListEqual(instances, [self.homepage, self.homepage.content])
