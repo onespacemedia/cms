@@ -1,37 +1,15 @@
 from django.test import RequestFactory, TestCase
 
-from ..models.base import PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from ..models.base import SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
 from ..models.base import PageBase, path_token_generator, PublishedBase, SearchMetaBase
 
-
-# Test models.
-class TestPublishedBaseModel(PublishedBase):
-    pass
-
-
-class TestSearchMetaBaseModel(SearchMetaBase):
-    pass
-
-
-class PageBaseModel(PageBase):
-    def get_absolute_url(self):
-        return '/'
-
-
-# Test search adapters.
-class PublishedBaseSearchAdapter(CMSPublishedBaseSearchAdapter):
-    pass
-
-
-class SearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
-    pass
+from cms.apps.testing_models.models import (TestPageBaseModel, TestPublishedBaseModel, TestSearchMetaBaseModel,
+                                            TestPublishedBaseSearchAdapter, TestSearchMetaBaseSearchAdapter)
 
 
 class ModelsBaseTest(TestCase):
 
     def test_publishedbasesearchadapter_get_live_queryset(self):
-        search_adapter = PublishedBaseSearchAdapter(TestPublishedBaseModel)
+        search_adapter = TestPublishedBaseSearchAdapter(TestPublishedBaseModel)
         self.assertEqual(search_adapter.get_live_queryset().count(), 0)
 
         TestPublishedBaseModel.objects.create()
@@ -81,14 +59,14 @@ class ModelsBaseTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_searchmetabasesearchadapter_get_live_queryset(self):
-        search_adapter = SearchMetaBaseSearchAdapter(TestSearchMetaBaseModel)
+        search_adapter = TestSearchMetaBaseSearchAdapter(TestSearchMetaBaseModel)
         self.assertEqual(search_adapter.get_live_queryset().count(), 0)
 
         TestSearchMetaBaseModel.objects.create()
         self.assertEqual(search_adapter.get_live_queryset().count(), 1)
 
     def test_pagebasemodel_get_context_data(self):
-        obj = PageBaseModel.objects.create()
+        obj = TestPageBaseModel.objects.create()
         self.assertDictEqual(obj.get_context_data(), {
             'meta_description': '',
             'robots_follow': True,
@@ -106,7 +84,7 @@ class ModelsBaseTest(TestCase):
         })
 
     def test_get_preview_url(self):
-        obj = PageBaseModel.objects.create()
+        obj = TestPageBaseModel.objects.create()
 
         self.assertEqual(
             '/?preview={}'.format(path_token_generator.make_token('/')),

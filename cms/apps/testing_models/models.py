@@ -3,6 +3,8 @@ from django.db import models
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 
+from ...models.base import PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
+from ...models.base import SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
 
 class TestPageContent(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'
@@ -27,14 +29,14 @@ class TestSection(models.Model):
     )
 
 
-class InlineModel(models.Model):
+class TestInlineModel(models.Model):
     page = models.ForeignKey(
         'pages.Page',
         on_delete=models.CASCADE,
     )
 
 
-class InlineModelNoPage(models.Model):
+class TestInlineModelNoPage(models.Model):
     pass
 
 
@@ -44,26 +46,34 @@ class TestPageContentWithFields(ContentBase):
     )
 
     inline_model = models.ManyToManyField(
-        InlineModelNoPage,
+        TestInlineModelNoPage,
         blank=True,
     )
 
 
-class SitemapModel(models.Model):
+class TestSitemapModel(models.Model):
     pass
 
 
-class PageBaseModel(PageBase):
+class TestPageBaseModel(PageBase):
+    def get_absolute_url(self):
+        return '/'
+
+class TestSearchMetaBaseModel(SearchMetaBase):
     pass
 
 
-class SearchMetaBaseModel(SearchMetaBase):
+class TestOnlineBaseModel(OnlineBase):
     pass
 
 
-class OnlineBaseModel(OnlineBase):
+class TestPublishedBaseModel(PublishedBase):
     pass
 
 
-class PublishedBaseModel(PublishedBase):
+class TestPublishedBaseSearchAdapter(CMSPublishedBaseSearchAdapter):
+    pass
+
+
+class TestSearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
     pass
