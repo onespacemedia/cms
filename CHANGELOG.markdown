@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+* Django 2.2 compatibility is now complete:
+  * **Breaking change:** If you are using `LocalisationMiddleware`, change your `MIDDLEWARE_CLASSES` setting to `MIDDLEWARE`. The other CMS middleware is now compatible with both, but the check for localisation middleware now only looks at `MIDDLEWARE`, to simplify 2.2 compatibility.
+  * **Breaking change:** `cms` must now be in your `INSTALLED_APPS`.
+  * **Breaking change:** localised sites now use `geoip2` - you will need to [update your GeoIP database](https://www.maxmind.com/en/geoip2-databases).
+  * All `ForeignKey`s now have an `on_delete` explicitly specified (one was missed in 4.2.0).
+
 ## 4.3.1 - 2019-12-04
 * The [documentation](https://onespacemedia.github.io/cms/) has been completely rewritten.
 

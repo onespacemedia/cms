@@ -48,12 +48,12 @@ def pytest_configure():
             'django.contrib.sitemaps',
 
             # CMS apps
+            'cms',
             'cms.apps.links',
             'cms.apps.media',
             'cms.apps.pages',
+            'cms.apps.testing_models',
 
-            # Tests which contain custom models.
-            'cms.tests',
             'cms.plugins.moderation.tests',
 
             # Third party apps
@@ -120,4 +120,5 @@ def pytest_configure():
             }
         ],
         GEOIP_PATH=os.path.join('cms', 'tests', 'geoip'),
+        MIDDLEWARE=[],
     )

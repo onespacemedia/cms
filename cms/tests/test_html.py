@@ -2,7 +2,7 @@ import base64
 import random
 import re
 
-import mock
+from unittest import mock
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase

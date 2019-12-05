@@ -112,6 +112,8 @@ class MiddlewareTest(TestCase):
         self.assertEqual(self.request.country, obj)
 
     def test_localisationmiddleware_process_response(self):
+        import geoip2
+
         class Context(dict):
             pass
 
@@ -122,7 +124,7 @@ class MiddlewareTest(TestCase):
         response = SimpleTemplateResponse('pagination/pagination.html', context)
         localisation_middleware = LocalisationMiddleware()
 
-        geoip_dat_file = '{}/geoip/GeoIP.dat'.format(os.path.dirname(os.path.realpath(__file__)))
+        geoip_dat_file = '{}/geolite2/GeoLite2-Country.mmdb'.format(os.path.dirname(os.path.realpath(__file__)))
 
         self.request = self.factory.get('/media/')
         processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
@@ -131,16 +133,17 @@ class MiddlewareTest(TestCase):
 
         obj = Country.objects.create(
             code='GB',
-            default=False,
         )
 
         self.request = self.factory.get('/')
-
         localisation_middleware.process_request(self.request)
-        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
-        self.assertEqual(processed_response, response)
 
-        self.assertIsNone(self.request.country)
+        try:
+            processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
+        except geoip2.errors.AddressNotFoundError:
+            self.request.country = obj
+            processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
+
         self.assertEqual(processed_response, response)
 
         # Give ourselves a direct IP.
@@ -172,3 +175,40 @@ class MiddlewareTest(TestCase):
         self.assertEqual(processed_response.status_code, 200)
         self.assertEqual(processed_response, response)
         self.assertIsNone(self.request.country)
+
+        obj = Country.objects.create(
+            code='US',
+        )
+
+        self.request = self.factory.get('/')
+        # Give ourselves a US West IP.
+        self.request.META['REMOTE_ADDR'] = '52.52.95.213'
+        localisation_middleware.process_request(self.request)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
+
+        self.assertEqual(processed_response.status_code, 302)
+        self.assertNotEqual(processed_response, response)
+        self.assertEqual(self.request.country, obj)
+
+        obj = Country.objects.create(
+            code='IN',
+        )
+
+        self.request = self.factory.get('/')
+
+        # Give ourselves an Indian IP.
+        self.request.META['REMOTE_ADDR'] = '13.232.220.164'
+        localisation_middleware.process_request(self.request)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
+
+        self.assertEqual(processed_response.status_code, 302)
+        self.assertNotEqual(processed_response, response)
+        self.assertEqual(self.request.country, obj)
+
+        # Give ourselves a Japanese IP
+        self.request.META['REMOTE_ADDR'] = '52.194.115.181'
+        localisation_middleware.process_request(self.request)
+        processed_response = localisation_middleware.process_response(self.request, response, geoip_path=geoip_dat_file)
+
+        # Test Indian country code with Japanese IP
+        self.assertNotEqual(self.request.country, obj)

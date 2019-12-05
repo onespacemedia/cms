@@ -133,7 +133,7 @@ class TestFile(TransactionTestCase):
         widget = field.formfield().widget
 
         self.assertIsInstance(widget, ForeignKeyRawIdWidget)
-        self.assertEqual(widget.rel, field.rel)
+        self.assertEqual(widget.rel, field.remote_field)
         self.assertEqual(widget.admin_site, admin.site)
         self.assertIsNone(widget.db)
 
@@ -142,7 +142,7 @@ class TestFile(TransactionTestCase):
             to=TestModel,
         )
 
-        self.assertEqual(field.rel.to, 'media.File')
+        self.assertEqual(field.remote_field.model, 'media.File')
 
 
 class TestVideo(TransactionTestCase):
@@ -186,15 +186,15 @@ class TestVideo(TransactionTestCase):
         )
 
         field = obj._meta.get_field('video')
-        rel = obj._meta.get_field('video').rel
+        rel = obj._meta.get_field('video').remote_field
 
-        self.assertEqual(rel.to, Video)
+        self.assertEqual(rel.model, Video)
         self.assertEqual(rel.related_name, '+')
         self.assertEqual(rel.on_delete, models.PROTECT)
 
         widget = field.formfield().widget
         self.assertIsInstance(widget, ForeignKeyRawIdWidget)
-        self.assertEqual(widget.rel, field.rel)
+        self.assertEqual(widget.rel, field.remote_field)
         self.assertEqual(widget.admin_site, admin.site)
         self.assertIsNone(widget.db)
 

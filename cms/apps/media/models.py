@@ -154,7 +154,7 @@ class FileRefField(models.ForeignKey):
         super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
-        kwargs.setdefault('widget', ForeignKeyRawIdWidget(self.rel, admin.site))
+        kwargs.setdefault('widget', ForeignKeyRawIdWidget(self.remote_field, admin.site))
         return super().formfield(**kwargs)
 
 
@@ -171,13 +171,14 @@ class ImageRefField(FileRefField):
         super().__init__(**kwargs)
 
     def formfield(self, **kwargs):
-        kwargs.setdefault('widget', ImageThumbnailWidget(self.rel, admin.site))
+        kwargs.setdefault('widget', ImageThumbnailWidget(self.remote_field, admin.site))
         return super().formfield(**kwargs)
 
 
 VIDEO_FILTER = {
     'file__iregex': r'\.(mp4|m4v)$'
 }
+
 
 def get_oembed_info_url(url):
     '''
@@ -410,6 +411,6 @@ class VideoRefField(models.ForeignKey):
 
     def formfield(self, **kwargs):
         defaults = {
-            'widget': ForeignKeyRawIdWidget(self.rel, admin.site),
+            'widget': ForeignKeyRawIdWidget(self.remote_field, admin.site),
         }
         return super().formfield(**defaults)

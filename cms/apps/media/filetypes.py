@@ -1,16 +1,16 @@
 import os.path
 
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 # Different types of file.
-AUDIO_FILE_ICON = static('media/img/audio-x-generic.png')
-DOCUMENT_FILE_ICON = static('media/img/x-office-document.png')
-SPREADSHEET_FILE_ICON = static('media/img/x-office-spreadsheet.png')
-TEXT_FILE_ICON = static('media/img/text-x-generic.png')
-IMAGE_FILE_ICON = static('media/img/image-x-generic.png')
-MOVIE_FILE_ICON = static('media/img/video-x-generic.png')
-UNKNOWN_FILE_ICON = static('media/img/text-x-generic-template.png')
+AUDIO_FILE_ICON = staticfiles_storage.url('media/img/audio-x-generic.png')
+DOCUMENT_FILE_ICON = staticfiles_storage.url('media/img/x-office-document.png')
+SPREADSHEET_FILE_ICON = staticfiles_storage.url('media/img/x-office-spreadsheet.png')
+TEXT_FILE_ICON = staticfiles_storage.url('media/img/text-x-generic.png')
+IMAGE_FILE_ICON = staticfiles_storage.url('media/img/image-x-generic.png')
+MOVIE_FILE_ICON = staticfiles_storage.url('media/img/video-x-generic.png')
+UNKNOWN_FILE_ICON = staticfiles_storage.url('media/img/text-x-generic-template.png')
 
 # Recognised file extensions and their icons.
 FILE_ICONS = {

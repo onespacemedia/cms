@@ -4,9 +4,9 @@ from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.test import TestCase
+from django.urls import NoReverseMatch, reverse
 from django.utils import six
 from django.utils.timezone import now
 from watson import search
@@ -16,6 +16,7 @@ from cms.apps.pages.admin import page_admin
 from cms.apps.media.admin import FileAdmin
 from cms.apps.media.models import File, ImageRefField
 from cms.admin import get_related_objects_admin_urls
+
 
 class TestModelBase(models.Model):
     image = ImageRefField(
@@ -27,11 +28,14 @@ class TestModelBase(models.Model):
     class Meta:
         abstract = True
 
+
 class TestModelOne(TestModelBase):
     pass
 
+
 class TestModelTwo(TestModelBase):
     pass
+
 
 class TestContentBase(TestModelBase, ContentBase):
     page = models.OneToOneField(
@@ -39,20 +43,27 @@ class TestContentBase(TestModelBase, ContentBase):
         primary_key=True,
         editable=False,
         related_name='+',
+        on_delete=models.CASCADE,
     )
+
 
 class TestContentBaseInline(TestModelBase):
     page = models.ForeignKey(
         Page,
+        on_delete=models.CASCADE,
     )
+
 
 class TestModelOneInline(TestModelBase):
     parent = models.ForeignKey(
         TestModelOne,
+        on_delete=models.CASCADE,
     )
+
 
 class TestContentBaseInlineAdmin(admin.StackedInline):
     model = TestContentBaseInline
+
 
 class TestModelOneInlineAdmin(admin.StackedInline):
     model = TestModelOneInline
@@ -62,11 +73,13 @@ class TestModelOneInlineAdmin(admin.StackedInline):
 class TestModelOneAdmin(admin.ModelAdmin):
     inlines = [TestModelOneInlineAdmin]
 
+
 @admin.register(TestModelTwo)
 class TestModelTwoAdmin(admin.ModelAdmin):
     pass
 
 page_admin.register_content_inline(TestContentBaseInline, TestContentBaseInlineAdmin)
+
 
 class TestFileUsedOn(TestCase):
     maxDiff = 2000

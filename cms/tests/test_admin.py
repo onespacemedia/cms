@@ -48,9 +48,3 @@ class AdminTest(TestCase):
 
         obj = OnlineBaseAdminTestModel.objects.get(pk=obj.pk)
         self.assertFalse(obj.is_online)
-
-    def test_user_unregister(self):
-        admin.site.unregister(User)
-
-        del sys.modules['cms.admin']
-        import cms.admin
