@@ -31,5 +31,5 @@ class TestLinks(TestCase):
         request.pages.current = page
         view = index(request)
 
-        self.assertEquals(view.status_code, 302)
-        self.assertEquals(view['Location'], 'http://www.example.com/')
+        self.assertEqual(view.status_code, 302)
+        self.assertEqual(view['Location'], 'http://www.example.com/')

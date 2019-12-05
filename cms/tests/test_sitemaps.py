@@ -1,31 +1,13 @@
 from django.db import models
 from django.test import TestCase
 
-from ..models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
-from ..sitemaps import (BaseSitemap, OnlineBaseSitemap, PageBaseSitemap,
-                        PublishedBaseSitemap, SearchMetaBaseSitemap,
-                        SitemapRegistrationError, register,
-                        registered_sitemaps)
-
-
-class SitemapModel(models.Model):
-    pass
-
-
-class PageBaseModel2(PageBase):
-    pass
-
-
-class SearchMetaBaseModel(SearchMetaBase):
-    pass
-
-
-class OnlineBaseModel(OnlineBase):
-    pass
-
-
-class PublishedBaseModel(PublishedBase):
-    pass
+from cms.apps.testing_models.models import (TestOnlineBaseModel, TestPageBaseModel,
+                                     TestPublishedBaseModel, TestSearchMetaBaseModel,
+                                     TestSitemapModel)
+from cms.sitemaps import (BaseSitemap, OnlineBaseSitemap, PageBaseSitemap,
+                          PublishedBaseSitemap, SearchMetaBaseSitemap,
+                          SitemapRegistrationError, register,
+                          registered_sitemaps)
 
 
 class Object:
@@ -55,40 +37,40 @@ class TestSitemaps(TestCase):
         self.assertEqual(sitemap.priority(obj), 1)
 
     def test_register(self):
-        register(SitemapModel)
+        register(TestSitemapModel)
 
         with self.assertRaises(SitemapRegistrationError):
-            register(SitemapModel)
+            register(TestSitemapModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-sitemapmodel'].__bases__[0],
+            registered_sitemaps['testing_models-testsitemapmodel'].__bases__[0],
             BaseSitemap
         )
 
-        register(SearchMetaBaseModel)
+        register(TestSearchMetaBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-searchmetabasemodel'].__bases__[0],
+            registered_sitemaps['testing_models-testsearchmetabasemodel'].__bases__[0],
             SearchMetaBaseSitemap
         )
 
-        register(OnlineBaseModel)
+        register(TestOnlineBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-onlinebasemodel'].__bases__[0],
+            registered_sitemaps['testing_models-testonlinebasemodel'].__bases__[0],
             OnlineBaseSitemap
         )
 
-        register(PublishedBaseModel)
+        register(TestPublishedBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-publishedbasemodel'].__bases__[0],
+            registered_sitemaps['testing_models-testpublishedbasemodel'].__bases__[0],
             PublishedBaseSitemap
         )
 
-        register(PageBaseModel2)
+        register(TestPageBaseModel)
 
         self.assertEqual(
-            registered_sitemaps['tests-pagebasemodel2'].__bases__[0],
+            registered_sitemaps['testing_models-testpagebasemodel'].__bases__[0],
             PageBaseSitemap
         )

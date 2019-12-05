@@ -33,6 +33,12 @@ jobs:
           command: |
             . .venv/bin/activate
             pytest --cov=cms -n auto --create-db --nomigrations
+      - run:
+          name: pytest-1.11
+          command: |
+            . .venv/bin/activate
+            pip install 'django>=1.11,<1.12'
+            pytest --cov=cms -n auto --create-db --nomigrations
 
 workflows:
   version: 2

@@ -1,5 +1,6 @@
 import json
 
+from django import VERSION
 from django.conf import settings
 from django.test import TestCase
 from django.utils.html import conditional_escape
@@ -29,13 +30,22 @@ class TestForms(TestCase):
 
         media = widget.get_media()
 
-        self.assertDictEqual(media.__dict__, {
-            '_css': {},
-            '_js': [
-                '/static/cms/js/tinymce/tinymce.min.js',
-                '/static/cms/js/jquery.cms.wysiwyg.js'
-            ]
-        })
+        if (VERSION[0], VERSION[1]) == (1, 11):
+            self.assertDictEqual(media.__dict__, {
+                '_css': {},
+                '_js': [
+                    '/static/cms/js/tinymce/tinymce.min.js',
+                    '/static/cms/js/jquery.cms.wysiwyg.js',
+                ],
+            })
+        else:
+            self.assertDictEqual(media.__dict__, {
+                '_css_lists': [{}],
+                '_js_lists': [[
+                    '/static/cms/js/tinymce/tinymce.min.js',
+                    '/static/cms/js/jquery.cms.wysiwyg.js',
+                ]],
+            })
 
     def test_htmlwidget_render(self):
         # Sorry for the long strings in this one..

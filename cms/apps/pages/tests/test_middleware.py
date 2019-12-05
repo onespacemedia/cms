@@ -299,8 +299,8 @@ class TestPageMiddleware(TestCase):
         request = self.factory.get('/urls/')
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, HttpResponseNotFound())
-        self.assertEqual(processed_response.status_code, 500)
-
+        self.assertEqual(processed_response.status_code, 200)
+        self.assertEqual(processed_response.content, b'Hello!')
         with search.update_index():
             content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
 
