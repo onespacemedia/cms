@@ -35,7 +35,7 @@ class TestForms(TestCase):
                 '_css': {},
                 '_js': [
                     '/static/cms/js/tinymce/tinymce.min.js',
-                    '/static/cms/js/jquery.cms.wysiwyg.js'
+                    '/static/cms/js/jquery.cms.wysiwyg.js',
                 ],
             })
         else:
@@ -43,7 +43,7 @@ class TestForms(TestCase):
                 '_css_lists': [{}],
                 '_js_lists': [[
                     '/static/cms/js/tinymce/tinymce.min.js',
-                    '/static/cms/js/jquery.cms.wysiwyg.js'
+                    '/static/cms/js/jquery.cms.wysiwyg.js',
                 ]],
             })
 

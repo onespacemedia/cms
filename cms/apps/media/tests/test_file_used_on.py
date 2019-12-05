@@ -43,7 +43,7 @@ class TestContentBase(TestModelBase, ContentBase):
         primary_key=True,
         editable=False,
         related_name='+',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
 
