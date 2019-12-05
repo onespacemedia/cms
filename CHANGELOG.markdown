@@ -1,6 +1,7 @@
 # Changelog
 
-## Next release
+## 4.4.0 - 2019-12-05
+
 * Django 2.2 compatibility is now complete:
   * **Breaking change:** If you are using `LocalisationMiddleware`, change your `MIDDLEWARE_CLASSES` setting to `MIDDLEWARE`. The other CMS middleware is now compatible with both, but the check for localisation middleware now only looks at `MIDDLEWARE`, to simplify 2.2 compatibility.
   * **Breaking change:** `cms` must now be in your `INSTALLED_APPS`.
