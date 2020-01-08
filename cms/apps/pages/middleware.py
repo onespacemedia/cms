@@ -4,7 +4,7 @@ import sys
 
 from django.conf import settings
 from django import urls
-from django.core.handlers.base import BaseHandler
+from django.core.handlers.exception import handle_uncaught_exception
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import SimpleTemplateResponse
@@ -190,4 +190,4 @@ class PageMiddleware(MiddlewareMixin):
             # Let the normal 404 mechanisms render an error page.
             return response
         except:
-            return BaseHandler().handle_uncaught_exception(request, urls.get_resolver(None), sys.exc_info())
+            return handle_uncaught_exception(request, urls.get_resolver(None), sys.exc_info())
