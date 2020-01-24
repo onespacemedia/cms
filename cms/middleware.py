@@ -109,7 +109,8 @@ class LocalisationMiddleware(MiddlewareMixin):
         # This import is here to avoid an exception being thrown when
         # localisation is not required - this import will fail if GeoIP files
         # are not present.
-        from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
+        from django.contrib.gis.geoip2 import GeoIP2
+        from geoip2.errors import AddressNotFoundError
 
         # Continue for media
         if request.path.startswith('/media/') \
@@ -126,7 +127,7 @@ class LocalisationMiddleware(MiddlewareMixin):
 
             try:
                 country_geo_ip = geo_ip.country(get_client_ip(request))
-            except GeoIP2Exception:
+            except AddressNotFoundError:
                 # If no county found for that IP, just don't look for a country
                 # and go with the default
                 country_geo_ip = {}
