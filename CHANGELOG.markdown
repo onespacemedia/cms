@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.4.1 - Next release
+## 4.4.2 - 2020-01-24
 * Fix issue with LocalisationMiddleware where it would throw an exception if the IP didn't belong to a country.
 
 ## 4.4.1 - 2020-01-08
