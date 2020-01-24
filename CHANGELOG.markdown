@@ -1,6 +1,9 @@
 # Changelog
 
-## 4.4.0 - 2020-01-08
+## 4.4.2 - 2020-01-24
+* Fix issue with LocalisationMiddleware where it would throw an exception if the IP didn't belong to a country.
+
+## 4.4.1 - 2020-01-08
 * Fix missed change to `handle_uncaught_exception` in Django 2.2 compatability update.
 
 ## 4.4.0 - 2019-12-05
