@@ -271,6 +271,11 @@ class Page(PageBase):
                 if self.left is None or self.right is None:
                     # This page is being inserted.
                     if existing_pages:
+                        if not self.parent_id:
+                            # There is no parent - we're updating the homepage.
+                            # Set the parent to be the homepage by default
+                            self.parent_id = Page.objects.get_homepage().pk
+
                         parent_right = existing_pages[self.parent_id]['right']
                         # Set the model left and right.
                         self.left = parent_right

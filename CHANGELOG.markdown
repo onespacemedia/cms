@@ -1,7 +1,10 @@
 # Changelog
 
+## Next release
+* Add fix for duplicating the homepage.
+
 ## 4.4.3 - 2020-03-03
-* Remove the site name from the page title by default
+* Remove the site name from the page title by default.
 
 ## 4.4.2 - 2020-01-24
 * Fix issue with LocalisationMiddleware where it would throw an exception if the IP didn't belong to a country.
