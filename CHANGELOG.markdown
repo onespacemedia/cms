@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 4.4.4 - 2020-03-03
 * Add fix for duplicating the homepage.
 
 ## 4.4.3 - 2020-03-03
