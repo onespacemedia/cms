@@ -1,5 +1,8 @@
 # Changelog
 
+# Next release
+* Increase the max slug length of pages
+
 ## 4.4.4 - 2020-03-03
 * Add fix for duplicating the homepage.
 
