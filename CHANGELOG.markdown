@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.5 - 2020-04-07
+* Allow a setting to determine if the media library overfiles files on the disk or preserves them.
+* Increase the max slug length of pages
+
 ## 4.4.4 - 2020-03-03
 * Add fix for duplicating the homepage.
 
