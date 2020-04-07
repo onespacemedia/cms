@@ -1,5 +1,8 @@
 # Changelog
 
+# Next release
+* Allow a setting to determine if the media library overfiles files on the disk or preserves them.
+
 ## 4.4.4 - 2020-03-03
 * Add fix for duplicating the homepage.
 

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -18,6 +19,14 @@ from tinypng.api import shrink_file
 
 from .filetypes import get_icon, is_image
 from .widgets import ImageThumbnailWidget
+
+
+class MediaStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        if getattr(settings, 'MEDIA_OVERWRITE_WITH_NEW', False):
+            self.delete(name)
+            return name
+        return super().get_available_name(name, max_length)
 
 
 class Label(models.Model):
@@ -52,6 +61,7 @@ class File(models.Model):
     file = models.FileField(
         upload_to='uploads/files',
         max_length=250,
+        storage=MediaStorage(),
     )
 
     width = models.PositiveSmallIntegerField(
