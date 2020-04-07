@@ -296,6 +296,7 @@ class PageBase(SearchMetaBase):
     # Base fields.
 
     slug = models.SlugField(
+        max_length=100,
         help_text='A unique portion of the URL that is used to identify this '
                   'specific page using human-readable keywords (e.g., about-us)'
     )
