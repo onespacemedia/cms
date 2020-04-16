@@ -6,9 +6,11 @@ import requests
 from django.apps import apps
 from django.conf.urls import url
 from django.contrib import admin, messages
-from django.contrib.admin.views.main import IS_POPUP_VAR
+from django.contrib.admin.utils import get_deleted_objects, unquote
+from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
+from django.db import transaction
 from django.db.models.deletion import get_candidate_relations_to_delete
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
@@ -52,8 +54,9 @@ class VideoAdmin(admin.ModelAdmin):
 @admin.register(File)
 class FileAdmin(VersionAdmin, SearchAdmin):
     '''Admin settings for File models.'''
-
+    delete_confirmation_template = 'admin/media/file/delete_file.html'
     change_list_template = 'admin/media/file/change_list.html'
+
     fieldsets = [
         (None, {
             'fields': ['title', 'file'],
@@ -246,3 +249,16 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             obj.__str__()
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')
+
+    @transaction.atomic
+    def delete_view(self, request, object_id, extra_context=None):
+        if getattr(settings, 'MEDIA_DELETE_DISK_FILE', False):
+            to_field = request.POST.get(TO_FIELD_VAR, request.GET.get(TO_FIELD_VAR))
+            obj = self.get_object(request, unquote(object_id), to_field)
+            _, _, perms_needed, _ = get_deleted_objects([obj], request, self.admin_site)
+
+            if request.POST.get('delete_file', False) and not perms_needed:
+                # We don't want to save the model since it's going to be deleted anyway
+                obj.file.delete(save=False)
+
+        return super().delete_view(request, object_id, extra_context=None)

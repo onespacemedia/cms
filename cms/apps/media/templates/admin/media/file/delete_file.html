@@ -1,0 +1,24 @@
+{% extends "admin/delete_confirmation.html" %}
+
+{% block delete_form %}
+  <form action="" method="post">{% csrf_token %}
+    <div class="alert alert-block alert-error">
+      <h4 class="alert-heading">{% trans 'Delete' %} {% trans opts.verbose_name %}?</h4>
+      <p>
+        {% blocktrans with escaped_object=object %}Are you sure you want to delete the {{ object_name }} "{{ escaped_object }}"? All of the following related items will be deleted:{% endblocktrans %}</p>
+      <ul>{{ deleted_objects|unordered_list }}</ul>
+      <br>
+
+      <div>
+        {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+        {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+        <input type="hidden" name="post" value="yes"/>
+        <label class="frm-Form_InlineLabel" style="display:flex; align-items: center; margin-bottom: 8px;">
+          <input type="checkbox" id="id_delete_file" name="delete_file" class="frm-Form_Checkbox" checked style="margin: 0; margin-right: 8px;">
+          Delete the file on the server as well. (This means this action cannot be undone)
+        </label>
+        <input type="submit" value="{% trans "Yes, I'm sure" %}" class="btn btn-danger"/>
+      </div>
+    </div>
+  </form>
+{% endblock %}
