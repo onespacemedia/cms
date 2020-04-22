@@ -43,7 +43,9 @@ class MultilingualObject(models.Model):
         if not hasattr(request, 'user') or not request.user.is_superuser or request.GET.get('preview', None) is None:
             translation_filter['published'] = True
 
-        translation_queryset = self.translation_objects().filter(**translation_filter).order_by('-version')
+        # We want to start with version 1 and go up as otherwise since the dict below takes the
+        # last instance as the version handed out as the content for a given language
+        translation_queryset = self.translation_objects().filter(**translation_filter).order_by('version')
 
         content_objects = {
             content_obj.language: content_obj
