@@ -4,11 +4,21 @@ from __future__ import unicode_literals
 from PIL import Image
 
 from django.db import models
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
+from django.core.files.storage import FileSystemStorage
 from django.utils.encoding import python_2_unicode_compatible
 
 import os
+
+
+class MediaStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        if getattr(settings, 'MEDIA_OVERWRITE_WITH_NEW', False):
+            self.delete(name)
+            return name
+        return super().get_available_name(name, max_length)
 
 
 @python_2_unicode_compatible
@@ -35,8 +45,10 @@ class File(models.Model):
 
     """A static file."""
 
-    title = models.CharField(max_length=200,
-                             help_text="The title will be used as the default rollover text when this media is embedded in a web page.")
+    title = models.CharField(
+        max_length=200,
+        help_text="The title will be used as the default rollover text when this media is embedded in a web page."
+    )
 
     labels = models.ManyToManyField(
         Label,
@@ -47,6 +59,7 @@ class File(models.Model):
     file = models.FileField(
         upload_to="uploads/files",
         max_length=250,
+        storage=MediaStorage(),
     )
 
     attribution = models.CharField(
