@@ -6,8 +6,10 @@ from random import randint
 from cms.apps.pages.models import DEFAULT_LANGUAGES
 from django.contrib import admin
 from django.contrib import messages
+from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User
 from django.contrib.admin.sites import NotRegistered
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -30,6 +32,21 @@ SEO_FIELDS = ("browser_title", "meta_description", "sitemap_priority", "sitemap_
               "robots_follow", "robots_archive",)
 OG_FIELDS = ("og_title", "og_description", "og_image")
 TWITTER_FIELDS = ("twitter_card", "twitter_title", "twitter_description", "twitter_image")
+
+def get_last_modified(obj):
+    if not obj:
+        return '-'
+
+    versions = LogEntry.objects.filter(
+        content_type_id=ContentType.objects.get_for_model(obj).pk,
+        object_id=obj.pk,
+    )
+
+    if versions.count() > 0:
+        latest_version = versions.first()
+        date = latest_version.action_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        return date
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):
@@ -56,7 +73,7 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
 class SearchMetaBaseAdmin(OnlineBaseAdmin):
     adapter_cls = SearchMetaBaseSearchAdapter
-    list_display = ("__str__", "is_online",)
+    list_display = ("__str__", "is_online", "get_date_modified")
 
     fieldsets = [
         ("Publication", {
@@ -77,10 +94,16 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
         })
     ]
 
+    def get_date_modified(self, obj):
+        if externals.reversion:
+            return super(SearchMetaBaseAdmin, self).get_date_modified(obj)
+        return get_last_modified(obj)
+        get_date_modified.short_description = 'Last modified'
+
 
 if externals.reversion:
     class SearchMetaBaseAdmin(SearchMetaBaseAdmin, externals.reversion["admin.VersionMetaAdmin"]):
-        list_display = SearchMetaBaseAdmin.list_display + ("get_date_modified",)
+        pass
 
 if externals.watson:
     class SearchMetaBaseAdmin(SearchMetaBaseAdmin, externals.watson["admin.SearchAdmin"]):

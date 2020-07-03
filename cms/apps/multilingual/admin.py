@@ -2,6 +2,7 @@ from copy import deepcopy
 from functools import update_wrapper
 from random import randint
 
+from cms.admin import get_last_modified
 from cms.apps.multilingual.models import MultilingualObject
 from cms.apps.multilingual.widgets import SmallTexarea
 from cms.apps.pages.models import Page, ContentBase
@@ -24,7 +25,7 @@ class MultilingualObjectAdminForm(forms.ModelForm):
 
 
 class MultilingualObjectAdmin(admin.ModelAdmin):
-    list_display = ['admin_name']
+    list_display = ['admin_name', 'get_date_modified']
     form = MultilingualObjectAdminForm
     change_list_template = "admin/multilingual/multilingualobject/change_list.html"
     change_form_template = "admin/multilingual/multilingualobject/change_form.html"
@@ -88,10 +89,15 @@ class MultilingualObjectAdmin(admin.ModelAdmin):
 
         return field
 
+    def get_date_modified(self, obj):
+        obj_content = obj.content()
+        return get_last_modified(obj_content)
+    get_date_modified.short_description = 'Last modified'
+
 
 class MultilingualTranslationAdmin(admin.ModelAdmin):
 
-    list_display = ['__str__', 'language', 'version', 'published']
+    list_display = ['__str__', 'language', 'version', 'published', 'get_date_modified']
 
     change_form_template = "admin/multilingual/multilingualtranslation/change_form.html"
 
@@ -214,3 +220,7 @@ class MultilingualTranslationAdmin(admin.ModelAdmin):
 
         # Render template
         return TemplateResponse(request, 'admin/multilingual/multilingualobject/language_duplicate.html', context)
+
+    def get_date_modified(self, obj):
+        return get_last_modified(obj)
+    get_date_modified.short_description = 'Last modified'

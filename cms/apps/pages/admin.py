@@ -23,6 +23,7 @@ from mptt.admin import MPTTModelAdmin
 from suit.admin import SortableModelAdmin
 
 from cms import externals
+from cms.admin import get_last_modified
 from cms.apps.pages.models import (Page, PageSearchAdapter,
                                    get_registered_content, DEFAULT_LANGUAGES)
 
@@ -62,7 +63,7 @@ class SortableMPTTModelAdmin(MPTTModelAdmin, SortableModelAdmin):
 
 class PageAdmin(SortableMPTTModelAdmin):
 
-    list_display = ['__str__', 'languages']
+    list_display = ['__str__', 'languages', 'last_modified']
     list_display_links = ['__str__']
 
     mptt_indent_field = '__str__'
@@ -362,6 +363,8 @@ class PageAdmin(SortableMPTTModelAdmin):
         # Render template
         return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
 
+    def last_modified(self, obj):
+        return get_last_modified(obj.content)
 
 
 admin.site.register(Page, PageAdmin)
