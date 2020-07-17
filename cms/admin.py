@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
@@ -47,6 +48,30 @@ def get_last_modified(obj):
         date = latest_version.action_time.strftime("%Y-%m-%d %H:%M:%S")
 
         return date
+
+def add_latest_version_to_queryset(qs):
+    model_cls = qs.model
+    content_type_id = ContentType.objects.get_for_model(model_cls).pk
+
+    qs = qs.annotate(
+        date_modified=RawSQL(
+            '''
+            SELECT django_admin_log.action_time
+            FROM django_admin_log
+            WHERE django_admin_log.content_type_id=%s
+            AND {}_{}.id::varchar(255)=django_admin_log.object_id
+            AND django_admin_log.action_time IS NOT NULL
+            ORDER BY django_admin_log.action_time DESC
+            LIMIT 1
+            '''.format(
+                model_cls._meta.app_label,
+                model_cls._meta.model_name,
+            ),
+            [content_type_id],
+        )
+    )
+
+    return qs
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):
@@ -94,11 +119,15 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin):
         })
     ]
 
+    def get_queryset(self, request):
+        qs = super(OnlineBaseAdmin, self).get_queryset(request)
+        qs = add_latest_version_to_queryset(qs)
+        return qs
+
     def get_date_modified(self, obj):
-        if externals.reversion:
-            return super(SearchMetaBaseAdmin, self).get_date_modified(obj)
-        return get_last_modified(obj)
-        get_date_modified.short_description = 'Last modified'
+        return obj.date_modified
+    get_date_modified.short_description = 'Last modified'
+    get_date_modified.admin_order_field = 'date_modified'
 
 
 if externals.reversion:

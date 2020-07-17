@@ -2,7 +2,7 @@ from copy import deepcopy
 from functools import update_wrapper
 from random import randint
 
-from cms.admin import get_last_modified
+from cms.admin import add_latest_version_to_queryset
 from cms.apps.multilingual.models import MultilingualObject
 from cms.apps.multilingual.widgets import SmallTexarea
 from cms.apps.pages.models import Page, ContentBase
@@ -221,6 +221,12 @@ class MultilingualTranslationAdmin(admin.ModelAdmin):
         # Render template
         return TemplateResponse(request, 'admin/multilingual/multilingualobject/language_duplicate.html', context)
 
+    def get_queryset(self, request):
+        qs = super(MultilingualTranslationAdmin, self).get_queryset(request)
+        qs = add_latest_version_to_queryset(qs)
+        return qs
+
     def get_date_modified(self, obj):
-        return get_last_modified(obj)
+        return obj.date_modified
     get_date_modified.short_description = 'Last modified'
+    get_date_modified.admin_order_field = 'date_modified'
