@@ -389,7 +389,7 @@ class Video(models.Model):
                 return render_to_string('videos/vimeo.html', {
                     'src': self.external_video_iframe_url,
                     'autoplay': int(autoplay),
-                    'controls': int(controls),
+                    'controls': int(not controls),
                     'loop': int(loop),
                     'muted': int(mute),
                 })
