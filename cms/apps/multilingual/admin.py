@@ -2,7 +2,7 @@ from copy import deepcopy
 from functools import update_wrapper
 from random import randint
 
-from cms.admin import add_latest_version_to_queryset
+from cms.admin import add_latest_version_to_queryset, get_last_modified
 from cms.apps.multilingual.models import MultilingualObject
 from cms.apps.multilingual.widgets import SmallTexarea
 from cms.apps.pages.models import Page, ContentBase
