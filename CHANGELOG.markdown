@@ -1,7 +1,8 @@
 # Changelog
 
-## Next release
+## 4.4.6 - 2020-08-20
 * Fix bug with media.File.embed_html where controls on vimeo embeds are inverse to provided values.
+* Fix bug where oembed information would fail to be collected on Vimeo videos due to being blocked by a Captcha
 
 ## 4.4.5 - 2020-04-07
 * Allow a setting to determine if the media library overfiles files on the disk or preserves them.
