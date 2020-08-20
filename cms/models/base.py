@@ -175,7 +175,7 @@ class SearchMetaBase(OnlineBase):
         verbose_name='title',
         blank=True,
         max_length=100,
-        help_text='Title that will appear on Facebook posts. This is limited to 100 characters, '
+        help_text='Title that will appear on social media posts. This is limited to 100 characters, '
                   'but Facebook will truncate the title to 88 characters.'
     )
 
@@ -183,7 +183,7 @@ class SearchMetaBase(OnlineBase):
         verbose_name='description',
         blank=True,
         max_length=300,
-        help_text='Description that will appear on Facebook posts. It is limited to 300 '
+        help_text='Description that will appear on social media posts. It is limited to 300 '
                   'characters, but it is recommended that you do not use anything over 200.'
     )
 
