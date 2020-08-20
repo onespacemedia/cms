@@ -200,14 +200,20 @@ def get_oembed_info_url(url):
     to requests to `/oembed`.
     '''
     youtube_domains = ['youtu.be', 'www.youtube.com', 'youtube.com', 'm.youtube.com']
+    vimeo_domains = ['vimeo.com', 'www.vimeo.com']
 
     if urllib.parse.urlparse(url).netloc in youtube_domains:
         return 'https://www.youtube.com/oembed?format=json&{}'.format(
             urllib.parse.urlencode({'url': url})
         )
 
-    # The "not YouTube" case - this should reliably handle everything
-    # including Vimeo.
+    elif urllib.parse.urlparse(url).netloc in vimeo_domains:
+        return 'https://vimeo.com/api/oembed.json?{}'.format(
+            urllib.parse.urlencode({'url': url})
+        )
+
+    # The "not YouTube or Vimeo" case - may get Captcha'd
+    # TODO: Send a message to rollbar if this fails
     try:
         req = requests.get(url)
         text = req.text
