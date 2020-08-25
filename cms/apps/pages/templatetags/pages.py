@@ -302,6 +302,19 @@ def get_og_image(context, image=None):
 def get_twitter_card(context, card=None):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
 
+    # To avoid writing custom migrations for every project, use these values rather
+    # than updating twitter_card field choices, I know this is a little hacky but it
+    # saves a world of migration pain. Could be fixed in next major release.
+    card_types_map = {
+        0: 'summary',
+        1: 'photo',
+        2: 'video',
+        3: 'product',
+        4: 'app',
+        5: 'gallery',
+        6: 'summary_large_image',
+    }
+
     # Load from context if exists
     if not card:
         card = context.get('twitter_card')
@@ -321,9 +334,9 @@ def get_twitter_card(context, card=None):
             card = homepage.twitter_card
 
     if card or card == 0:
-        card = str(choices[card]).lower()
+        card = card_types_map[card]
 
-    return escape(card or str(choices[0]).lower())
+    return escape(card or card_types_map[0])
 
 
 @library.global_function
