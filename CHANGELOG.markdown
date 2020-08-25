@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.7 - 2020-08-25
+* Fix issue with page base Twitter cards for summary_large_image
+
 ## 4.4.6 - 2020-08-20
 * Fix bug with media.File.embed_html where controls on vimeo embeds are inverse to provided values.
 * Fix bug where oembed information would fail to be collected on Vimeo videos due to being blocked by a Captcha

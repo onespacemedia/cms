@@ -198,6 +198,8 @@ class SearchMetaBase(OnlineBase):
     )
 
     # Twitter card fields
+    # If you make a change here, you'll also need to update the lookup dict in
+    # pages/templatetages/pages.py where used.
     twitter_card = models.IntegerField(
         verbose_name='card',
         choices=[
