@@ -7,7 +7,7 @@ standard implementation.
 '''
 import json
 from copy import deepcopy
-from functools import cmp_to_key
+from functools import cmp_to_key, partial
 
 from django import forms
 from django.conf import settings
@@ -21,6 +21,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
+from django.forms import modelform_factory
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, redirect, render
@@ -244,6 +245,7 @@ class PageAdmin(PageBaseAdmin):
     def get_form(self, request, obj=None, **kwargs):
         '''Adds the template area fields to the form.'''
         content_cls = self.get_page_content_cls(request, obj)
+        content_fields = []
         form_attrs = {}
         for field in content_cls._meta.fields + content_cls._meta.many_to_many:
             if field.name == 'page':
@@ -267,6 +269,7 @@ class PageAdmin(PageBaseAdmin):
                 )
             # Store the field.
             form_attrs[field.name] = form_field
+            content_fields.append(field.name)
         ContentForm = type('{}Form'.format(self.__class__.__name__), (forms.ModelForm,), form_attrs)
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
@@ -278,7 +281,22 @@ class PageAdmin(PageBaseAdmin):
             self.prepopulated_fields = {'slug': ('title',), }
             self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
 
-        PageForm = super().get_form(request, obj, **defaults)
+        content_defaults = {
+            'form': ContentForm,
+            'fields': content_fields,
+            "formfield_callback": partial(self.formfield_for_dbfield, request=request)
+        }
+
+        class PageForm(super().get_form(request, obj, **defaults)):
+            content_form_cls = modelform_factory(content_cls, **content_defaults)
+
+            def full_clean(self):
+                super().full_clean()
+                content_instance = None
+                if self.instance.content_type_id:
+                    content_instance = self.instance.content
+                content_form = self.content_form_cls(self.data or None, instance=content_instance)
+                self._errors.update(content_form.errors)
 
         # HACK: Need to limit parents field based on object. This should be
         # done in formfield_for_foreignkey, but that method does not know

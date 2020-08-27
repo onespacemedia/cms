@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.8 - 2020-08-27
+* Update PageAdmin to fully validate the fields on related Content objects
+
 ## 4.4.7 - 2020-08-25
 * Fix issue with page base Twitter cards for summary_large_image
 
