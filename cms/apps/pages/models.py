@@ -17,6 +17,7 @@ from django.db.models import Q
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.text import mark_safe
+from django.utils.timezone import now
 from mptt.models import MPTTModel, TreeForeignKey, TreeManager
 from threadlocals.threadlocals import get_current_request
 
@@ -78,6 +79,11 @@ class Page(MPTTModel):
 
     # Sortable property
     order = models.PositiveIntegerField()
+
+    last_modified = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
 
     @cached_property
     def content(self):
@@ -218,20 +224,6 @@ class Page(MPTTModel):
             prefix=""
         )
 
-    # Standard model methods.
-
-    def last_modified(self):
-        if externals.reversion:
-            import reversion
-            versions = reversion.get_for_object(self)
-            if versions.count() > 0:
-                latest_version = versions[:1][0]
-                return "{} by {}".format(
-                    latest_version.revision.date_created.strftime("%Y-%m-%d %H:%M:%S"),
-                    latest_version.revision.user
-                )
-        return "-"
-
     def __str__(self):
         content = self.content
 
@@ -242,8 +234,16 @@ class Page(MPTTModel):
 
     # It is required to rebuild tree after save, when using order for mptt-tree
     def save(self, *args, **kwargs):
+        skip_time_update = kwargs.pop('skip_time_update', False)
+        skip_page_rebuild = kwargs.pop('skip_page_rebuild', False)
+
+        if not skip_time_update:
+            self.last_modified = now()
+
         super(Page, self).save(*args, **kwargs)
-        Page.objects.rebuild()
+
+        if not skip_page_rebuild:
+            Page.objects.rebuild()
 
     class MPTTMeta:
         order_insertion_by = ['order']
@@ -435,6 +435,11 @@ class ContentBase(PageBase):
                 page.slug for page in pages[1:]
             ])
         )
+
+    def save(self, *args, **kwargs):
+        super(ContentBase, self).save(*args, **kwargs)
+        if self.page:
+            self.page.save(skip_page_rebuild=True)
 
     def __str__(self):
         """Returns a unicode representation."""
