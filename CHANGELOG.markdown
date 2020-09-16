@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.9 - 2020-09-16
+* Increase max length of page slugs to 150
+
 ## 4.4.8 - 2020-08-27
 * Update PageAdmin to fully validate the fields on related Content objects
 
