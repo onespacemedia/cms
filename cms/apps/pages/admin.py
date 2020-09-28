@@ -18,6 +18,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from mptt.admin import MPTTModelAdmin
 from suit.admin import SortableModelAdmin
@@ -63,13 +64,10 @@ class SortableMPTTModelAdmin(MPTTModelAdmin, SortableModelAdmin):
 # class PageAdmin(SortableMPTTModelAdmin):
 class PageAdmin(admin.ModelAdmin):
 
-    list_display = ['__str__', 'languages', 'get_date_modified']
-    list_display_links = ['__str__']
+    list_display = ['indented_title', 'languages', 'get_date_modified']
+    list_display_links = ['indented_title']
     list_per_page = 50
     search_fields = ['content__title']
-
-    mptt_indent_field = '__str__'
-    mptt_level_indent = 20
 
     sortable = 'order'
 
@@ -117,6 +115,24 @@ class PageAdmin(admin.ModelAdmin):
 
         if externals.reversion:
             self.list_display.insert(1, "last_modified")
+
+    def get_queryset(self, request):
+        qs = super(PageAdmin, self).get_queryset(request)
+        self.request = request
+        return qs
+
+    def indented_title(self, item):
+        """
+        Generate a short title for an object, indent it depending on
+        the object's depth in the hierarchy.
+        """
+        is_ordered = self.request.GET.get('o')
+        mptt_level_indent = 0 if is_ordered else 20
+        return mark_safe('<div style="text-indent:{}px">{}</div>'.format(
+            item._mpttfield('level') * mptt_level_indent,
+            item,
+        ))
+    indented_title.short_description = 'title'
 
     # Reversion
 
