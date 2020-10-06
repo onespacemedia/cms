@@ -1,5 +1,8 @@
 # Changelog
 
+## Next release
+* Add versioning to pages
+
 ## 4.4.9 - 2020-09-16
 * Increase max length of page slugs to 150
 
