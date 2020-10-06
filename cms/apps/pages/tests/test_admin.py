@@ -479,22 +479,17 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response.context_data['title'], 'Change page')
         self.assertFalse(response.context_data['display_language_options'])
 
-        self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
-
         request = self._build_request()
         response = self.page_admin.change_view(request, str(self.homepage_alt.pk))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context_data['title'], 'Change page')
-
-        self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
-
-        response = self.page_admin.change_view(request, str(self.homepage.pk))
 
         with self.settings(MIDDLEWARE=['cms.middleware.LocalisationMiddleware']):
             request = self._build_request()
             response = self.page_admin.change_view(request, str(self.homepage.pk))
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.context_data['display_language_options'])
+            self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
 
     def test_pageadmin_revision_view(self):
         request = self._build_request()
