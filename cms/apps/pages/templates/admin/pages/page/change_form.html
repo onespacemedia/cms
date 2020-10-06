@@ -1,1 +1,91 @@
 {% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify admin_urls %}
+
+{% block extrahead %}
+  {{ block.super }}
+
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function (){
+      window.jQuery('.js-LanguageSwitcher').change(function () {
+        window.location.href = document.querySelector('.js-LanguageSwitcher').value;
+      });
+    })
+  </script>
+
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+
+  <style>
+    .add-new-variant {
+      display: flex;
+      margin-bottom: 24px;
+    }
+
+    .add-new-button {
+      margin-left: 10px;
+    }
+
+    .warningblock {
+      margin-bottom: 10px;
+      border-radius: 4px;
+      padding: 10px;
+      background: #f5e79e;
+      color: #000;
+    }
+  </style>
+{% endblock %}
+
+{% block extra_tools %}
+  {% if language_pages and display_language_options %}
+    <h3>Page language</h3>
+
+    <div class="add-new-variant">
+      <select class="js-LanguageSwitcher">
+        {% for page in language_pages %}
+          <option {% if original == page %}selected{% endif %} value="/admin/pages/page/{{ page.pk }}/change/#/tab/module_0/">
+            {% if page.is_content_object == False %}
+              Default
+            {% else %}
+              {{ page.country_group }}
+            {% endif %}
+          </option>
+        {% endfor %}
+      </select>
+
+      <a class="button add-new-button" href="/admin/pages/page/{% if original.is_content_object %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add translation</a>
+    </div>
+  {% endif %}
+
+  {% if page_versions and display_version_options %}
+    <h3>Page version</h3>
+
+    <div class="add-new-variant">
+      <select class="js-LanguageSwitcher">
+        {% for page in page_versions %}
+          {% if original.is_content_object %}
+            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.owner.pk version=page.version %}">
+              {{ page.version }}
+            </option>
+          {% else %}
+            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.pk version=page.version %}">
+              {{ page.version }}
+            </option>
+          {% endif %}
+        {% endfor %}
+      </select>
+
+      <a class="button add-new-button" href="/admin/pages/page/{{ original.pk }}/new-version">Add new version</a>
+    </div>
+  {% endif %}
+
+  {% if live_version and not live_version == original %}
+    <p class="warningblock">
+      You are editing a draft version of this page. Any changes made will not be reflected to normal site users until this page is published.
+    </p>
+  {% endif %}
+{% endblock %}

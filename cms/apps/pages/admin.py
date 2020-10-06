@@ -32,16 +32,102 @@ from django.utils import six
 from watson.search import update_index
 
 from cms.admin import PageBaseAdmin
+from cms.models import publication_manager
 from cms.apps.pages.models import (Country, CountryGroup, Page,
                                    PageSearchAdapter, get_registered_content)
+from cms.apps.pages.forms import PageVersionListForm
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = 'from'
 PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 
-
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
+
+def get_language_pages_for_page(page):
+    if page.is_content_object:
+        parent_page_qs = Page.objects.filter(pk=page.owner.pk)
+
+        return page.owner.owner_set.exclude(
+            country_group=page.owner.country_group,
+        ).union(parent_page_qs).order_by('-country_group')
+
+    current_page_qs = Page.objects.filter(pk=page.pk)
+    return page.owner_set.exclude(
+        country_group=page.country_group,
+    ).union(current_page_qs).order_by('-country_group')
+
+def get_versions_for_page(page):
+    if page.owner_set.all():
+        current_page_qs = Page.objects.filter(pk=page.pk)
+
+        return page.owner_set.filter(
+            is_content_object=True,
+            country_group=page.country_group,
+        ).union(current_page_qs).order_by('-version')
+
+    if page.owner:
+        parent_page_qs = Page.objects.filter(pk=page.owner.pk)
+
+        return page.owner.owner_set.filter(
+            is_content_object=True,
+            country_group=page.country_group,
+        ).union(parent_page_qs).order_by('-version')
+
+    # The pages does not own any other pages nor is it owned. Thus
+    # it's a normal page with no versions or translations
+    return Page.objects.filter(pk=page.pk)
+
+def get_live_version(version_list):
+    publication_manager.begin(True)
+
+    live_version = None
+    pages_qs = Page.objects.all()
+    for page in version_list:
+        if page in pages_qs:
+            live_version = page
+            break
+
+    publication_manager.end()
+
+    return live_version
+
+def duplicate_page(original_page, page_changes=None):
+    '''
+        A function that takes a page and duplicated it as a child of
+        the original page. Expects to be passed the original page and
+        an optional function
+    '''
+    original_content = original_page.content
+
+
+    with update_index():
+        page = deepcopy(original_page)
+        page.pk = None
+        page.is_content_object = True
+        page.is_online = False
+        page.owner = original_page
+
+        if page_changes:
+            page = page_changes(page)
+
+        page.save()
+
+        content = deepcopy(original_content)
+        content.pk = None
+        content.page = page
+        content.save()
+
+        for link in dir(original_page):
+            if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == 'RelatedManager' and link not in ['child_set', 'owner_set', 'link_to_page']:
+                objects = getattr(original_page, link).all()
+                for page_object in objects:
+                    new_object = deepcopy(page_object)
+                    new_object.pk = None
+                    new_object.page = page
+                    new_object.save()
+
+    return page
 
 
 class PageContentTypeFilter(admin.SimpleListFilter):
@@ -274,7 +360,7 @@ class PageAdmin(PageBaseAdmin):
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
 
-        if obj and obj.is_content_object:
+        if obj and (obj.is_content_object or obj.owner_set.all()):
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
@@ -319,7 +405,7 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not obj.is_content_object:
+        if obj and not (obj.is_content_object or obj.owner_set.all()):
             PageForm.base_fields['parent'].choices = parent_choices
         elif not obj:
             PageForm.base_fields['parent'].choices = parent_choices
@@ -428,23 +514,17 @@ class PageAdmin(PageBaseAdmin):
         page = get_object_or_404(self.model, id=object_id)
         request._admin_change_obj = page
 
-        extra_context = {}
-
-        if not page.is_content_object:
-            # Get all of the language pages
-            extra_context['language_pages'] = Page.objects.filter(
-                Q(pk=page.pk) |
-                Q(owner=page, is_content_object=True)
-            ).order_by('-country_group')
-        else:
-            extra_context['language_pages'] = Page.objects.filter(
-                Q(pk=page.owner.pk) |
-                Q(owner=page.owner, is_content_object=True)
-            ).order_by('-country_group')
-
+        extra_context = extra_context or {}
         extra_context['display_language_options'] = False
+        extra_context['display_version_options'] = False
+
         if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
             extra_context['display_language_options'] = True
+            extra_context['language_pages'] = get_language_pages_for_page(page)
+
+        if getattr(settings, 'PAGES_VERSIONING', False):
+            extra_context['display_version_options'] = True
+            extra_context['page_versions'] = get_versions_for_page(page)
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -536,8 +616,73 @@ class PageAdmin(PageBaseAdmin):
         return [
             url(r'^sitemap.json$', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
             url(r'^move-page/$', admin_view(self.move_page_view), name='pages_page_move_page'),
+            url(r'^(?P<page>\d+)/change/$', admin_view(self.page_index), name='pages_page_change'),
+            url(r'^(?P<page>\d+)/change/(?P<version>\d+)/$', admin_view(self.version_edit), name='pages_page_change_version'),
+            url(r'^(?P<page>\d+)/publish/(?P<version>\d+)/$', admin_view(self.publish_version), name='pages_page_publish_version'),
             url(r'^(?P<page>\d+)/duplicate/$', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate_page'),
+            url(r'^(?P<page>\d+)/new-version/$', admin_view(self.duplicate_for_version), name='pages_page_new_version'),
         ] + super().get_urls()
+
+    def page_index(self, request, **kwargs):
+        if not getattr(settings, 'PAGES_VERSIONING', False):
+            return self.change_view(request, page, **kwargs)
+
+        page = kwargs.pop('page')
+        page_obj = get_object_or_404(self.model, id=page)
+
+        if page_obj.is_content_object:
+            return redirect('admin:pages_page_change', page=page_obj.owner_id)
+
+        page_versions = get_versions_for_page(page_obj)
+
+        if page_versions.first() == page_obj:
+            return self.change_view(request, page, **kwargs)
+
+        form = PageVersionListForm(request.POST or None, instance=page_obj)
+
+        if request.method == 'POST':
+            if form.is_valid():
+
+                form.save()
+
+        context = kwargs.get('extra_context', {})
+        context.update({
+            'page_versions': page_versions,
+            'original': page_obj,
+            'form': form,
+            'live_version': get_live_version(page_versions),
+            'opts': Page,
+        })
+
+        return TemplateResponse(request, 'admin/pages/page/versions_list.html', context)
+
+    def version_edit(self, request, **kwargs):
+        page = kwargs.pop('page')
+        version = int(kwargs.pop('version'))
+        page_obj = get_object_or_404(self.model, id=page)
+        page_versions = get_versions_for_page(page_obj)
+
+        for page in page_versions:
+            if page.version == version:
+                kwargs['extra_context'] = kwargs.get('extra_context', {})
+                kwargs['extra_context'].update({
+                    'live_version': get_live_version(page_versions),
+                })
+
+                return self.change_view(request, str(page.pk), **kwargs)
+
+        return redirect('admin:pages_page_change', page=page)
+
+    def publish_version(self, request, **kwargs):
+        page = kwargs.pop('page')
+        version = int(kwargs.pop('version'))
+        page_obj = get_object_or_404(self.model, id=page)
+        page_versions = get_versions_for_page(page_obj)
+
+        page_obj.owner_set.exclude(version=version).update(is_online=False)
+        page_obj.owner_set.filter(version=version).update(is_online=True)
+
+        return redirect('admin:pages_page_change', page=page)
 
     def sitemap_json_view(self, request):
         '''Returns a JSON data structure describing the sitemap.'''
@@ -669,33 +814,15 @@ class PageAdmin(PageBaseAdmin):
 
     @staticmethod
     def duplicate_for_country_group(request, *args, **kwargs):
+        def page_changes(page):
+            page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
+            return page
+
         # Get the current page
         original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
-        original_content = original_page.content
 
         if request.method == 'POST':
-
-            with update_index():
-                page = deepcopy(original_page)
-                page.pk = None
-                page.is_content_object = True
-                page.owner = original_page
-                page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
-                page.save()
-
-                content = deepcopy(original_content)
-                content.pk = None
-                content.page = page
-                content.save()
-
-                for link in dir(original_page):
-                    if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == 'RelatedManager' and link not in ['child_set', 'owner_set', 'link_to_page']:
-                        objects = getattr(original_page, link).all()
-                        for page_object in objects:
-                            new_object = deepcopy(page_object)
-                            new_object.pk = None
-                            new_object.page = page
-                            new_object.save()
+            page = duplicate_page(original_page, page_changes)
 
             return redirect('/admin/pages/page/{}'.format(page.pk))
 
@@ -711,6 +838,34 @@ class PageAdmin(PageBaseAdmin):
         )
 
         return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
+
+    @staticmethod
+    def duplicate_for_version(request, *args, **kwargs):
+        def page_changes(page):
+            if page.owner.is_content_object and page.owner.owner.country_group == page.owner.country_group:
+                page.owner = page.owner.owner
+
+            highest_version = page.owner.version
+            for child_page in page.owner.owner_set.all():
+                if child_page.version > highest_version:
+                    highest_version = child_page.version
+
+            page.version = highest_version + 1
+
+            return page
+
+        # Get the current page
+        original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
+
+        if request.method == 'POST':
+            page = duplicate_page(original_page, page_changes)
+            return redirect('/admin/pages/page/{}'.format(page.pk))
+
+        context = dict(
+            original_page=original_page,
+        )
+
+        return TemplateResponse(request, 'admin/pages/page/version_duplicate.html', context)
 
 
 class CountryGroupAdmin(admin.ModelAdmin):

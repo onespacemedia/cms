@@ -13,6 +13,7 @@ from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 
 from cms.apps.pages.models import Page
+from cms.apps.pages.admin import get_versions_for_page
 
 
 class RequestPageManager:
@@ -40,21 +41,31 @@ class RequestPageManager:
 
     def alternate_page_version(self, page):
         # Save ourselves a DB query if we are not using localisation.
-        if not self.country:
+        versioning = getattr(settings, 'PAGES_VERSIONING', False)
+
+        if not (self.country or versioning):
             return page
 
-        try:
-            # See if the page has any alternate versions for the current country
-            alternate_version = Page.objects.get(
+        if self.country:
+            page = page.owner_set.filter(
                 is_content_object=True,
-                owner=page,
                 country_group=self.request_country_group()
+            ).first() or page
+
+        if versioning:
+            version_qs = page.owner_set.filter(
+                is_content_object=True,
+                country_group=page.country_group,
             )
 
-            return alternate_version
+            if self._request.GET.get('version', None) and self._request.user.is_staff:
+                version_qs = version_qs.filter(
+                    version=self._request.GET.get('version', None),
+                )
 
-        except:
-            return page
+            page = version_qs.order_by('-version').first() or page
+
+        return page
 
     @cached_property
     def homepage(self):

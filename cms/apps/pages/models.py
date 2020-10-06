@@ -15,6 +15,15 @@ from cms.models import OnlineBaseManager, PageBase, PageBaseSearchAdapter
 from cms.models.managers import publication_manager
 
 
+class PageForeignKey(models.ForeignKey):
+    def __init__(self, **kwargs):
+        kwargs['to'] = 'pages.Page'
+        kwargs['limit_choices_to'] = {
+            'is_content_object': False
+        }
+        super().__init__(**kwargs)
+
+
 class PageManager(OnlineBaseManager):
 
     '''Manager for Page objects.'''
@@ -25,7 +34,8 @@ class PageManager(OnlineBaseManager):
         now = timezone.now().replace(second=0, microsecond=0)
         # Perform local filtering.
         queryset = queryset.filter(
-            Q(publication_date=None) | Q(publication_date__lte=now))
+            Q(publication_date=None) | Q(publication_date__lte=now)
+        )
         queryset = queryset.filter(Q(expiry_date=None) | Q(expiry_date__gt=now))
         # Perform parent ordering.
         quote_name = connection.ops.quote_name
@@ -44,7 +54,7 @@ class PageManager(OnlineBaseManager):
                             {ancestors}.{is_online} = FALSE OR
                             {ancestors}.{publication_date} > %s OR
                             {ancestors}.{expiry_date} <= %s
-                        )
+                        ) AND {is_content_object} = FALSE
                 )
             '''.format(
                 page_alias=page_alias,
@@ -59,6 +69,7 @@ class PageManager(OnlineBaseManager):
                         'is_online',
                         'publication_date',
                         'expiry_date',
+                        'is_content_object',
                     )
                 )
             ),),
@@ -79,8 +90,7 @@ class Page(PageBase):
 
     # Hierarchy fields.
 
-    parent = models.ForeignKey(
-        'self',
+    parent = PageForeignKey(
         blank=True,
         null=True,
         related_name='child_set',
@@ -114,6 +124,10 @@ class Page(PageBase):
         null=True,
         related_name='owner_set',
         on_delete=models.CASCADE,
+    )
+
+    version = models.IntegerField(
+        default=1,
     )
 
     @cached_property

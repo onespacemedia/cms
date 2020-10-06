@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}{% endblock %}
+{% block content %}
+  <div id="content-main" class="inner-two-columns">
+    <form enctype="multipart/form-data" action="" method="post" id="_form" class="form-horizontal">
+      {% csrf_token %}
+
+      <div class="inner-right-column">
+        <div class="box save-box">
+          <div class="submit-row clearfix">
+            <button type="submit" class="btn btn-high btn-info" name="_save">Duplicate</button>
+            <a href="/admin/pages/page/{{ original_page.pk }}">Cancel</a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
