@@ -24,9 +24,10 @@ class PublicationMiddleware(MiddlewareMixin):
 
     '''Middleware that enables preview mode for admin users.'''
 
-    def process_request(self, request):
-        '''Starts preview mode, if available.'''
+    def __init__(self, get_response):
+        self.get_response = get_response
 
+    def __call__(self, request):
         exclude_urls = [
             re.compile(url)
             for url in
@@ -54,35 +55,25 @@ class PublicationMiddleware(MiddlewareMixin):
             preview_mode = token_preview_valid or user_preview
             publication_manager.begin(not preview_mode)
 
-    def process_response(self, request, response):
-        '''Cleans up after preview mode.'''
-        # Render the response if we're in a block of publication management.
-        if publication_manager.select_published_active():
-            if isinstance(response, SimpleTemplateResponse):
-                response = response.render()
-        # Clean up all blocks.
-        while True:
-            try:
-                publication_manager.end()
-            except PublicationManagementError:
-                break
+        response = self.get_response(request)
+
+        publication_manager.end_all()
+
         # Carry on as normal.
         return response
 
 
 class LocalisationMiddleware(MiddlewareMixin):
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
 
-        # request.path = '/news/'
-        # request.path_info = '/news/'
-        # request.country = 'france'
-
-        # Continue for media
+    def __call__(self, request, geoip_path=None):
+        # Continue for media and admin
         if request.path.startswith('/media/') \
                 or request.path.startswith('/admin/') \
                 or request.path.startswith('/social-auth/'):
-            return None
+            return self.get_response(request)
 
         # Set a default country object
         request.country = None
@@ -105,18 +96,13 @@ class LocalisationMiddleware(MiddlewareMixin):
             except Country.DoesNotExist:
                 pass
 
-    def process_response(self, request, response, geoip_path=None):
+        response = self.get_response(request)
+
         # This import is here to avoid an exception being thrown when
         # localisation is not required - this import will fail if GeoIP files
         # are not present.
         from django.contrib.gis.geoip2 import GeoIP2
         from geoip2.errors import AddressNotFoundError
-
-        # Continue for media
-        if request.path.startswith('/media/') \
-           or request.path.startswith('/admin/') \
-           or request.path.startswith('/social-auth/'):
-            return response
 
         # If we don't have a country at this point, we need to do some ip
         # checking or assumption
@@ -128,7 +114,7 @@ class LocalisationMiddleware(MiddlewareMixin):
             try:
                 country_geo_ip = geo_ip.country(get_client_ip(request))
             except AddressNotFoundError:
-                # If no county found for that IP, just don't look for a country
+                # If there's no county found for that IP, just don't look for a country
                 # and go with the default
                 country_geo_ip = {}
 
@@ -150,7 +136,8 @@ class LocalisationMiddleware(MiddlewareMixin):
             if request.country:
                 return redirect('/{}{}'.format(
                     request.country.code.lower(),
-                    request.path
+                    request.path,
                 ))
 
         return response
+
