@@ -22,6 +22,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.forms import modelform_factory
+from django.forms.models import _get_foreign_key
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, redirect, render
@@ -44,54 +45,6 @@ PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
 
-def get_language_pages_for_page(page):
-    if page.is_content_object:
-        parent_page_qs = Page.objects.filter(pk=page.owner.pk)
-
-        return page.owner.owner_set.exclude(
-            country_group=page.owner.country_group,
-        ).union(parent_page_qs).order_by('-country_group')
-
-    current_page_qs = Page.objects.filter(pk=page.pk)
-    return page.owner_set.exclude(
-        country_group=page.country_group,
-    ).union(current_page_qs).order_by('-country_group')
-
-def get_versions_for_page(page):
-    if page.owner_set.all():
-        current_page_qs = Page.objects.filter(pk=page.pk)
-
-        return page.owner_set.filter(
-            is_content_object=True,
-            country_group=page.country_group,
-        ).union(current_page_qs).order_by('-version')
-
-    if page.owner:
-        parent_page_qs = Page.objects.filter(pk=page.owner.pk)
-
-        return page.owner.owner_set.filter(
-            is_content_object=True,
-            country_group=page.country_group,
-        ).union(parent_page_qs).order_by('-version')
-
-    # The pages does not own any other pages nor is it owned. Thus
-    # it's a normal page with no versions or translations
-    return Page.objects.filter(pk=page.pk)
-
-def get_live_version(version_list):
-    publication_manager.begin(True)
-
-    live_version = None
-    pages_qs = Page.objects.all()
-    for page in version_list:
-        if page in pages_qs:
-            live_version = page
-            break
-
-    publication_manager.end()
-
-    return live_version
-
 def duplicate_page(original_page, page_changes=None):
     '''
         A function that takes a page and duplicated it as a child of
@@ -100,16 +53,12 @@ def duplicate_page(original_page, page_changes=None):
     '''
     original_content = original_page.content
 
-
     with update_index():
         page = deepcopy(original_page)
         page.pk = None
-        page.is_content_object = True
-        page.is_online = False
-        page.owner = original_page
 
         if page_changes:
-            page = page_changes(page)
+            page = page_changes(page, original_page)
 
         page.save()
 
@@ -118,16 +67,78 @@ def duplicate_page(original_page, page_changes=None):
         content.page = page
         content.save()
 
-        for link in dir(original_page):
-            if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == 'RelatedManager' and link not in ['child_set', 'owner_set', 'link_to_page']:
-                objects = getattr(original_page, link).all()
-                for page_object in objects:
-                    new_object = deepcopy(page_object)
-                    new_object.pk = None
-                    new_object.page = page
-                    new_object.save()
+        # This doesn't copy m2m relations on the copied inline
+        for content_cls, admin_cls in page_admin.content_inlines:
+            if not isinstance(content, content_cls):
+                continue
+
+            model_cls = admin_cls.model
+            fk = _get_foreign_key(Page, model_cls, fk_name=admin_cls.fk_name)
+
+            related_items = model_cls.objects.filter(**{fk.name: original_page.pk}).distinct().all()
+            for item in related_items:
+                new_object = deepcopy(item)
+                new_object.pk = None
+                new_object.page = page
+                new_object.save()
 
     return page
+
+def overlay_page_obj(original_page, overlay_page, save=True):
+    '''
+        A function that takes a page and overlay the fields and linked objects from a diffent page.
+    '''
+    def overlay_obj(original, overlay, field_blacklist=[]):
+        handle_later_fields = []
+
+        for field in original._meta.get_fields():
+            if field.name in field_blacklist:
+                continue
+
+            if isinstance(field, (models.AutoField, models.ManyToManyField, models.ManyToOneRel)):
+                handle_later_fields.append(field)
+                continue
+
+            setattr(original, field.name, getattr(overlay, field.name))
+
+        original.save()
+
+        # Handle m2m fields
+        for field in handle_later_fields:
+            if isinstance(field, models.ManyToManyField):
+                old_qs = getattr(overlay, field.name).all()
+                field.set(old_qs)
+
+        return original
+
+    original_content = original_page.content
+    page_blacklisted_fields = ['pk', 'id', 'is_content_object', 'version_for']
+    content_blacklisted_fields = ['pk', 'id']
+
+    # Overlay page fields
+    overlay_obj(original_page, overlay_page, page_blacklisted_fields)
+
+    # Overlay page content fields
+    overlay_obj(original_content, overlay_page.content, content_blacklisted_fields)
+
+    # # Overlay any linked sets
+    checked_model_cls = []
+    for _, admin_cls in page_admin.content_inlines:
+        model_cls = admin_cls.model
+
+        if model_cls in checked_model_cls:
+            continue
+
+        checked_model_cls.append(model_cls)
+        fk = _get_foreign_key(Page, model_cls, fk_name=admin_cls.fk_name)
+
+        # Clear up old inlines
+        model_cls.objects.filter(**{fk.name: original_page.pk}).delete()
+
+        # Update overlay page inlnes
+        model_cls.objects.filter(**{fk.name: overlay_page.pk}).update(**{fk.name: original_page.pk})
+
+    return original_page
 
 
 class PageContentTypeFilter(admin.SimpleListFilter):
@@ -360,7 +371,7 @@ class PageAdmin(PageBaseAdmin):
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
 
-        if obj and (obj.is_content_object or obj.owner_set.all()):
+        if obj and (obj.is_content_object or obj.owner_set.exists() or obj.version_set.exists()):
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
@@ -405,7 +416,7 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not (obj.is_content_object or obj.owner_set.all()):
+        if obj and not (obj.is_content_object or obj.owner_set.exists() or obj.version_set.exists()):
             PageForm.base_fields['parent'].choices = parent_choices
         elif not obj:
             PageForm.base_fields['parent'].choices = parent_choices
@@ -520,11 +531,11 @@ class PageAdmin(PageBaseAdmin):
 
         if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
             extra_context['display_language_options'] = True
-            extra_context['language_pages'] = [page for page in get_language_pages_for_page(page)]
+            extra_context['language_pages'] = [x for x in page.get_language_pages()]
 
         if getattr(settings, 'PAGES_VERSIONING', False):
             extra_context['display_version_options'] = True
-            extra_context['page_versions'] = get_versions_for_page(page)
+            extra_context['page_versions'] = page.get_versions()
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -631,27 +642,23 @@ class PageAdmin(PageBaseAdmin):
         page_obj = get_object_or_404(self.model, id=page)
 
         if page_obj.is_content_object:
-            return redirect('admin:pages_page_change', page=page_obj.owner_id)
+            return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
 
-        page_versions = get_versions_for_page(page_obj)
-
-        if page_versions.first() == page_obj:
+        if not page_obj.version_set.exists():
             return self.change_view(request, page, **kwargs)
 
         form = PageVersionListForm(request.POST or None, instance=page_obj)
 
         if request.method == 'POST':
             if form.is_valid():
-
                 form.save()
 
         context = kwargs.get('extra_context', {})
         context.update({
-            'page_versions': page_versions,
+            'page_versions': page_obj.get_versions(),
             'original': page_obj,
             'form': form,
-            'live_version': get_live_version(page_versions),
-            'opts': Page,
+            'opts': page_obj._meta
         })
 
         return TemplateResponse(request, 'admin/pages/page/versions_list.html', context)
@@ -660,27 +667,35 @@ class PageAdmin(PageBaseAdmin):
         page = kwargs.pop('page')
         version = int(kwargs.pop('version'))
         page_obj = get_object_or_404(self.model, id=page)
-        page_versions = get_versions_for_page(page_obj)
+
+        if page_obj.is_content_object:
+            return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
+
+        page_versions = page_obj.get_versions()
 
         for page in page_versions:
             if page.version == version:
-                kwargs['extra_context'] = kwargs.get('extra_context', {})
-                kwargs['extra_context'].update({
-                    'live_version': get_live_version(page_versions),
-                })
-
                 return self.change_view(request, str(page.pk), **kwargs)
 
-        return redirect('admin:pages_page_change', page=page)
+        return redirect('admin:pages_page_change', page=page.pk)
 
     def publish_version(self, request, **kwargs):
+        def page_changes(new_page, original_page):
+            new_page.is_content_object = True
+            new_page.version_for = original_page
+            return new_page
+
         page = kwargs.pop('page')
         version = int(kwargs.pop('version'))
         page_obj = get_object_or_404(self.model, id=page)
-        page_versions = get_versions_for_page(page_obj)
 
-        page_obj.owner_set.exclude(version=version).update(is_online=False)
-        page_obj.owner_set.filter(version=version).update(is_online=True)
+        if page_obj.is_content_object:
+            return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
+
+        version_page = page_obj.version_set.get(version=version)
+        page_duplicate = duplicate_page(page_obj, page_changes)
+        overlay_page_obj(page_obj, version_page)
+        version_page.delete()
 
         return redirect('admin:pages_page_change', page=page)
 
@@ -814,8 +829,11 @@ class PageAdmin(PageBaseAdmin):
 
     @staticmethod
     def duplicate_for_country_group(request, *args, **kwargs):
-        def page_changes(page):
-            page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
+        def page_changes(new_page, original_page):
+            new_page.is_content_object = True
+            new_page.is_online = False
+            new_page.owner = original_page
+            new_page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
             return page
 
         # Get the current page
@@ -841,18 +859,18 @@ class PageAdmin(PageBaseAdmin):
 
     @staticmethod
     def duplicate_for_version(request, *args, **kwargs):
-        def page_changes(page):
-            if page.owner.is_content_object and page.owner.owner.country_group == page.owner.country_group:
-                page.owner = page.owner.owner
+        def page_changes(new_page, original_page):
+            new_page.is_content_object = True
+            new_page.version_for = original_page
 
-            highest_version = page.owner.version
-            for child_page in page.owner.owner_set.all():
+            highest_version = original_page.version
+            for child_page in original_page.version_set.all():
                 if child_page.version > highest_version:
                     highest_version = child_page.version
 
-            page.version = highest_version + 1
+            new_page.version = highest_version + 1
 
-            return page
+            return new_page
 
         # Get the current page
         original_page = get_object_or_404(Page, pk=kwargs.get('page', None))

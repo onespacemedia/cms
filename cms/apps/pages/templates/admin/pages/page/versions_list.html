@@ -75,21 +75,17 @@
         </thead>
 
         {% for version in page_versions %}
-          <tr{% if live_version == version %} class="active-row"{% endif %}>
+          <tr{% if original == version %} class="active-row"{% endif %}>
             <td>
               <a href="{% url 'admin:pages_page_change_version' page=original.pk version=version.version %}">
-                {% if version.is_content_object %}
-                  Version {{ version.version }}
-                {% else %}
-                  Original
-                {% endif %}
+                Version {{ version.version }}
               </a>
             </td>
 
             <td>{{ version.last_modified }}</td>
 
             <td>
-              {% if live_version == version %}
+              {% if original == version %}
                 Is currently live
               {% else %}
                 <a href="{% url 'admin:pages_page_publish_version' page=original.pk version=version.version %}">

@@ -54,7 +54,7 @@ class PageManager(OnlineBaseManager):
                             {ancestors}.{is_online} = FALSE OR
                             {ancestors}.{publication_date} > %s OR
                             {ancestors}.{expiry_date} <= %s
-                        ) AND {is_content_object} = FALSE
+                        )
                 )
             '''.format(
                 page_alias=page_alias,
@@ -90,7 +90,8 @@ class Page(PageBase):
 
     # Hierarchy fields.
 
-    parent = PageForeignKey(
+    parent = models.ForeignKey(
+        'self',
         blank=True,
         null=True,
         related_name='child_set',
@@ -128,6 +129,14 @@ class Page(PageBase):
 
     version = models.IntegerField(
         default=1,
+    )
+
+    version_for = models.ForeignKey(
+        'self',
+        blank=True,
+        null=True,
+        related_name='version_set',
+        on_delete=models.CASCADE,
     )
 
     @cached_property
@@ -368,6 +377,34 @@ class Page(PageBase):
                 latest_version.revision.user
             )
         return '-'
+
+    def get_language_pages(self):
+        if self.is_content_object:
+            parent_page_qs = Page.objects.filter(pk=self.owner_id)
+
+            return self.owner.owner_set.exclude(
+                country_group=self.owner.country_group,
+            ).union(parent_page_qs).order_by('-country_group')
+
+        current_page_qs = Page.objects.filter(pk=self.pk)
+        return self.owner_set.exclude(
+            country_group=self.country_group,
+        ).union(current_page_qs).order_by('-country_group')
+
+    def get_versions(self):
+        if self.version_set.exists():
+            current_page_qs = Page.objects.filter(pk=self.pk)
+
+            return self.version_set.union(current_page_qs).order_by('-version')
+
+        if self.version_for_id:
+            parent_page_qs = Page.objects.filter(pk=self.version_for_id)
+
+            return self.version_for.version_set.union(parent_page_qs).order_by('-version')
+
+        # The pages does not own any other pages nor is it owned. Thus
+        # it's a normal page with no versions or translations
+        return Page.objects.filter(pk=self.pk)
 
     class Meta:
         unique_together = (('parent', 'slug', 'country_group'),)

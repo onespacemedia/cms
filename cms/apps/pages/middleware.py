@@ -13,7 +13,6 @@ from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 
 from cms.apps.pages.models import Page
-from cms.apps.pages.admin import get_versions_for_page
 
 
 class RequestPageManager:
@@ -52,18 +51,9 @@ class RequestPageManager:
                 country_group=self.request_country_group()
             ).first() or page
 
-        if versioning:
-            version_qs = page.owner_set.filter(
-                is_content_object=True,
-                country_group=page.country_group,
-            )
-
-            if self._request.GET.get('version', None) and self._request.user.is_staff:
-                version_qs = version_qs.filter(
-                    version=self._request.GET.get('version', None),
-                )
-
-            page = version_qs.order_by('-version').first() or page
+        if versioning and self._request.GET.get('version', None) and self._request.user.is_staff:
+            # Handle previewing versions
+            pass
 
         return page
 
