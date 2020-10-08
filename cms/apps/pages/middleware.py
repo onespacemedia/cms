@@ -52,8 +52,9 @@ class RequestPageManager:
             ).first() or page
 
         if versioning and self._request.GET.get('version', None) and self._request.user.is_staff:
-            # Handle previewing versions
-            pass
+            page = page.version_set.filter(
+                version=self._request.GET.get('version', None)
+            ).first() or page
 
         return page
 

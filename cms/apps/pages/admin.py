@@ -45,6 +45,29 @@ PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
 
+def overlay_obj(original, overlay, field_blacklist=[]):
+    handle_later_fields = []
+
+    for field in original._meta.get_fields():
+        if field.name in field_blacklist:
+            continue
+
+        if isinstance(field, (models.AutoField, models.ManyToManyField, models.ManyToOneRel)):
+            handle_later_fields.append(field)
+            continue
+
+        setattr(original, field.name, getattr(overlay, field.name))
+
+    original.save()
+
+    # Handle m2m fields
+    for field in handle_later_fields:
+        if isinstance(field, models.ManyToManyField):
+            old_qs = getattr(overlay, field.name).all()
+            getattr(original, field.name).set(old_qs)
+
+    return original
+
 def duplicate_page(original_page, page_changes=None):
     '''
         A function that takes a page and duplicated it as a child of
@@ -79,7 +102,8 @@ def duplicate_page(original_page, page_changes=None):
             for item in related_items:
                 new_object = deepcopy(item)
                 new_object.pk = None
-                new_object.page = page
+                setattr(new_object, fk.name, page)
+                new_object = overlay_obj(new_object, item, field_blacklist=[fk.name, 'pk', 'id'])
                 new_object.save()
 
     return page
@@ -88,29 +112,6 @@ def overlay_page_obj(original_page, overlay_page, save=True):
     '''
         A function that takes a page and overlay the fields and linked objects from a diffent page.
     '''
-    def overlay_obj(original, overlay, field_blacklist=[]):
-        handle_later_fields = []
-
-        for field in original._meta.get_fields():
-            if field.name in field_blacklist:
-                continue
-
-            if isinstance(field, (models.AutoField, models.ManyToManyField, models.ManyToOneRel)):
-                handle_later_fields.append(field)
-                continue
-
-            setattr(original, field.name, getattr(overlay, field.name))
-
-        original.save()
-
-        # Handle m2m fields
-        for field in handle_later_fields:
-            if isinstance(field, models.ManyToManyField):
-                old_qs = getattr(overlay, field.name).all()
-                field.set(old_qs)
-
-        return original
-
     original_content = original_page.content
     page_blacklisted_fields = ['pk', 'id', 'is_content_object', 'version_for']
     content_blacklisted_fields = ['pk', 'id']
