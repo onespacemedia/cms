@@ -1,19 +1,13 @@
 '''Custom middleware used by the pages application.'''
 
-import sys
-
 from django.conf import settings
-from django.urls import is_valid_path
-from django.core.handlers.exception import handle_uncaught_exception
+from django.urls import resolve, is_valid_path
 from django.http import Http404, HttpResponsePermanentRedirect
 from django.utils.http import escape_leading_slashes
-from django.shortcuts import redirect
-from django.template.response import SimpleTemplateResponse
-from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import cached_property
-from django.views.debug import technical_404_response
 
 from cms.apps.pages.models import Page
+from cms.apps.pages.views import PageDispatcherView
 
 
 class RequestPageManager:
@@ -157,9 +151,17 @@ class PageMiddleware:
                     script_name = page.get_absolute_url()[:-1]
                     path_info = request.path[len(script_name):]
 
-                    if (is_valid_path(path_info, page.content.urlconf)
-                            or not is_valid_path(f'{path_info}/', page.content.urlconf)):
-                        return None
+                    urlconf = getattr(page.content, 'urlconf', None) if hasattr(page, 'content') else None
+
+                    # Check if the URL with a slash appended is resolved by the current page's urlconf
+                    if (is_valid_path(path_info, urlconf)
+                            or not is_valid_path(f'{path_info}/', urlconf)):
+                        # Check if the URL with a slash appended resolves for something other than a page
+                        match = resolve(f'{path_info}/', getattr(request, 'urlconf', None))
+                        if getattr(match.func, 'view_class', None) is PageDispatcherView:
+                            # Couldn't find any view that would be resolved for this URL
+                            # No point redirecting to a URL that will 404
+                            return None
 
                 new_path = request.get_full_path(force_append_slash=True)
                 # Prevent construction of scheme relative urls.
