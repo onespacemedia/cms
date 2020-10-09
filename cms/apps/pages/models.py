@@ -377,32 +377,20 @@ class Page(PageBase):
         return '-'
 
     def get_language_pages(self):
-        if not self.is_cannonical_page:
+        if not self._is_cannonical_page:
             parent_page_qs = Page.objects.filter(pk=self.owner_id)
-
-            return self.owner.owner_set.exclude(
-                country_group=self.owner.country_group,
-            ).union(parent_page_qs).order_by('-country_group')
+            return self.owner.owner_set.union(parent_page_qs).order_by('-country_group_id')
 
         current_page_qs = Page.objects.filter(pk=self.pk)
-        return self.owner_set.exclude(
-            country_group=self.country_group,
-        ).union(current_page_qs).order_by('-country_group')
+        return self.owner_set.union(current_page_qs).order_by('-country_group_id')
 
     def get_versions(self):
-        if self.version_set.exists():
-            current_page_qs = Page.objects.filter(pk=self.pk)
-
-            return self.version_set.union(current_page_qs).order_by('-version')
-
         if self.version_for_id:
             parent_page_qs = Page.objects.filter(pk=self.version_for_id)
-
             return self.version_for.version_set.union(parent_page_qs).order_by('-version')
 
-        # The pages does not own any other pages nor is it owned. Thus
-        # it's a normal page with no versions or translations
-        return Page.objects.filter(pk=self.pk)
+        current_page_qs = Page.objects.filter(pk=self.pk)
+        return self.version_set.union(current_page_qs).order_by('-version')
 
     @property
     def _is_cannonical_page(self):

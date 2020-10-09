@@ -532,7 +532,7 @@ class PageAdmin(PageBaseAdmin):
 
         if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
             extra_context['display_language_options'] = True
-            extra_context['language_pages'] = [x for x in page.get_language_pages()]
+            extra_context['language_pages'] = page.get_language_pages()
 
         if getattr(settings, 'PAGES_VERSIONING', False):
             extra_context['display_version_options'] = True
