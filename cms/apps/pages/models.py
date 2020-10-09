@@ -404,6 +404,7 @@ class Page(PageBase):
         # it's a normal page with no versions or translations
         return Page.objects.filter(pk=self.pk)
 
+    @property
     def _is_cannonical_page(self):
         # The name is due to the fact we can't clash with the qs annotation name
         return not (self.owner_id or self.version_for_id)
