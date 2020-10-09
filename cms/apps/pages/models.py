@@ -379,10 +379,10 @@ class Page(PageBase):
     def get_language_pages(self):
         if not self._is_cannonical_page:
             parent_page_qs = Page.objects.filter(pk=self.owner_id)
-            return self.owner.owner_set.union(parent_page_qs).order_by('-country_group_id')
+            return self.owner.owner_set.union(parent_page_qs)
 
         current_page_qs = Page.objects.filter(pk=self.pk)
-        return self.owner_set.union(current_page_qs).order_by('-country_group_id')
+        return self.owner_set.union(current_page_qs)
 
     def get_versions(self):
         if self.version_for_id:
