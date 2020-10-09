@@ -38,7 +38,7 @@ jobs:
           command: |
             . .venv/bin/activate
             pip install 'django>=1.11,<1.12'
-            pip install django-reversion==1.8.7
+            pip install django-reversion==2.0.9
             pytest --cov=cms -n auto --create-db --nomigrations
 
 workflows:
