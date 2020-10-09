@@ -21,14 +21,13 @@ class PageDispatcherView(View):
             response = callback(request, *callback_args, **callback_kwargs)
 
         except Resolver404:
-            raise Http404(f'No page or matching URL pattern found for "{request.pages.current_path.lstrip("/")}"')
+            raise Http404(f'No page or matching URL pattern found for "{request.pages.current_path[1:]}"')
 
-        if request:
-            if page.auth_required() and not request.user.is_authenticated:
-                return redirect('{}?next={}'.format(
-                    settings.LOGIN_URL,
-                    request.path
-                ))
+        if page.auth_required() and not request.user.is_authenticated:
+            return redirect('{}?next={}'.format(
+                settings.LOGIN_URL,
+                request.path
+            ))
 
         return response
 
