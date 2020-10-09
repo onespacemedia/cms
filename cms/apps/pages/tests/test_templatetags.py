@@ -17,7 +17,7 @@ from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
                                   get_meta_robots, get_og_image, get_page_url,
                                   get_twitter_card, get_twitter_description,
                                   get_twitter_image, get_twitter_title,
-                                  render_breadcrumbs, render_navigation)
+                                  _render_breadcrumbs, render_navigation)
 
 
 class MockUser:
@@ -234,14 +234,14 @@ class TestTemplatetags(TestCase):
 
         self.request.pages = Object()
 
-        output = render_breadcrumbs({'request': self.request}, extended=True)
-        self.assetEqual(len(output), 0)
+        output = _render_breadcrumbs({'request': self.request}, extended=True)
+        self.assertEqual(len(output['breadcrumbs']), 0)
 
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
         request.pages = RequestPageManager(request)
-        output = render_breadcrumbs({'request': request})
-        self.assertTrue(len(output) > 0)
+        output = _render_breadcrumbs({'request': request})
+        self.assertTrue(len(output['breadcrumbs']) > 0)
 
     def test_get_country_code(self):
         class Context:

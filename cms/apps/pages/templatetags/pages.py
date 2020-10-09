@@ -52,6 +52,26 @@ def _navigation_entries(context, pages, section=None, is_json=False):
 
     return entries
 
+def _render_breadcrumbs(context, page=None, extended=False):
+    request = context['request']
+    # Render the tag.
+    page = page or request.pages.current
+    if page:
+        breadcrumb_list = [{
+            'short_title': breadcrumb.short_title or breadcrumb.title,
+            'title': breadcrumb.title,
+            'url': breadcrumb.get_absolute_url(),
+            'last': False,
+            'page': breadcrumb,
+        } for breadcrumb in request.pages.breadcrumbs]
+    else:
+        breadcrumb_list = []
+    if not extended:
+        breadcrumb_list[-1]['last'] = True
+    # Render the breadcrumbs.
+    return {
+        'breadcrumbs': breadcrumb_list,
+    }
 
 @library.global_function
 @library.render_with('pages/navigation.html')
@@ -517,25 +537,7 @@ def render_breadcrumbs(context, page=None, extended=False):
         {% breadcrumbs extended=1 %}
 
     '''
-    request = context['request']
-    # Render the tag.
-    page = page or request.pages.current
-    if page:
-        breadcrumb_list = [{
-            'short_title': breadcrumb.short_title or breadcrumb.title,
-            'title': breadcrumb.title,
-            'url': breadcrumb.get_absolute_url(),
-            'last': False,
-            'page': breadcrumb,
-        } for breadcrumb in request.pages.breadcrumbs]
-    else:
-        breadcrumb_list = []
-    if not extended:
-        breadcrumb_list[-1]['last'] = True
-    # Render the breadcrumbs.
-    return {
-        'breadcrumbs': breadcrumb_list,
-    }
+    return _render_breadcrumbs(context, page=None, extended=False)
 
 
 @library.global_function
