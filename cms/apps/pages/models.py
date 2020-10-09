@@ -487,11 +487,11 @@ class ContentBase(models.Model):
 
 class Country(models.Model):
     name = models.CharField(
-        max_length=256
+        max_length=256,
     )
 
     code = models.CharField(
-        max_length=16
+        max_length=16,
     )
 
     group = models.ForeignKey(
@@ -501,16 +501,19 @@ class Country(models.Model):
         on_delete=models.CASCADE,
     )
 
-    default = models.NullBooleanField(
+    default = models.BooleanField(
+        blank=True,
+        choices=[(True, 'Yes'), (None, 'No')],
         default=None,
-        unique=True
+        null=True,
+        unique=True,
     )
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ('name',)
+        ordering = ['name']
         verbose_name_plural = 'countries'
 
 
