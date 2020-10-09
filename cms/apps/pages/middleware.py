@@ -1,18 +1,13 @@
 '''Custom middleware used by the pages application.'''
 
-import sys
-
 from django.conf import settings
-from django import urls
-from django.core.handlers.exception import handle_uncaught_exception
-from django.http import Http404
-from django.shortcuts import redirect
-from django.template.response import SimpleTemplateResponse
-from django.utils.deprecation import MiddlewareMixin
+from django.urls import resolve, is_valid_path
+from django.http import Http404, HttpResponsePermanentRedirect
+from django.utils.http import escape_leading_slashes
 from django.utils.functional import cached_property
-from django.views.debug import technical_404_response
 
 from cms.apps.pages.models import Page
+from cms.apps.pages.views import PageDispatcherView
 
 
 class RequestPageManager:
@@ -120,74 +115,56 @@ class RequestPageManager:
         '''Whether the current page exactly matches the request URL.'''
         return self.current.get_absolute_url() == self._path
 
+    @cached_property
+    def current_path(self):
+        '''The URL to be checked against the page's urlconf.'''
+        script_name = self.current.get_absolute_url()[:-1]
+        return self._path[len(script_name):]
 
-class PageMiddleware(MiddlewareMixin):
 
-    '''Serves up pages when no other view is matched.'''
+class PageMiddleware:
+    '''
+    Middleware necessary for the use of the pages app
 
-    def process_request(self, request):
-        '''Annotates the request with a page manager.'''
+        - Adds 'pages' to the request
+
+        - Rewrites the URL based on APPEND_SLASH in the case of PageView raising a Http404 exception
+    '''
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
         request.pages = RequestPageManager(request)
 
-    def process_response(self, request, response):
-        '''If the response was a 404, attempt to serve up a page.'''
-        if response.status_code != 404:
-            return response
-        # Get the current page.
-        page = request.pages.current
-        if page is None:
-            return response
-        script_name = page.get_absolute_url()[:-1]
-        path_info = request.path[len(script_name):]
+        response = self.get_response(request)
 
-        # Continue for media
-        if request.path.startswith('/media/'):
-            return response
+        return response
 
-        if hasattr(request, 'country') and request.country is not None:
-            script_name = '/{}{}'.format(
-                request.country.code.lower(),
-                script_name
-            )
+    def process_exception(self, request, exception):
+        '''Rewrite the URL based on settings.APPEND_SLASH and the urlconf of the current page.'''
 
-        # Dispatch to the content.
-        try:
-            try:
-                callback, callback_args, callback_kwargs = urls.resolve(path_info, page.content.urlconf)
-            except urls.Resolver404:
-                # First of all see if adding a slash will help matters.
-                if settings.APPEND_SLASH:
-                    new_path_info = path_info + '/'
+        if isinstance(exception, Http404):
+            if settings.APPEND_SLASH and not request.path_info.endswith('/'):
+                page = request.pages.current
 
-                    try:
-                        urls.resolve(new_path_info, page.content.urlconf)
-                    except urls.Resolver404:
-                        pass
-                    else:
-                        return redirect(script_name + new_path_info, permanent=True)
-                return response
-            response = callback(request, *callback_args, **callback_kwargs)
-            # Validate the response.
-            if not response:
-                raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(
-                    callback.__name__
-                ))
+                if page:
+                    script_name = page.get_absolute_url()[:-1]
+                    path_info = request.path[len(script_name):]
 
-            if request:
-                if page.auth_required() and not request.user.is_authenticated():
-                    return redirect('{}?next={}'.format(
-                        settings.LOGIN_URL,
-                        request.path
-                    ))
+                    urlconf = getattr(page.content, 'urlconf', None) if hasattr(page, 'content') else None
 
-            if isinstance(response, SimpleTemplateResponse):
-                return response.render()
+                    # Check if the URL with a slash appended is resolved by the current page's urlconf
+                    if (is_valid_path(path_info, urlconf)
+                            or not is_valid_path(f'{path_info}/', urlconf)):
+                        # Check if the URL with a slash appended resolves for something other than a page
+                        match = resolve(f'{path_info}/', getattr(request, 'urlconf', None))
+                        if getattr(match.func, 'view_class', None) is PageDispatcherView:
+                            # Couldn't find any view that would be resolved for this URL
+                            # No point redirecting to a URL that will 404
+                            return None
 
-            return response
-        except Http404 as ex:
-            if settings.DEBUG:
-                return technical_404_response(request, ex)
-            # Let the normal 404 mechanisms render an error page.
-            return response
-        except:
-            return handle_uncaught_exception(request, urls.get_resolver(None), sys.exc_info())
+                new_path = request.get_full_path(force_append_slash=True)
+                # Prevent construction of scheme relative urls.
+                new_path = escape_leading_slashes(new_path)
+
+                return HttpResponsePermanentRedirect(new_path)

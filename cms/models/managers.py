@@ -49,6 +49,12 @@ class PublicationManager(threading.local):
         except IndexError:
             raise PublicationManagementError('There is no active block of publication management.')
 
+    def end_all(self):
+        '''Recursively ends all blocks of publication control.'''
+        if self._stack:
+            self.end()
+            self.end_all()
+
     @contextlib.contextmanager
     def select_published(self, select_published):
         '''Marks a block of publication management.'''
