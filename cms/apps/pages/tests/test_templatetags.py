@@ -235,7 +235,7 @@ class TestTemplatetags(TestCase):
         self.request.pages = Object()
 
         output = render_breadcrumbs({'request': self.request}, extended=True)
-        self.assertTrue(len(output) > 0)
+        self.assetEqual(len(output), 0)
 
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)

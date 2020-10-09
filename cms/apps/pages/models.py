@@ -271,7 +271,7 @@ class Page(PageBase):
     def save(self, *args, **kwargs):
         '''Saves the page.'''
 
-        if self.is_cannonical_page is True:
+        if self._is_cannonical_page:
             with connection.cursor() as cursor:
                 cursor.execute('LOCK TABLE {} IN ROW SHARE MODE'.format(Page._meta.db_table))
 
@@ -403,6 +403,10 @@ class Page(PageBase):
         # The pages does not own any other pages nor is it owned. Thus
         # it's a normal page with no versions or translations
         return Page.objects.filter(pk=self.pk)
+
+    def _is_cannonical_page(self):
+        # The name is due to the fact we can't clash with the qs annotation name
+        return not (self.owner_id or self.version_for_id)
 
     class Meta:
         unique_together = (('parent', 'slug', 'country_group'),)

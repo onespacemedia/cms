@@ -338,7 +338,7 @@ class TestPageAdmin(TestCase):
 
         self.assertListEqual(form.base_fields['parent'].choices, [('', '---------')])
 
-        self.content_page.is_content_object = True
+        self.content_page.version_for = self.homepage
         form = self.page_admin.get_form(request, obj=self.content_page)
 
         keys = ['title', 'description', 'inline_model',
@@ -352,7 +352,7 @@ class TestPageAdmin(TestCase):
 
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
-        self.content_page.is_content_object = False
+        self.content_page.version_for = None
 
         # Trigger the `content_cls.DoesNotExist` exception.
         content_cls = self.page_admin.get_page_content_cls(request, self.content_page)
@@ -468,7 +468,6 @@ class TestPageAdmin(TestCase):
 
         self.homepage_alt = deepcopy(self.homepage)
         self.homepage_alt.pk = None
-        self.homepage_alt.is_content_object = True
         self.homepage_alt.owner = self.homepage
         self.homepage_alt.title = "Homepage Alt"
         self.homepage_alt.save()
@@ -645,7 +644,6 @@ class TestPageAdmin(TestCase):
 
             # Create an alternative page.
             alternative_page = Page.objects.create(
-                is_content_object=True,
                 owner=content_page_1,
                 left=content_page_1.left,
                 right=content_page_1.right,
@@ -747,7 +745,7 @@ class TestPageAdmin(TestCase):
             country_group=self.country_group.pk
         )
         response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
-        self.assertEqual(Page.objects.filter(owner=self.homepage, is_content_object=True).count(), 1)
+        self.assertEqual(Page.objects.filter(owner=self.homepage, is_cannonical_page=False).count(), 1)
 
         with search.update_index():
 
@@ -773,9 +771,9 @@ class TestPageAdmin(TestCase):
                 country_group=self.country_group.pk
             )
             response = self.page_admin.duplicate_for_country_group(request, page=inline_page.pk)
-            self.assertEqual(Page.objects.filter(owner=inline_page, is_content_object=True).count(), 1)
+            self.assertEqual(Page.objects.filter(owner=inline_page, is_cannonical_page=False).count(), 1)
 
-            inline_page_clone = Page.objects.get(owner=inline_page, is_content_object=True)
+            inline_page_clone = Page.objects.get(owner=inline_page, is_cannonical_page=False)
 
             self.assertEqual(inline_page_clone.testinlinemodel_set.count(), 1)
 

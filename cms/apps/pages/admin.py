@@ -372,7 +372,7 @@ class PageAdmin(PageBaseAdmin):
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
 
-        if obj and (not obj.is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
+        if obj and (not obj._is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
@@ -417,7 +417,7 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not (not obj.is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
+        if obj and not (not obj._is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
             PageForm.base_fields['parent'].choices = parent_choices
         elif not obj:
             PageForm.base_fields['parent'].choices = parent_choices
@@ -833,7 +833,7 @@ class PageAdmin(PageBaseAdmin):
             new_page.is_online = False
             new_page.owner = original_page
             new_page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
-            return page
+            return new_page
 
         # Get the current page
         original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
