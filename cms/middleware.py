@@ -3,12 +3,15 @@
 import re
 
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import redirect
-from django.template.response import SimpleTemplateResponse
-from django.utils.deprecation import MiddlewareMixin
 
 from cms.apps.pages.models import Country
-from cms.models import PublicationManagementError, publication_manager, path_token_generator
+from cms.models import publication_manager, path_token_generator
+
+if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
+    from django.contrib.gis.geoip2 import GeoIP2
+    from geoip2.errors import AddressNotFoundError
 
 
 def get_client_ip(request):
@@ -20,40 +23,39 @@ def get_client_ip(request):
     return ip
 
 
-class PublicationMiddleware(MiddlewareMixin):
+class PublicationMiddleware:
 
-    '''Middleware that enables preview mode for admin users.'''
+    '''Middleware that enables the preview mode for admin users.'''
 
     def __init__(self, get_response):
         self.get_response = get_response
-
-    def __call__(self, request):
-        exclude_urls = [
-            re.compile(url)
-            for url in
-            getattr(settings, 'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS', ())
+        self.exclude_urls = [
+            re.compile(url_regex) for url_regex in getattr(settings, 'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS', ())
         ]
 
-        if not any(pattern.match(request.path_info[1:]) for pattern in exclude_urls):
-            # See if preview mode is requested.
-            try:
-                path = f'{request.path_info[1:] if request.path_info[1:] else request.path_info}'
-                # Check for the value of 'preview' matching the token for the
-                # current path. This is intended to throw KeyError if is not
-                # present.
-                token_preview_valid = path_token_generator.check_token(request.GET['preview'], path)
-                # Allow something like preview=1, preview=any_other_value if
-                # they are a staff user.
-                user_preview = request.GET['preview'] and request.user.is_staff
-            except KeyError:
-                # Preview mode was not requested.
-                user_preview = False
-                token_preview_valid = False
+    def __call__(self, request):
+        if any(map(lambda pattern: pattern.match(request.path_info[1:]), self.exclude_urls)):
+            return self.get_response(request)
 
-            # Only allow preview mode if the user is a logged in administrator
-            # or they have a token for this specific path.
-            preview_mode = token_preview_valid or user_preview
-            publication_manager.begin(not preview_mode)
+        # See if preview mode is requested.
+        try:
+            path = f'{request.path_info[1:] if request.path_info[1:] else request.path_info}'
+            # Check for the value of 'preview' matching the token for the
+            # current path. This is intended to throw KeyError if is not
+            # present.
+            token_preview_valid = path_token_generator.check_token(request.GET['preview'], path)
+            # Allow something like preview=1, preview=any_other_value if
+            # they are a staff user.
+            user_preview = request.GET['preview'] and request.user.is_staff
+        except KeyError:
+            # Preview mode was not requested.
+            user_preview = False
+            token_preview_valid = False
+
+        # Only allow preview mode if the user is a logged in administrator
+        # or they have a token for this specific path.
+        preview_mode = token_preview_valid or user_preview
+        publication_manager.begin(not preview_mode)
 
         response = self.get_response(request)
 
@@ -63,16 +65,17 @@ class PublicationMiddleware(MiddlewareMixin):
         return response
 
 
-class LocalisationMiddleware(MiddlewareMixin):
+class LocalisationMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
+        self.exclude_urls = [
+            re.compile(url_regex) for url_regex in getattr(settings, 'LOCALISATION_MIDDLEWARE_EXCLUDE_URLS', ())
+        ]
 
     def __call__(self, request, geoip_path=None):
         # Continue for media and admin
-        if request.path.startswith('/media/') \
-                or request.path.startswith('/admin/') \
-                or request.path.startswith('/social-auth/'):
+        if any(map(lambda pattern: pattern.match(request.path_info[1:]), self.exclude_urls)):
             return self.get_response(request)
 
         # Set a default country object
@@ -96,18 +99,9 @@ class LocalisationMiddleware(MiddlewareMixin):
             except Country.DoesNotExist:
                 pass
 
-        response = self.get_response(request)
-
-        # This import is here to avoid an exception being thrown when
-        # localisation is not required - this import will fail if GeoIP files
-        # are not present.
-        from django.contrib.gis.geoip2 import GeoIP2
-        from geoip2.errors import AddressNotFoundError
-
         # If we don't have a country at this point, we need to do some ip
         # checking or assumption
         if request.country is None:
-
             # Get the Geo location of the requests IP
             geo_ip = GeoIP2(path=geoip_path)
 
@@ -118,26 +112,19 @@ class LocalisationMiddleware(MiddlewareMixin):
                 # and go with the default
                 country_geo_ip = {}
 
-            if country_geo_ip.get('country_code'):
-                try:
-                    request.country = Country.objects.get(
-                        code__iexact=country_geo_ip['country_code']
-                    )
-                except Country.DoesNotExist:
-                    pass
+            code = country_geo_ip.get('country_code', '')
 
-            # Try and get the default
-            if request.country is None:
-                try:
-                    request.country = Country.objects.get(default=True)
-                except Country.DoesNotExist:
-                    pass
+            request.country = Country.objects.filter(
+                Q(code__iexact=code) | Q(default=True)
+            ).order_by('-default').first()
 
             if request.country:
                 return redirect('/{}{}'.format(
                     request.country.code.lower(),
                     request.path,
                 ))
+
+        response = self.get_response(request)
 
         return response
 
