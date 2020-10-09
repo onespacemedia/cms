@@ -48,7 +48,7 @@
       <select class="js-LanguageSwitcher">
         {% for page in language_pages %}
           <option {% if original == page %}selected{% endif %} value="/admin/pages/page/{{ page.pk }}/change/#/tab/module_0/">
-            {% if page.is_content_object == False %}
+            {% if page.is_cannonical_page %}
               Default
             {% else %}
               {{ page.country_group }}
@@ -57,7 +57,7 @@
         {% endfor %}
       </select>
 
-      <a class="button add-new-button" href="/admin/pages/page/{% if original.is_content_object %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add translation</a>
+      <a class="button add-new-button" href="/admin/pages/page/{% if not original.is_cannonical_page %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add translation</a>
     </div>
   {% endif %}
 
@@ -67,12 +67,12 @@
     <div class="add-new-variant">
       <select class="js-LanguageSwitcher">
         {% for page in page_versions %}
-          {% if original.is_content_object %}
-            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.version_for.pk version=page.version %}">
+          {% if original.is_cannonical_page %}
+            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.pk version=page.version %}">
               {{ page.version }}
             </option>
           {% else %}
-            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.pk version=page.version %}">
+            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.version_for.pk version=page.version %}">
               {{ page.version }}
             </option>
           {% endif %}

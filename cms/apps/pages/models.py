@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django import urls
 from django.db import connection, models, transaction
-from django.db.models import F, Q
+from django.db.models import Case, F, Q, Value, When
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -15,18 +15,21 @@ from cms.models import OnlineBaseManager, PageBase, PageBaseSearchAdapter
 from cms.models.managers import publication_manager
 
 
-class PageForeignKey(models.ForeignKey):
-    def __init__(self, **kwargs):
-        kwargs['to'] = 'pages.Page'
-        kwargs['limit_choices_to'] = {
-            'is_content_object': False
-        }
-        super().__init__(**kwargs)
-
-
 class PageManager(OnlineBaseManager):
 
     '''Manager for Page objects.'''
+
+    def get_queryset(self):
+        is_cannonical_page = Case(
+            When(version_for_id__isnull=False, then=Value(False)),
+            When(owner_id__isnull=False, then=Value(False)),
+            default=Value(True),
+            output_field=models.BooleanField()
+        )
+
+        return super().get_queryset().annotate(
+            is_cannonical_page=is_cannonical_page,
+        )
 
     def select_published(self, queryset, page_alias=None):
         '''Selects only published pages.'''
@@ -69,7 +72,6 @@ class PageManager(OnlineBaseManager):
                         'is_online',
                         'publication_date',
                         'expiry_date',
-                        'is_content_object',
                     )
                 )
             ),),
@@ -79,7 +81,7 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         '''Returns the site homepage.'''
-        return self.get(parent=None, is_content_object=False)
+        return self.get(parent=None, is_cannonical_page=True)
 
 
 class Page(PageBase):
@@ -106,10 +108,6 @@ class Page(PageBase):
     right = models.IntegerField(
         editable=False,
         db_index=True,
-    )
-
-    is_content_object = models.BooleanField(
-        default=False
     )
 
     country_group = models.ForeignKey(
@@ -145,7 +143,7 @@ class Page(PageBase):
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children
             #  we know aren't there!
-            for child in self.child_set.filter(is_content_object=False):
+            for child in self.child_set.filter(is_cannonical_page=True):
                 child.parent = self
                 children.append(child)
         return children
@@ -273,7 +271,7 @@ class Page(PageBase):
     def save(self, *args, **kwargs):
         '''Saves the page.'''
 
-        if self.is_content_object is False:
+        if self.is_cannonical_page is True:
             with connection.cursor() as cursor:
                 cursor.execute('LOCK TABLE {} IN ROW SHARE MODE'.format(Page._meta.db_table))
 
@@ -282,7 +280,7 @@ class Page(PageBase):
                     (page['id'], page)
                     for page
                     in Page.objects.filter(
-                        is_content_object=False
+                        is_cannonical_page=True
                     ).select_for_update().values(
                         'id',
                         'parent_id',
@@ -379,7 +377,7 @@ class Page(PageBase):
         return '-'
 
     def get_language_pages(self):
-        if self.is_content_object:
+        if not self.is_cannonical_page:
             parent_page_qs = Page.objects.filter(pk=self.owner_id)
 
             return self.owner.owner_set.exclude(

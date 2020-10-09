@@ -113,7 +113,7 @@ def overlay_page_obj(original_page, overlay_page, save=True):
         A function that takes a page and overlay the fields and linked objects from a diffent page.
     '''
     original_content = original_page.content
-    page_blacklisted_fields = ['pk', 'id', 'is_content_object', 'version_for']
+    page_blacklisted_fields = ['pk', 'id', 'version_for']
     content_blacklisted_fields = ['pk', 'id']
 
     # Overlay page fields
@@ -207,7 +207,7 @@ class PageAdmin(PageBaseAdmin):
     change_form_template = 'admin/pages/page/change_form.html'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_content_object=False)
+        return super().get_queryset(request).filter(is_cannonical_page=True)
 
     def get_object(self, request, object_id, from_field=None):
         queryset = super().get_queryset(request)
@@ -372,7 +372,7 @@ class PageAdmin(PageBaseAdmin):
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
 
-        if obj and (obj.is_content_object or obj.owner_set.exists() or obj.version_set.exists()):
+        if obj and (not obj.is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
@@ -417,7 +417,7 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not (obj.is_content_object or obj.owner_set.exists() or obj.version_set.exists()):
+        if obj and not (not obj.is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
             PageForm.base_fields['parent'].choices = parent_choices
         elif not obj:
             PageForm.base_fields['parent'].choices = parent_choices
@@ -642,7 +642,7 @@ class PageAdmin(PageBaseAdmin):
         page = kwargs.pop('page')
         page_obj = get_object_or_404(self.model, id=page)
 
-        if page_obj.is_content_object:
+        if not page_obj.is_cannonical_page:
             return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
 
         if not page_obj.version_set.exists():
@@ -669,7 +669,7 @@ class PageAdmin(PageBaseAdmin):
         version = int(kwargs.pop('version'))
         page_obj = get_object_or_404(self.model, id=page)
 
-        if page_obj.is_content_object:
+        if not page_obj.is_cannonical_page:
             return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
 
         page_versions = page_obj.get_versions()
@@ -682,7 +682,6 @@ class PageAdmin(PageBaseAdmin):
 
     def publish_version(self, request, **kwargs):
         def page_changes(new_page, original_page):
-            new_page.is_content_object = True
             new_page.version_for = original_page
             return new_page
 
@@ -690,7 +689,7 @@ class PageAdmin(PageBaseAdmin):
         version = int(kwargs.pop('version'))
         page_obj = get_object_or_404(self.model, id=page)
 
-        if page_obj.is_content_object:
+        if not page_obj.is_cannonical_page:
             return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
 
         version_page = page_obj.version_set.get(version=version)
@@ -744,7 +743,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Lock entire table.
         existing_pages_list = Page.objects.all().exclude(
-            is_content_object=True,
+            is_cannonical_page=False,
         ).select_for_update().values(
             'id',
             'parent_id',
@@ -809,7 +808,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Update all content models to match the left and right of their parents.
         existing_pages_list = Page.objects.all().exclude(
-            is_content_object=False,
+            is_cannonical_page=True,
         ).select_for_update().values(
             'id',
             'parent_id',
@@ -831,7 +830,6 @@ class PageAdmin(PageBaseAdmin):
     @staticmethod
     def duplicate_for_country_group(request, *args, **kwargs):
         def page_changes(new_page, original_page):
-            new_page.is_content_object = True
             new_page.is_online = False
             new_page.owner = original_page
             new_page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
@@ -861,7 +859,6 @@ class PageAdmin(PageBaseAdmin):
     @staticmethod
     def duplicate_for_version(request, *args, **kwargs):
         def page_changes(new_page, original_page):
-            new_page.is_content_object = True
             new_page.version_for = original_page
 
             highest_version = original_page.version

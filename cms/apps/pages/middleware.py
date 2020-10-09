@@ -47,7 +47,6 @@ class RequestPageManager:
 
         if self.country:
             page = page.owner_set.filter(
-                is_content_object=True,
                 country_group=self.request_country_group()
             ).first() or page
 
