@@ -25,7 +25,7 @@ We don't want things set to be offline to appear in the front-end (our pages hav
 
 ```python
 PUBLICATION_MIDDLEWARE_EXCLUDE_URLS = (
-    '^admin/.*',
+    r'^admin/',
 )
 ```
 
