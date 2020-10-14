@@ -60,6 +60,13 @@ class RequestPageManager:
             return None
 
     @cached_property
+    def navigation(self):
+        try:
+            return Page.objects.prefetch_related('child_set').get_homepage().navigation
+        except Page.DoesNotExist:
+            return None
+
+    @cached_property
     def is_homepage(self):
         '''Whether the current request is for the site homepage.'''
         return self._path == self.homepage.get_absolute_url()
