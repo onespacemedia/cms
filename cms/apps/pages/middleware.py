@@ -61,6 +61,10 @@ class RequestPageManager:
             return None
 
     @cached_property
+    def navigation(self):
+        return self.homepage.navigation
+
+    @cached_property
     def is_homepage(self):
         '''Whether the current request is for the site homepage.'''
         return self._path == self.homepage.get_absolute_url()
