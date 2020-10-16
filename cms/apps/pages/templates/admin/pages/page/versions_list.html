@@ -16,6 +16,18 @@
   </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <div class="breadcrumbs initialized">
+    <a href="/admin/">Home</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="/admin/pages/">Pages</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="/admin/pages/page/">Pages</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    {{ original }}
+  </div>
+{% endblock %}
+
 {% block content %}
   <div id="content-main" class="inner-two-columns">
     <div class="module filtered initialized" id="changelist">

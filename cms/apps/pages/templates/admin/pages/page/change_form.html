@@ -40,6 +40,24 @@
   </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+  <div class="breadcrumbs initialized">
+    <a href="/admin/">Home</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="/admin/pages/">Pages</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="/admin/pages/page/">Pages</a>
+
+    {% if page_versions|length > 1 %}
+      <span class="icon-arrow-right breadcrumbs-separator"></span>
+      <a href="/admin/pages/page/{{ original.pk }}/">Versions</a>
+    {% endif %}
+
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    {{ original }}
+  </div>
+{% endblock %}
+
 {% block extra_tools %}
   {% if language_pages and display_language_options %}
     <h3>Page language</h3>
