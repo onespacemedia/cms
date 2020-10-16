@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django import urls
 from django.db import connection, models, transaction
-from django.db.models import Case F, Q, Exists, OuterRef
+from django.db.models import Case, Exists, F, OuterRef, Q, Value, When
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
