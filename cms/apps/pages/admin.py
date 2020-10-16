@@ -859,10 +859,11 @@ class PageAdmin(PageBaseAdmin):
     @staticmethod
     def duplicate_for_version(request, *args, **kwargs):
         def page_changes(new_page, original_page):
-            new_page.version_for = original_page
+            parent_page = original_page.version_for or original_page
+            new_page.version_for = parent_page
 
-            highest_version = original_page.version
-            for child_page in original_page.version_set.all():
+            highest_version = parent_page.version
+            for child_page in parent_page.version_set.all():
                 if child_page.version > highest_version:
                     highest_version = child_page.version
 
