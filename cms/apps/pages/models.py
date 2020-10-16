@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django import urls
 from django.db import connection, models, transaction
-from django.db.models import F, Q
+from django.db.models import F, Q, Exists, OuterRef
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -27,43 +27,15 @@ class PageManager(OnlineBaseManager):
         queryset = queryset.filter(
             Q(publication_date=None) | Q(publication_date__lte=now))
         queryset = queryset.filter(Q(expiry_date=None) | Q(expiry_date__gt=now))
+
         # Perform parent ordering.
-        quote_name = connection.ops.quote_name
-        page_alias = page_alias or quote_name('pages_page')
-        queryset = queryset.extra(
-            where=('''
-                NOT EXISTS (
-                    SELECT *
-                    FROM {pages_page} AS {ancestors}
-                    WHERE
-                        {ancestors}.{left} < {page_alias}.{left} AND
-                        {ancestors}.{right} > {page_alias}.{right} AND (
-                            {ancestors}.{country_group_id} = {page_alias}.{country_group_id} OR
-                            {ancestors}.{country_group_id} IS NULL
-                        ) AND (
-                            {ancestors}.{is_online} = FALSE OR
-                            {ancestors}.{publication_date} > %s OR
-                            {ancestors}.{expiry_date} <= %s
-                        )
-                )
-            '''.format(
-                page_alias=page_alias,
-                **dict(
-                    (name, quote_name(name))
-                    for name in (
-                        'pages_page',
-                        'ancestors',
-                        'left',
-                        'right',
-                        'country_group_id',
-                        'is_online',
-                        'publication_date',
-                        'expiry_date',
-                    )
-                )
-            ),),
-            params=(now, now),
+        offline_ancestors = self._queryset_class(model=self.model, using=self._db, hints=self._hints).filter(
+            Q(left__lt=OuterRef('left')) & Q(right__gt=OuterRef('right')),
+            Q(country_group_id__isnull=True) | Q(country_group_id=OuterRef('country_group_id')),
+            Q(is_online=False) | Q(publication_date__gt=now) | Q(expiry_date__lte=now),
         )
+        queryset = queryset.annotate(parents_online=~Exists(offline_ancestors)).filter(parents_online=True)
+
         return queryset
 
     def get_homepage(self):

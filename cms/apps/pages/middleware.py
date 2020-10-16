@@ -61,10 +61,7 @@ class RequestPageManager:
 
     @cached_property
     def navigation(self):
-        try:
-            return Page.objects.prefetch_related('child_set').get_homepage().navigation
-        except Page.DoesNotExist:
-            return None
+        return self.homepage.navigation
 
     @cached_property
     def is_homepage(self):
