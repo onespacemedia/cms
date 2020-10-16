@@ -107,3 +107,13 @@
     </p>
   {% endif %}
 {% endblock %}
+
+{% block submit_buttons_bottom %}
+  {% if original.version_for or original.version_set.exists %}
+    {% with is_popup=True %}
+      {{ block.super }}
+    {% endwith %}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
