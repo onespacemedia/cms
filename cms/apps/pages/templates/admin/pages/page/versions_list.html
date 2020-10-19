@@ -26,12 +26,18 @@
     <span class="icon-arrow-right breadcrumbs-separator"></span>
     {{ original }}
   </div>
+
+  {% if form_saved %}
+    <ul class="messagelist">
+      <li class="success">Your changes have been saved</li>
+    </ul>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
   <div id="content-main" class="inner-two-columns">
     <div class="module filtered initialized" id="changelist">
-      <h1>Editing page with draft versions</h1>
+      <h1>Edit shared fields</h1>
 
       <form method="post">
         <div>
@@ -100,7 +106,7 @@
               {% if original == version %}
                 Is currently live
               {% else %}
-                <a href="{% url 'admin:pages_page_publish_version' page=original.pk version=version.version %}">
+                <a class="button" href="{% url 'admin:pages_page_publish_version' page=original.pk version=version.version %}">
                   Make live page
                 </a>
               {% endif %}

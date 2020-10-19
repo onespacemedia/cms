@@ -31,6 +31,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import six
 from watson.search import update_index
+from reversion.models import Version
 
 from cms.admin import PageBaseAdmin
 from cms.models import publication_manager
@@ -650,11 +651,13 @@ class PageAdmin(PageBaseAdmin):
 
         form = PageVersionListForm(request.POST or None, instance=page_obj)
 
+        context = kwargs.get('extra_context', {})
+
         if request.method == 'POST':
             if form.is_valid():
+                context['form_saved'] = True
                 form.save()
 
-        context = kwargs.get('extra_context', {})
         context.update({
             'page_versions': page_obj.get_versions(),
             'original': page_obj,
@@ -695,6 +698,11 @@ class PageAdmin(PageBaseAdmin):
         version_page = page_obj.version_set.get(version=version)
         page_duplicate = duplicate_page(page_obj, page_changes)
         overlay_page_obj(page_obj, version_page)
+
+        # Update reversions
+        Version.objects.get_for_object(page_obj).update(object_id=page_duplicate.pk)
+        Version.objects.get_for_object(version_page).update(object_id=page_obj.pk)
+
         version_page.delete()
 
         return redirect('admin:pages_page_change', page=page)
