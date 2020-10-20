@@ -1,5 +1,17 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrahead %}
+  {{ block.super }}
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function (){
+      window.jQuery('.js-LanguageSwitcher').change(function () {
+        window.location.href = document.querySelector('.js-LanguageSwitcher').value;
+      });
+    })
+  </script>
+{% endblock %}
+
 {% block extrastyle %}
   {{ block.super }}
 
@@ -18,13 +30,19 @@
 
 {% block breadcrumbs %}
   <div class="breadcrumbs initialized">
-    <a href="/admin/">Home</a>
+    <a href="{% url 'admin:index' %}">Home</a>
     <span class="icon-arrow-right breadcrumbs-separator"></span>
-    <a href="/admin/pages/">Pages</a>
+    <a href="{% url 'admin:app_list' app_label='pages' %}">Pages</a>
     <span class="icon-arrow-right breadcrumbs-separator"></span>
-    <a href="/admin/pages/page/">Pages</a>
+    <a href="{% url 'admin:pages_page_changelist' %}">Page</a>
     <span class="icon-arrow-right breadcrumbs-separator"></span>
-    {{ original }}
+    {% if display_language_options %}
+      <a href="{{ cannonical_version.get_admin_url }}">{{ cannonical_version }}</a>
+      <span class="icon-arrow-right breadcrumbs-separator"></span>
+      {{ original.get_language }}
+    {% else %}
+      {{ cannonical_version }}
+    {% endif %}
   </div>
 
   {% if form_saved %}
@@ -36,6 +54,25 @@
 
 {% block content %}
   <div id="content-main" class="inner-two-columns">
+    {% if display_language_options and language_pages %}
+      <h3>Page language</h3>
+
+      <div class="add-new-variant">
+        <select class="js-LanguageSwitcher">
+          {% for page in language_pages %}
+            <option {% if original == page %}selected{% endif %} value="{{ page.get_admin_url }}">
+              {% if not page.country_group %}
+                Default
+              {% else %}
+                {{ page.country_group }}
+              {% endif %}
+            </option>
+          {% endfor %}
+        </select>
+        <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=cannonical_version.id %}">Add translation</a>
+      </div>
+    {% endif %}
+
     <div class="module filtered initialized" id="changelist">
       <h1>Edit shared fields</h1>
 
@@ -59,7 +96,7 @@
             <button class="button default">Save</button>
 
             {% if original and original.get_absolute_url %}
-              <a href="{{ original.get_absolute_url }}" target="_blank" class="viewsitelink">
+              <a href="{{ original.get_absolute_url }}?preview=1" target="_blank" class="viewsitelink">
                 View on site
               </a>
             {% endif %}
@@ -95,7 +132,7 @@
         {% for version in page_versions %}
           <tr{% if original == version %} class="active-row"{% endif %}>
             <td>
-              <a href="{% url 'admin:pages_page_change_version' page=original.pk version=version.version %}">
+              <a href="{% url 'admin:pages_page_change' object_id=version.id %}">
                 Version {{ version.version }}
               </a>
             </td>
@@ -106,7 +143,7 @@
               {% if original == version %}
                 Is currently live
               {% else %}
-                <a class="button" href="{% url 'admin:pages_page_publish_version' page=original.pk version=version.version %}">
+                <a class="button" href="{% url 'admin:pages_page_publish_version' object_id=version.id %}">
                   Make live page
                 </a>
               {% endif %}

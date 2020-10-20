@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django import urls
 from django.db import connection, models, transaction
 from django.db.models import Case, Exists, ExpressionWrapper, F, Func, OuterRef, Q, Value, When
+from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -344,13 +346,13 @@ class Page(PageBase):
         return '-'
 
     def get_language_pages(self):
-        if self.version_for_id:
+        if self.version_for:
             return self.version_for.get_language_pages()
-        if self.owner_id:
+        if self.owner:
             return self.owner.get_language_pages()
 
         current_page_qs = Page.objects.filter(pk=self.pk)
-        return self.owner_set.union(current_page_qs)
+        return self.owner_set.exclude(version_for_id__isnull=False).union(current_page_qs)
 
     def get_versions(self):
         if self.version_for_id:
@@ -359,6 +361,19 @@ class Page(PageBase):
 
         current_page_qs = Page.objects.filter(pk=self.pk)
         return self.version_set.union(current_page_qs).order_by('-version')
+
+    def get_admin_url(self):
+        if getattr(settings, 'PAGES_VERSIONING', False) and not self.version_for_id:
+            return reverse('admin:pages_page_overview', kwargs={'object_id':self.id})
+        return reverse('admin:pages_page_change', kwargs={'object_id':self.id})
+
+    def get_language(self):
+        if self.country_group:
+            return str(self.country_group)
+        try:
+            return Country.objects.select_related('group').get(default=True).group
+        except Country.DoesNotExist:
+            return None
 
     @cached_property
     def cannonical_version(self):

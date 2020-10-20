@@ -42,31 +42,44 @@
 
 {% block breadcrumbs %}
   <div class="breadcrumbs initialized">
-    <a href="/admin/">Home</a>
+    <a href="{% url 'admin:index' %}">Home</a>
     <span class="icon-arrow-right breadcrumbs-separator"></span>
-    <a href="/admin/pages/">Pages</a>
+    <a href="{% url 'admin:app_list' app_label='pages' %}">Pages</a>
     <span class="icon-arrow-right breadcrumbs-separator"></span>
-    <a href="/admin/pages/page/">Pages</a>
-
-    {% if page_versions|length > 1 %}
+    <a href="{% url 'admin:pages_page_changelist' %}">Page</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    {% if display_language_options or display_version_options %}
+      <a href="{{ cannonical_version.get_admin_url }}">{{ cannonical_version }}</a>
       <span class="icon-arrow-right breadcrumbs-separator"></span>
-      <a href="/admin/pages/page/{{ original.pk }}/">Versions</a>
+    {% else %}
+      {{ cannonical_version }}
     {% endif %}
-
-    <span class="icon-arrow-right breadcrumbs-separator"></span>
-    {{ original }}
+    {# 'original' is the current object being edited. #}
+    {# It gets added to the context by ModelAdmin and the name is slightly misleading in this case #}
+    {# If you want the OG page use 'cannonical_page'. If you want the live version use 'live_page' #}
+    {% if display_language_options %}
+      {% if page_versions|length %}
+        <a href="{{ live_page.get_admin_url }}">{{ original.get_language }}</a>
+        <span class="icon-arrow-right breadcrumbs-separator"></span>
+      {% else %}
+        {{ original.get_language }}
+      {% endif %}
+    {% endif %}
+    {% if display_version_options %}
+      Version {{ original.version }}
+    {% endif %}
   </div>
 {% endblock %}
 
 {% block extra_tools %}
-  {% if language_pages and display_language_options %}
+  {% if display_language_options and language_pages %}
     <h3>Page language</h3>
 
     <div class="add-new-variant">
       <select class="js-LanguageSwitcher">
         {% for page in language_pages %}
-          <option {% if original == page %}selected{% endif %} value="/admin/pages/page/{{ page.pk }}/change/#/tab/module_0/">
-            {% if page.is_cannonical_page %}
+          <option {% if original == page %}selected{% endif %} value="{{ page.get_admin_url }}">
+            {% if not page.country_group %}
               Default
             {% else %}
               {{ page.country_group }}
@@ -74,30 +87,23 @@
           </option>
         {% endfor %}
       </select>
-
-      <a class="button add-new-button" href="/admin/pages/page/{% if not original.is_cannonical_page %}{{ original.owner.pk }}{% else %}{{ original.pk }}{% endif %}/duplicate">Add translation</a>
+      <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=cannonical_version.id %}">Add translation</a>
     </div>
   {% endif %}
 
-  {% if page_versions and display_version_options %}
+  {% if display_version_options and page_versions %}
     <h3>Page version</h3>
 
     <div class="add-new-variant">
       <select class="js-LanguageSwitcher">
         {% for page in page_versions %}
-          {% if original.is_cannonical_page %}
-            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.pk version=page.version %}">
-              {{ page.version }}
-            </option>
-          {% else %}
-            <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change_version' page=original.version_for.pk version=page.version %}">
-              {{ page.version }}
-            </option>
-          {% endif %}
+          <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change' object_id=page.id %}">
+            {{ page.version }}
+          </option>
         {% endfor %}
       </select>
 
-      <a class="button add-new-button" href="/admin/pages/page/{{ original.pk }}/new-version">Add new version</a>
+      <a class="button add-new-button" href="{% url 'admin:pages_page_new_version' object_id=original.id %}">Add new version</a>
     </div>
   {% endif %}
 

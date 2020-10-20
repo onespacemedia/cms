@@ -11,16 +11,16 @@ from functools import cmp_to_key, partial
 
 from django import forms
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
+from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
-from django.db.models import F, Q
+from django.db.models import F, Max, Q
 from django.forms import modelform_factory
 from django.forms.models import _get_foreign_key
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
@@ -34,7 +34,6 @@ from watson.search import update_index
 from reversion.models import Version
 
 from cms.admin import PageBaseAdmin
-from cms.models import publication_manager
 from cms.apps.pages.models import (Country, CountryGroup, Page,
                                    PageSearchAdapter, get_registered_content)
 from cms.apps.pages.forms import PageVersionListForm
@@ -143,6 +142,11 @@ def overlay_page_obj(original_page, overlay_page, save=True):
     return original_page
 
 
+class PageOverviewChangeList(ChangeList):
+    def url_for_result(self, result):
+        return reverse('admin:pages_page_overview', kwargs={'object_id':result.id})
+
+
 class PageContentTypeFilter(admin.SimpleListFilter):
     '''Enables filtering of pages by their content type.'''
     title = 'page type'
@@ -206,6 +210,11 @@ class PageAdmin(PageBaseAdmin):
     search_adapter_cls = PageSearchAdapter
 
     change_form_template = 'admin/pages/page/change_form.html'
+
+    def get_changelist(self, request, **kwargs):
+        if getattr(settings, 'PAGES_VERSIONING', False):
+            return PageOverviewChangeList
+        return ChangeList
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_cannonical_page=True)
@@ -524,20 +533,32 @@ class PageAdmin(PageBaseAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         '''Uses only the correct inlines for the page.'''
         # HACK: Add the current page to the request to pass to the get_inline_instances() method.
-        page = get_object_or_404(self.model, id=object_id)
-        request._admin_change_obj = page
+        current_page = get_object_or_404(self.model, id=object_id)
+
+        request._admin_change_obj = current_page
+
+        page = current_page
+
+        page_versioning = getattr(settings, 'PAGES_VERSIONING', False)
+        page_languages = 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE
 
         extra_context = extra_context or {}
-        extra_context['display_language_options'] = False
-        extra_context['display_version_options'] = False
+        extra_context['display_version_options'] = page_versioning
+        extra_context['display_language_options'] = page_languages
 
-        if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
-            extra_context['display_language_options'] = True
+        if page_versioning:
+            if current_page.version_for:
+                version = current_page
+                # The 'live' page
+                page = version.version_for
+            extra_context['live_page'] = page
+            extra_context['page_versions'] = page.get_versions()
+
+        if page_languages:
             extra_context['language_pages'] = page.get_language_pages()
 
-        if getattr(settings, 'PAGES_VERSIONING', False):
-            extra_context['display_version_options'] = True
-            extra_context['page_versions'] = page.get_versions()
+        # page could be a language version
+        extra_context['cannonical_version'] = page.cannonical_version
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -626,62 +647,50 @@ class PageAdmin(PageBaseAdmin):
     def get_urls(self):
         '''Adds in some custom admin URLs.'''
         admin_view = self.admin_site.admin_view
+
+        from django.urls import path
+
         return [
-            url(r'^sitemap.json$', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
-            url(r'^move-page/$', admin_view(self.move_page_view), name='pages_page_move_page'),
-            url(r'^(?P<page>\d+)/change/$', admin_view(self.page_index), name='pages_page_change'),
-            url(r'^(?P<page>\d+)/change/(?P<version>\d+)/$', admin_view(self.version_edit), name='pages_page_change_version'),
-            url(r'^(?P<page>\d+)/publish/(?P<version>\d+)/$', admin_view(self.publish_version), name='pages_page_publish_version'),
-            url(r'^(?P<page>\d+)/duplicate/$', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate_page'),
-            url(r'^(?P<page>\d+)/new-version/$', admin_view(self.duplicate_for_version), name='pages_page_new_version'),
+            path('sitemap.json', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
+            path('move-page/', admin_view(self.move_page_view), name='pages_page_move_page'),
+            path('<path:object_id>/overview/', admin_view(self.page_index), name='pages_page_overview'),
+            path('<path:object_id>/publish/', admin_view(self.publish_version), name='pages_page_publish_version'),
+            path('<path:object_id>/duplicate/', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate'),
+            path('<path:object_id>/new-version/', admin_view(self.duplicate_for_version), name='pages_page_new_version'),
         ] + super().get_urls()
 
-    def page_index(self, request, **kwargs):
-        if not getattr(settings, 'PAGES_VERSIONING', False):
-            return self.change_view(request, page, **kwargs)
+    def page_index(self, request, object_id, form_url='', extra_context=None):
+        page = get_object_or_404(self.model, id=object_id)
 
-        page = kwargs.pop('page')
-        page_obj = get_object_or_404(self.model, id=page)
+        # This view doesn't make sense for page versions
+        if page.version_for_id:
+            raise Http404('There\'s no page overview for versions of pages')
 
-        if not page_obj.is_cannonical_page:
-            return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
+        form = PageVersionListForm(request.POST or None, instance=page)
 
-        if not page_obj.version_set.exists():
-            return self.change_view(request, page, **kwargs)
-
-        form = PageVersionListForm(request.POST or None, instance=page_obj)
-
-        context = kwargs.get('extra_context', {})
+        context = extra_context or {}
 
         if request.method == 'POST':
             if form.is_valid():
                 context['form_saved'] = True
                 form.save()
 
+        page_languages = 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE
+
+        context['display_language_options'] = page_languages
+
+        if page_languages:
+            context['language_pages'] = page.get_language_pages()
+
         context.update({
-            'page_versions': page_obj.get_versions(),
-            'original': page_obj,
+            'page_versions': page.get_versions(),
+            'original': page,
+            'cannonical_version': page.cannonical_version,
             'form': form,
-            'opts': page_obj._meta
+            'opts': page._meta
         })
 
         return TemplateResponse(request, 'admin/pages/page/versions_list.html', context)
-
-    def version_edit(self, request, **kwargs):
-        page = kwargs.pop('page')
-        version = int(kwargs.pop('version'))
-        page_obj = get_object_or_404(self.model, id=page)
-
-        if not page_obj.is_cannonical_page:
-            return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
-
-        page_versions = page_obj.get_versions()
-
-        for page in page_versions:
-            if page.version == version:
-                return self.change_view(request, str(page.pk), **kwargs)
-
-        return redirect('admin:pages_page_change', page=page.pk)
 
     def publish_version(self, request, **kwargs):
         def page_changes(new_page, original_page):
@@ -835,8 +844,7 @@ class PageAdmin(PageBaseAdmin):
         # Report back.
         return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
 
-    @staticmethod
-    def duplicate_for_country_group(request, *args, **kwargs):
+    def duplicate_for_country_group(self, request, object_id, *args, **kwargs):
         def page_changes(new_page, original_page):
             new_page.is_online = False
             new_page.owner = original_page
@@ -844,7 +852,7 @@ class PageAdmin(PageBaseAdmin):
             return new_page
 
         # Get the current page
-        original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
+        original_page = get_object_or_404(Page, id=object_id)
 
         if request.method == 'POST':
             page = duplicate_page(original_page, page_changes)
@@ -864,30 +872,26 @@ class PageAdmin(PageBaseAdmin):
 
         return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
 
-    @staticmethod
-    def duplicate_for_version(request, *args, **kwargs):
+
+    def duplicate_for_version(self, request, object_id, *args, **kwargs):
         def page_changes(new_page, original_page):
             parent_page = original_page.version_for or original_page
             new_page.version_for = parent_page
 
-            highest_version = parent_page.version
-            for child_page in parent_page.version_set.all():
-                if child_page.version > highest_version:
-                    highest_version = child_page.version
+            highest_version = parent_page.version_set.aggregate(Max('version'))['version__max'] or parent_page.version
 
             new_page.version = highest_version + 1
 
             return new_page
 
-        # Get the current page
-        original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
+        page = get_object_or_404(self.model, id=object_id)
 
         if request.method == 'POST':
-            page = duplicate_page(original_page, page_changes)
+            page = duplicate_page(page, page_changes)
             return redirect('/admin/pages/page/{}'.format(page.pk))
 
         context = dict(
-            original_page=original_page,
+            original_page=page,
         )
 
         return TemplateResponse(request, 'admin/pages/page/version_duplicate.html', context)
