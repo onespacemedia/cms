@@ -23,8 +23,8 @@ from django.db import models, transaction
 from django.db.models import F, Max, Q
 from django.forms import modelform_factory
 from django.forms.models import _get_foreign_key
-from django.http import (Http404, HttpResponse, HttpResponseForbidden,
-                         HttpResponseRedirect)
+from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
+                         HttpResponseForbidden, HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
@@ -45,28 +45,53 @@ PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
 
-def overlay_obj(original, overlay, field_blacklist=[]):
-    handle_later_fields = []
+def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=False):
+    exclude = exclude or []
+    deffered_fields = []
 
     for field in original._meta.get_fields():
-        if field.name in field_blacklist:
+        if field.name in exclude:
             continue
 
-        if isinstance(field, (models.AutoField, models.ManyToManyField, models.ManyToOneRel)):
-            handle_later_fields.append(field)
+        if isinstance(field, models.AutoField):
+            continue
+
+        if isinstance(field, (models.ManyToManyField, models.ManyToOneRel)):
+            if related_fields is None or field.name in related_fields:
+                deffered_fields.append(field)
             continue
 
         setattr(original, field.name, getattr(overlay, field.name))
 
-    original.save()
+    if commit:
+        original.save()
+        for field in deffered_fields:
+            accessor = field.get_accessor_name()
+            old_qs = getattr(overlay, accessor).all()
+            # Delete stale inlines
+            if isinstance(field, models.ManyToOneRel):
+                getattr(original, accessor).all().delete()
+            getattr(original, accessor).set(old_qs, clear=True)
+    else:
+        class DummyObject(original.__class__):
+            class Meta(original.__class__.Meta):
+                abstract = True
 
-    # Handle m2m fields
-    for field in handle_later_fields:
-        if isinstance(field, models.ManyToManyField):
-            old_qs = getattr(overlay, field.name).all()
-            getattr(original, field.name).set(old_qs)
+            def save(self, **kwargs):
+                pass
+
+            def delete(self, **kwargs):
+                pass
+
+        for field in deffered_fields:
+            accessor = field.get_accessor_name()
+            old_qs = getattr(overlay, accessor).all()
+            setattr(DummyObject, accessor, old_qs)
+
+        original.__class__ = DummyObject
 
     return original
+
 
 def duplicate_page(original_page, page_changes=None):
     '''
@@ -103,41 +128,40 @@ def duplicate_page(original_page, page_changes=None):
                 new_object = deepcopy(item)
                 new_object.pk = None
                 setattr(new_object, fk.name, page)
-                new_object = overlay_obj(new_object, item, field_blacklist=[fk.name, 'pk', 'id'])
+                new_object = overlay_obj(new_object, item, exclude=[fk.name, 'pk', 'id'], commit=True)
                 new_object.save()
 
     return page
 
-def overlay_page_obj(original_page, overlay_page, save=True):
+
+def overlay_page_obj(original_page, overlay_page, commit=False):
     '''
-        A function that takes a page and overlay the fields and linked objects from a diffent page.
+        A function that takes a page and overlay the fields and linked objects from a different page.
     '''
     original_content = original_page.content
-    page_blacklisted_fields = ['pk', 'id', 'version_for']
-    content_blacklisted_fields = ['pk', 'id']
+    page_fields_exclude = ['pk', 'id', 'version_for']
+    content_fields_exclude = ['pk', 'id']
 
-    # Overlay page fields
-    overlay_obj(original_page, overlay_page, page_blacklisted_fields)
+    checked_models = []
+    related_fields = []
+    def do_model_inline(cls):
+        checked_models.append(cls.model)
+        fk = _get_foreign_key(Page, cls.model, fk_name=cls.fk_name)
 
-    # Overlay page content fields
-    overlay_obj(original_content, overlay_page.content, content_blacklisted_fields)
+        return fk.related_query_name()
 
-    # # Overlay any linked sets
-    checked_model_cls = []
     for _, admin_cls in page_admin.content_inlines:
-        model_cls = admin_cls.model
 
-        if model_cls in checked_model_cls:
+        if admin_cls.model in checked_models:
             continue
 
-        checked_model_cls.append(model_cls)
-        fk = _get_foreign_key(Page, model_cls, fk_name=admin_cls.fk_name)
+        related_fields.append(do_model_inline(admin_cls))
 
-        # Clear up old inlines
-        model_cls.objects.filter(**{fk.name: original_page.pk}).delete()
+    # Overlay page fields
+    overlay_obj(original_page, overlay_page, page_fields_exclude, related_fields, commit=commit)
 
-        # Update overlay page inlnes
-        model_cls.objects.filter(**{fk.name: overlay_page.pk}).update(**{fk.name: original_page.pk})
+    # Overlay page content fields
+    overlay_obj(original_content, overlay_page.content, content_fields_exclude, [], commit=commit)
 
     return original_page
 
@@ -692,29 +716,28 @@ class PageAdmin(PageBaseAdmin):
 
         return TemplateResponse(request, 'admin/pages/page/versions_list.html', context)
 
-    def publish_version(self, request, **kwargs):
+    @transaction.atomic
+    def publish_version(self, request, object_id, **kwargs):
         def page_changes(new_page, original_page):
             new_page.version_for = original_page
             return new_page
 
-        page = kwargs.pop('page')
-        version = int(kwargs.pop('version'))
-        page_obj = get_object_or_404(self.model, id=page)
+        page = get_object_or_404(self.model, id=object_id)
+        if not page.version_for:
+            return HttpResponseBadRequest('<p>This page is already published!</p>')
 
-        if not page_obj.is_cannonical_page:
-            return redirect('admin:pages_page_change', page=page_obj.version_for_id or page_obj.owner_id)
+        live_page = page.version_for
 
-        version_page = page_obj.version_set.get(version=version)
-        page_duplicate = duplicate_page(page_obj, page_changes)
-        overlay_page_obj(page_obj, version_page)
+        page_duplicate = duplicate_page(live_page, page_changes)
+        overlay_page_obj(live_page, page, commit=True)
 
         # Update reversions
-        Version.objects.get_for_object(page_obj).update(object_id=page_duplicate.pk)
-        Version.objects.get_for_object(version_page).update(object_id=page_obj.pk)
+        Version.objects.get_for_object(live_page).update(object_id=page_duplicate.pk)
+        Version.objects.get_for_object(page).update(object_id=live_page.pk)
 
-        version_page.delete()
+        page.delete()
 
-        return redirect('admin:pages_page_change', page=page)
+        return redirect(live_page.get_admin_url())
 
     def sitemap_json_view(self, request):
         '''Returns a JSON data structure describing the sitemap.'''
@@ -844,6 +867,7 @@ class PageAdmin(PageBaseAdmin):
         # Report back.
         return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
 
+    @transaction.atomic
     def duplicate_for_country_group(self, request, object_id, *args, **kwargs):
         def page_changes(new_page, original_page):
             new_page.is_online = False
@@ -872,7 +896,7 @@ class PageAdmin(PageBaseAdmin):
 
         return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
 
-
+    @transaction.atomic
     def duplicate_for_version(self, request, object_id, *args, **kwargs):
         def page_changes(new_page, original_page):
             parent_page = original_page.version_for or original_page

@@ -35,22 +35,20 @@ class RequestPageManager:
 
     def alternate_page_version(self, page):
         # Save ourselves a DB query if we are not using localisation.
-        versioning = getattr(settings, 'PAGES_VERSIONING', False)
-
-        if not (self.country or versioning):
+        if not self.country:
             return page
 
-        if self.country:
-            page = page.owner_set.filter(
+        try:
+            # See if the page has any alternate versions for the current country
+            alternate_version = Page.objects.get(
+                is_content_object=True,
+                owner=page,
                 country_group=self.request_country_group()
-            ).first() or page
+            )
 
-        if versioning and self._request.GET.get('version', None) and self._request.user.is_staff:
-            page = page.version_set.filter(
-                version=self._request.GET.get('version', None)
-            ).first() or page
-
-        return page
+            return alternate_version
+        except Page.DoesNotExist:
+            return page
 
     @cached_property
     def homepage(self):

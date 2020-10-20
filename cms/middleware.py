@@ -4,10 +4,12 @@ import re
 
 from django.conf import settings
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import redirect
 
-from cms.apps.pages.models import Country
-from cms.models import publication_manager, path_token_generator
+from .apps.pages.admin import overlay_page_obj
+from .apps.pages.models import Country, Page
+from .models import publication_manager, path_token_generator
 
 if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
     from django.contrib.gis.geoip2 import GeoIP2
@@ -57,6 +59,8 @@ class PublicationMiddleware:
         preview_mode = token_preview_valid or user_preview
         publication_manager.begin(not preview_mode)
 
+        request.preview_mode = preview_mode
+
         response = self.get_response(request)
 
         publication_manager.end_all()
@@ -64,6 +68,33 @@ class PublicationMiddleware:
         # Carry on as normal.
         return response
 
+
+class VersionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        return response
+
+    def process_template_response(self, request, response):
+        version = request.GET.get('version')
+        if not getattr(request, 'preview_mode', False) or not version:
+            return response
+
+        page = request.pages.current
+
+        try:
+            version = int(version)
+            # No need to do anything if the current version is the live version
+            if page.version != version:
+                version_page = page.version_set.get(version=version)
+                overlay_page_obj(page, version_page)
+        except (ValueError, Page.DoesNotExist):
+            raise Http404(f"Version '{version}' does not exist for page '{page}'")
+
+        return response
 
 class LocalisationMiddleware:
 
