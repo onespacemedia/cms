@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django import urls
 from django.db import connection, models, transaction
-from django.db.models import Case, Exists, F, OuterRef, Q, Value, When
+from django.db.models import Case, Exists, ExpressionWrapper, F, Func, OuterRef, Q, Value, When
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -20,16 +20,11 @@ class PageManager(OnlineBaseManager):
     '''Manager for Page objects.'''
 
     def get_queryset(self):
-        is_cannonical_page = Case(
-            When(version_for_id__isnull=False, then=Value(False)),
-            When(owner_id__isnull=False, then=Value(False)),
-            default=Value(True),
-            output_field=models.BooleanField()
-        )
+        queryset = super().get_queryset().annotate(is_cannonical_page=ExpressionWrapper(
+            Q(owner_id__isnull=True) & Q(version_for_id__isnull=True), output_field=models.BooleanField()
+        ))
 
-        return super().get_queryset().annotate(
-            is_cannonical_page=is_cannonical_page,
-        )
+        return queryset
 
     def select_published(self, queryset, page_alias=None):
         '''Selects only published pages.'''
@@ -349,9 +344,10 @@ class Page(PageBase):
         return '-'
 
     def get_language_pages(self):
-        if not self._is_cannonical_page:
-            parent_page_qs = Page.objects.filter(pk=self.owner_id)
-            return self.owner.owner_set.union(parent_page_qs)
+        if self.version_for_id:
+            return self.version_for.get_language_pages()
+        if self.owner_id:
+            return self.owner.get_language_pages()
 
         current_page_qs = Page.objects.filter(pk=self.pk)
         return self.owner_set.union(current_page_qs)
@@ -364,14 +360,34 @@ class Page(PageBase):
         current_page_qs = Page.objects.filter(pk=self.pk)
         return self.version_set.union(current_page_qs).order_by('-version')
 
+    @cached_property
+    def cannonical_version(self):
+        if self.owner:
+            return self.owner.cannonical_version
+        if self.version_for:
+            return self.version_for.cannonical_version
+        return self
+
     @property
     def _is_cannonical_page(self):
         # The name is due to the fact we can't clash with the qs annotation name
         return not (self.owner_id or self.version_for_id)
 
     class Meta:
-        unique_together = (('parent', 'slug', 'country_group'),)
         ordering = ('left',)
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['parent', 'slug'],
+                condition=Q(version_for_id__isnull=True) & Q(country_group__isnull=True),
+                name='unique_page_urls',
+            ),
+            models.UniqueConstraint(
+                fields=['country_group', 'owner'],
+                condition=Q(version_for_id__isnull=True),
+                name='unique_language_versions',
+            ),
+        ]
 
 
 historylinks.register(Page)
