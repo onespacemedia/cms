@@ -139,7 +139,7 @@ def overlay_page_obj(original_page, overlay_page, commit=False):
         A function that takes a page and overlay the fields and linked objects from a different page.
     '''
     original_content = original_page.content
-    page_fields_exclude = ['pk', 'id', 'version_for']
+    page_fields_exclude = ['pk', 'id', 'version_for', 'left', 'right']
     content_fields_exclude = ['pk', 'id']
 
     checked_models = []
