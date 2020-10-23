@@ -33,6 +33,7 @@ class PageManager(OnlineBaseManager):
         queryset = super().select_published(queryset)
         now = timezone.now().replace(second=0, microsecond=0)
         # Perform local filtering.
+        queryset = queryset.filter(version_for_id__isnull=True)
         queryset = queryset.filter(
             Q(publication_date=None) | Q(publication_date__lte=now)
         )
@@ -40,6 +41,7 @@ class PageManager(OnlineBaseManager):
 
         # Perform parent ordering.
         offline_ancestors = self._queryset_class(model=self.model, using=self._db, hints=self._hints).filter(
+            Q(version_for_id__isnull=True),
             Q(left__lt=OuterRef('left')) & Q(right__gt=OuterRef('right')),
             Q(country_group_id__isnull=True) | Q(country_group_id=OuterRef('country_group_id')),
             Q(is_online=False) | Q(publication_date__gt=now) | Q(expiry_date__lte=now),
