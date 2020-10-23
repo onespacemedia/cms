@@ -74,7 +74,7 @@ def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=Fal
             getattr(original, accessor).set(old_qs, clear=True)
     else:
         class DummyObject(original.__class__):
-            class Meta(original.__class__.Meta):
+            class Meta:
                 abstract = True
 
             def save(self, **kwargs):
@@ -87,6 +87,8 @@ def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=Fal
             accessor = field.get_accessor_name()
             old_qs = getattr(overlay, accessor).all()
             setattr(DummyObject, accessor, old_qs)
+
+        DummyObject._meta = original.__class__._meta
 
         original.__class__ = DummyObject
 
