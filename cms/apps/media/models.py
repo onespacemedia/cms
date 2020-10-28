@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -21,7 +21,7 @@ from .filetypes import get_icon, is_image
 from .widgets import ImageThumbnailWidget
 
 
-class MediaStorage(FileSystemStorage):
+class MediaStorage(get_storage_class()):
     def get_available_name(self, name, max_length=None):
         if getattr(settings, 'MEDIA_OVERWRITE_WITH_NEW', False):
             self.delete(name)
