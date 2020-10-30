@@ -150,7 +150,9 @@ class File(models.Model):
                     return
 
             return image.size
-        except IOError:
+        except: # pylint: disable=bare-except
+            # We bare except here as if we're using a third party package for remote storages,
+            # we can't be certain on the exact error that'll be raised.
             return 0
 
 

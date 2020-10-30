@@ -7,6 +7,10 @@
 * Fix confusing options for Country.default
 * LOCALISATION_MIDDLEWARE_EXCLUDE_URLS is a new setting
 
+## 4.4.11 - 2020-10-30
+* Fix issue where adding a file would error with remote storages.
+* Fix issue where list page would error if a remote storage was being used
+
 ## 4.4.10 - 2020-10-28
 * Have the media storage class extend the current default storage class
 

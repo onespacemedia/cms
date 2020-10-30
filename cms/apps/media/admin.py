@@ -132,7 +132,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         '''Returns the size of the media in a human-readable format.'''
         try:
             return filesizeformat(obj.file.size)
-        except OSError:
+        except: # pylint: disable=bare-except
+            # We bare except here as if we're using a third party package for remote storages,
+            # we can't be certain on the exact error that'll be raised.
             return '0 bytes'
 
     get_size.short_description = 'size'
