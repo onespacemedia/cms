@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.12 - 2020-11-2
+* Use the media storage `.open()` function to retrieve an image instead of `open()`
+
 ## 4.4.11 - 2020-10-30
 * Fix issue where adding a file would error with remote storages.
 * Fix issue where list page would error if a remote storage was being used
