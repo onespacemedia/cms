@@ -97,15 +97,15 @@ def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=Fal
 
 def duplicate_page(original_page, page_changes=None):
     '''
-        A function that takes a page and duplicated it as a child of
-        the original page. Expects to be passed the original page and
-        an optional function
+        Takes a page and duplicates it as a child of the original's parent page.
+        Expects to be passed the original page and an optional function
     '''
     original_content = original_page.content
 
     with update_index():
         page = deepcopy(original_page)
         page.pk = None
+
 
         if page_changes:
             page = page_changes(page, original_page)
@@ -243,7 +243,7 @@ class PageAdmin(PageBaseAdmin):
         return ChangeList
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_cannonical_page=True)
+        return super().get_queryset(request).filter(is_canonical_page=True)
 
     def get_object(self, request, object_id, from_field=None):
         queryset = super().get_queryset(request)
@@ -408,7 +408,7 @@ class PageAdmin(PageBaseAdmin):
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
 
-        if obj and (not obj._is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
+        if obj and (not obj._is_canonical_page or obj.owner_set.exists() or obj.version_set.exists()):
             self.prepopulated_fields = {}
             self.fieldsets[0][1]['fields'] = ('title',)
         else:
@@ -453,7 +453,7 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not (not obj._is_cannonical_page or obj.owner_set.exists() or obj.version_set.exists()):
+        if obj and not (not obj._is_canonical_page or obj.owner_set.exists() or obj.version_set.exists()):
             PageForm.base_fields['parent'].choices = parent_choices
         elif not obj:
             PageForm.base_fields['parent'].choices = parent_choices
@@ -785,7 +785,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Lock entire table.
         existing_pages_list = Page.objects.all().exclude(
-            is_cannonical_page=False,
+            is_canonical_page=False,
         ).select_for_update().values(
             'id',
             'parent_id',
@@ -850,7 +850,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Update all content models to match the left and right of their parents.
         existing_pages_list = Page.objects.all().exclude(
-            is_cannonical_page=True,
+            is_canonical_page=True,
         ).select_for_update().values(
             'id',
             'parent_id',

@@ -22,7 +22,7 @@ class PageManager(OnlineBaseManager):
     '''Manager for Page objects.'''
 
     def get_queryset(self):
-        queryset = super().get_queryset().annotate(is_cannonical_page=ExpressionWrapper(
+        queryset = super().get_queryset().annotate(is_canonical_page=ExpressionWrapper(
             Q(owner_id__isnull=True) & Q(version_for_id__isnull=True), output_field=models.BooleanField()
         ))
 
@@ -52,8 +52,10 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         '''Returns the site homepage.'''
-        return self.get(parent=None, is_cannonical_page=True)
+        return self.get(parent=None, is_canonical_page=True)
 
+not_in_tree_q = Q(left__isnull=True) & Q(right__isnull=True)
+in_tree_q = Q(left__isnull=False) & Q(right__isnull=False)
 
 class Page(PageBase):
 
@@ -74,11 +76,13 @@ class Page(PageBase):
     left = models.IntegerField(
         editable=False,
         db_index=True,
+        null=True,
     )
 
     right = models.IntegerField(
         editable=False,
         db_index=True,
+        null=True,
     )
 
     country_group = models.ForeignKey(
@@ -114,7 +118,7 @@ class Page(PageBase):
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children
             #  we know aren't there!
-            for child in self.child_set.filter(is_cannonical_page=True):
+            for child in self.child_set.filter(is_canonical_page=True):
                 child.parent = self
                 children.append(child)
         return children
@@ -242,7 +246,7 @@ class Page(PageBase):
     def save(self, *args, **kwargs):
         '''Saves the page.'''
 
-        if self._is_cannonical_page:
+        if self._is_canonical_page:
             with connection.cursor() as cursor:
                 cursor.execute('LOCK TABLE {} IN ROW SHARE MODE'.format(Page._meta.db_table))
 
@@ -251,7 +255,7 @@ class Page(PageBase):
                     (page['id'], page)
                     for page
                     in Page.objects.filter(
-                        is_cannonical_page=True
+                        is_canonical_page=True
                     ).select_for_update().values(
                         'id',
                         'parent_id',
@@ -386,7 +390,7 @@ class Page(PageBase):
         return self
 
     @property
-    def _is_cannonical_page(self):
+    def _is_canonical_page(self):
         # The name is due to the fact we can't clash with the qs annotation name
         return not (self.owner_id or self.version_for_id)
 
@@ -404,6 +408,18 @@ class Page(PageBase):
                 condition=Q(version_for_id__isnull=True),
                 name='unique_language_versions',
             ),
+            models.CheckConstraint(
+                check=(Q(version_for_id__isnull=False) & not_in_tree_q) | Q(version_for_id__isnull=True),
+                name='versions_not_in_page_tree',
+            ),
+            models.CheckConstraint(
+                check=(Q(owner_id__isnull=False) & not_in_tree_q) | Q(owner_id__isnull=True),
+                name='translations_not_in_page_tree',
+            ),
+            models.CheckConstraint(
+                check=(Q(version_for_id__isnull=True) & Q(owner_id__isnull=True) & in_tree_q) | Q(version_for_id__isnull=False) | Q(owner_id__isnull=False),
+                name='page_mptt_values',
+            )
         ]
 
 

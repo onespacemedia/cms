@@ -745,7 +745,7 @@ class TestPageAdmin(TestCase):
             country_group=self.country_group.pk
         )
         response = self.page_admin.duplicate_for_country_group(request, page=self.homepage.pk)
-        self.assertEqual(Page.objects.filter(owner=self.homepage, is_cannonical_page=False).count(), 1)
+        self.assertEqual(Page.objects.filter(owner=self.homepage, is_canonical_page=False).count(), 1)
 
         with search.update_index():
 
@@ -771,9 +771,9 @@ class TestPageAdmin(TestCase):
                 country_group=self.country_group.pk
             )
             response = self.page_admin.duplicate_for_country_group(request, page=inline_page.pk)
-            self.assertEqual(Page.objects.filter(owner=inline_page, is_cannonical_page=False).count(), 1)
+            self.assertEqual(Page.objects.filter(owner=inline_page, is_canonical_page=False).count(), 1)
 
-            inline_page_clone = Page.objects.get(owner=inline_page, is_cannonical_page=False)
+            inline_page_clone = Page.objects.get(owner=inline_page, is_canonical_page=False)
 
             self.assertEqual(inline_page_clone.testinlinemodel_set.count(), 1)
 
