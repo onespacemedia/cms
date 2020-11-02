@@ -141,8 +141,9 @@ class File(models.Model):
         return is_image(self.file.name)
 
     def get_dimensions(self):
+        storage = MediaStorage()
         try:
-            with open(self.file.path, 'rb') as f:
+            with storage.open(self.file.path) as f:
                 try:
                     image = Image.open(f)
                     image.verify()
@@ -150,9 +151,7 @@ class File(models.Model):
                     return
 
             return image.size
-        except: # pylint: disable=bare-except
-            # We bare except here as if we're using a third party package for remote storages,
-            # we can't be certain on the exact error that'll be raised.
+        except IOError:
             return 0
 
 
