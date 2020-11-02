@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.13 - 2020-11-2
+* Get image dimensions during a pre_save signal instead of saving the file twice.
+
 ## 4.4.12 - 2020-11-2
 * Use the media storage `.open()` function to retrieve an image instead of `open()`
 
