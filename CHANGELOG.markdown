@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.13 - 2020-11-2
+* Get image dimensions during a pre_save signal instead of saving the file twice.
+
 ## feature/middleware-updates
 * Update middleware to no longer use deprecated MiddlewareMixin
 * Remove redundant code from middleware + general code cleanup

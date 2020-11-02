@@ -11,6 +11,8 @@ from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
 from django.core.files.storage import get_storage_class
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -110,12 +112,6 @@ class File(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
-        if self.is_image():
-            dimensions = self.get_dimensions()
-
-            if dimensions:
-                self.width, self.height = dimensions
-                super().save(False, True, using=using, update_fields=update_fields)
 
         # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
         if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
@@ -140,19 +136,14 @@ class File(models.Model):
     def is_image(self):
         return is_image(self.file.name)
 
-    def get_dimensions(self):
-        storage = MediaStorage()
-        try:
-            with storage.open(self.file.path) as f:
-                try:
-                    image = Image.open(f)
-                    image.verify()
-                except IOError:
-                    return
-
-            return image.size
-        except IOError:
-            return 0
+@receiver(pre_save, sender=File)
+def file_pre_save(sender, instance, *args, **kwargs):
+    try:
+        image = Image.open(instance.file)
+        image.verify()
+        instance.width, instance.height = image.size
+    except IOError:
+        return
 
 
 class FileRefField(models.ForeignKey):
