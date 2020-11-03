@@ -584,7 +584,7 @@ class PageAdmin(PageBaseAdmin):
             extra_context['language_pages'] = page.get_language_pages()
 
         # page could be a language version
-        extra_context['cannonical_version'] = page.cannonical_version
+        extra_context['cannonical_version'] = page.canonical_version
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -711,7 +711,7 @@ class PageAdmin(PageBaseAdmin):
         context.update({
             'page_versions': page.get_versions(),
             'original': page,
-            'cannonical_version': page.cannonical_version,
+            'cannonical_version': page.canonical_version,
             'form': form,
             'opts': page._meta
         })

@@ -116,10 +116,11 @@ class Page(PageBase):
     def children(self):
         '''The child pages for this page.'''
         children = []
-        if self.right - self.left > 1:  # Optimization - don't fetch children
+        page = self.canonical_version
+        if page.right - page.left > 1:  # Optimization - don't fetch children
             #  we know aren't there!
-            for child in self.child_set.filter(is_canonical_page=True):
-                child.parent = self
+            for child in page.child_set.filter(is_canonical_page=True):
+                child.parent = page
                 children.append(child)
         return children
 
@@ -382,11 +383,11 @@ class Page(PageBase):
             return None
 
     @cached_property
-    def cannonical_version(self):
+    def canonical_version(self):
         if self.owner:
-            return self.owner.cannonical_version
+            return self.owner.canonical_version
         if self.version_for:
-            return self.version_for.cannonical_version
+            return self.version_for.canonical_version
         return self
 
     @property
