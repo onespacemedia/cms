@@ -332,15 +332,18 @@ class Page(PageBase):
     @transaction.atomic
     def delete(self, *args, **kwargs):
         '''Deletes the page.'''
-        list(Page.objects.all().select_for_update().values_list(
-            'left',
-            'right'
-        ))  #
-        # Lock entire
-        #  table.
-        super().delete(*args, **kwargs)
-        # Update the entire tree.
-        self._excise_branch()
+        if self._is_canonical_page:
+            list(Page.objects.filter(is_canonical_page=True).select_for_update().values_list(
+                'left',
+                'right',
+            ))  #
+            # Lock entire
+            #  table.
+            super().delete(*args, **kwargs)
+            # Update the entire tree.
+            self._excise_branch()
+        else:
+            super().delete(*args, **kwargs)
 
     def last_modified(self):
         versions = Version.objects.get_for_object(self)

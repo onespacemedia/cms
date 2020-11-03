@@ -56,7 +56,7 @@ def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=Fal
         if isinstance(field, models.AutoField):
             continue
 
-        if isinstance(field, (models.ManyToManyField, models.ManyToOneRel)):
+        if isinstance(field, (models.ManyToManyField, models.ManyToManyRel, models.ManyToOneRel)):
             if related_fields is None or field.name in related_fields:
                 deffered_fields.append(field)
             continue
@@ -66,7 +66,10 @@ def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=Fal
     if commit:
         original.save()
         for field in deffered_fields:
-            accessor = field.get_accessor_name()
+            if isinstance(field, models.ManyToManyField):
+                accessor = field.name
+            else:
+                accessor = field.get_accessor_name()
             old_qs = getattr(overlay, accessor).all()
             # Delete stale inlines
             if isinstance(field, models.ManyToOneRel):
@@ -722,6 +725,8 @@ class PageAdmin(PageBaseAdmin):
     def publish_version(self, request, object_id, **kwargs):
         def page_changes(new_page, original_page):
             new_page.version_for = original_page
+            new_page.left = None
+            new_page.right = None
             return new_page
 
         page = get_object_or_404(self.model, id=object_id)
@@ -875,6 +880,9 @@ class PageAdmin(PageBaseAdmin):
             new_page.is_online = False
             new_page.owner = original_page
             new_page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
+            new_page.left = None
+            new_page.right = None
+
             return new_page
 
         # Get the current page
@@ -907,6 +915,9 @@ class PageAdmin(PageBaseAdmin):
             highest_version = parent_page.version_set.aggregate(Max('version'))['version__max'] or parent_page.version
 
             new_page.version = highest_version + 1
+
+            new_page.left = None
+            new_page.right = None
 
             return new_page
 
