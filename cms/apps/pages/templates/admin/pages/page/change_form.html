@@ -8,10 +8,11 @@
   <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
 
   <script>
-    window.addEventListener('DOMContentLoaded', function (){
-      window.jQuery('.js-LanguageSwitcher').change(function () {
-        window.location.href = document.querySelector('.js-LanguageSwitcher').value;
-      });
+    window.addEventListener('DOMContentLoaded', function () {
+      var switchers = window.jQuery(document.querySelectorAll('.js-VersionSwitcher'))
+      switchers.change(function(event) {
+        window.location.href = event.target.value;
+      })
     })
   </script>
 
@@ -76,7 +77,7 @@
     <h3>Page language</h3>
 
     <div class="add-new-variant">
-      <select class="js-LanguageSwitcher">
+      <select class="js-VersionSwitcher">
         {% for page in language_pages %}
           <option {% if original == page %}selected{% endif %} value="{{ page.get_admin_url }}">
             {% if not page.country_group %}
@@ -92,24 +93,22 @@
   {% endif %}
 
   {% if display_version_options and page_versions %}
-    <h3>Page version</h3>
+    <h3>Editing page version:</h3>
 
-    <div class="add-new-variant">
-      <select class="js-LanguageSwitcher">
+    <div class="add-new-variant js-VersionSwitcher">
+      <select>
         {% for page in page_versions %}
           <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change' object_id=page.id %}">
-            {{ page.version }}
+            {{ page.version }} {% if page.version_for_id %}- Draft{% else %}- Published{% endif %}
           </option>
         {% endfor %}
       </select>
-
-      <a class="button add-new-button" href="{% url 'admin:pages_page_new_version' object_id=original.id %}">Add new version</a>
     </div>
   {% endif %}
 
   {% if original.version_for %}
     <p class="warningblock">
-      You are editing a draft version of this page. Any changes made will not be reflected to normal site users until this page is published.
+      You are editing a draft version of this page. Any changes made will not be reflected to users until this page is published.
     </p>
   {% endif %}
 {% endblock %}
