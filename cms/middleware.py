@@ -96,6 +96,7 @@ class VersionMiddleware:
 
         return response
 
+
 class LocalisationMiddleware:
 
     def __init__(self, get_response):
