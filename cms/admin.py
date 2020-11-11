@@ -157,6 +157,7 @@ def get_related_objects_admin_urls(obj):
         } for obj in related_objs
     ]
 
+
 class PublishedBaseAdmin(admin.ModelAdmin):
     '''Base admin class for models with publication controls.'''
 
@@ -179,7 +180,8 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
+        if 'is_online' in form.base_fields:
+            form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
         return form
 
     # Custom admin actions.

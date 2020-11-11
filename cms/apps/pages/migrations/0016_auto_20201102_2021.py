@@ -2,6 +2,24 @@
 
 from django.db import migrations, models
 
+from ..utils import PageTree
+
+
+def fix_page_tree(apps, schema_editor):
+    Page = apps.get_model('pages', 'Page')
+    db_alias = schema_editor.connection.alias
+    pages_not_canonical = Page.objects.using(db_alias).filter(models.Q(left__isnull=False) | models.Q(right__isnull=False), models.Q(owner_id__isnull=False) | models.Q(version_for_id__isnull=False))
+    for page in pages_not_canonical:
+        print(page, f'left: {page.left}, right: {page.right}')
+    print(pages_not_canonical.count(), 'non-canonical pages in the MPTT tree.')
+    pages_not_canonical.update(left=None, right=None)
+    print('Resetting MPTT attributes for canonical pages.')
+    homepage = Page.objects.using(db_alias).filter(models.Q(owner_id__isnull=True) & models.Q(version_for_id__isnull=True), parent=None).first()
+    if homepage:
+        tree = PageTree(homepage, model=Page, db_alias=db_alias, child_filter=models.Q(owner_id__isnull=True) & models.Q(version_for_id__isnull=True))
+        tree.set_page_attrs()
+        Page.objects.bulk_update(tree.get_pages_flat(), ['left', 'right'])
+
 
 class Migration(migrations.Migration):
 
@@ -10,6 +28,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            fix_page_tree,
+        ),
         migrations.AddConstraint(
             model_name='page',
             constraint=models.CheckConstraint(check=models.Q(models.Q(('version_for_id__isnull', False), ('left__isnull', True), ('right__isnull', True)), ('version_for_id__isnull', True), _connector='OR'), name='versions_not_in_page_tree'),

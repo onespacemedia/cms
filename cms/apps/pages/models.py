@@ -54,8 +54,10 @@ class PageManager(OnlineBaseManager):
         '''Returns the site homepage.'''
         return self.get(parent=None, is_canonical_page=True)
 
+
 not_in_tree_q = Q(left__isnull=True) & Q(right__isnull=True)
 in_tree_q = Q(left__isnull=False) & Q(right__isnull=False)
+
 
 class Page(PageBase):
 

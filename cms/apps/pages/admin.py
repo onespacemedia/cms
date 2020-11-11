@@ -6,7 +6,6 @@ user-friendly appearance and providing additional functionality over the
 standard implementation.
 '''
 import json
-from copy import deepcopy
 from functools import cmp_to_key, partial
 
 from django import forms
@@ -22,7 +21,6 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Max, Q
 from django.forms import modelform_factory
-from django.forms.models import _get_foreign_key
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
                          HttpResponseForbidden, HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, redirect, render
@@ -30,7 +28,6 @@ from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import six
-from watson.search import update_index
 from reversion.models import Version
 
 from cms.admin import PageBaseAdmin
@@ -39,136 +36,13 @@ from cms.apps.pages.models import (Country, CountryGroup, Page,
 from cms.apps.pages.forms import PageVersionListForm
 
 # Used to track references to and from the JS sitemap.
+from cms.apps.pages.utils import duplicate_page, overlay_page_obj
+
 PAGE_FROM_KEY = 'from'
 PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
-
-def overlay_obj(original, overlay, exclude=None, related_fields=None, commit=False):
-    exclude = exclude or []
-    deffered_fields = []
-
-    for field in original._meta.get_fields():
-        if field.name in exclude:
-            continue
-
-        if isinstance(field, models.AutoField):
-            continue
-
-        if isinstance(field, (models.ManyToManyField, models.ManyToManyRel, models.ManyToOneRel)):
-            if related_fields is None or field.name in related_fields:
-                deffered_fields.append(field)
-            continue
-
-        setattr(original, field.name, getattr(overlay, field.name))
-
-    if commit:
-        original.save()
-        for field in deffered_fields:
-            if isinstance(field, models.ManyToManyField):
-                accessor = field.name
-            else:
-                accessor = field.get_accessor_name()
-            old_qs = getattr(overlay, accessor).all()
-            # Delete stale inlines
-            if isinstance(field, models.ManyToOneRel):
-                getattr(original, accessor).all().delete()
-            getattr(original, accessor).set(old_qs, clear=True)
-    else:
-        class DummyObject(original.__class__):
-            class Meta:
-                abstract = True
-
-            def save(self, **kwargs):
-                pass
-
-            def delete(self, **kwargs):
-                pass
-
-        for field in deffered_fields:
-            accessor = field.get_accessor_name()
-            old_qs = getattr(overlay, accessor).all()
-            setattr(DummyObject, accessor, old_qs)
-
-        DummyObject._meta = original.__class__._meta
-
-        original.__class__ = DummyObject
-
-    return original
-
-
-def duplicate_page(original_page, page_changes=None):
-    '''
-        Takes a page and duplicates it as a child of the original's parent page.
-        Expects to be passed the original page and an optional function
-    '''
-    original_content = original_page.content
-
-    with update_index():
-        page = deepcopy(original_page)
-        page.pk = None
-
-
-        if page_changes:
-            page = page_changes(page, original_page)
-
-        page.save()
-
-        content = deepcopy(original_content)
-        content.pk = None
-        content.page = page
-        content.save()
-
-        # This doesn't copy m2m relations on the copied inline
-        for content_cls, admin_cls in page_admin.content_inlines:
-            if not isinstance(content, content_cls):
-                continue
-
-            model_cls = admin_cls.model
-            fk = _get_foreign_key(Page, model_cls, fk_name=admin_cls.fk_name)
-
-            related_items = model_cls.objects.filter(**{fk.name: original_page.pk}).distinct().all()
-            for item in related_items:
-                new_object = deepcopy(item)
-                new_object.pk = None
-                setattr(new_object, fk.name, page)
-                new_object = overlay_obj(new_object, item, exclude=[fk.name, 'pk', 'id'], commit=True)
-                new_object.save()
-
-    return page
-
-
-def overlay_page_obj(original_page, overlay_page, commit=False):
-    '''
-        A function that takes a page and overlay the fields and linked objects from a different page.
-    '''
-    original_content = original_page.content
-    page_fields_exclude = ['pk', 'id', 'version_for', 'left', 'right']
-    content_fields_exclude = ['pk', 'id']
-
-    checked_models = []
-    related_fields = []
-    def do_model_inline(cls):
-        checked_models.append(cls.model)
-        fk = _get_foreign_key(Page, cls.model, fk_name=cls.fk_name)
-
-        return fk.related_query_name()
-
-    for _, admin_cls in page_admin.content_inlines:
-
-        if admin_cls.model in checked_models:
-            continue
-
-        related_fields.append(do_model_inline(admin_cls))
-
-    # Overlay page fields
-    overlay_obj(original_page, overlay_page, page_fields_exclude, related_fields, commit=commit)
-
-    # Overlay page content fields
-    overlay_obj(original_content, overlay_page.content, content_fields_exclude, [], commit=commit)
-
-    return original_page
 
 
 class PageOverviewChangeList(ChangeList):
@@ -587,7 +461,7 @@ class PageAdmin(PageBaseAdmin):
             extra_context['language_pages'] = page.get_language_pages()
 
         # page could be a language version
-        extra_context['cannonical_version'] = page.canonical_version
+        extra_context['canonical_version'] = page.canonical_version
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -714,7 +588,7 @@ class PageAdmin(PageBaseAdmin):
         context.update({
             'page_versions': page.get_versions(),
             'original': page,
-            'cannonical_version': page.canonical_version,
+            'canonical_version': page.canonical_version,
             'form': form,
             'opts': page._meta
         })
@@ -912,6 +786,7 @@ class PageAdmin(PageBaseAdmin):
             parent_page = original_page.version_for or original_page
             new_page.version_for = parent_page
 
+            print('MAX:', parent_page.version_set.aggregate(Max('version')))
             highest_version = parent_page.version_set.aggregate(Max('version'))['version__max'] or parent_page.version
 
             new_page.version = highest_version + 1

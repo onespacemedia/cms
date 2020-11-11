@@ -49,10 +49,10 @@
     <a href="{% url 'admin:pages_page_changelist' %}">Page</a>
     <span class="icon-arrow-right breadcrumbs-separator"></span>
     {% if display_language_options or display_version_options %}
-      <a href="{{ cannonical_version.get_admin_url }}">{{ cannonical_version }}</a>
+      <a href="{{ canonical_version.get_admin_url }}">{{ canonical_version }}</a>
       <span class="icon-arrow-right breadcrumbs-separator"></span>
     {% else %}
-      {{ cannonical_version }}
+      {{ canonical_version }}
     {% endif %}
     {# 'original' is the current object being edited. #}
     {# It gets added to the context by ModelAdmin and the name is slightly misleading in this case #}
@@ -87,7 +87,7 @@
           </option>
         {% endfor %}
       </select>
-      <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=cannonical_version.id %}">Add translation</a>
+      <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=canonical_version.id %}">Add translation</a>
     </div>
   {% endif %}
 
