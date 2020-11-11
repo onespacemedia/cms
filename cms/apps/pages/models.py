@@ -114,6 +114,21 @@ class Page(PageBase):
         on_delete=models.CASCADE,
     )
 
+    version_name = models.CharField(
+        max_length=100,
+        help_text='Used to identify this version in the admin',
+        blank=True,
+        null=True,
+        verbose_name='draft name'
+    )
+
+    version_publication_date = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text='The date this version will be published',
+        verbose_name='publish on',
+    )
+
     @cached_property
     def children(self):
         '''The child pages for this page.'''
@@ -369,10 +384,10 @@ class Page(PageBase):
     def get_versions(self):
         if self.version_for_id:
             parent_page_qs = Page.objects.filter(pk=self.version_for_id)
-            return self.version_for.version_set.union(parent_page_qs).order_by('version')
+            return self.version_for.version_set.union(parent_page_qs).order_by('version_for_id', '-version').reverse()
 
         current_page_qs = Page.objects.filter(pk=self.pk)
-        return self.version_set.union(current_page_qs).order_by('version')
+        return self.version_set.union(current_page_qs).order_by('version_for_id', '-version').reverse()
 
     def get_admin_url(self):
         if getattr(settings, 'PAGES_VERSIONING', False) and not self.version_for_id:
@@ -386,6 +401,9 @@ class Page(PageBase):
             return Country.objects.select_related('group').get(default=True).group
         except Country.DoesNotExist:
             return None
+
+    def get_version_name(self):
+        return self.version_name or f'Version {self.version}'
 
     @cached_property
     def canonical_version(self):
