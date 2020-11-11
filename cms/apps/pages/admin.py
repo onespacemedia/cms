@@ -11,6 +11,7 @@ from functools import cmp_to_key, partial
 from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.admin import helpers
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -33,7 +34,6 @@ from reversion.models import Version
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Country, CountryGroup, Page,
                                    PageSearchAdapter, get_registered_content)
-from cms.apps.pages.forms import PageVersionListForm
 
 # Used to track references to and from the JS sitemap.
 from cms.apps.pages.utils import duplicate_page, overlay_page_obj
@@ -43,6 +43,7 @@ PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
+VERSIONING_ENABLED = getattr(settings, 'PAGES_VERSIONING', False)
 
 
 class PageOverviewChangeList(ChangeList):
@@ -79,17 +80,30 @@ class PageAdmin(PageBaseAdmin):
 
     list_filter = [PageContentTypeFilter]
 
+    shared_fields = ['slug', 'parent', 'publication_date', 'expiry_date', 'is_online', 'requires_authentication']
+    version_readonly = ['slug', 'parent']
+    version_fields = ['version_publication_date']
+    version_exclude = ['publication_date', 'expiry_date', 'is_online', 'requires_authentication']
+
+    PUBLICATION_FIELDS = ('Publication', {
+        'fields': ['publication_date', 'expiry_date', 'is_online'],
+        'classes': ('collapse',)
+    })
+
+    GENERAL_FIELDS = (None, {
+        'fields': ['title', 'slug', 'parent'],
+    })
+
+    if VERSIONING_ENABLED:
+        GENERAL_FIELDS[1]['fields'].append('version_name')
+        PUBLICATION_FIELDS[1]['fields'].append('version_publication_date')
+
     new_fieldsets = [
-        (None, {
-            'fields': ('title', 'slug', 'parent'),
-        }),
+        GENERAL_FIELDS,
         ('Security', {
             'fields': ('requires_authentication',),
         }),
-        ('Publication', {
-            'fields': ('publication_date', 'expiry_date', 'is_online'),
-            'classes': ('collapse',)
-        }),
+        PUBLICATION_FIELDS,
         ('Navigation', {
             'fields': ('short_title', 'in_navigation', 'hide_from_anonymous'),
             'classes': ('collapse',)
@@ -115,7 +129,7 @@ class PageAdmin(PageBaseAdmin):
     change_form_template = 'admin/pages/page/change_form.html'
 
     def get_changelist(self, request, **kwargs):
-        if getattr(settings, 'PAGES_VERSIONING', False):
+        if VERSIONING_ENABLED:
             return PageOverviewChangeList
         return ChangeList
 
@@ -215,6 +229,24 @@ class PageAdmin(PageBaseAdmin):
 
         raise Http404('You must specify a page content type.')
 
+    def get_shared_fields(self, request, obj=None):
+        return self.shared_fields or []
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(super().get_readonly_fields(request, obj) or [])
+        if not getattr(request, 'shared_fields_editable', False):
+            fields += self.version_readonly
+
+        return fields
+
+    def get_prepopulated_fields(self, request, obj=None):
+        fields = super().get_prepopulated_fields(request, obj)
+        if fields:
+            fields = fields.copy()
+        for f in self.get_readonly_fields(request, obj):
+            fields.pop(f, None)
+        return fields
+
     def get_fieldsets(self, request, obj=None):
         '''Generates the custom content fieldsets.'''
         content_cls = self.get_page_content_cls(request, obj)
@@ -223,7 +255,20 @@ class PageAdmin(PageBaseAdmin):
             if field.name != 'page'
         ]
 
-        fieldsets = super().get_fieldsets(request, obj)
+        fieldsets = super().get_fieldsets(request, obj).copy()
+        exclude = []
+        if obj and obj.version_for_id:
+            exclude += self.version_exclude
+        else:
+            exclude += self.version_fields
+
+        print(exclude)
+
+        for fieldset in fieldsets:
+            fieldset[1]['fields'] = [field for field in fieldset[1]['fields'] if field not in exclude]
+
+        fieldsets = [fieldset for fieldset in fieldsets if fieldset[1]['fields']]
+
         if content_fields:
             content_fieldsets = content_cls.fieldsets or [
                 ('Page content', {
@@ -284,13 +329,6 @@ class PageAdmin(PageBaseAdmin):
         ContentForm = type('{}Form'.format(self.__class__.__name__), (forms.ModelForm,), form_attrs)
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
-
-        if obj and (not obj._is_canonical_page or obj.owner_set.exists() or obj.version_set.exists()):
-            self.prepopulated_fields = {}
-            self.fieldsets[0][1]['fields'] = ('title',)
-        else:
-            self.prepopulated_fields = {'slug': ('title',), }
-            self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
 
         content_defaults = {
             'form': ContentForm,
@@ -476,6 +514,7 @@ class PageAdmin(PageBaseAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         '''Ensures that a valid content type is chosen.'''
+        request.shared_fields_editable = True
         if PAGE_TYPE_PARAMETER not in request.GET:
             # Generate the available content items.
             content_items = get_registered_content()
@@ -569,14 +608,27 @@ class PageAdmin(PageBaseAdmin):
         if page.version_for_id:
             raise Http404('There\'s no page overview for versions of pages')
 
-        form = PageVersionListForm(request.POST or None, instance=page)
+        ModelForm = modelform_factory(self.model, fields=self.get_shared_fields(request, page))
 
         context = extra_context or {}
 
         if request.method == 'POST':
+            form = ModelForm(request.POST, request.FILES, instance=page)
             if form.is_valid():
                 context['form_saved'] = True
                 form.save()
+        else:
+            form = ModelForm(instance=page)
+
+        admin_form = helpers.AdminForm(
+            form,
+            [(None, {'fields': self.get_shared_fields(request, page)})],
+            # Clear prepopulated fields on a view-only form to avoid a crash.
+            self.get_prepopulated_fields(request, page) if self.has_change_permission(
+                request, page) else {},
+            [],
+            model_admin=self,
+        )
 
         page_languages = 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE
 
@@ -585,11 +637,28 @@ class PageAdmin(PageBaseAdmin):
         if page_languages:
             context['language_pages'] = page.get_language_pages()
 
+        errors = helpers.AdminErrorList(form, [])
+
+        has_file_field = form.is_multipart()
+
         context.update({
+            **self.admin_site.each_context(request),
+            'is_popup': False,
             'page_versions': page.get_versions(),
             'original': page,
             'canonical_version': page.canonical_version,
-            'form': form,
+            'adminform': admin_form,
+            'errors': errors,
+            'has_view_permission': self.has_view_permission(request, page),
+            'has_add_permission': self.has_add_permission,
+            'has_change_permission': self.has_change_permission(request, page),
+            'has_delete_permission': self.has_delete_permission(request, page),
+            'has_editable_inline_admin_formsets': False,
+            'show_add': False,
+            'show_return': False,
+            'has_file_field': has_file_field,
+            'save_as_new': False,
+            'change': True,
             'opts': page._meta
         })
 

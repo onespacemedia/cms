@@ -115,7 +115,7 @@
 
 {% block submit_buttons_bottom %}
   {% if original.version_for or original.version_set.exists %}
-    {% with save_as=True add=False show_return=False %}
+    {% with save_as_new=False add=False show_return=False %}
       {{ block.super }}
     {% endwith %}
   {% else %}

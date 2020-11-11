@@ -1,5 +1,5 @@
-{% extends "admin/base_site.html" %}
-{% load i18n admin_urls %}
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify buttons %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -53,8 +53,10 @@
   {% endif %}
 {% endblock %}
 
+{% block object-tools %}{% endblock %}
+
 {% block content %}
-  <div id="content-main" class="inner-two-columns">
+  <div id="content-main">
     {% if display_language_options and language_pages %}
       <h3>Page language</h3>
 
@@ -73,45 +75,15 @@
         <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=canonical_version.id %}">Add translation</a>
       </div>
     {% endif %}
-
-    <div class="module filtered initialized" id="changelist">
-      <h1>Edit shared fields</h1>
-
-      <form method="post">
-        <div>
-          <fieldset class="module aligned wide">
-            <div class="form-row">
-              <label class="required" for="id_parent">Parent page</label>
-              {{ form.parent }}
-            </div>
-
-            <div class="form-row">
-              <label class="required" for="id_slug">Slug</label>
-              {{ form.slug }}
-            </div>
-          </fieldset>
-
-          {% csrf_token %}
-
-          <div class="submit-row">
-            <button class="button default">Save</button>
-
-            {% if original and original.get_absolute_url %}
-              <a href="{{ original.get_absolute_url }}?preview=1" target="_blank" class="viewsitelink">
-                View on site
-              </a>
-            {% endif %}
-
-            <a href="{% url 'admin:pages_page_delete' original.pk %}" class="deletelink">
-              Delete page
-            </a>
-          </div>
-        </div>
-      </form>
-
-      <br>
-
+    <h1>Shared fields:</h1>
+  </div>
+  {{ block.super }}
+  <br class="clear">
+  <div id="content-main" class="inner-two-columns">
+    <div class="module filtered initialized change-list">
       <h1>Select a version to edit</h1>
+
+      <br/>
 
       <table>
         <thead>
@@ -138,7 +110,7 @@
           <tr{% if object == original %} class="active-row"{% endif %}>
             <td>
               <a href="{% url 'admin:pages_page_change' object_id=object.id %}">
-                Version {{ object.version }}
+                {{ object.get_version_name }}
               </a>
             </td>
 
@@ -153,17 +125,22 @@
             </td>
 
             <td>
-              {% if object != original %}
-                <form action="{% url opts|admin_urlname:'publishversion' object.id|admin_urlquote %}">
-                  <input type="submit" class="button" value="{% trans 'Publish' %}"/>
+                <form method="post">
+                  {% csrf_token %}
+                  {% if object != original %}
+                    <input type="submit" formaction="{% url opts|admin_urlname:'publishversion' object.id|admin_urlquote %}" class="button" value="{% trans 'Publish' %}"/>
+                  {% endif %}
                 </form>
-              {% else %}
-                -
-              {% endif %}
             </td>
           </tr>
         {% endfor %}
       </table>
+
+      <br/>
+
+      <form>
+        <input type="submit" formaction="{% url opts|admin_urlname:'addversion' original.id|admin_urlquote %}" value="{% trans 'Create version' %}"/>
+      </form>
     </div>
   </div>
 {% endblock %}
