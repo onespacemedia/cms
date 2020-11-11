@@ -1,4 +1,6 @@
 '''Base classes for the CMS admin interface.'''
+from urllib.parse import urlencode
+
 from django.contrib import admin
 from django.conf import settings
 from django.db.models.deletion import get_candidate_relations_to_delete
@@ -162,6 +164,17 @@ class PublishedBaseAdmin(admin.ModelAdmin):
     '''Base admin class for models with publication controls.'''
 
     change_form_template = 'admin/cms/publishedmodel/change_form.html'
+
+    view_on_site_parameters = {'preview': 1}
+
+    def get_view_on_site_parameters(self, obj=None):
+        return self.view_on_site_parameters
+
+    def get_view_on_site_url(self, obj=None):
+        if obj is not None and hasattr(obj, 'get_absolute_url'):
+            query = urlencode(self.get_view_on_site_parameters(obj))
+
+            return f'{obj.get_absolute_url()}?{query}'
 
 
 class OnlineBaseAdmin(PublishedBaseAdmin):

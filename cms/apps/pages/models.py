@@ -369,10 +369,10 @@ class Page(PageBase):
     def get_versions(self):
         if self.version_for_id:
             parent_page_qs = Page.objects.filter(pk=self.version_for_id)
-            return self.version_for.version_set.union(parent_page_qs).order_by('-version')
+            return self.version_for.version_set.union(parent_page_qs).order_by('version')
 
         current_page_qs = Page.objects.filter(pk=self.pk)
-        return self.version_set.union(current_page_qs).order_by('-version')
+        return self.version_set.union(current_page_qs).order_by('version')
 
     def get_admin_url(self):
         if getattr(settings, 'PAGES_VERSIONING', False) and not self.version_for_id:

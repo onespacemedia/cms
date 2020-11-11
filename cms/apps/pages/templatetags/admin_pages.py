@@ -1,13 +1,10 @@
 from django import template
-
-from cms.apps.pages.models import Page
+from django.conf import settings
 
 register = template.Library()
 
 
-@register.simple_tag
-def get_preview_parameters(obj):
-    if not isinstance(obj, Page):
-        return 'preview=1'
-
-    return f'preview=1&version={obj.version}'
+@register.simple_tag(takes_context=True)
+def can_add_versions(context):
+    obj = context.get('original')
+    return obj and hasattr(obj, 'version_for') and 'cms.middleware.VersionMiddleware' in settings.MIDDLEWARE

@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -126,26 +127,38 @@
             <th>
               <div class="text"><span>Publication status</span></div>
             </th>
+
+            <th>
+              <div class="text"><span>Actions</span></div>
+            </th>
           </tr>
         </thead>
 
-        {% for version in page_versions %}
-          <tr{% if original == version %} class="active-row"{% endif %}>
+        {% for object in page_versions %}
+          <tr{% if object == original %} class="active-row"{% endif %}>
             <td>
-              <a href="{% url 'admin:pages_page_change' object_id=version.id %}">
-                Version {{ version.version }}
+              <a href="{% url 'admin:pages_page_change' object_id=object.id %}">
+                Version {{ object.version }}
               </a>
             </td>
 
             <td>{{ version.last_modified }}</td>
 
             <td>
-              {% if original == version %}
-                Is currently live
+              {% if object == original %}
+                Live
               {% else %}
-                <a class="button" href="{% url 'admin:pages_page_publish_version' object_id=version.id %}">
-                  Make live page
-                </a>
+                Draft
+              {% endif %}
+            </td>
+
+            <td>
+              {% if object != original %}
+                <form action="{% url opts|admin_urlname:'publishversion' object.id|admin_urlquote %}">
+                  <input type="submit" class="button" value="{% trans 'Publish' %}"/>
+                </form>
+              {% else %}
+                -
               {% endif %}
             </td>
           </tr>

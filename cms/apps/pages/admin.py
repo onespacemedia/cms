@@ -557,9 +557,9 @@ class PageAdmin(PageBaseAdmin):
             path('sitemap.json', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
             path('move-page/', admin_view(self.move_page_view), name='pages_page_move_page'),
             path('<path:object_id>/overview/', admin_view(self.page_index), name='pages_page_overview'),
-            path('<path:object_id>/publish/', admin_view(self.publish_version), name='pages_page_publish_version'),
+            path('<path:object_id>/publish/', admin_view(self.publish_version), name='pages_page_publishversion'),
             path('<path:object_id>/duplicate/', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate'),
-            path('<path:object_id>/new-version/', admin_view(self.duplicate_for_version), name='pages_page_new_version'),
+            path('<path:object_id>/new-version/', admin_view(self.duplicate_for_version), name='pages_page_addversion'),
         ] + super().get_urls()
 
     def page_index(self, request, object_id, form_url='', extra_context=None):
@@ -786,7 +786,7 @@ class PageAdmin(PageBaseAdmin):
             parent_page = original_page.version_for or original_page
             new_page.version_for = parent_page
 
-            print('MAX:', parent_page.version_set.aggregate(Max('version')))
+            # print('MAX:', parent_page.version_set.aggregate(Max('version')))
             highest_version = parent_page.version_set.aggregate(Max('version'))['version__max'] or parent_page.version
 
             new_page.version = highest_version + 1
@@ -800,13 +800,19 @@ class PageAdmin(PageBaseAdmin):
 
         if request.method == 'POST':
             page = duplicate_page(page, page_changes)
-            return redirect('/admin/pages/page/{}'.format(page.pk))
+            return redirect(reverse('admin:pages_page_change', kwargs={'object_id': page.id}))
 
         context = dict(
             original_page=page,
         )
 
         return TemplateResponse(request, 'admin/pages/page/version_duplicate.html', context)
+
+    def get_view_on_site_parameters(self, obj=None):
+        params = super().get_view_on_site_parameters(obj)
+        if obj.version_for_id or obj.version_set.exists():
+            params['version'] = obj.version
+        return params
 
 
 class CountryGroupAdmin(admin.ModelAdmin):
