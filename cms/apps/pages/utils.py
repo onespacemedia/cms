@@ -85,7 +85,6 @@ def duplicate_page(original_page, page_changes=None):
     '''
     from .admin import page_admin
     original_content = original_page.content
-    print(getattr(original_content, 'hero_heading', 'Nothing'))
 
     with update_index():
         page = deepcopy(original_page)

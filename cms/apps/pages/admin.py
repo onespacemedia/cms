@@ -261,8 +261,6 @@ class PageAdmin(PageBaseAdmin):
         else:
             exclude += self.version_fields
 
-        print(exclude)
-
         for fieldset in fieldsets:
             fieldset[1]['fields'] = [field for field in fieldset[1]['fields'] if field not in exclude]
 
@@ -839,7 +837,6 @@ class PageAdmin(PageBaseAdmin):
             parent_page = original_page.version_for or original_page
             new_page.version_for = parent_page
 
-            # print('MAX:', parent_page.version_set.aggregate(Max('version')))
             highest_version = parent_page.version_set.aggregate(Max('version'))['version__max'] or parent_page.version
 
             new_page.version = highest_version + 1
