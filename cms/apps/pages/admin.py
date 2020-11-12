@@ -29,14 +29,13 @@ from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import six
-from reversion.models import Version
 
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Country, CountryGroup, Page,
                                    PageSearchAdapter, get_registered_content)
 
 # Used to track references to and from the JS sitemap.
-from cms.apps.pages.utils import duplicate_page, overlay_page_obj
+from cms.apps.pages.utils import duplicate_page, publish_page
 
 PAGE_FROM_KEY = 'from'
 PAGE_FROM_SITEMAP_VALUE = 'sitemap'
@@ -659,6 +658,7 @@ class PageAdmin(PageBaseAdmin):
             'has_file_field': has_file_field,
             'save_as_new': False,
             'change': True,
+            'save_as_version': False,
             'opts': page._meta
         })
 
@@ -666,26 +666,10 @@ class PageAdmin(PageBaseAdmin):
 
     @transaction.atomic
     def publish_version(self, request, object_id, **kwargs):
-        def page_changes(new_page, original_page):
-            new_page.version_for = original_page
-            new_page.left = None
-            new_page.right = None
-            return new_page
-
         page = get_object_or_404(self.model, id=object_id)
-        if not page.version_for:
+        live_page = publish_page(page)
+        if not live_page:
             return HttpResponseBadRequest('<p>This page is already published!</p>')
-
-        live_page = page.version_for
-
-        page_duplicate = duplicate_page(live_page, page_changes)
-        overlay_page_obj(live_page, page, commit=True)
-
-        # Update reversions
-        Version.objects.get_for_object(live_page).update(object_id=page_duplicate.pk)
-        Version.objects.get_for_object(page).update(object_id=live_page.pk)
-
-        page.delete()
 
         return redirect(live_page.get_admin_url())
 

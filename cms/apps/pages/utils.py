@@ -85,6 +85,7 @@ def duplicate_page(original_page, page_changes=None):
     '''
     from .admin import page_admin
     original_content = original_page.content
+    print(getattr(original_content, 'hero_heading', 'Nothing'))
 
     with update_index():
         page = deepcopy(original_page)
@@ -126,7 +127,7 @@ def overlay_page_obj(original_page, overlay_page, commit=False):
     from .admin import page_admin
     original_content = original_page.content
     page_fields_exclude = ['pk', 'id', 'version_for', 'left', 'right']
-    content_fields_exclude = ['pk', 'id']
+    content_fields_exclude = ['pk', 'id', 'page']
 
     checked_models = []
     related_fields = []
@@ -150,6 +151,30 @@ def overlay_page_obj(original_page, overlay_page, commit=False):
     overlay_obj(original_content, overlay_page.content, content_fields_exclude, [], commit=commit)
 
     return original_page
+
+
+def publish_page(page):
+    def page_changes(new_page, original_page):
+        new_page.version_for = original_page
+        new_page.left = None
+        new_page.right = None
+        return new_page
+
+    if not page.version_for:
+        return False
+
+    live_page = page.version_for
+
+    page_duplicate = duplicate_page(live_page, page_changes)
+    overlay_page_obj(live_page, page, commit=True)
+
+    # Update reversions
+    # Version.objects.get_for_object(live_page).update(object_id=page_duplicate.pk)
+    # Version.objects.get_for_object(page).update(object_id=live_page.pk)
+
+    page.delete()
+
+    return live_page
 
 
 class PageTree:
