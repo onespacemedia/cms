@@ -6,6 +6,7 @@ user-friendly appearance and providing additional functionality over the
 standard implementation.
 '''
 import json
+from copy import deepcopy
 from functools import cmp_to_key, partial
 
 from django import forms
@@ -29,6 +30,7 @@ from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import six
+from django.utils.html import format_html
 
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Country, CountryGroup, Page,
@@ -254,7 +256,7 @@ class PageAdmin(PageBaseAdmin):
             if field.name != 'page'
         ]
 
-        fieldsets = super().get_fieldsets(request, obj).copy()
+        fieldsets = deepcopy(super().get_fieldsets(request, obj))
         exclude = []
         if obj and obj.version_for_id:
             exclude += self.version_exclude
@@ -365,10 +367,11 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not (not obj._is_canonical_page or obj.owner_set.exists() or obj.version_set.exists()):
-            PageForm.base_fields['parent'].choices = parent_choices
-        elif not obj:
-            PageForm.base_fields['parent'].choices = parent_choices
+        if 'parent' in PageForm.base_fields:
+            if obj and not (not obj._is_canonical_page or obj.owner_set.exists() or obj.version_set.exists()):
+                PageForm.base_fields['parent'].choices = parent_choices
+            elif not obj:
+                PageForm.base_fields['parent'].choices = parent_choices
 
         # Return the completed form.
         return PageForm
@@ -599,15 +602,32 @@ class PageAdmin(PageBaseAdmin):
         ] + super().get_urls()
 
     def page_index(self, request, object_id, form_url='', extra_context=None):
+        request.shared_fields_editable = True
         page = get_object_or_404(self.model, id=object_id)
 
         # This view doesn't make sense for page versions
         if page.version_for_id:
             raise Http404('There\'s no page overview for versions of pages')
 
-        ModelForm = modelform_factory(self.model, fields=self.get_shared_fields(request, page))
+        fields = self.get_shared_fields(request, page)
+
+        ModelForm = super().get_form(request, page, fields=fields, change=True)
+        fieldsets = [
+            ('Shared Fields', {
+                'fields': self.get_shared_fields(request, page)
+            })
+        ]
 
         context = extra_context or {}
+
+        def filter_available_fields(fields_, available):
+            if isinstance(fields_, collections.Mapping):
+                field_dict = fields_.copy()
+                for key, value in fields_.items():
+                    if key not in available or not all([x in available for x in value]):
+                        field_dict.pop(key)
+                return field_dict
+            return [field for field in fields_ if field in available]
 
         if request.method == 'POST':
             form = ModelForm(request.POST, request.FILES, instance=page)
@@ -619,13 +639,13 @@ class PageAdmin(PageBaseAdmin):
 
         admin_form = helpers.AdminForm(
             form,
-            [(None, {'fields': self.get_shared_fields(request, page)})],
+            list(fieldsets),
             # Clear prepopulated fields on a view-only form to avoid a crash.
-            self.get_prepopulated_fields(request, page) if self.has_change_permission(
-                request, page) else {},
-            [],
+            filter_available_fields(self.get_prepopulated_fields(request, page), fields),
+            filter_available_fields(self.get_readonly_fields(request, page), fields),
             model_admin=self,
         )
+        media = self.media + admin_form.media
 
         page_languages = 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE
 
@@ -657,7 +677,8 @@ class PageAdmin(PageBaseAdmin):
             'save_as_new': False,
             'change': True,
             'save_as_version': False,
-            'opts': page._meta
+            'opts': page._meta,
+            'media': media
         })
 
         return TemplateResponse(request, 'admin/pages/page/versions_list.html', context)
@@ -668,6 +689,12 @@ class PageAdmin(PageBaseAdmin):
         live_page = publish_page(page)
         if not live_page:
             return HttpResponseBadRequest('<p>This page is already published!</p>')
+
+        msg_dict = {
+            'obj': live_page.get_version_name()
+        }
+        msg = '"{obj}" published successfully'
+        self.message_user(request, format_html(msg, **msg_dict), messages.SUCCESS)
 
         return redirect(live_page.get_admin_url())
 
