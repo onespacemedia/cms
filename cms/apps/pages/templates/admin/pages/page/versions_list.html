@@ -93,6 +93,10 @@
             </th>
 
             <th>
+              <div class="text"><span>Name</span></div>
+            </th>
+
+            <th>
               <div class="text"><span>Last edited</span></div>
             </th>
 
@@ -110,7 +114,13 @@
           <tr{% if object == original %} class="active-row"{% endif %}>
             <td>
               <a href="{% url 'admin:pages_page_change' object_id=object.id %}">
-                {{ object.get_version_name }}
+                {{ object.version }}
+              </a>
+            </td>
+
+            <td>
+              <a href="{% url 'admin:pages_page_change' object_id=object.id %}">
+                {% if object.version_name %}{{ object.version_name }}{% else %}---------{% endif %}
               </a>
             </td>
 
@@ -136,10 +146,11 @@
         {% endfor %}
       </table>
 
-      <br/>
-
-      <form>
-        <input type="submit" formaction="{% url opts|admin_urlname:'addversion' original.id|admin_urlquote %}" value="{% trans 'Create version' %}"/>
+      <form method="post">
+        <div class="submit-row">
+          {% csrf_token %}
+          <input type="submit" class="default" formaction="{% url opts|admin_urlname:'addversion' original.id|admin_urlquote %}" value="{% trans 'Create new version' %}"/>
+        </div>
       </form>
     </div>
   </div>

@@ -67,7 +67,7 @@
       {% endif %}
     {% endif %}
     {% if display_version_options %}
-      Version {{ original.version }}
+      {{ original.get_version_name }}
     {% endif %}
   </div>
 {% endblock %}
@@ -99,7 +99,7 @@
       <select>
         {% for page in page_versions %}
           <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change' object_id=page.id %}">
-            {{ page.version }} {% if page.version_for_id %}- Draft{% else %}- Published{% endif %}
+            {{ page.get_version_name }}
           </option>
         {% endfor %}
       </select>
