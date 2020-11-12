@@ -1,16 +1,21 @@
 {% extends "admin/change_form.html" %}
-{% load i18n admin_urls static admin_modify buttons %}
+{% load i18n admin_urls admin_static admin_modify buttons %}
 
 {% block extrahead %}
   {{ block.super }}
 
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+
   <script>
-    window.addEventListener('DOMContentLoaded', function (){
-      window.jQuery('.js-LanguageSwitcher').change(function () {
-        window.location.href = document.querySelector('.js-LanguageSwitcher').value;
-      });
+    window.addEventListener('DOMContentLoaded', function () {
+      var switchers = window.jQuery(document.querySelectorAll('.js-VersionSwitcher'))
+      switchers.change(function(event) {
+        window.location.href = event.target.value;
+      })
     })
   </script>
+
 {% endblock %}
 
 {% block extrastyle %}
@@ -56,7 +61,7 @@
 {% block object-tools %}{% endblock %}
 
 {% block content %}
-  <div id="content-main">
+  <div>
     {% if display_language_options and language_pages %}
       <h3>Page language</h3>
 
@@ -79,7 +84,7 @@
   </div>
   {{ block.super }}
   <br class="clear">
-  <div id="content-main" class="inner-two-columns">
+  <div class="inner-two-columns">
     <div class="module filtered initialized change-list">
       <h1>Select a version to edit</h1>
 
@@ -129,6 +134,8 @@
             <td>
               {% if object == original %}
                 Live
+              {% elif object.version_publication_date %}
+                Scheduled {{ object.version_publication_date|date:'d M Y, H:i' }}
               {% else %}
                 Draft
               {% endif %}
