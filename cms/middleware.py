@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect
 
-from .apps.pages.admin import overlay_page_obj
+from .apps.pages.utils import overlay_page_obj
 from .apps.pages.models import Country, Page
 from .models import publication_manager, path_token_generator
 
