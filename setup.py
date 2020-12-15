@@ -20,7 +20,6 @@ DEPENDENCIES = [
     'django-reversion',
     'django-jinja==2.4.1',
     'python-magic',
-    'tinypng',
 ]
 
 if platform.python_implementation() == 'PyPy':
