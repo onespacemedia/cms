@@ -1,4 +1,5 @@
 '''Custom middleware used by the pages application.'''
+import re
 
 from django.conf import settings
 from django.db.models import Q
@@ -10,12 +11,21 @@ from django.utils.functional import cached_property
 
 
 from .utils import overlay_page_obj
-from .models import Page
+from .models import Country, Page
 from .views import PageDispatcherView
 
 if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
     from django.contrib.gis.geoip2 import GeoIP2
     from geoip2.errors import AddressNotFoundError
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 class RequestPageManager:
