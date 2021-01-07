@@ -3,17 +3,14 @@
 import re
 
 from django.conf import settings
-from django.db.models import Q
-from django.http import Http404
-from django.shortcuts import redirect
 
-from .apps.pages.utils import overlay_page_obj
-from .apps.pages.models import Country, Page
 from .models import publication_manager, path_token_generator
 
 if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
-    from django.contrib.gis.geoip2 import GeoIP2
-    from geoip2.errors import AddressNotFoundError
+    from .apps.pages.middleware import LocalisationMiddleware
+
+if 'cms.middleware.VersionMiddleware' in settings.MIDDLEWARE:
+    from .apps.pages.middleware import VersionMiddleware
 
 
 def get_client_ip(request):
@@ -66,97 +63,5 @@ class PublicationMiddleware:
         publication_manager.end_all()
 
         # Carry on as normal.
-        return response
-
-
-class VersionMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
-
-        return response
-
-    def process_template_response(self, request, response):
-        version = request.GET.get('version')
-        if not getattr(request, 'preview_mode', False) or not version:
-            return response
-
-        page = request.pages.current
-
-        try:
-            version = int(version)
-            # No need to do anything if the current version is the live version
-            if page.version != version:
-                version_page = page.version_set.get(version=version)
-                overlay_page_obj(page, version_page)
-        except (ValueError, Page.DoesNotExist):
-            raise Http404(f"Version '{version}' does not exist for page '{page}'")
-
-        return response
-
-
-class LocalisationMiddleware:
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-        self.exclude_urls = [
-            re.compile(url_regex) for url_regex in getattr(settings, 'LOCALISATION_MIDDLEWARE_EXCLUDE_URLS', ())
-        ]
-
-    def __call__(self, request, geoip_path=None):
-        # Continue for media and admin
-        if any(map(lambda pattern: pattern.match(request.path_info[1:]), self.exclude_urls)):
-            return self.get_response(request)
-
-        # Set a default country object
-        request.country = None
-
-        # Check to see if we have a country in the URL
-        country_match = re.match('/([a-z]{2})/|\b', request.path)
-        if country_match:
-
-            # Try and get a country from the database
-            try:
-                request.country = Country.objects.get(
-                    code__iexact=str(country_match.group(1))
-                )
-
-                request.path = request.path.replace('/{}'.format(
-                    country_match.group(1)
-                ), '')
-                request.path_info = request.path
-
-            except Country.DoesNotExist:
-                pass
-
-        # If we don't have a country at this point, we need to do some ip
-        # checking or assumption
-        if request.country is None:
-            # Get the Geo location of the requests IP
-            geo_ip = GeoIP2(path=geoip_path)
-
-            try:
-                country_geo_ip = geo_ip.country(get_client_ip(request))
-            except AddressNotFoundError:
-                # If there's no county found for that IP, just don't look for a country
-                # and go with the default
-                country_geo_ip = {}
-
-            code = country_geo_ip.get('country_code', '')
-
-            request.country = Country.objects.filter(
-                Q(code__iexact=code) | Q(default=True)
-            ).order_by('-default').first()
-
-            if request.country:
-                return redirect('/{}{}'.format(
-                    request.country.code.lower(),
-                    request.path,
-                ))
-
-        response = self.get_response(request)
-
         return response
 

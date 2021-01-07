@@ -50,7 +50,7 @@ VERSIONING_ENABLED = getattr(settings, 'PAGES_VERSIONING', False)
 
 class PageOverviewChangeList(ChangeList):
     def url_for_result(self, result):
-        return reverse('admin:pages_page_overview', kwargs={'object_id':result.id})
+        return reverse('admin:pages_page_overview', kwargs={'object_id': result.id})
 
 
 class PageContentTypeFilter(admin.SimpleListFilter):
