@@ -87,9 +87,6 @@ def get_admin_url(obj):
     Failing that, it will see if it is an inline registered to a Page
     (with page_admin.register_content_inline).
     '''
-    # Import here to avoid circular imports
-    from cms.apps.pages.admin import page_admin
-
     # We first of all just try and get an admin URL for the object that has
     # been passed to us.
     try:
@@ -120,6 +117,7 @@ def get_admin_url(obj):
                 return url
 
     if 'cms.apps.pages' in settings.INSTALLED_APPS:
+        from cms.apps.pages.admin import page_admin
         from cms.apps.pages.models import Page
         # If we've made it here, then obj is neither an object with an admin
         # change URL nor is it an inline of a registered model with an admin
