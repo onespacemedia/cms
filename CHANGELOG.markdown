@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.15 - 2021-01-15
+* Fix issue where checking if user was authenticated was being called incorrectly.
+
 ## 4.4.14 - 2020-12-15
 * Remove TinyPNG from media app
 
