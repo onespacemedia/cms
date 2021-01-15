@@ -174,7 +174,7 @@ class PageMiddleware(MiddlewareMixin):
                 ))
 
             if request:
-                if page.auth_required() and not request.user.is_authenticated():
+                if page.auth_required() and not request.user.is_authenticated:
                     return redirect('{}?next={}'.format(
                         settings.LOGIN_URL,
                         request.path
