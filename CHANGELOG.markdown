@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.16 - 2021-01-15
+* Fix issue with incorrect version being published.
+
 ## 4.4.15 - 2021-01-15
 * Fix issue where checking if user was authenticated was being called incorrectly.
 
