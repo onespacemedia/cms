@@ -3,7 +3,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django import urls
 from django.db import connection, models, transaction
-from django.db.models import F, Q, Exists, OuterRef
+from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
@@ -27,15 +27,43 @@ class PageManager(OnlineBaseManager):
         queryset = queryset.filter(
             Q(publication_date=None) | Q(publication_date__lte=now))
         queryset = queryset.filter(Q(expiry_date=None) | Q(expiry_date__gt=now))
-
         # Perform parent ordering.
-        offline_ancestors = self._queryset_class(model=self.model, using=self._db, hints=self._hints).filter(
-            Q(left__lt=OuterRef('left')) & Q(right__gt=OuterRef('right')),
-            Q(country_group_id__isnull=True) | Q(country_group_id=OuterRef('country_group_id')),
-            Q(is_online=False) | Q(publication_date__gt=now) | Q(expiry_date__lte=now),
+        quote_name = connection.ops.quote_name
+        page_alias = page_alias or quote_name('pages_page')
+        queryset = queryset.extra(
+            where=('''
+                NOT EXISTS (
+                    SELECT *
+                    FROM {pages_page} AS {ancestors}
+                    WHERE
+                        {ancestors}.{left} < {page_alias}.{left} AND
+                        {ancestors}.{right} > {page_alias}.{right} AND (
+                            {ancestors}.{country_group_id} = {page_alias}.{country_group_id} OR
+                            {ancestors}.{country_group_id} IS NULL
+                        ) AND (
+                            {ancestors}.{is_online} = FALSE OR
+                            {ancestors}.{publication_date} > %s OR
+                            {ancestors}.{expiry_date} <= %s
+                        )
+                )
+            '''.format(
+                page_alias=page_alias,
+                **dict(
+                    (name, quote_name(name))
+                    for name in (
+                        'pages_page',
+                        'ancestors',
+                        'left',
+                        'right',
+                        'country_group_id',
+                        'is_online',
+                        'publication_date',
+                        'expiry_date',
+                    )
+                )
+            ),),
+            params=(now, now),
         )
-        queryset = queryset.annotate(parents_online=~Exists(offline_ancestors)).filter(parents_online=True)
-
         return queryset
 
     def get_homepage(self):
@@ -62,11 +90,13 @@ class Page(PageBase):
     left = models.IntegerField(
         editable=False,
         db_index=True,
+        null=True,
     )
 
     right = models.IntegerField(
         editable=False,
         db_index=True,
+        null=True,
     )
 
     is_content_object = models.BooleanField(
@@ -92,10 +122,11 @@ class Page(PageBase):
     def children(self):
         '''The child pages for this page.'''
         children = []
-        if self.right - self.left > 1:  # Optimization - don't fetch children
+        page = self.canonical_version
+        if page.right - page.left > 1:  # Optimization - don't fetch children
             #  we know aren't there!
-            for child in self.child_set.filter(is_content_object=False):
-                child.parent = self
+            for child in page.child_set.filter(is_content_object=False):
+                child.parent = page
                 children.append(child)
         return children
 
@@ -304,18 +335,32 @@ class Page(PageBase):
         # Now actually save it!
         super().save(*args, **kwargs)
 
+    @cached_property
+    def canonical_version(self):
+        if self.owner:
+            return self.owner.canonical_version
+        return self
+
+    @property
+    def _is_canonical_page(self):
+        # The name is due to the fact we can't clash with the qs annotation name
+        return not self.owner_id
+
     @transaction.atomic
     def delete(self, *args, **kwargs):
         '''Deletes the page.'''
-        list(Page.objects.all().select_for_update().values_list(
-            'left',
-            'right'
-        ))  #
-        # Lock entire
-        #  table.
-        super().delete(*args, **kwargs)
-        # Update the entire tree.
-        self._excise_branch()
+        if self._is_canonical_page:
+            list(Page.objects.filter(is_content_object=False).select_for_update().values_list(
+                'left',
+                'right',
+            ))  #
+            # Lock entire
+            #  table.
+            super().delete(*args, **kwargs)
+            # Update the entire tree.
+            self._excise_branch()
+        else:
+            super().delete(*args, **kwargs)
 
     def last_modified(self):
         versions = Version.objects.get_for_object(self)
@@ -473,11 +518,8 @@ class Country(models.Model):
         on_delete=models.CASCADE,
     )
 
-    default = models.BooleanField(
-        blank=True,
-        choices=[(True, 'Yes'), (None, 'No')],
+    default = models.NullBooleanField(
         default=None,
-        null=True,
         unique=True,
     )
 
@@ -485,7 +527,7 @@ class Country(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name_plural = 'countries'
 
 
