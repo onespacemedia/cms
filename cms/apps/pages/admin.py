@@ -576,15 +576,15 @@ class PageAdmin(PageBaseAdmin):
 
     @transaction.atomic
     def move_page_view(self, request):
+        canonical_pages = Page.objects.filter(is_content_object=False)
+
         '''Moves a page up or down.'''
         # Check that the user has permission to move pages.
         if not self.has_change_permission(request):
             return HttpResponseForbidden('You do not have permission to move this page.')
 
         # Lock entire table.
-        existing_pages_list = Page.objects.all().exclude(
-            is_content_object=True,
-        ).select_for_update().values(
+        existing_pages_list = canonical_pages.values(
             'id',
             'parent_id',
             'left',
@@ -627,29 +627,28 @@ class PageAdmin(PageBaseAdmin):
         first_page, second_page = sorted((page, other_page), key=lambda p: p['left'])
 
         # Excise the first page.
-        Page.objects.filter(left__gte=first_page['left'], right__lte=first_page['right']).update(
+        canonical_pages.filter(left__gte=first_page['left'], right__lte=first_page['right']).update(
             left=F('left') * -1,
             right=F('right') * -1,
         )
 
         # Move the other page.
         branch_width = first_page['right'] - first_page['left'] + 1
-        Page.objects.filter(left__gte=second_page['left'], right__lte=second_page['right']).update(
+        canonical_pages.filter(left__gte=second_page['left'], right__lte=second_page['right']).update(
             left=F('left') - branch_width,
             right=F('right') - branch_width,
         )
 
+        # THIS IS WHAT BREAKS ALL OF THE PAGES
         # Put the page back in.
         second_branch_width = second_page['right'] - second_page['left'] + 1
-        Page.objects.filter(left__lte=-first_page['left'], right__gte=-first_page['right']).update(
+        canonical_pages.filter(left__lte=-first_page['left'], right__gte=-first_page['right']).update(
             left=(F('left') - second_branch_width) * -1,
             right=(F('right') - second_branch_width) * -1,
         )
 
         # Update all content models to match the left and right of their parents.
-        existing_pages_list = Page.objects.all().exclude(
-            is_content_object=False,
-        ).select_for_update().values(
+        existing_pages_list = canonical_pages.select_for_update().values(
             'id',
             'parent_id',
             'owner',
