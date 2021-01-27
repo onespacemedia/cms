@@ -1,29 +1,18 @@
 '''Custom middleware used by the pages application.'''
-import re
+
+import sys
 
 from django.conf import settings
-from django.db.models import Q
-from django.http import Http404, HttpResponsePermanentRedirect
+from django import urls
+from django.core.handlers.exception import handle_uncaught_exception
+from django.http import Http404
 from django.shortcuts import redirect
-from django.urls import resolve, is_valid_path
-from django.utils.http import escape_leading_slashes
+from django.template.response import SimpleTemplateResponse
+from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import cached_property
+from django.views.debug import technical_404_response
 
-from .models import Page, Country
-from .views import PageDispatcherView
-
-if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
-    from django.contrib.gis.geoip2 import GeoIP2
-    from geoip2.errors import AddressNotFoundError
-
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+from cms.apps.pages.models import Page
 
 
 class RequestPageManager:
@@ -74,10 +63,6 @@ class RequestPageManager:
             return Page.objects.get_homepage()
         except Page.DoesNotExist:
             return None
-
-    @cached_property
-    def navigation(self):
-        return self.homepage.navigation
 
     @cached_property
     def is_homepage(self):
@@ -135,120 +120,74 @@ class RequestPageManager:
         '''Whether the current page exactly matches the request URL.'''
         return self.current.get_absolute_url() == self._path
 
-    @cached_property
-    def current_path(self):
-        '''The URL to be checked against the page's urlconf.'''
-        script_name = self.current.get_absolute_url()[:-1]
-        return self._path[len(script_name):]
 
+class PageMiddleware(MiddlewareMixin):
 
-class PageMiddleware:
-    '''
-    Middleware necessary for the use of the pages app
+    '''Serves up pages when no other view is matched.'''
 
-        - Adds 'pages' to the request
-
-        - Rewrites the URL based on APPEND_SLASH in the case of PageView raising a Http404 exception
-    '''
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
+    def process_request(self, request):
+        '''Annotates the request with a page manager.'''
         request.pages = RequestPageManager(request)
 
-        response = self.get_response(request)
+    def process_response(self, request, response):
+        '''If the response was a 404, attempt to serve up a page.'''
+        if response.status_code != 404:
+            return response
+        # Get the current page.
+        page = request.pages.current
+        if page is None:
+            return response
+        script_name = page.get_absolute_url()[:-1]
+        path_info = request.path[len(script_name):]
 
-        return response
+        # Continue for media
+        if request.path.startswith('/media/'):
+            return response
 
-    def process_exception(self, request, exception):
-        '''Rewrite the URL based on settings.APPEND_SLASH and the urlconf of the current page.'''
+        if hasattr(request, 'country') and request.country is not None:
+            script_name = '/{}{}'.format(
+                request.country.code.lower(),
+                script_name
+            )
 
-        if isinstance(exception, Http404):
-            if settings.APPEND_SLASH and not request.path_info.endswith('/'):
-                page = request.pages.current
-
-                if page:
-                    script_name = page.get_absolute_url()[:-1]
-                    path_info = request.path[len(script_name):]
-
-                    urlconf = getattr(page.content, 'urlconf', None) if hasattr(page, 'content') else None
-
-                    # Check if the URL with a slash appended is resolved by the current page's urlconf
-                    if (is_valid_path(path_info, urlconf)
-                            or not is_valid_path(f'{path_info}/', urlconf)):
-                        # Check if the URL with a slash appended resolves for something other than a page
-                        match = resolve(f'{path_info}/', getattr(request, 'urlconf', None))
-                        if getattr(match.func, 'view_class', None) is PageDispatcherView:
-                            # Couldn't find any view that would be resolved for this URL
-                            # No point redirecting to a URL that will 404
-                            return None
-
-                new_path = request.get_full_path(force_append_slash=True)
-                # Prevent construction of scheme relative urls.
-                new_path = escape_leading_slashes(new_path)
-
-                return HttpResponsePermanentRedirect(new_path)
-
-
-class LocalisationMiddleware:
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-        self.exclude_urls = [
-            re.compile(url_regex) for url_regex in getattr(settings, 'LOCALISATION_MIDDLEWARE_EXCLUDE_URLS', ())
-        ]
-
-    def __call__(self, request, geoip_path=None):
-        # Continue for media and admin
-        if any(map(lambda pattern: pattern.match(request.path_info[1:]), self.exclude_urls)):
-            return self.get_response(request)
-
-        # Set a default country object
-        request.country = None
-
-        # Check to see if we have a country in the URL
-        country_match = re.match('/([a-z]{2})/|\b', request.path)
-        if country_match:
-
-            # Try and get a country from the database
+        # Dispatch to the content.
+        try:
             try:
-                request.country = Country.objects.get(
-                    code__iexact=str(country_match.group(1))
-                )
+                callback, callback_args, callback_kwargs = urls.resolve(path_info, page.content.urlconf)
+            except urls.Resolver404:
+                # First of all see if adding a slash will help matters.
+                if settings.APPEND_SLASH:
+                    new_path_info = path_info + '/'
 
-                request.path = request.path.replace('/{}'.format(
-                    country_match.group(1)
-                ), '')
-                request.path_info = request.path
-
-            except Country.DoesNotExist:
-                pass
-
-        # If we don't have a country at this point, we need to do some ip
-        # checking or assumption
-        if request.country is None:
-            # Get the Geo location of the requests IP
-            geo_ip = GeoIP2(path=geoip_path)
-
-            try:
-                country_geo_ip = geo_ip.country(get_client_ip(request))
-            except AddressNotFoundError:
-                # If there's no county found for that IP, just don't look for a country
-                # and go with the default
-                country_geo_ip = {}
-
-            code = country_geo_ip.get('country_code', '')
-
-            request.country = Country.objects.filter(
-                Q(code__iexact=code) | Q(default=True)
-            ).order_by('-default').first()
-
-            if request.country:
-                return redirect('/{}{}'.format(
-                    request.country.code.lower(),
-                    request.path,
+                    try:
+                        urls.resolve(new_path_info, page.content.urlconf)
+                    except urls.Resolver404:
+                        pass
+                    else:
+                        return redirect(script_name + new_path_info, permanent=True)
+                return response
+            response = callback(request, *callback_args, **callback_kwargs)
+            # Validate the response.
+            if not response:
+                raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(
+                    callback.__name__
                 ))
 
-        response = self.get_response(request)
+            if request:
+                if page.auth_required() and not request.user.is_authenticated():
+                    return redirect('{}?next={}'.format(
+                        settings.LOGIN_URL,
+                        request.path
+                    ))
 
-        return response
+            if isinstance(response, SimpleTemplateResponse):
+                return response.render()
+
+            return response
+        except Http404 as ex:
+            if settings.DEBUG:
+                return technical_404_response(request, ex)
+            # Let the normal 404 mechanisms render an error page.
+            return response
+        except:
+            return handle_uncaught_exception(request, urls.get_resolver(None), sys.exc_info())
