@@ -3,15 +3,14 @@ import re
 
 from django.conf import settings
 from django.db.models import Q
-from django.urls import resolve, is_valid_path
 from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import redirect
+from django.urls import resolve, is_valid_path
 from django.utils.http import escape_leading_slashes
 from django.utils.functional import cached_property
 
-
 from .utils import overlay_page_obj
-from .models import Country, Page
+from .models import Page, Country
 from .views import PageDispatcherView
 
 if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:

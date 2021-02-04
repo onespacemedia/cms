@@ -9,7 +9,6 @@ from django.urls import NoReverseMatch, reverse
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
-from cms.apps.pages.models import Page
 from cms.models.base import PageBaseSearchAdapter, SearchMetaBaseSearchAdapter
 
 
@@ -90,9 +89,6 @@ def get_admin_url(obj):
     Failing that, it will see if it is an inline registered to a Page
     (with page_admin.register_content_inline).
     '''
-    # Import here to avoid circular imports
-    from cms.apps.pages.admin import page_admin
-
     # We first of all just try and get an admin URL for the object that has
     # been passed to us.
     try:
@@ -122,25 +118,28 @@ def get_admin_url(obj):
             if url:
                 return url
 
-    # If we've made it here, then obj is neither an object with an admin
-    # change URL nor is it an inline of a registered model with an admin
-    # change URL. Lets check inlines registered with page_admin.
-    for _, inline in page_admin.content_inlines:
-        # page_admin.content_inlines is a list of tuples. The first value
-        # is the ContentType and the second is the inline InlineModelAdmin
-        # used to register the model.
-        # We're going to check for ForeignKeys to 'pages.Page' since they'll
-        # have to have one to be registered as a content inline.
+    if 'cms.apps.pages' in settings.INSTALLED_APPS:
+        from cms.apps.pages.admin import page_admin
+        from cms.apps.pages.models import Page
+        # If we've made it here, then obj is neither an object with an admin
+        # change URL nor is it an inline of a registered model with an admin
+        # change URL. Lets check inlines registered with page_admin.
+        for _, inline in page_admin.content_inlines:
+            # page_admin.content_inlines is a list of tuples. The first value
+            # is the ContentType and the second is the inline InlineModelAdmin
+            # used to register the model.
+            # We're going to check for ForeignKeys to 'pages.Page' since they'll
+            # have to have one to be registered as a content inline.
 
-        url = check_inline_for_admin_url(obj, inline, Page)
+            url = check_inline_for_admin_url(obj, inline, Page)
 
-        if url:
-            return url
-    # You can use the same logic that tests for a ContentBaseInline page to test for a ContentBae page
+            if url:
+                return url
+        # You can use the same logic that tests for a ContentBaseInline page to test for a ContentBae page
 
-    # If none of the above work then we're really out of options. Just
-    # return None and let our caller handle this.
-    return check_inline_for_admin_url(obj, None, Page, inline_check=False)
+        # If none of the above work then we're really out of options. Just
+        # return None and let our caller handle this.
+        return check_inline_for_admin_url(obj, None, Page, inline_check=False)
 
 
 def get_related_objects_admin_urls(obj):

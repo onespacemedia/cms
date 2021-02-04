@@ -2,11 +2,34 @@
 
 ## Next release
 * Add versioning to pages
+## 4.4.16 - 2021-01-15
+* Fix issue with incorrect version being published.
+
+## 4.4.15 - 2021-01-15
+* Fix issue where checking if user was authenticated was being called incorrectly.
+
+## 4.4.14 - 2020-12-15
+* Remove TinyPNG from media app
+
+## 4.4.13 - 2020-11-2
+* Get image dimensions during a pre_save signal instead of saving the file twice.
+
+## feature/middleware-updates
 * Update middleware to no longer use deprecated MiddlewareMixin
 * Remove redundant code from middleware + general code cleanup
 * Change pages system to use PageDispatcher view as its entry point
 * Fix confusing options for Country.default
 * LOCALISATION_MIDDLEWARE_EXCLUDE_URLS is a new setting
+
+## 4.4.12 - 2020-11-2
+* Use the media storage `.open()` function to retrieve an image instead of `open()`
+
+## 4.4.11 - 2020-10-30
+* Fix issue where adding a file would error with remote storages.
+* Fix issue where list page would error if a remote storage was being used
+
+## 4.4.10 - 2020-10-28
+* Have the media storage class extend the current default storage class
 
 ## 4.4.9 - 2020-09-16
 * Increase max length of page slugs to 150

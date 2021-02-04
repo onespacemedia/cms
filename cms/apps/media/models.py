@@ -9,19 +9,20 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.exceptions import ValidationError
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import get_storage_class
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.functional import cached_property
 from PIL import Image
-from tinypng.api import shrink_file
 
 from .filetypes import get_icon, is_image
 from .widgets import ImageThumbnailWidget
 
 
-class MediaStorage(FileSystemStorage):
+class MediaStorage(get_storage_class()):
     def get_available_name(self, name, max_length=None):
         if getattr(settings, 'MEDIA_OVERWRITE_WITH_NEW', False):
             self.delete(name)
@@ -108,31 +109,6 @@ class File(models.Model):
     class Meta:
         ordering = ['-date_added', '-pk']
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert, force_update, using, update_fields)
-        if self.is_image():
-            dimensions = self.get_dimensions()
-
-            if dimensions:
-                self.width, self.height = dimensions
-                super().save(False, True, using=using, update_fields=update_fields)
-
-        # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
-        if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
-            _, extension = os.path.splitext(self.file.name)
-            extension = extension.lower()[1:]
-
-            if extension in ['png', 'jpg', 'jpeg']:
-                try:
-                    shrink_file(
-                        self.file.path,
-                        api_key=settings.TINYPNG_API_KEY,
-                        out_filepath=self.file.path,
-                    )
-                # If the minification doesn't happen, that's ok.
-                except:  # pylint: disable=bare-except
-                    pass
-
     @cached_property
     def icon(self):
         return get_icon(self.file.name)
@@ -140,18 +116,14 @@ class File(models.Model):
     def is_image(self):
         return is_image(self.file.name)
 
-    def get_dimensions(self):
-        try:
-            with open(self.file.path, 'rb') as f:
-                try:
-                    image = Image.open(f)
-                    image.verify()
-                except IOError:
-                    return
-
-            return image.size
-        except IOError:
-            return 0
+@receiver(pre_save, sender=File)
+def file_pre_save(sender, instance, *args, **kwargs):
+    try:
+        image = Image.open(instance.file)
+        image.verify()
+        instance.width, instance.height = image.size
+    except IOError:
+        return
 
 
 class FileRefField(models.ForeignKey):
