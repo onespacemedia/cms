@@ -394,6 +394,18 @@ class Page(PageBase):
             return reverse('admin:pages_page_overview', kwargs={'object_id':self.id})
         return reverse('admin:pages_page_change', kwargs={'object_id':self.id})
 
+    def get_preview_url(self):
+        url = super().get_preview_url()
+        if self.version_for_id:
+            return f'{url}&version={self.version}'
+        return url
+
+    def get_public_preview_url(self):
+        url = super().get_public_preview_url()
+        if self.version_for_id:
+            return f'{url}&version={self.version}'
+        return url
+
     def get_language(self):
         if self.country_group:
             return str(self.country_group)

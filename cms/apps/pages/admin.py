@@ -635,6 +635,10 @@ class PageAdmin(PageBaseAdmin):
             if form.is_valid():
                 context['form_saved'] = True
                 form.save()
+                updated_fields = {
+                    field: getattr(page, field) for field in fields
+                }
+                page.get_versions().update(**updated_fields)
         else:
             form = ModelForm(instance=page)
 

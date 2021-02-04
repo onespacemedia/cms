@@ -164,16 +164,12 @@ class PublishedBaseAdmin(admin.ModelAdmin):
 
     change_form_template = 'admin/cms/publishedmodel/change_form.html'
 
-    view_on_site_parameters = {'preview': 1}
-
-    def get_view_on_site_parameters(self, obj=None):
-        return self.view_on_site_parameters
-
     def get_view_on_site_url(self, obj=None):
-        if obj is not None and hasattr(obj, 'get_absolute_url'):
-            query = urlencode(self.get_view_on_site_parameters(obj))
-
-            return f'{obj.get_absolute_url()}?{query}'
+        if obj is not None:
+            if hasattr(obj, 'get_preview_url'):
+                return obj.get_preview_url()
+            if hasattr(obj, 'get_absolute_url'):
+                return obj.get_absolute_url()
 
 
 class OnlineBaseAdmin(PublishedBaseAdmin):

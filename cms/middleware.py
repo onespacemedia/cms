@@ -4,7 +4,8 @@ import re
 
 from django.conf import settings
 
-from .models import publication_manager, path_token_generator
+from cms.tokens import PreviewTokenGenerator
+from .models import publication_manager
 
 if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
     from .apps.pages.middleware import LocalisationMiddleware
@@ -29,11 +30,13 @@ class PublicationMiddleware:
 
         # See if preview mode is requested.
         try:
-            path = f'{request.path_info[1:] if request.path_info[1:] else request.path_info}'
+            path = request.path_info
             # Check for the value of 'preview' matching the token for the
             # current path. This is intended to throw KeyError if is not
             # present.
-            token_preview_valid = path_token_generator.check_token(request.GET['preview'], path)
+            token = request.GET.get('preview')
+            token_generator = PreviewTokenGenerator(path)
+            token_preview_valid = token_generator.verify(token)
             # Allow something like preview=1, preview=any_other_value if
             # they are a staff user.
             user_preview = request.GET['preview'] and request.user.is_staff
