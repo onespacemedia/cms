@@ -367,7 +367,7 @@ class Page(PageBase):
         if versions.count() > 0:
             latest_version = versions[:1][0]
             return '{} by {}'.format(
-                latest_version.revision.date_created.strftime('%Y-%m-%d %H:%M:%S'),
+                latest_version.revision.date_created.strftime('%d/%m/%Y %H:%M'),
                 latest_version.revision.user
             )
         return '-'
