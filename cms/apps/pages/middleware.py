@@ -276,6 +276,7 @@ class VersionMiddleware:
             if page.version != version:
                 version_page = page.version_set.get(version=version)
                 overlay_page_obj(page, version_page)
+                response.context_data['version'] = version_page
         except (ValueError, Page.DoesNotExist):
             raise Http404(f"Version '{version}' does not exist for page '{page}'")
 

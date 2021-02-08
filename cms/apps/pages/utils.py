@@ -130,6 +130,7 @@ def overlay_page_obj(original_page, overlay_page, commit=False):
 
     checked_models = []
     related_fields = []
+
     def do_model_inline(cls):
         checked_models.append(cls.model)
         fk = _get_foreign_key(Page, cls.model, fk_name=cls.fk_name)
