@@ -300,6 +300,9 @@ class PageAdmin(PageBaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         '''Adds the template area fields to the form.'''
+        if not getattr(settings, 'PAGES_VERSIONING', False):
+            request.shared_fields_editable = True
+
         content_cls = self.get_page_content_cls(request, obj)
         content_fields = []
         form_attrs = {}

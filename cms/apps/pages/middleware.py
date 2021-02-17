@@ -58,7 +58,7 @@ class RequestPageManager:
         try:
             # See if the page has any alternate versions for the current country
             alternate_version = Page.objects.get(
-                is_content_object=True,
+                is_canonical_page=False,
                 owner=page,
                 country_group=self.request_country_group()
             )
@@ -198,7 +198,7 @@ class LocalisationMiddleware:
             re.compile(url_regex) for url_regex in getattr(settings, 'LOCALISATION_MIDDLEWARE_EXCLUDE_URLS', ())
         ]
 
-    def __call__(self, request, geoip_path=None):
+    def __call__(self, request, geoip_path=getattr(settings, 'GEOIP_PATH', None)):
         # Continue for media and admin
         if any(map(lambda pattern: pattern.match(request.path_info[1:]), self.exclude_urls)):
             return self.get_response(request)
