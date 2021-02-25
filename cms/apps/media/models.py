@@ -259,7 +259,7 @@ def get_video_info(url):
     return {
         'embed_code': json['html'],
         'title': json['title'],
-        'service': json['provider_name'].lower(),
+        'service': json.get('provider_name', 'unknown').lower(),
         'id': video_id,
         'src': src,
     }
