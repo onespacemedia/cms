@@ -543,9 +543,11 @@ def render_breadcrumbs(context, page=None, extended=False):
 @library.global_function
 @jinja2.contextfunction
 def get_country_code(context):
-    if hasattr(context.request, 'country') and context.request.country:
+    request = context['request']
+    country = getattr(request, 'country', None)
+    if country:
         return '/{}'.format(
-            context.request.country.code.lower()
+            country.code.lower()
         )
 
     return ''
