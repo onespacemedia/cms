@@ -158,7 +158,7 @@ class ImageRefField(FileRefField):
 
 
 VIDEO_FILTER = {
-    'file__iregex': r'\.(mp4|m4v)$'
+    'file__iregex': r'\.(mp4|m4v|webm)$'
 }
 
 
