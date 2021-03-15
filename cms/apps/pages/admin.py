@@ -848,6 +848,10 @@ class PageAdmin(PageBaseAdmin):
         # Get the current page
         original_page = get_object_or_404(Page, id=object_id)
 
+        # Catch if a language duplicate is made from a translation page
+        if original_page.owner:
+            original_page = original_page.owner
+
         if request.method == 'POST':
             page = duplicate_page(original_page, page_changes)
 
