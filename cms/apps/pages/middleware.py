@@ -1,6 +1,7 @@
 """Custom middleware used by the pages application."""
 import re
 import sys
+from urlparse import urlparse
 
 from django.conf import settings
 from django.core.cache import cache
@@ -202,7 +203,11 @@ class PageMiddleware(object):
 
         if not request.language or (cookie_lang and cookie_lang != request.language):
             # Redirect to the default language.
-            return HttpResponsePermanentRedirect('/{}{}'.format(cookie_lang if cookie_lang else DEFAULT_LANGUAGE, request.path))
+            redirect_link = request.path
+            if "?" in request.get_full_path():
+                redirect_link = request.path + '?' + urlparse(request.get_full_path()).query
+
+            return HttpResponsePermanentRedirect('/{}{}'.format(cookie_lang if cookie_lang else DEFAULT_LANGUAGE, redirect_link))
 
         # Get the current page.
         page = request.pages.current
