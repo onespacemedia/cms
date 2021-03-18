@@ -1,6 +1,9 @@
 # Changelog
 
-## 4.4.17 - 2021-01-15
+## 4.4.18 - 2021-03-18
+* Fix VideoRefFields throwing an error if, in the returned JSON, 'title' wasn't provided.
+
+## 4.4.17 - 2021-02-25
 * Fix VideoRefFields throwing an error if, in the returned JSON, 'provider_name' wasn't provided.
 
 ## 4.4.16 - 2021-01-15
@@ -14,6 +17,13 @@
 
 ## 4.4.13 - 2020-11-2
 * Get image dimensions during a pre_save signal instead of saving the file twice.
+
+## feature/middleware-updates
+* Update middleware to no longer use deprecated MiddlewareMixin
+* Remove redundant code from middleware + general code cleanup
+* Change pages system to use PageDispatcher view as its entry point
+* Fix confusing options for Country.default
+* LOCALISATION_MIDDLEWARE_EXCLUDE_URLS is a new setting
 
 ## 4.4.12 - 2020-11-2
 * Use the media storage `.open()` function to retrieve an image instead of `open()`
