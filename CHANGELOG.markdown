@@ -1,6 +1,9 @@
 # Changelog
 
-## 4.4.17 - 2021-01-15
+## 4.4.18 - 2021-03-18
+* Fix VideoRefFields throwing an error if, in the returned JSON, 'title' wasn't provided.
+
+## 4.4.17 - 2021-02-25
 * Fix VideoRefFields throwing an error if, in the returned JSON, 'provider_name' wasn't provided.
 
 ## 4.4.16 - 2021-01-15
