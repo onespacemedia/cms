@@ -88,19 +88,17 @@ class SearchMetaBase(OnlineBase):
     # SEO fields.
 
     browser_title = models.CharField(
+        "Title tag",
         max_length=1000,
         blank=True,
         help_text=(
-            "The heading to use in the user's web browser. "
-            "Leave blank to use the page title. "
-            "Search engines pay particular attention to this attribute."
+            "The title that appears in search results. Use 50-60 characters and include relevant keywords."
         )
     )
 
     meta_description = models.TextField(
-        "description",
         blank=True,
-        help_text="A brief description of the contents of this page.",
+        help_text="A concise and compelling description of the contents of the page. Use 50-160 characters and include relevant keywords.",
     )
 
     sitemap_priority = models.FloatField(

@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.19 - 2021-03-26
+* Update SEO fields to match industry standard terms for title and meta.
+
 ## 4.4.18 - 2021-03-18
 * Fix VideoRefFields throwing an error if, in the returned JSON, 'title' wasn't provided.
 
