@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
-from historylinks import shortcuts as historylinks
 from reversion.models import Version
 
 from cms import sitemaps
@@ -457,9 +456,6 @@ class Page(PageBase):
                 name='page_mptt_values',
             )
         ]
-
-
-historylinks.register(Page)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
