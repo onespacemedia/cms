@@ -3,7 +3,6 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils import six
 from django.utils.html import escape
 from sorl.thumbnail import get_thumbnail
 
@@ -93,6 +92,6 @@ def process(text):
             assert False
 
         # Regenerate the html tag.
-        attrs_str = " ".join("%s=%s" % (key, value) for key, value in sorted(six.iteritems(attrs)))
+        attrs_str = " ".join("%s=%s" % (key, value) for key, value in sorted(attrs.items()))
         return "<%s %s%s>" % (tagname, attrs_str, match.group(3))
     return RE_TAG.sub(sub_tag, text)

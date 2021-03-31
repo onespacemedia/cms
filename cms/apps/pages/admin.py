@@ -30,7 +30,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils import six
 from django.utils.html import format_html
 
 from cms.admin import PageBaseAdmin
@@ -62,7 +61,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         lookups = []
         content_types = ContentType.objects.get_for_models(*get_registered_content())
-        for key, value in six.iteritems(content_types):
+        for key, value in content_types.items():
             lookups.append((value.id, capfirst(key._meta.verbose_name)))
         lookups.sort(key=lambda item: item[1])
         return lookups
