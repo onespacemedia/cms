@@ -7,19 +7,18 @@ from setuptools import find_packages, setup
 from cms import VERSION
 
 DEPENDENCIES = [
-    'python-magic==0.4.15',
+    'python-magic',
     'requests',
     'Pillow',
     'sorl-thumbnail',
-    'Jinja2==2.10.1',
+    'Jinja2>=2.10',
 
     'beautifulsoup4',
-    'django>=1.11,<2.3',
+    'django>=2.2,<=3.2',
     'django-historylinks',
     'django-watson',
     'django-reversion',
-    'django-jinja==2.4.1',
-    'python-magic',
+    'django-jinja>=2.7.0',
 ]
 
 if platform.python_implementation() == 'PyPy':
@@ -55,8 +54,8 @@ setup(
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.1',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
