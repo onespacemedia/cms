@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.20 - 2021-04-19
+* Adjust `media.Video` templates to render both low and high res video files. Add support for poster images on local videos.
+* Add schema for local videos.
+
 ## 4.4.19 - 2021-03-26
 * Update SEO fields to match industry standard terms for title and meta.
 
