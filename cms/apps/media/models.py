@@ -280,6 +280,11 @@ class Video(models.Model):
         max_length=200,
     )
 
+    description = models.TextField(
+        blank=True,
+        null=True,
+    )
+
     image = ImageRefField(
         blank=True,
         null=True,
@@ -302,6 +307,10 @@ class Video(models.Model):
         blank=True,
         null=True,
         help_text='Provide a youtube.com or vimeo.com URL.',
+    )
+
+    date_created = models.DateTimeField(
+        auto_now_add=True,
     )
 
     # Secret fields for external videos - populated from the URL when the form is saved.
@@ -347,6 +356,26 @@ class Video(models.Model):
 
         return super().clean()
 
+    def get_schema(self):
+        schema = {
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            "name": self.title,
+            "description": self.description or '',
+            "uploadDate": self.date_created,
+        }
+
+        if self.image:
+            schema['thumbnailUrl'] = [self.image.get_absolute_url()]
+
+        if self.external_video:
+            schema['embedUrl'] = self.external_video_iframe_url
+
+        if self.high_resolution_mp4 or self.low_resolution_mp4:
+            schema['contentUrl'] = (self.high_resolution_mp4 or self.low_resolution_mp4).get_absolute_url()
+
+        return json.dumps(schema)
+
     def embed_html(self, loop=False, autoplay=False, controls=False, mute=False, youtube_parameters=None):
         '''
         Returns the HTML code for embedding the video.
@@ -381,7 +410,12 @@ class Video(models.Model):
                 'controls': ' controls' if controls else '',
                 'loop': ' loop' if loop else '',
                 'muted': ' muted' if mute else '',
-                'src': self.high_resolution_mp4.file.url if self.high_resolution_mp4 else self.low_resolution_mp4.file.url,
+                'high_resolution_file': self.high_resolution_mp4.file.url if self.high_resolution_mp4 else None,
+                'high_resolution_filetype': self.high_resolution_mp4.file.url.split('.')[-1] if self.high_resolution_mp4 else None,
+                'low_resolution_file': self.low_resolution_mp4.file.url if self.low_resolution_mp4 else None,
+                'low_resolution_filetype': self.low_resolution_mp4.file.url.split('.')[-1] if self.low_resolution_mp4 else None,
+                'image': self.image,
+                'schema': self.get_schema(),
             })
 
     class Meta:

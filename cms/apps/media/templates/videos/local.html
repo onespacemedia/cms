@@ -1,3 +1,12 @@
-<video preload="{{ preload }}"{{ autoplay }}{{ controls }}{{ loop }}{{ muted }} class="vid-Video">
-  <source src="{{ src }}" type="video/mp4">
+<video preload="{{ preload }}"{{ autoplay }}{{ controls }}{{ loop }}{{ muted }} class="vid-Video vid-Video-local"{% if image %} poster="{{ image.get_absolute_url() }}"{% endif %}>
+  {% if high_resolution_file %}
+    <source src="{{ high_resolution_file }}" type="video/{{ high_resolution_filetype }}">
+  {% endif %}
+
+  {% if low_resolution_file %}
+    <source src="{{ low_resolution_file }}" type="video/{{ low_resolution_filetype }}">
+  {% endif %}
 </video>
+<script type="application/ld+json">
+  {{ schema }}
+</script>
