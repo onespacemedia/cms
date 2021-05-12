@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.21 - 2021-05-12
+* Fix issue with schema json generation
+
 ## 4.4.20 - 2021-04-19
 * Adjust `media.Video` templates to render both low and high res video files. Add support for poster images on local videos.
 * Add schema for local videos.
