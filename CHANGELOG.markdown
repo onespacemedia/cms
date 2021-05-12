@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.4.22 - 2021-05-12
+* Add missing mark_safe import
+
 ## 4.4.21 - 2021-05-12
 * Fix issue with schema json generation
 
