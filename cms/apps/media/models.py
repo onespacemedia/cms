@@ -1,4 +1,5 @@
 '''Models used by the static media management application.'''
+import json
 import os
 import urllib
 
@@ -374,7 +375,7 @@ class Video(models.Model):
         if self.high_resolution_mp4 or self.low_resolution_mp4:
             schema['contentUrl'] = (self.high_resolution_mp4 or self.low_resolution_mp4).get_absolute_url()
 
-        return json.dumps(schema)
+        return mark_safe(json.dumps(schema, default=str))
 
     def embed_html(self, loop=False, autoplay=False, controls=False, mute=False, youtube_parameters=None):
         '''
