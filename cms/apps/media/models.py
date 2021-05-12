@@ -17,6 +17,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.safestring import mark_safe
 from PIL import Image
 
 from .filetypes import get_icon, is_image
