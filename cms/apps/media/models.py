@@ -21,6 +21,7 @@ from django.utils.safestring import mark_safe
 from PIL import Image
 
 from .filetypes import get_icon, is_image
+from .utils import timedelta_to_iso8601, url_from_path
 from .widgets import ImageThumbnailWidget
 
 
@@ -287,6 +288,11 @@ class Video(models.Model):
         null=True,
     )
 
+    duration = models.DurationField(
+        blank=True,
+        null=True,
+    )
+
     image = ImageRefField(
         blank=True,
         null=True,
@@ -365,16 +371,17 @@ class Video(models.Model):
             "name": self.title,
             "description": self.description or '',
             "uploadDate": self.date_created,
+            "duration": timedelta_to_iso8601(self.duration)
         }
 
         if self.image:
-            schema['thumbnailUrl'] = [self.image.get_absolute_url()]
+            schema['thumbnailUrl'] = [url_from_path(self.image.get_absolute_url())]
 
         if self.external_video:
             schema['embedUrl'] = self.external_video_iframe_url
 
         if self.high_resolution_mp4 or self.low_resolution_mp4:
-            schema['contentUrl'] = (self.high_resolution_mp4 or self.low_resolution_mp4).get_absolute_url()
+            schema['contentUrl'] = url_from_path((self.high_resolution_mp4 or self.low_resolution_mp4).get_absolute_url())
 
         return mark_safe(json.dumps(schema, default=str))
 
@@ -393,6 +400,7 @@ class Video(models.Model):
                     'loop': int(loop),
                     'muted': int(mute),
                     'extra_parameters': ('&amp;' + '&amp;'.join('{}={}'.format(parameter, youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
+                    'schema': self.get_schema(),
                 })
             elif self.external_video_service == 'vimeo':
                 return render_to_string('videos/vimeo.html', {
@@ -401,6 +409,7 @@ class Video(models.Model):
                     'controls': int(not controls),
                     'loop': int(loop),
                     'muted': int(mute),
+                    'schema': self.get_schema(),
                 })
             return render_to_string('videos/default.html', {
                 'src': self.external_video_iframe_url,

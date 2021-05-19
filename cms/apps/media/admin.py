@@ -37,7 +37,10 @@ class LabelAdmin(admin.ModelAdmin):
 class VideoAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {
-            'fields': ['title', 'image', 'high_resolution_mp4', 'low_resolution_mp4', 'external_video'],
+            'fields': [
+                'title', 'description', 'duration', 'image', 'high_resolution_mp4',
+                'low_resolution_mp4', 'external_video'
+            ],
         }),
     ]
 
