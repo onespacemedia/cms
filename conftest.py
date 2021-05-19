@@ -58,7 +58,6 @@ def pytest_configure():
 
             # Third party apps
             'sorl.thumbnail',
-            'historylinks',
             'reversion',
             'watson',
         ],

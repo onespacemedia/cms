@@ -1,4 +1,6 @@
 '''Base classes for the CMS admin interface.'''
+from urllib.parse import urlencode
+
 from django.contrib import admin
 from django.conf import settings
 from django.db.models.deletion import get_candidate_relations_to_delete
@@ -162,6 +164,13 @@ class PublishedBaseAdmin(admin.ModelAdmin):
 
     change_form_template = 'admin/cms/publishedmodel/change_form.html'
 
+    def get_view_on_site_url(self, obj=None):
+        if obj is not None:
+            if hasattr(obj, 'get_preview_url'):
+                return obj.get_preview_url()
+            if hasattr(obj, 'get_absolute_url'):
+                return obj.get_absolute_url()
+
 
 class OnlineBaseAdmin(PublishedBaseAdmin):
     '''Base admin class for OnlineModelBase instances.'''
@@ -179,7 +188,8 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
+        if 'is_online' in form.base_fields:
+            form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
         return form
 
     # Custom admin actions.

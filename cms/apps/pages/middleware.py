@@ -9,6 +9,7 @@ from django.urls import resolve, is_valid_path
 from django.utils.http import escape_leading_slashes
 from django.utils.functional import cached_property
 
+from .utils import overlay_page_obj
 from .models import Page, Country
 from .views import PageDispatcherView
 
@@ -57,14 +58,13 @@ class RequestPageManager:
         try:
             # See if the page has any alternate versions for the current country
             alternate_version = Page.objects.get(
-                is_content_object=True,
+                is_canonical_page=False,
                 owner=page,
                 country_group=self.request_country_group()
             )
 
             return alternate_version
-
-        except:
+        except Page.DoesNotExist:
             return page
 
     @cached_property
@@ -198,7 +198,7 @@ class LocalisationMiddleware:
             re.compile(url_regex) for url_regex in getattr(settings, 'LOCALISATION_MIDDLEWARE_EXCLUDE_URLS', ())
         ]
 
-    def __call__(self, request, geoip_path=None):
+    def __call__(self, request, geoip_path=getattr(settings, 'GEOIP_PATH', None)):
         # Continue for media and admin
         if any(map(lambda pattern: pattern.match(request.path_info[1:]), self.exclude_urls)):
             return self.get_response(request)
@@ -250,5 +250,34 @@ class LocalisationMiddleware:
                 ))
 
         response = self.get_response(request)
+
+        return response
+
+
+class VersionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        return response
+
+    def process_template_response(self, request, response):
+        version = request.GET.get('version')
+        if not getattr(request, 'preview_mode', False) or not version:
+            return response
+
+        page = request.pages.current
+
+        try:
+            version = int(version)
+            # No need to do anything if the current version is the live version
+            if page.version != version:
+                version_page = page.version_set.get(version=version)
+                overlay_page_obj(page, version_page)
+                response.context_data['version'] = version_page
+        except (ValueError, Page.DoesNotExist):
+            raise Http404(f"Version '{version}' does not exist for page '{page}'")
 
         return response

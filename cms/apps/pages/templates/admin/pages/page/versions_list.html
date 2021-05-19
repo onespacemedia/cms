@@ -1,0 +1,164 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_static admin_modify buttons %}
+
+{% block extrahead %}
+  {{ block.super }}
+
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      var switchers = window.jQuery(document.querySelectorAll('.js-VersionSwitcher'))
+      switchers.change(function(event) {
+        window.location.href = event.target.value;
+      })
+    })
+  </script>
+
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+
+  <style>
+    .active-row,
+    .active-row:nth-child(odd) {
+      background-color: #42cf77;
+      color: #fff;
+    }
+
+    .active-row a {
+      color: #fff;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs initialized">
+    <a href="{% url 'admin:index' %}">Home</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="{% url 'admin:app_list' app_label='pages' %}">Pages</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="{% url 'admin:pages_page_changelist' %}">Page</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    {% if display_language_options %}
+      <a href="{{ canonical_version.get_admin_url }}">{{ canonical_version }}</a>
+      <span class="icon-arrow-right breadcrumbs-separator"></span>
+      {{ original.get_language }}
+    {% else %}
+      {{ canonical_version }}
+    {% endif %}
+  </div>
+
+  {% if form_saved %}
+    <ul class="messagelist">
+      <li class="success">Your changes have been saved</li>
+    </ul>
+  {% endif %}
+{% endblock %}
+
+{% block object-tools %}{% endblock %}
+
+{% block content %}
+  <div>
+    {% if display_language_options and language_pages %}
+      <h3>Page language</h3>
+
+      <div class="add-new-variant">
+        <select class="js-LanguageSwitcher">
+          {% for page in language_pages %}
+            <option {% if original == page %}selected{% endif %} value="{{ page.get_admin_url }}">
+              {% if not page.country_group %}
+                Default
+              {% else %}
+                {{ page.country_group }}
+              {% endif %}
+            </option>
+          {% endfor %}
+        </select>
+        <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=canonical_version.id %}">Add translation</a>
+      </div>
+    {% endif %}
+    <h1>Shared fields:</h1>
+  </div>
+  {{ block.super }}
+  <br class="clear">
+  <div class="inner-two-columns">
+    <div class="module filtered initialized change-list">
+      <h1>Select a version to edit</h1>
+
+      <br/>
+
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <div class="text"><span>Version</span></div>
+            </th>
+
+            <th>
+              <div class="text"><span>Name</span></div>
+            </th>
+
+            <th>
+              <div class="text"><span>Last edited</span></div>
+            </th>
+
+            <th>
+              <div class="text"><span>Publication status</span></div>
+            </th>
+
+            <th>
+              <div class="text"><span>Actions</span></div>
+            </th>
+          </tr>
+        </thead>
+
+        {% for object in page_versions %}
+          <tr{% if object == original %} class="active-row"{% endif %}>
+            <td>
+              <a href="{% url 'admin:pages_page_change' object_id=object.id %}">
+                {{ object.version }}
+              </a>
+            </td>
+
+            <td>
+              <a href="{% url 'admin:pages_page_change' object_id=object.id %}">
+                {% if object.version_name %}{{ object.version_name }}{% else %}---------{% endif %}
+              </a>
+            </td>
+
+            <td>{{ object.last_modified }}</td>
+
+            <td>
+              {% if object == original %}
+                Live
+              {% elif object.version_publication_date %}
+                Scheduled {{ object.version_publication_date|date:'d M Y, H:i' }}
+              {% else %}
+                Draft
+              {% endif %}
+            </td>
+
+            <td>
+                <form method="post">
+                  {% csrf_token %}
+                  {% if object != original %}
+                    <input type="submit" formaction="{% url opts|admin_urlname:'publishversion' object.id|admin_urlquote %}" class="button" value="{% trans 'Publish' %}"/>
+                  {% endif %}
+                </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+
+      <form method="post">
+        <div class="submit-row">
+          {% csrf_token %}
+          <input type="submit" class="default" formaction="{% url opts|admin_urlname:'addversion' original.id|admin_urlquote %}" value="{% trans 'Create new version' %}"/>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
