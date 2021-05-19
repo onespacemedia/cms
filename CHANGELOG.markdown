@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.0.1 - 2021-05-19
+* Add missing migration merge
+
 ## 5.0.0 - 2021-05-19
 * Add versioning to pages
 
