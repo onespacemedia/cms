@@ -1,42 +1,88 @@
 {% extends "admin/base_site.html" %}
 
+{% block extrastyle %}
+  {{ block.super }}
+
+  <style>
+    .page-duplicate {
+      display: inline-block;
+      background-color: #d0dbe6;
+      color: #6f7e95;
+      border-radius: 4px;
+      margin-right: 8px;
+      border: 0;
+      height: 32px;
+      line-height: 32px;
+      font-size: 12px;
+      text-align: center;
+      padding: 0 20px;
+      cursor: pointer;
+      transition: background .3s, color .1s;
+    }
+    .page-duplicate:hover {
+      background-color: #639af5;
+      color: #fff;
+    }
+    .page-cancel {
+      display: inline-block;
+      background-color: #c14747;
+      color: #fff !important;
+      border-radius: 4px;
+      border: 0;
+      height: 32px;
+      line-height: 32px;
+      font-size: 12px;
+      text-align: center;
+      padding: 0 20px;
+      cursor: pointer;
+      transition: background .3s;
+    }
+    .page-cancel:hover {
+      background-color: #639af5;
+    }
+    .changeform-tabs-item.selected a {
+      border: 0;
+    }
+  </style>
+{% endblock %}
+
 {% block breadcrumbs %}{% endblock %}
 {% block content %}
   <div id="content-main" class="inner-two-columns">
     <form enctype="multipart/form-data" action="" method="post" id="_form" class="form-horizontal">
       {% csrf_token %}
-
       <div class="inner-right-column">
         <div class="box save-box">
           <div class="submit-row clearfix">
-            <button type="submit" class="btn btn-high btn-info" name="_save">Duplicate</button>
-            <a href="/admin/pages/page/{{ original_page.pk }}">Cancel</a>
+            <button type="submit" class="page-duplicate" name="_save">Duplicate</button>
+            <a class="page-cancel" href="/admin/pages/page/{{ original_page.pk }}">Cancel</a>
           </div>
         </div>
       </div>
-
       <div class="inner-center-column">
         <div class="tab-content tab-content-main">
-          <fieldset class="module aligned with-legend">
-            <h2 class="legend">Duplicate page for a country group</h2>
-            <div class="control-group form-row">
+          <ul class="changeform-tabs">
+            <li class="changeform-tabs-item selected">
+              <a class="changeform-tabs-item-link" href="#">Duplicate page for a country group</a>
+            </li>
+          </ul>
+          <fieldset class="module aligned collapse initialized collapsed selected">
+            <div class="form-row field-sitemap_changefreq">
               <div>
-                <div class="control-label">
-                  <label>Language group:</label>
-                </div>
-                <div class="controls">
-                  <select name="country_group">
-                    {% for group in country_groups %}
-                      <option value="{{ group.pk }}">{{ group }}</option>
-                    {% endfor %}
-                  </select>
-                  <span class="help-inline">Clicking duplicate will create a copy of this page for the selected language group above.</span>
-                </div>
+                <label for="id_country_group">Language group:</label>
+                <select name="country_group" id="id_country_group" tabindex="-1">
+                  {% for group in country_groups %}
+                    <option value="{{ group.pk }}">{{ group }}</option>
+                  {% endfor %}
+                </select>
+                <p class="help">Clicking duplicate will create a copy of this page for the selected language group above.</p>
               </div>
             </div>
           </fieldset>
         </div>
       </div>
+
     </form>
+
   </div>
 {% endblock %}

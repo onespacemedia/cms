@@ -5,43 +5,51 @@ This is an enhanced version of the Django admin area, providing a more
 user-friendly appearance and providing additional functionality over the
 standard implementation.
 '''
+import collections
 import json
 from copy import deepcopy
 from functools import cmp_to_key, partial
 
 from django import forms
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib import admin, messages
+from django.contrib.admin import helpers
 from django.contrib.admin.options import IS_POPUP_VAR
+from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
-from django.db.models import F, Q
+from django.db.models import F, Max, Q
 from django.forms import modelform_factory
-from django.http import (Http404, HttpResponse, HttpResponseForbidden,
-                         HttpResponseRedirect)
+from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
+                         HttpResponseForbidden, HttpResponseRedirect)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils import six
-from watson.search import update_index
+from django.utils.html import format_html
 
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Country, CountryGroup, Page,
                                    PageSearchAdapter, get_registered_content)
 
 # Used to track references to and from the JS sitemap.
+from cms.apps.pages.utils import duplicate_page, publish_page
+
 PAGE_FROM_KEY = 'from'
 PAGE_FROM_SITEMAP_VALUE = 'sitemap'
 
-
 # The GET parameter used to indicate content type on page creation.
 PAGE_TYPE_PARAMETER = 'type'
+VERSIONING_ENABLED = getattr(settings, 'PAGES_VERSIONING', False)
+
+
+class PageOverviewChangeList(ChangeList):
+    def url_for_result(self, result):
+        return reverse('admin:pages_page_overview', kwargs={'object_id': result.id})
 
 
 class PageContentTypeFilter(admin.SimpleListFilter):
@@ -53,7 +61,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         lookups = []
         content_types = ContentType.objects.get_for_models(*get_registered_content())
-        for key, value in six.iteritems(content_types):
+        for key, value in content_types.items():
             lookups.append((value.id, capfirst(key._meta.verbose_name)))
         lookups.sort(key=lambda item: item[1])
         return lookups
@@ -73,17 +81,30 @@ class PageAdmin(PageBaseAdmin):
 
     list_filter = [PageContentTypeFilter]
 
+    shared_fields = ['slug', 'parent', 'publication_date', 'expiry_date', 'is_online', 'requires_authentication']
+    version_readonly = ['slug', 'parent']
+    version_fields = ['version_publication_date']
+    version_exclude = ['publication_date', 'expiry_date', 'is_online', 'requires_authentication']
+
+    PUBLICATION_FIELDS = ('Publication', {
+        'fields': ['publication_date', 'expiry_date', 'is_online'],
+        'classes': ('collapse',)
+    })
+
+    GENERAL_FIELDS = (None, {
+        'fields': ['title', 'slug', 'parent'],
+    })
+
+    if VERSIONING_ENABLED:
+        GENERAL_FIELDS[1]['fields'].append('version_name')
+        PUBLICATION_FIELDS[1]['fields'].append('version_publication_date')
+
     new_fieldsets = [
-        (None, {
-            'fields': ('title', 'slug', 'parent'),
-        }),
+        GENERAL_FIELDS,
         ('Security', {
             'fields': ('requires_authentication',),
         }),
-        ('Publication', {
-            'fields': ('publication_date', 'expiry_date', 'is_online'),
-            'classes': ('collapse',)
-        }),
+        PUBLICATION_FIELDS,
         ('Navigation', {
             'fields': ('short_title', 'in_navigation', 'hide_from_anonymous'),
             'classes': ('collapse',)
@@ -108,8 +129,13 @@ class PageAdmin(PageBaseAdmin):
 
     change_form_template = 'admin/pages/page/change_form.html'
 
+    def get_changelist(self, request, **kwargs):
+        if VERSIONING_ENABLED:
+            return PageOverviewChangeList
+        return ChangeList
+
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_content_object=False)
+        return super().get_queryset(request).filter(is_canonical_page=True)
 
     def get_object(self, request, object_id, from_field=None):
         queryset = super().get_queryset(request)
@@ -204,6 +230,24 @@ class PageAdmin(PageBaseAdmin):
 
         raise Http404('You must specify a page content type.')
 
+    def get_shared_fields(self, request, obj=None):
+        return self.shared_fields or []
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(super().get_readonly_fields(request, obj) or [])
+        if not getattr(request, 'shared_fields_editable', False):
+            fields += self.version_readonly
+
+        return fields
+
+    def get_prepopulated_fields(self, request, obj=None):
+        fields = super().get_prepopulated_fields(request, obj)
+        if fields:
+            fields = fields.copy()
+        for f in self.get_readonly_fields(request, obj):
+            fields.pop(f, None)
+        return fields
+
     def get_fieldsets(self, request, obj=None):
         '''Generates the custom content fieldsets.'''
         content_cls = self.get_page_content_cls(request, obj)
@@ -212,7 +256,18 @@ class PageAdmin(PageBaseAdmin):
             if field.name != 'page'
         ]
 
-        fieldsets = super().get_fieldsets(request, obj)
+        fieldsets = deepcopy(super().get_fieldsets(request, obj))
+        exclude = []
+        if obj and obj.version_for_id:
+            exclude += self.version_exclude
+        else:
+            exclude += self.version_fields
+
+        for fieldset in fieldsets:
+            fieldset[1]['fields'] = [field for field in fieldset[1]['fields'] if field not in exclude]
+
+        fieldsets = [fieldset for fieldset in fieldsets if fieldset[1]['fields']]
+
         if content_fields:
             content_fieldsets = content_cls.fieldsets or [
                 ('Page content', {
@@ -244,6 +299,9 @@ class PageAdmin(PageBaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         '''Adds the template area fields to the form.'''
+        if not getattr(settings, 'PAGES_VERSIONING', False):
+            request.shared_fields_editable = True
+
         content_cls = self.get_page_content_cls(request, obj)
         content_fields = []
         form_attrs = {}
@@ -273,13 +331,6 @@ class PageAdmin(PageBaseAdmin):
         ContentForm = type('{}Form'.format(self.__class__.__name__), (forms.ModelForm,), form_attrs)
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
-
-        if obj and obj.is_content_object:
-            self.prepopulated_fields = {}
-            self.fieldsets[0][1]['fields'] = ('title',)
-        else:
-            self.prepopulated_fields = {'slug': ('title',), }
-            self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
 
         content_defaults = {
             'form': ContentForm,
@@ -319,10 +370,11 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not obj.is_content_object:
-            PageForm.base_fields['parent'].choices = parent_choices
-        elif not obj:
-            PageForm.base_fields['parent'].choices = parent_choices
+        if 'parent' in PageForm.base_fields:
+            if obj and not (not obj._is_canonical_page or obj.owner_set.exists() or obj.version_set.exists()):
+                PageForm.base_fields['parent'].choices = parent_choices
+            elif not obj:
+                PageForm.base_fields['parent'].choices = parent_choices
 
         # Return the completed form.
         return PageForm
@@ -425,26 +477,32 @@ class PageAdmin(PageBaseAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         '''Uses only the correct inlines for the page.'''
         # HACK: Add the current page to the request to pass to the get_inline_instances() method.
-        page = get_object_or_404(self.model, id=object_id)
-        request._admin_change_obj = page
+        current_page = get_object_or_404(self.model, id=object_id)
 
-        extra_context = {}
+        request._admin_change_obj = current_page
 
-        if not page.is_content_object:
-            # Get all of the language pages
-            extra_context['language_pages'] = Page.objects.filter(
-                Q(pk=page.pk) |
-                Q(owner=page, is_content_object=True)
-            ).order_by('-country_group')
-        else:
-            extra_context['language_pages'] = Page.objects.filter(
-                Q(pk=page.owner.pk) |
-                Q(owner=page.owner, is_content_object=True)
-            ).order_by('-country_group')
+        page = current_page
 
-        extra_context['display_language_options'] = False
-        if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
-            extra_context['display_language_options'] = True
+        page_versioning = getattr(settings, 'PAGES_VERSIONING', False)
+        page_languages = 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE
+
+        extra_context = extra_context or {}
+        extra_context['display_version_options'] = page_versioning
+        extra_context['display_language_options'] = page_languages
+
+        if page_versioning:
+            if current_page.version_for:
+                version = current_page
+                # The 'live' page
+                page = version.version_for
+            extra_context['live_page'] = page
+            extra_context['page_versions'] = page.get_versions()
+
+        if page_languages:
+            extra_context['language_pages'] = page.get_language_pages()
+
+        # page could be a language version
+        extra_context['canonical_version'] = page.canonical_version
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -459,6 +517,7 @@ class PageAdmin(PageBaseAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         '''Ensures that a valid content type is chosen.'''
+        request.shared_fields_editable = True
         if PAGE_TYPE_PARAMETER not in request.GET:
             # Generate the available content items.
             content_items = get_registered_content()
@@ -533,11 +592,118 @@ class PageAdmin(PageBaseAdmin):
     def get_urls(self):
         '''Adds in some custom admin URLs.'''
         admin_view = self.admin_site.admin_view
+
+        from django.urls import path
+
         return [
-            url(r'^sitemap.json$', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
-            url(r'^move-page/$', admin_view(self.move_page_view), name='pages_page_move_page'),
-            url(r'^(?P<page>\d+)/duplicate/$', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate_page'),
+            path('sitemap.json', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
+            path('move-page/', admin_view(self.move_page_view), name='pages_page_move_page'),
+            path('<path:object_id>/overview/', admin_view(self.page_index), name='pages_page_overview'),
+            path('<path:object_id>/publish/', admin_view(self.publish_version), name='pages_page_publishversion'),
+            path('<path:object_id>/duplicate/', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate'),
+            path('<path:object_id>/new-version/', admin_view(self.duplicate_for_version), name='pages_page_addversion'),
         ] + super().get_urls()
+
+    def page_index(self, request, object_id, form_url='', extra_context=None):
+        request.shared_fields_editable = True
+        page = get_object_or_404(self.model, id=object_id)
+
+        # This view doesn't make sense for page versions
+        if page.version_for_id:
+            raise Http404('There\'s no page overview for versions of pages')
+
+        fields = self.get_shared_fields(request, page)
+
+        ModelForm = super().get_form(request, page, fields=fields, change=True)
+        fieldsets = [
+            ('Shared Fields', {
+                'fields': self.get_shared_fields(request, page)
+            })
+        ]
+
+        context = extra_context or {}
+
+        def filter_available_fields(fields_, available):
+            if isinstance(fields_, collections.Mapping):
+                field_dict = fields_.copy()
+                for key, value in fields_.items():
+                    if key not in available or not all([x in available for x in value]):
+                        field_dict.pop(key)
+                return field_dict
+            return [field for field in fields_ if field in available]
+
+        if request.method == 'POST':
+            form = ModelForm(request.POST, request.FILES, instance=page)
+            if form.is_valid():
+                context['form_saved'] = True
+                form.save()
+                updated_fields = {
+                    field: getattr(page, field) for field in fields
+                }
+                page.get_versions().update(**updated_fields)
+        else:
+            form = ModelForm(instance=page)
+
+        admin_form = helpers.AdminForm(
+            form,
+            list(fieldsets),
+            # Clear prepopulated fields on a view-only form to avoid a crash.
+            filter_available_fields(self.get_prepopulated_fields(request, page), fields),
+            filter_available_fields(self.get_readonly_fields(request, page), fields),
+            model_admin=self,
+        )
+        media = self.media + admin_form.media
+
+        page_languages = 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE
+
+        context['display_language_options'] = page_languages
+
+        if page_languages:
+            context['language_pages'] = page.get_language_pages()
+
+        errors = helpers.AdminErrorList(form, [])
+
+        has_file_field = form.is_multipart()
+
+        context.update({
+            **self.admin_site.each_context(request),
+            'is_popup': False,
+            'page_versions': page.get_versions(),
+            'original': page,
+            'canonical_version': page.canonical_version,
+            'adminform': admin_form,
+            'errors': errors,
+            'has_view_permission': self.has_view_permission(request, page),
+            'has_add_permission': self.has_add_permission,
+            'has_change_permission': self.has_change_permission(request, page),
+            'has_delete_permission': self.has_delete_permission(request, page),
+            'has_editable_inline_admin_formsets': False,
+            'show_add': False,
+            'show_return': False,
+            'has_file_field': has_file_field,
+            'save_as_new': False,
+            'change': True,
+            'save_as_version': False,
+            'opts': page._meta,
+            'media': media
+        })
+
+        return TemplateResponse(request, 'admin/pages/page/versions_list.html', context)
+
+    @transaction.atomic
+    def publish_version(self, request, object_id, **kwargs):
+        page = get_object_or_404(self.model, id=object_id)
+        live_page = publish_page(page)
+        if not live_page:
+            return HttpResponseBadRequest('<p>This page is already published!</p>')
+
+        msg_dict = {
+            'obj': live_page.get_version_name()
+        }
+        msg = '"{obj}" published successfully'
+        self.message_user(request, format_html(msg, **msg_dict), messages.SUCCESS)
+
+        return redirect(live_page.get_admin_url())
 
     def sitemap_json_view(self, request):
         '''Returns a JSON data structure describing the sitemap.'''
@@ -583,7 +749,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Lock entire table.
         existing_pages_list = Page.objects.all().exclude(
-            is_content_object=True,
+            is_canonical_page=False,
         ).select_for_update().values(
             'id',
             'parent_id',
@@ -648,7 +814,7 @@ class PageAdmin(PageBaseAdmin):
 
         # Update all content models to match the left and right of their parents.
         existing_pages_list = Page.objects.all().exclude(
-            is_content_object=False,
+            is_canonical_page=True,
         ).select_for_update().values(
             'id',
             'parent_id',
@@ -667,35 +833,26 @@ class PageAdmin(PageBaseAdmin):
         # Report back.
         return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
 
-    @staticmethod
-    def duplicate_for_country_group(request, *args, **kwargs):
+    @transaction.atomic
+    def duplicate_for_country_group(self, request, object_id, *args, **kwargs):
+        def page_changes(new_page, original_page):
+            new_page.is_online = False
+            new_page.owner = original_page
+            new_page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
+            new_page.left = None
+            new_page.right = None
+
+            return new_page
+
         # Get the current page
-        original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
-        original_content = original_page.content
+        original_page = get_object_or_404(Page, id=object_id)
+
+        # Catch if a language duplicate is made from a translation page
+        if original_page.owner:
+            original_page = original_page.owner
 
         if request.method == 'POST':
-
-            with update_index():
-                page = deepcopy(original_page)
-                page.pk = None
-                page.is_content_object = True
-                page.owner = original_page
-                page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
-                page.save()
-
-                content = deepcopy(original_content)
-                content.pk = None
-                content.page = page
-                content.save()
-
-                for link in dir(original_page):
-                    if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == 'RelatedManager' and link not in ['child_set', 'owner_set', 'link_to_page']:
-                        objects = getattr(original_page, link).all()
-                        for page_object in objects:
-                            new_object = deepcopy(page_object)
-                            new_object.pk = None
-                            new_object.page = page
-                            new_object.save()
+            page = duplicate_page(original_page, page_changes)
 
             return redirect('/admin/pages/page/{}'.format(page.pk))
 
@@ -711,6 +868,39 @@ class PageAdmin(PageBaseAdmin):
         )
 
         return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
+
+    @transaction.atomic
+    def duplicate_for_version(self, request, object_id, *args, **kwargs):
+        def page_changes(new_page, original_page):
+            parent_page = original_page.version_for or original_page
+            new_page.version_for = parent_page
+
+            highest_version = parent_page.version_set.aggregate(Max('version'))['version__max'] or parent_page.version
+
+            new_page.version = highest_version + 1
+
+            new_page.left = None
+            new_page.right = None
+
+            return new_page
+
+        page = get_object_or_404(self.model, id=object_id)
+
+        if request.method == 'POST':
+            page = duplicate_page(page, page_changes)
+            return redirect(reverse('admin:pages_page_change', kwargs={'object_id': page.id}))
+
+        context = dict(
+            original_page=page,
+        )
+
+        return TemplateResponse(request, 'admin/pages/page/version_duplicate.html', context)
+
+    def get_view_on_site_parameters(self, obj=None):
+        params = super().get_view_on_site_parameters(obj)
+        if obj.version_for_id or obj.version_set.exists():
+            params['version'] = obj.version
+        return params
 
 
 class CountryGroupAdmin(admin.ModelAdmin):

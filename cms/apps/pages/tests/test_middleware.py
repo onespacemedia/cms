@@ -63,7 +63,6 @@ def _generate_pages(self):
             title="Homepage",
             slug='homepage',
             owner=self.homepage,
-            is_content_object=True,
             country_group=self.country_group,
             content_type=content_type,
             left=0,
@@ -209,7 +208,6 @@ class TestRequestPageManager(TestCase):
             content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
 
             alternate_page = Page.objects.create(
-                is_content_object=True,
                 owner=self.homepage,
                 country_group=group2,
                 left=self.homepage.left,

@@ -1,1 +1,124 @@
 {% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify admin_urls %}
+
+{% block extrahead %}
+  {{ block.super }}
+
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      var switchers = window.jQuery(document.querySelectorAll('.js-VersionSwitcher'))
+      switchers.change(function(event) {
+        window.location.href = event.target.value;
+      })
+    })
+  </script>
+
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+
+  <style>
+    .add-new-variant {
+      display: flex;
+      margin-bottom: 24px;
+    }
+
+    .add-new-button {
+      margin-left: 10px;
+    }
+
+    .warningblock {
+      margin-bottom: 10px;
+      border-radius: 4px;
+      padding: 10px;
+      background: #f5e79e;
+      color: #000;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs initialized">
+    <a href="{% url 'admin:index' %}">Home</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="{% url 'admin:app_list' app_label='pages' %}">Pages</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    <a href="{% url 'admin:pages_page_changelist' %}">Page</a>
+    <span class="icon-arrow-right breadcrumbs-separator"></span>
+    {% if display_language_options or display_version_options %}
+      <a href="{{ canonical_version.get_admin_url }}">{{ canonical_version }}</a>
+      <span class="icon-arrow-right breadcrumbs-separator"></span>
+    {% else %}
+      {{ canonical_version }}
+    {% endif %}
+    {# 'original' is the current object being edited. #}
+    {# It gets added to the context by ModelAdmin and the name is slightly misleading in this case #}
+    {# If you want the OG page use 'cannonical_page'. If you want the live version use 'live_page' #}
+    {% if display_language_options %}
+      {% if page_versions|length %}
+        <a href="{{ live_page.get_admin_url }}">{{ original.get_language }}</a>
+        <span class="icon-arrow-right breadcrumbs-separator"></span>
+      {% else %}
+        {{ original.get_language }}
+      {% endif %}
+    {% endif %}
+    {% if display_version_options %}
+      {{ original.get_version_name }}
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extra_tools %}
+  {% if display_language_options and language_pages %}
+    <h3>Page language</h3>
+
+    <div class="add-new-variant">
+      <select class="js-VersionSwitcher">
+        {% for page in language_pages %}
+          <option {% if original == page %}selected{% endif %} value="{{ page.get_admin_url }}">
+            {% if not page.country_group %}
+              Default
+            {% else %}
+              {{ page.country_group }}
+            {% endif %}
+          </option>
+        {% endfor %}
+      </select>
+      <a class="button add-new-button" href="{% url 'admin:pages_page_duplicate' object_id=canonical_version.id %}">Add translation</a>
+    </div>
+  {% endif %}
+
+  {% if display_version_options and page_versions %}
+    <h3>Editing page version:</h3>
+
+    <div class="add-new-variant js-VersionSwitcher">
+      <select>
+        {% for page in page_versions %}
+          <option {% if original == page %}selected{% endif %} value="{% url 'admin:pages_page_change' object_id=page.id %}">
+            {{ page.get_version_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endif %}
+
+  {% if original.version_for %}
+    <p class="warningblock">
+      You are editing a draft version of this page. Any changes made will not be reflected to users until this page is published.
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+  {% if original.version_for or original.version_set.exists %}
+    {% with save_as_new=False add=False show_return=False %}
+      {{ block.super }}
+    {% endwith %}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
