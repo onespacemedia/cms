@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.0.0 - 2021-05-19
+* Add versioning to pages
+
 ## 4.4.23 - 2021-05-19
 * Add duration field to Videos
 * Display schema on non-local videos
