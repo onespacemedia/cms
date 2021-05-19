@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.4.23 - 2021-05-19
+* Add duration field to Videos
+* Display schema on non-local videos
+
 ## 4.4.22 - 2021-05-12
 * Add missing mark_safe import
 
