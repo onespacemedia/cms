@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.0.2 - 2021-06-15
+* Add migrations that get added on Django 3.2 projects from `DEFAULT_AUTO_FIELD` changes
+
 ## 5.0.1 - 2021-05-19
 * Add missing migration merge
 
