@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.3 - 2021-07-05
+* Fix bug with HtmlField image insertion not working
+* Maintain GET paramemters when redirecting with the LocalisationMiddleware
+
 ## 5.0.2 - 2021-06-15
 * Add migrations that get added on Django 3.2 projects from `DEFAULT_AUTO_FIELD` changes
 
