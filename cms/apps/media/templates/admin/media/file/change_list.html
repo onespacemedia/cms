@@ -15,7 +15,7 @@
         }
 
         // Make the changelist links clickable and remove the original inline click listener.
-        $("div#changelist tr.row1 a, div#changelist tr.row2 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+        $(".results tbody a").attr("onclick", null).click(function(event) {
             // Get information from the `<img>` tag in the first column.
             var tr = $(this).closest('tr');
             var img = $("img", tr);

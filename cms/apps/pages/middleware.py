@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import redirect
 from django.urls import resolve, is_valid_path
-from django.utils.http import escape_leading_slashes
+from django.utils.http import escape_leading_slashes, urlencode
 from django.utils.functional import cached_property
 
 from .utils import overlay_page_obj
@@ -191,7 +191,6 @@ class PageMiddleware:
 
 
 class LocalisationMiddleware:
-
     def __init__(self, get_response):
         self.get_response = get_response
         self.exclude_urls = [
@@ -244,10 +243,11 @@ class LocalisationMiddleware:
             ).order_by('-default').first()
 
             if request.country:
-                return redirect('/{}{}'.format(
-                    request.country.code.lower(),
-                    request.path,
-                ))
+                path = f'/{request.country.code.lower()}{request.path}'
+
+                if request.GET:
+                    path += f'?{urlencode(request.GET.dict())}'
+                return redirect(path)
 
         response = self.get_response(request)
 
