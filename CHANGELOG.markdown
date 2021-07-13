@@ -1,5 +1,8 @@
 # Changelog
 
+## 5.0.4 - 2021-07-13
+* Fix bug with language codes elsewhere in a URL when LocalisationMiddleware is active
+
 ## 5.0.3 - 2021-07-05
 * Fix bug with HtmlField image insertion not working
 * Maintain GET paramemters when redirecting with the LocalisationMiddleware
