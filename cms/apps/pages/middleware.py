@@ -217,7 +217,7 @@ class LocalisationMiddleware:
 
                 request.path = request.path.replace('/{}'.format(
                     country_match.group(1)
-                ), '')
+                ), '', 1)
                 request.path_info = request.path
 
             except Country.DoesNotExist:
